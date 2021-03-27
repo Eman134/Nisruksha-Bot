@@ -1,0 +1,454 @@
+[
+    {
+        "name": "Neutral Chick",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125358655668284/1.png",
+        "level": 3,
+        "sta": 40,
+        "drops": [
+            {
+                "name": "\"pena\"",
+                "maxdrops": 5,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Chickange",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125386702979082/2.png",
+        "level": 3,
+        "sta": 70,
+        "drops": [
+            {
+                "name": "\"pena laranja\"",
+                "maxdrops": 5,
+                "chance": 100
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 40
+            }
+        ]
+    },
+    {
+        "name": "Zumbified Chick",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125398450569246/3.png",
+        "level": 4,
+        "sta": 90,
+        "drops": [
+            {
+                "name": "\"pena zumbi\"",
+                "maxdrops": 5,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Neutral Chicken",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125440171311144/4.png",
+        "level": 5,
+        "sta": 140,
+        "drops": [
+            {
+                "name": "\"pena\"",
+                "maxdrops": 7,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Chickenge",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125442872442940/5.png",
+        "level": 7,
+        "sta": 180,
+        "drops": [
+            {
+                "name": "\"pena laranja\"",
+                "maxdrops": 7,
+                "chance": 100
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Zumbified Chicken",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125570056716318/6.png",
+        "level": 8,
+        "sta": 150,
+        "drops": [
+            {
+                "name": "\"pena zumbi\"",
+                "maxdrops": 7,
+                "chance": 100
+            },
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 62
+            }
+        ]
+    },
+    {
+        "name": "Burkec",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125571742957598/7.png",
+        "level": 9,
+        "sta": 180,
+        "drops": [
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 2,
+                "chance": 40
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 40
+            },
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 55
+            }
+        ]
+    },
+    {
+        "name": "Burkecrange",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125578843914270/8.png",
+        "level": 10,
+        "sta": 157,
+        "drops": [
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 40
+            }
+        ]
+    },
+    {
+        "name": "Poison Burkec",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125582950531092/9.png",
+        "level": 11,
+        "sta": 200,
+        "drops": [
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 2,
+                "chance": 100
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 75
+            }
+        ]
+    },
+    {
+        "name": "Kirebat",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125589976121384/10.png",
+        "level": 12,
+        "sta": 210,
+        "drops": [
+            {
+                "name": "\"asas de kirebat\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 1,
+                "chance": 65
+            }
+        ]
+    },
+    {
+        "name": "Poison Kirebat",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125593628442644/11.png",
+        "level": 13,
+        "sta": 200,
+        "drops": [
+            {
+                "name": "\"asas de poison kirebat\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 1,
+                "chance": 70
+            }
+        ]
+    },
+    {
+        "name": "Gazbur",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125605130010645/13.png",
+        "level": 15,
+        "sta": 179,
+        "drops": [
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 5,
+                "chance": 70
+            },
+            {
+                "name": "\"pele de gazbur\"",
+                "maxdrops": 1,
+                "chance": 40
+            },
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Cold Gazbur",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125613341802546/14.png",
+        "level": 16,
+        "sta": 310,
+        "drops": [
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 55
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 3,
+                "chance": 30
+            },
+            {
+                "name": "\"pele de cold gazbur\"",
+                "maxdrops": 1,
+                "chance": 65
+            },
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 20
+            }
+        ]
+    },
+    {
+        "name": "Poison Gazbur",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125619528532048/15.png",
+        "level": 17,
+        "sta": 290,
+        "drops": [
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 40
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"pele de pouson gazbur\"",
+                "maxdrops": 1,
+                "chance": 30
+            },
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Frikki",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125624532074516/16.png",
+        "level": 18,
+        "sta": 300,
+        "drops": [
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 70
+            },
+            {
+                "name": "\"veneno de frikki\"",
+                "maxdrops": 1,
+                "chance": 50
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 1,
+                "chance": 80
+            }
+        ]
+    },
+    {
+        "name": "Frikkange",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125628802793523/17.png",
+        "level": 19,
+        "sta": 323,
+        "drops": [
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 40
+            },
+            {
+                "name": "\"veneno de frikkange\"",
+                "maxdrops": 1,
+                "chance": 70
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 1,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Poison Frikki",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125633466466324/18.png",
+        "level": 20,
+        "sta": 280,
+        "drops": [
+            {
+                "name": "\"carne de monstro\"",
+                "maxdrops": 1,
+                "chance": 70
+            },
+            {
+                "name": "\"veneno de poison frikki\"",
+                "maxdrops": 1,
+                "chance": 60
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 1,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Baraz",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125638948421652/19.png",
+        "level": 22,
+        "sta": 280,
+        "drops": [
+            {
+                "name": "\"perna de baraz\"",
+                "maxdrops": 1,
+                "chance": 60
+            },
+            {
+                "name": "\"antena de baraz\"",
+                "maxdrops": 1,
+                "chance": 40
+            }
+        ]
+    },
+    {
+        "name": "Poison Baraz",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125642605723678/20.png",
+        "level": 24,
+        "sta": 270,
+        "drops": [
+            {
+                "name": "\"perna de poison baraz\"",
+                "maxdrops": 1,
+                "chance": 55
+            },
+            {
+                "name": "\"antena de poison baraz\"",
+                "maxdrops": 1,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Tzarrin",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125661488087056/22.png",
+        "level": 28,
+        "sta": 263,
+        "drops": [
+            {
+                "name": "\"ovo de tzarrin\"",
+                "maxdrops": 3,
+                "chance": 70
+            }
+        ]
+    },
+    {
+        "name": "Cold Tzarrin",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125666152939520/23.png",
+        "level": 29,
+        "sta": 250,
+        "drops": [
+            {
+                "name": "\"ovo de cold tzarrin\"",
+                "maxdrops": 3,
+                "chance": 60
+            }
+        ]
+    },
+	{
+        "name": "Shiny Kirebat",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125600700825630/12.png",
+        "level": 32,
+        "sta": 220,
+        "drops": [
+            {
+                "name": "\"asas de shiny kirebat\"",
+                "maxdrops": 2,
+                "chance": 40
+            },
+            {
+                "name": "\"dente quebrado\"",
+                "maxdrops": 2,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Shiny Baraz",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125652038320198/21.png",
+        "level": 35,
+        "sta": 290,
+        "drops": [
+            {
+                "name": "\"perna de shiny baraz\"",
+                "maxdrops": 1,
+                "chance": 60
+            },
+            {
+                "name": "\"antena de shiny baraz\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Shiny Tzarrin",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125671047430154/24.png",
+        "level": 40,
+        "sta": 300,
+        "drops": [
+            {
+                "name": "\"ovo de shiny tzarrin\"",
+                "maxdrops": 2,
+                "chance": 60
+            }
+        ]
+    }
+]

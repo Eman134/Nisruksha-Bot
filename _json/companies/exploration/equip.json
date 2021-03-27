@@ -1,0 +1,202 @@
+[
+    {
+        "name": "Soco normal",
+        "icon": "<:soco:762798256391847947>",
+        "level": 3,
+        "dmg": 7,
+        "chance": "93",
+        "crit": "10"
+    },
+    {
+        "name": "Soco karatê",
+        "icon": "<:socokarate:762798256404037642>",
+        "level": 3,
+        "dmg": 10,
+        "chance": "80",
+        "crit": "1"
+    },
+    {
+        "name": "Soco muaythai",
+        "icon": "<:socomuaythai:762798256798695437>",
+        "level": 3,
+        "dmg": 14,
+        "chance": "75",
+        "crit": "2"
+    },
+    {
+        "name": "Chute karatê",
+        "icon": "<:chutekarate:762798256211230751>",
+        "level": 5,
+        "dmg": 12,
+        "chance": "80",
+        "crit": "1"
+    },
+    {
+        "name": "Chute muaythai",
+        "icon": "<:chutemuaythai:762798310917537793>",
+        "level": 6,
+        "dmg": 13,
+        "chance": "76",
+        "crit": "1"
+    },
+    {
+        "name": "Gancho",
+        "icon": "<:hook:762798312029290516>",
+        "level": 9,
+        "dmg": 16,
+        "chance": "70",
+        "crit": "5"
+    },
+    {
+        "name": "Espada de madeira",
+        "icon": "<:espadamadeira:762798311261995069>",
+        "level": 11,
+        "dmg": 17,
+        "chance": "67",
+        "crit": "1"
+    },
+    {
+        "name": "Arco",
+        "icon": "<:bow:762798279309524992>",
+        "level": 12,
+        "dmg": 25,
+        "chance": "58",
+        "crit": "3"
+    },
+    {
+        "name": "Espada de aço",
+        "icon": "<:espadaaco:762798311304200213>",
+        "level": 14,
+        "dmg": 18,
+        "chance": "65",
+        "crit": "2"
+    },
+    {
+        "name": "Espada imperial",
+        "icon": "<:swords:762798279829749800>",
+        "level": 16,
+        "dmg": 31,
+        "chance": "70",
+        "crit": "4"
+    },
+    {
+        "name": "Pequeno mace",
+        "icon": "<:mace:762798311731494912>",
+        "level": 17,
+        "dmg": 40,
+        "chance": "50",
+        "crit": "1"
+    },
+    {
+        "name": "Mace pesado",
+        "icon": "<:gmace:762798311856930826>",
+        "level": 19,
+        "dmg": 32,
+        "chance": "83",
+        "crit": "2"
+    },
+    {
+        "name": "Faca cega",
+        "icon": "<:knife:762798311823638568>",
+        "level": 23,
+        "dmg": 25,
+        "chance": "82",
+        "crit": "1"
+    },
+    {
+        "name": "Faca de aço",
+        "icon": "<:knife:762798311929020476>",
+        "level": 25,
+        "dmg": 35,
+        "chance": "78",
+        "crit": "1"
+    },
+    {
+        "name": "Leque de combate",
+        "icon": "<:leque:762798311588626453>",
+        "level": 27,
+        "dmg": 50,
+        "chance": "80",
+        "crit": "3"
+    },
+    {
+        "name": "Bastão de ferro",
+        "icon": "<:baton:762798311047430186>",
+        "level": 28,
+        "dmg": 38,
+        "chance": "57",
+        "crit": "1"
+    },
+    {
+        "name": "Espada longa",
+        "icon": "<:sail:762798311706722354>",
+        "level": 29,
+        "dmg": 65,
+        "chance": "78",
+        "crit": "3"
+    },
+    {
+        "name": "Faca de assalto",
+        "icon": "<:faca:762798311157006407>",
+        "level": 30,
+        "dmg": 72,
+        "chance": "70",
+        "crit": "1"
+    },
+    {
+        "name": "Nunchaku pesado",
+        "icon": "<:nunchakupesado:762798280115486729>",
+        "level": 31,
+        "dmg": 62,
+        "chance": "80",
+        "crit": "1"
+    },
+    {
+        "name": "Kunai",
+        "icon": "<:kunai:762798278751944705>",
+        "level": 33,
+        "dmg": 80,
+        "chance": "40",
+        "crit": "5"
+    },
+    {
+        "name": "Shuriken de 6 pontas",
+        "icon": "<:shuriken:762798278739230752>",
+        "level": 35,
+        "dmg": 100,
+        "chance": "45",
+        "crit": "10"
+    },
+    {
+        "name": "Shuriken de 4 pontas",
+        "icon": "<:shuriken:762798311605534732>",
+        "level": 36,
+        "dmg": 70,
+        "chance": "42",
+        "crit": "6"
+    },
+    {
+        "name": "Foice de ferro",
+        "icon": "<:scythe:762798312368898069>",
+        "level": 38,
+        "dmg": 75,
+        "chance": "90",
+        "crit": "3"
+    },
+    {
+        "name": "Foice com correntes",
+        "icon": "<:scythec:762798312604041216>",
+        "level": 41,
+        "dmg": 62,
+        "chance": "80",
+        "crit": "5"
+    },
+    {
+        "name": "Pergaminho de ataque",
+        "icon": "<:pergaminho:762798311484686406>",
+        "level": 50,
+        "dmg": 100,
+        "chance": "50",
+        "crit": "10"
+    }
+]

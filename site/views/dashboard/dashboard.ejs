@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <%- include('../includes/head.ejs', {menuTitle: 'Painel'}); %>
+  </head>
+
+  <body>
+    <%- include('../includes/navbar.ejs', {menuTitle: 'Painel'}); %>
+
+    <div class="columns is-mobile is-desktop is-centered is-multiline" style="padding: 100px">
+
+      <div class="column is-narrow">
+        <a href="/dashboard/me">
+          <p class="notification is-dark hovermoredark">
+            <i class="fa fa-user" style="color: rgb(83, 207, 114)"></i>&nbsp; Gerenciar Perfil<br>
+          </p>
+        </a>
+      </div>
+      <div class="column is-narrow">
+        <a href="/dashboard/guilds">
+          <p class="notification is-dark hovermoredark">
+            <i class="fa fa-list" style="color: rgb(177, 15, 177)"></i>&nbsp; Gerenciar Servidores<br>
+          </p>
+        </a>
+      </div>
+    </div>
+
+  </body>
+  
+  <%- include('../includes/footer.ejs'); %>
+
+</html>

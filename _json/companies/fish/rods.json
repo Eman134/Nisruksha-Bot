@@ -1,0 +1,56 @@
+[
+    {
+        "name": "Vara inicial",
+        "icon": "🎣",
+        "id": 0,
+        "level": 3,
+        "stars": 1,
+        "sta": 2,
+        "profundidade": 1.1
+    },
+    {
+        "name": "Vara comum",
+        "id": 1,
+        "icon": "🎣",
+        "level": 5,
+        "stars": 1,
+        "sta": 3,
+        "profundidade": 1.2
+    },
+    {
+        "name": "Vara comum",
+        "id": 2,
+        "icon": "🎣",
+        "level": 6,
+        "stars": 1,
+        "sta": 3,
+        "profundidade": 1.3
+    },
+    {
+        "name": "Vara comum",
+        "id": 3,
+        "icon": "🎣",
+        "level": 7,
+        "stars": 1,
+        "sta": 4,
+        "profundidade": 1.4
+    },
+    {
+        "name": "Varetiz",
+        "id": 4,
+        "icon": "<:vara1:782314194414469160>",
+        "level": 10,
+        "stars": 1,
+        "sta": 4,
+        "profundidade": 1.7
+    },
+    {
+        "name": "Vrekz",
+        "id": 4,
+        "icon": "<:vara2:782319811371728928>",
+        "level": 12,
+        "stars": 2,
+        "sta": 5,
+        "profundidade": 1.7
+    }
+]

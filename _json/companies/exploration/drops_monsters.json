@@ -1,0 +1,146 @@
+[
+    {
+        "name": "\"pena\"",
+        "displayname": "Pena",
+        "icon": "<:pena1:764485712539156490>",
+        "price": 100
+    },
+    {
+        "name": "\"pena laranja\"",
+        "displayname": "Pena laranja",
+        "icon": "<:pena2:764491850379427880>",
+        "price": 130
+    },
+    {
+        "name": "\"pena zumbi\"",
+        "displayname": "Pena zumbi",
+        "icon": "<:pena3:764492355125772338>",
+        "price": 150
+    },
+    {
+        "name": "\"dente quebrado\"",
+        "displayname": "Dente quebrado",
+        "icon": "<:brokentooth:764559740754984961>",
+        "price": 200
+    },
+    {
+        "name": "\"asas de kirebat\"",
+        "displayname": "Asas de Kirebat",
+        "icon": "<:batwing:764565255082606632>",
+        "price": 430
+    },
+    {
+        "name": "\"asas de poison kirebat\"",
+        "displayname": "Asas de Poison Kirebat",
+        "icon": "<:poisonbatwing:764565254943670273>",
+        "price": 610
+    },
+    {
+        "name": "\"olho\"",
+        "displayname": "Olho",
+        "icon": "<:eyeball:764870551075946526>",
+        "price": 950
+    },
+    {
+        "name": "\"pele de gazbur\"",
+        "displayname": "Pele de Gazbur",
+        "icon": "<:wolfskin1:764870476710674453>",
+        "price": 1500
+    },
+    {
+        "name": "\"pele de cold gazbur\"",
+        "displayname": "Pele de Cold Gazbur",
+        "icon": "<:wolfskin2:764870476865470514>",
+        "price": 1750
+    },
+    {
+        "name": "\"pele de poison gazbur\"",
+        "displayname": "Pele de Poison Gazbur",
+        "icon": "<:wolfskin3:764870476886704138>",
+        "price": 1900
+    },
+    {
+        "name": "\"carne de monstro\"",
+        "displayname": "Carne de monstro",
+        "icon": "<:beef:764882082500837406>",
+        "price": 3000
+    },
+    {
+        "name": "\"veneno de frikki\"",
+        "displayname": "Veneno de Frikki",
+        "icon": "<:poison:764882081767096341>",
+        "price": 4000
+    },
+    {
+        "name": "\"veneno de frikkange\"",
+        "displayname": "Veneno de Frikkange",
+        "icon": "<:poison3:764882081972879380>",
+        "price": 4000
+    },
+    {
+        "name": "\"veneno de poison frikki\"",
+        "displayname": "Veneno de Poison Frikki",
+        "icon": "<:poison2:764882082014822410>",
+        "price": 5000
+    },
+    {
+        "name": "\"antena de baraz\"",
+        "displayname": "Antena de Baraz",
+        "icon": "<:ant2:764898650768932894>",
+        "price": 7000
+    },
+    {
+        "name": "\"perna de baraz\"",
+        "displayname": "Perna de Baraz",
+        "icon": "<:perna2:764898650546896969>",
+        "price": 9500
+    },
+    {
+        "name": "\"antena de poison baraz\"",
+        "displayname": "Antena de Poison Baraz",
+        "icon": "<:ant1:764898650945093652>",
+        "price": 10800
+    },
+    {
+        "name": "\"perna de poison baraz\"",
+        "displayname": "Perna de Poison Baraz",
+        "icon": "<:perna1:764898650869989406>",
+        "price": 14500
+    },
+    {
+        "name": "\"ovo de tzarrin\"",
+        "displayname": "Ovo de Tzarrin",
+        "icon": "<:egg:764944320142114826>",
+        "price": 35000
+    },
+    {
+        "name": "\"ovo de cold tzarrin\"",
+        "displayname": "Ovo de Cold Tzarrin",
+        "icon": "<:coldegg:764944320033062984>",
+        "price": 60000
+    },
+	{
+        "name": "\"asas de shiny kirebat\"",
+        "displayname": "Asas de Shiny Kirebat",
+        "icon": "<:shinybatwing:764565255207649280>",
+        "price": 75000
+    },
+	{
+        "name": "\"antena de shiny baraz\"",
+        "displayname": "Antena de Shiny Baraz",
+        "icon": "<:ant3:764898650856882186>",
+        "price": 82000
+    },
+    {
+        "name": "\"perna de shiny baraz\"",
+        "displayname": "Perna de Shiny Baraz",
+        "icon": "<:perna3:764898650458423338>",
+        "price": 102000
+    },
+    {
+        "name": "\"ovo de shiny tzarrin\"",
+        "displayname": "Ovo de Shiny Tzarrin",
+        "icon": "<:shinyegg:764944320095977504>",
+        "price": 178000
+    }
+]

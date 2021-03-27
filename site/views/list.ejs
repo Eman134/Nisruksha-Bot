@@ -1,0 +1,141 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <%- include('includes/head', {menuTitle: 'Lista'}) %>
+  </head>
+
+  <body>
+    <%- include('includes/navbar') %>
+
+    <div class="wrapper">
+      <div class="columns">
+        <%- include('includes/sidebar', {activeMenu: 'list'}) %>
+
+        <main class="column main">
+          <%- include('includes/breadcrumb', {menuTitle: 'Lista', menuIcon: 'fa-pencil-square-o'}) %>
+
+          <div id="myDIV" class="header" >
+            <form action="/me/list/addTask" method="POST">
+              <h2>Sua lista</h2>
+              <input type="text" class="form-control formInput" name="textTodo" placeholder="Escreva aqui um item para adicionar á lista">
+              <button type="submit" onclick="reload()" class="addBtn"><span>Adicionar</span></button>
+            </form>
+          </div>
+  
+        </section>
+  
+        <br>
+        <br>
+  
+        <svg viewBox="0 0 0 0" style="position: absolute; z-index: -1; opacity: 0;">
+          <defs>
+            <linearGradient id="boxGradient" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="25" y2="25">
+              <stop offset="0%"   stop-color="#8743b5"/>
+              <stop offset="100%" stop-color="#9c43b5"/>
+            </linearGradient>
+        
+            <linearGradient id="lineGradient">
+              <stop offset="0%"    stop-color="#9c43b5"/>
+              <stop offset="100%"  stop-color="#8743b5"/>
+            </linearGradient>
+        
+            <path id="todo__line" stroke="url(#lineGradient)" d="M21 12.3h168v0.1z"></path>
+            <path id="todo__box" stroke="url(#boxGradient)" d="M21 12.7v5c0 1.3-1 2.3-2.3 2.3H8.3C7 20 6 19 6 17.7V7.3C6 6 7 5 8.3 5h10.4C20 5 21 6 21 7.3v5.4"></path>
+            <path id="todo__check" stroke="url(#boxGradient)" d="M10 13l2 2 5-5"></path>
+            <circle id="todo__circle" cx="13.5" cy="12.5" r="10"></circle>
+          </defs>
+        </svg>
+  
+        <div class="todo-list row col-md-6 col-sm-6">
+          
+  
+          <% if (data.todo != null || (data.todo != null && data.todo.length == 0)) {%>
+            <% for(var i = 0; i <data.todo.length; i++){%>
+              <label class="todo">
+                <% if(data.todo[i].status == 0){ %>
+                  <input class="todo__state" onclick="moveTask(event,'<%= data.todo[i].task %>')" type="checkbox" name="todo" value="<%= data.todo[i].task%>" />
+                <%} else {%>
+                  <input class="todo__state" checked onclick="moveTask(event,'<%= data.todo[i].task %>')" type="checkbox" name="done" value="<%= data.todo[i].task%>" />
+                <%} %>
+      
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 250 25" class="todo__icon">
+                    <use xlink:href="#todo__line" class="todo__line"></use>
+                    <use xlink:href="#todo__box" class="todo__box"></use>
+                    <use xlink:href="#todo__check" class="todo__check"></use>
+                    <use xlink:href="#todo__circle" class="todo__circle"></use>
+                  </svg>
+                  <div class="todo__text"><%= data.todo[i].task%></div>
+                  
+                </label>
+            <%} %>
+          <%} else {%>
+            <label class="todo">
+              <input class="todo__state" type="checkbox" name="todo" id="firstt" />
+              
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 250 25" class="todo__icon">
+                <use xlink:href="#todo__line" class="todo__line"></use>
+                <use xlink:href="#todo__box" class="todo__box"></use>
+                <use xlink:href="#todo__check" class="todo__check"></use>
+                <use xlink:href="#todo__circle" class="todo__circle"></use>
+              </svg>
+              
+              <div class="todo__text">Adicione sua primeira tarefa</div>
+  
+            </label>
+          <%} %>
+  
+        </div>
+        </main>
+        </div>
+        </div>
+
+  </body>
+
+  <script>
+
+    setTimeout(function(){
+      if (document.getElementById("firstt")) {
+      document.getElementById("firstt")
+      .setAttribute('checked',true);
+      
+    }
+    
+    }, 2000);
+    
+    function moveTask (event, task){
+      setTimeout(function(){ 
+        const{name} = event.target;
+        fetch("http://<%= API.ip %>/me/list/moveTaskDone", {method: "PUT",
+          headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+            name,
+            task
+            })
+          }).then(response => response.json()).then(status=> {
+            status == 1 ? event.target.setAttribute("name", "done") : event.target.setAttribute("name", "todo")
+            //window.location.reload()
+        }).catch(err => console.log(err))
+      }, 100)
+      
+    }
+    function reload(){
+      setTimeout(function(){ 
+       window.location.reload()
+      }, 250)
+      
+    }
+    
+    </script>
+    
+        <footer style="position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #36393f;
+        color: white;
+        text-align: center;">
+          <%- include('includes/footer.ejs'); %>
+        </footer>
+
+</html>

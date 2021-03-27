@@ -1,0 +1,344 @@
+{
+	"maquinas": [
+		{
+			"id": 100,
+			"buyable": false,
+			"info": "**ESTA MÁQUINA NÃO É COMPRÁVEL POIS JÁ SE INICIA COM ELA**",
+			"name": "Máquina Inicial",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 0,
+			"durability": 1500,
+			"profundidade": 20,
+			"tier": 0,
+			"price": 300,
+			"price2": 0
+		},
+		{
+			"id": 101,
+			"buyable": true,
+			"name": "Máquina de Cobre",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 0,
+			"durability": 2000,
+			"profundidade": 20,
+			"tier": 1,
+			"price": 1500,
+			"price2": 0
+		},
+		{
+			"id": 102,
+			"buyable": true,
+			"name": "Máquina de Ferro",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 3,
+			"durability": 5000,
+			"profundidade": 30,
+			"tier": 2,
+			"price": 15000,
+			"price2": 0
+		},
+		{
+			"id": 103,
+			"buyable": true,
+			"name": "Máquina de Bauxita",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 7,
+			"durability": 10000,
+			"profundidade": 35,
+			"tier": 3,
+			"price": 90000,
+			"price2": 0
+		},
+		{
+			"id": 104,
+			"buyable": true,
+			"name": "Máquina de Manganês",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 10,
+			"durability": 30000,
+			"profundidade": 37,
+			"tier": 4,
+			"price": 330000,
+			"price2": 0
+		},
+		{
+			"id": 105,
+			"buyable": true,
+			"name": "Máquina de Nióbio",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 14,
+			"durability": 40000,
+			"profundidade": 40,
+			"tier": 5,
+			"price": 600000,
+			"price2": 0
+		},
+		{
+			"id": 106,
+			"buyable": true,
+			"name": "Máquina de Ouro",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 16,
+			"durability": 70000,
+			"profundidade": 50,
+			"tier": 6,
+			"price": 2000000,
+			"price2": 0
+		},
+		{
+			"id": 107,
+			"buyable": true,
+			"name": "Máquina de Rubi",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 18,
+			"durability": 100000,
+			"profundidade": 50,
+			"tier": 7,
+			"price": 5000000,
+			"price2": 0
+		},
+		{
+			"id": 108,
+			"buyable": true,
+			"name": "Máquina de Ametista",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 22,
+			"durability": 500000,
+			"profundidade": 55,
+			"tier": 8,
+			"price": 10000000,
+			"price2": 0
+		},
+		{
+			"id": 109,
+			"buyable": true,
+			"name": "Máquina de Diamantes",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 30,
+			"durability": 1000000,
+			"profundidade": 60,
+			"tier": 9,
+			"price": 40000000,
+			"price2": 100
+		},
+		{
+			"id": 110,
+			"buyable": true,
+			"name": "Máquina de Jades",
+			"icon": "<:icon:736284021436317727>",
+			"type": 1,
+			"level": 40,
+			"durability": 4000000,
+			"profundidade": 80,
+			"tier": 10,
+			"price": 150000000,
+			"price2": 250
+		}
+	],
+	"reparos": [
+	{
+			"id": 200,
+			"buyable": true,
+			"info": "**É usado para reparar as máquinas**",
+			"name": "Retirar Ferrujens (25%)",
+			"icon": "🔧",
+			"type": 4,
+			"price": 25,
+			"price2": 0
+		},
+		{
+			"id": 201,
+			"buyable": true,
+			"info": "**É usado para reparar as máquinas**",
+			"name": "Trocar Parafusos (50%)",
+			"icon": "🔩",
+			"type": 4,
+			"price": 50,
+			"price2": 0
+		},
+		{
+			"id": 202,
+			"buyable": true,
+			"info": "**É usado para reparar as máquinas**",
+			"name": "Trocar Engrenagens (75%)",
+			"icon": "⚙",
+			"type": 4,
+			"price": 75,
+			"price2": 0
+		},
+		{
+			"id": 203,
+			"buyable": true,
+			"info": "**É usado para reparar as máquinas**",
+			"name": "Kit de Reparo (100%)",
+			"icon": "🧰",
+			"type": 4,
+			"price": 100,
+			"price2": 0
+		}
+	],
+	"fichas": [
+		{
+			"id": 300,
+			"buyable": true,
+			"info": "**Fichas são gastas em jogos**",
+			"name": "1x Ficha",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 1,
+			"price": 1000,
+			"price2": 0
+		},
+		{
+			"id": 301,
+			"buyable": true,
+			"name": "10x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 10,
+			"price": 10000,
+			"price2": 0
+		},
+		{
+			"id": 302,
+			"buyable": true,
+			"name": "20x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 20,
+			"price": 20000,
+			"price2": 0
+		},
+		{
+			"id": 303,
+			"buyable": true,
+			"name": "50x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 50,
+			"price": 50000,
+			"price2": 0
+		},
+		{
+			"id": 304,
+			"buyable": true,
+			"name": "100x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 100,
+			"price": 100000,
+			"price2": 0
+		},
+		{
+			"id": 305,
+			"buyable": true,
+			"name": "500x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 500,
+			"price": 500000,
+			"price2": 0
+		},
+		{
+			"id": 306,
+			"buyable": true,
+			"name": "1000x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 1000,
+			"price": 1000000,
+			"price2": 0
+		},
+		{
+			"id": 307,
+			"buyable": true,
+			"name": "2000x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 2000,
+			"price": 2000000,
+			"price2": 0
+		},
+		{
+			"id": 308,
+			"buyable": true,
+			"name": "3000x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 3000,
+			"price": 3000000,
+			"price2": 0
+		}
+	],
+	"placas": [
+		{
+			"id": 400,
+			"buyable": true,
+			"name": "Placa de Energia Máxima (+5)",
+			"icon": "`🔌`",
+			"type": 5,
+			"size": 5,
+			"typeeffect": 1,
+			"info": "Esta placa adiciona +5 na energia máxima da sua máquina",
+			"price": 15000,
+			"price2": 0
+		},
+		{
+			"id": 401,
+			"buyable": true,
+			"name": "Placa de Profundidade (+20m)",
+			"icon": "`⤵`",
+			"type": 5,
+			"size": 20,
+			"typeeffect": 2,
+			"info": "Esta placa adiciona +20 na profundidade da sua máquina",
+			"price": 15000,
+			"price2": 0
+		}
+	],
+	"terrenos": [
+		{
+			"id": 600,
+			"buyable": true,
+			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
+			"name": "Terreno 10m²",
+			"icon": "<:terreno:765944910179336202>",
+			"size": 10,
+			"type": 6,
+			"price": 100000,
+			"price2": 0
+		},
+		{
+			"id": 601,
+			"buyable": true,
+			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
+			"name": "Terreno 50m²",
+			"icon": "<:terreno:765944910179336202>",
+			"size": 50,
+			"type": 6,
+			"price": 700000,
+			"price2": 0
+		},
+		{
+			"id": 602,
+			"buyable": true,
+			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
+			"name": "Terreno 100m²",
+			"icon": "<:terreno:765944910179336202>",
+			"size": 100,
+			"type": 6,
+			"price": 1500000,
+			"price2": 0
+		}
+	]
+}

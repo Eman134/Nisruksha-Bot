@@ -1,0 +1,25 @@
+
+<% let isOwnerClass = function (g) { return g._permissions.includes('ADMINISTRATOR') ? 'guildadm' : 'guildnoadm hover08' } %>
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <%- include('../includes/head.ejs', {menuTitle: 'Painel'}); %>
+  </head>
+
+  <body>
+    <%- include('../includes/navbar.ejs', {menuTitle: 'Painel'}); %>
+
+    <div class="columns is-mobile is-desktop is-centered is-multiline" style="padding: 100px">
+
+      <div class="column is-narrow">
+        <img src="<%= bg %>">
+      </div>
+
+    </div>
+
+  </body>
+  
+  <%- include('../includes/footer.ejs'); %>
+
+</html>

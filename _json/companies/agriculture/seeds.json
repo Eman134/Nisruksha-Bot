@@ -1,0 +1,227 @@
+[
+    {
+        "name": "\"soja\"",
+        "displayname": "Soja",
+        "icon": "<:semente:766062555277557791>",
+        "type": "seed",
+        "loc": ["*"],
+        "chance": 100,
+        "price": 30
+    },
+    {
+        "name": "\"milho\"",
+        "displayname": "Milho",
+        "icon": "🌽",
+        "type": "seed",
+        "loc": ["*"],
+        "chance": 60,
+        "price": 40
+    },
+    {
+        "name": "\"trifolium\"",
+        "displayname": "Trifolium",
+        "icon": "🍀",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 10,
+        "price": 75
+    },
+    {
+        "name": "\"oregano\"",
+        "displayname": "Orégano",
+        "icon": "🌿",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 40,
+        "price": 90
+    },
+    {
+        "name": "\"mutatio oregano\"",
+        "displayname": "Mutatio Orégano",
+        "icon": "🍂",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 23,
+        "price": 102
+    },
+    {
+        "name": "\"rosaris\"",
+        "displayname": "Rosaris",
+        "icon": "<:seed1:769217121312833586>",
+        "type": "seed",
+        "loc": ["1"],
+        "chance": 42,
+        "price": 70
+    },
+    {
+        "name": "\"golderis\"",
+        "displayname": "Golderis",
+        "icon": "<:seed2:769217121288060958>",
+        "type": "seed",
+        "loc": ["1"],
+        "chance": 36,
+        "price": 76
+    },
+    {
+        "name": "\"purplis\"",
+        "displayname": "Purplis",
+        "icon": "<:seed3:769217121087389736>",
+        "type": "seed",
+        "loc": ["1"],
+        "chance": 17,
+        "price": 132
+    },
+    {
+        "name": "\"staris\"",
+        "displayname": "Staris",
+        "icon": "<:seed4:769217120982532097>",
+        "type": "seed",
+        "loc": ["1"],
+        "chance": 35,
+        "price": 80
+    },
+    {
+        "name": "\"duplex daisies\"",
+        "displayname": "Duplex Daisies",
+        "icon": "<:seed5:769217120973750282>",
+        "type": "seed",
+        "loc": ["1"],
+        "chance": 40,
+        "price": 89
+    },
+    {
+        "name": "\"herba\"",
+        "displayname": "Herba",
+        "icon": "<:seed6:769217120943865906>",
+        "type": "seed",
+        "loc": ["2"],
+        "chance": 30,
+        "price": 45
+    },
+    {
+        "name": "\"flore caeruleo\"",
+        "displayname": "Flore Caeruleo",
+        "icon": "<:seed7:769217120873349170>",
+        "type": "seed",
+        "loc": ["2"],
+        "chance": 60,
+        "price": 56
+    },
+    {
+        "name": "\"rosarium\"",
+        "displayname": "Rosarium",
+        "icon": "<:seed8:769217120860241980>",
+        "type": "seed",
+        "loc": ["2"],
+        "chance": 75,
+        "price": 44
+    },
+    {
+        "name": "\"alba duplis\"",
+        "displayname": "Alba Duplis",
+        "icon": "<:seed9:769217120717635614>",
+        "type": "seed",
+        "loc": ["2"],
+        "chance": 24,
+        "price": 50
+    },
+    {
+        "name": "\"magenta\"",
+        "displayname": "Magenta",
+        "icon": "<:seed10:769217120600588318>",
+        "type": "seed",
+        "loc": ["2"],
+        "chance": 36,
+        "price": 89
+    },
+    {
+        "name": "\"flos ruber\"",
+        "displayname": "Flos Ruber",
+        "icon": "<:seed11:769217120592461824>",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 20,
+        "price": 99
+    },
+    {
+        "name": "\"nocte\"",
+        "displayname": "Nocte",
+        "icon": "<:seed12:769217120591413319>",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 15,
+        "price": 74
+    },
+    {
+        "name": "\"rosa vere\"",
+        "displayname": "Rosa Vere",
+        "icon": "<:seed13:769217120465584129>",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 40,
+        "price": 95
+    },
+    {
+        "name": "\"duo media nocte\"",
+        "displayname": "Duo Media Nocte",
+        "icon": "<:seed14:769217120440811660>",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 34,
+        "price": 88
+    },
+    {
+        "name": "\"rosa rubrum\"",
+        "displayname": "Rosa Rubrum",
+        "icon": "<:seed15:769217120436355102>",
+        "type": "seed",
+        "loc": ["3"],
+        "chance": 30,
+        "price": 87
+    },
+    {
+        "name": "\"poris\"",
+        "displayname": "Poris",
+        "icon": "<:seed16:769217120403193866>",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 20,
+        "price": 80
+    },
+    {
+        "name": "\"totidem foliorum\"",
+        "displayname": "Totidem Foliorum",
+        "icon": "<:seed17:769217120398737448>",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 50,
+        "price": 98
+    },
+    {
+        "name": "\"varetus\"",
+        "displayname": "Varetus",
+        "icon": "<:seed18:769217120289423420>",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 45,
+        "price": 67
+    },
+    {
+        "name": "\"tria lilia\"",
+        "displayname": "Tria Lilia",
+        "icon": "<:seed19:769217120151928854>",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 40,
+        "price": 88
+    },
+    {
+        "name": "\"triticum\"",
+        "displayname": "Triticum",
+        "icon": "<:seed20:769217936904421416>",
+        "type": "seed",
+        "loc": ["4"],
+        "chance": 40,
+        "price": 50
+    }
+]

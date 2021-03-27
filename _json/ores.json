@@ -1,0 +1,68 @@
+[
+    {
+        "name": "pedra",
+        "icon": "<:pedra:737381947197620289>",
+        "price": 0.25,
+        "por": 96
+    },
+    {
+        "name": "cobre",
+        "icon": "<:cobre:737382572211961886>",
+        "price": 3.58,
+        "por": 70
+    },
+    {
+        "name": "ferro",
+        "icon": "<:ferro:737383041277755392>",
+        "price": 7.28,
+        "por": 59
+    },
+    {
+        "name": "bauxita",
+        "icon": "<:bauxita:737383336464482336>",
+        "price": 15,
+        "por": 56
+    },
+    {
+        "name": "manganes",
+        "icon": "<:manganes:737383544447303731>",
+        "price": 25,
+        "por": 53
+    },
+    {
+        "name": "niobio",
+        "icon": "<:niobio:739967867805761556>",
+        "price": 36,
+        "por": 40
+    },
+    {
+        "name": "ouro",
+        "icon": "<:ouro:739969415382171831>",
+        "price": 67,
+        "por": 20
+    },
+    {
+        "name": "rubi",
+        "icon": "<:rubi:739972116149174392>",
+        "price": 317,
+        "por": 7
+    },
+    {
+        "name": "ametista",
+        "icon": "<:ametista:739972116455096341>",
+        "price": 507,
+        "por": 5
+    },
+    {
+        "name": "diamante",
+        "icon": "<:diamante:739972116811612201>",
+        "price": 1800,
+        "por": 2
+    },
+    {
+        "name": "jade",
+        "icon": "<:jade:739972115943653376>",
+        "price": 4000,
+        "por": 1
+    }
+]

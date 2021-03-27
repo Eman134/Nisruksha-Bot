@@ -1,0 +1,92 @@
+{
+    "2.0.0": {
+        "date": "25/10/2020 - 15:00",
+        "obs": "**Então galera, depois de muito tempo, finalmente saiu!**\nDigamos que é um NOVO bot, trabalhei nessa versão durante MÊSES e foi tudo REFEITO DO ZERO, ou seja, tudo do bot que vocês conheciam foram modificados. A database foi a principal alteração, ela foi resetada e eu coloquei uma nova (uma de verdade). Sei que muitos não vão gostar de eu ter resetado, porém, não há como converter os dados. Podem fazer críticas ou sugestões á vontade!",
+        "add": ["Tantas coisas que não consigo listar kskaka"],
+        "rem": ["Database antiga"],
+        "chn": ["Tudo refeito :)"],
+        "fix": [],
+        "alc": ["Utilize o comando de ajuda para visualizar"]
+    },
+    "2.0.1": {
+        "date": "26/10/2020 - 18:00",
+        "add": ["Comando para ver um ranking local", "Em alguns comandos adicionado pesquisa por id [Ex: n.money 422002630106152970]", "Adicionado top cristais"],
+        "rem": [],
+        "chn": ["Preço da máquina de cobre modificado [1000 -> 1500]"],
+        "fix": [],
+        "alc": []
+    },
+    "2.0.2": {
+        "date": "27/10/2020 - 14:00",
+        "add": [],
+        "rem": [],
+        "chn": ["Quantidade da placa de energia modificada [2 -> 5]", "Quantidade da placa de profundidade modificado [5 -> 15]", "Range de xp de mineração modificado [15,25 -> 15,35]"],
+        "fix": ["Histórico de compra de máquina não registrando", "Dinheiro não removido na compra de máquina"],
+        "alc": []
+    },
+    "2.0.3": {
+        "date": "28/10/2020 - 12:30",
+        "add": ["Comando de transferência de dinheiro"],
+        "rem": [],
+        "chn": ["Quantidade de caixas recebidas ao upar nível modifcada [1 -> 3]", "Nível requerido da máquina de ferro modificado [5 -> 3]", "Preço da máquina de bauxita modificado [100k -> 90k]", "Valor base do daily modificado [300 -> 350]"],
+        "fix": [],
+        "alc": []
+    },
+    "2.0.4": {
+        "date": "30/10/2020 - 10:30",
+        "add": [],
+        "rem": [],
+        "chn": [],
+        "fix": ["Corrigido cooldown do comando de transferência", "Mensagem do comando de sugestão invertida", "Comandos plantar e colher corrigidos"],
+        "alc": []
+    },
+    "2.0.5": {
+        "date": "01/11/2020 - 15:00",
+        "add": ["Termos de consentimento de recebimento de DM'S quando cria uma empresa ou quando envia currículo", "Para comprar uma máquina, você precisa ter a anterior á ela", "Cooldown para trocar a taxa da empresa (1 dia de cooldown)", "Comando para vender terrenos (Setor de agricultura)"],
+        "rem": [],
+        "chn": ["Balanceamento entre empresas", "Estamina gasta na coleta de flores modificada [50 -> 30]", "Xp ganho ao coletar flores modificado [1,3 -> 3,7]", "Estamina base para se mover entre vilas modificada [200 -> 350]"],
+        "fix": ["Corrigido problema quando vendia os minérios os itens da mochila eram vendidos juntos", "Erro no sistema de caça que dava para criar múltiplas instâncias"],
+        "alc": []
+    },
+    "2.0.6": {
+        "date": "05/11/2020 - 15:00",
+        "add": [],
+        "rem": [],
+        "chn": ["Nível requerido da máquina de niobio [15 ->  14]", "Estamina gasta ao se mover [350 -> 200]"],
+        "fix": ["Erro no sistema de caça que só dava para caçar 1 vez"],
+        "alc": []
+    },
+    "2.0.7": {
+        "date": "09/11/2020 - 16:40",
+        "add": [],
+        "rem": [],
+        "chn": ["Nível requerido da máquina de ouro [20 ->  16]", "Preço da máquina de ouro [1kk -> 2kk]"],
+        "fix": ["Xp ficava inexistente quando colhia alguma plantação"],
+        "alc": []
+    },
+    "2.0.8": {
+        "date": "28/11/2020 - 17:00",
+        "add": ["Estaminas de MVP recuperam mais rápido", "Agora no n.vitem da para ver a quantia de dinheiro da taxa da empresa", "Agora no daily MVP'S ganham uma caixa a mais como recompensa", "Programa de **BUG BOUNTY** <#780136326510673930>", "Adicionado setor de pesca 🐟", "Comandos do setor novo", "Comando n.funcionários", "Sistema de score para empresas", "Adicionado prevenção contra contas recentes no discord", "Comando de reputação n.rep", "Top reputações n.top e n.topsv", "Comando n.votar"],
+        "rem": ["Sistema de sorteios (do proprio bot)"],
+        "chn": ["Caixa ao upar de nível modificada para uma nova caixa", "Número máximo de cada item na mochila [20 -> 25]", "Tempo da plantação crescer foi reformulado", "Xp ganho na exploração nerfado pela metade", "Bloco de localização no perfil modificado para reputações", "Nome da caixa de level e recompensas base modificadas", "Nível requerido da máquina de ametista, diamante e jade"],
+        "fix": ["Chance do nível do mob vir negativo na exploração e assim o xp ficava negativo", "Quando apagava mensagem de mineração gerava erros"],
+        "alc": ["venderitem > venderi"]
+    },
+	"2.0.9": {
+        "date": "05/12/2020 - 17:00",
+        "add": ["Tier da máquina em n.maquina", "Comando n.tutorial", "Comando n.botinfo", "O streak máximo do daily foi aumentado para 50", "Agora os comandos são respondidos via \"responder\"", "Recompensa para quem votar no 1º SITE (n.votar)", "Site de tutorial/wiki do bot (n.site)", "Agora o bot te avisa quando você não votar no bot c:", "Pré-requisito de máquina de ferro para dar rep á alguém"],
+        "rem": [],
+        "chn": ["Preço da máquina de ferro [20000 -> 15000]", "Níveis dos monstros shiny modificados", "Chances de capturar peixes buffadas", "Agora máquina de diamante e jade custam cristais a mais", "Comando n.funcionarios adaptado", "Preço da máquina de diamante e jade", "Nível da máquina de ametista reduzido", "Geração de peixes do setor de pesca otimizado"],
+        "fix": ["Quando morria na exploração o nível não era resetado"],
+        "alc": ["convite > suporte"]
+    },
+	"2.1.0": {
+        "date": "09/02/2020 - 11:00",
+		"title": "Games & Treasures",
+        "add": ["Comando n.girar", "Sistema de aparecimento e escavação de tesouros no mapa"],
+        "rem": [],
+        "chn": ["Profundidade padrão das máquinas dobrados (Vai mexer numa % da geração, não vai dobrar os minérios)", "Placa de profundidade simples adicionado +5 na profundidade", "Limite do daily dobrado [50 -> 100]", "Aumentada a chance de aparecer peixes no comando de pesca", "Preço dos peixes buffados", "Barra de progresso do daily removida", "Preço em cristais da máquina de diamante reduzido"],
+        "fix": ["Bug grave de ao vender um item da mochila sem estar em uma empresa crashar o bot", "O vitem vendia além dos itens, também os minérios", "Caracteres especiais do perfil ocultados"],
+        "alc": []
+    }
+}

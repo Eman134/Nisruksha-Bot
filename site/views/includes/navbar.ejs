@@ -1,0 +1,144 @@
+
+<% let getAvatar = function (usr) { return usr.avatar == null ? 'https://i.imgur.com/OQCBRFU.jpg' : 'https://cdn.discordapp.com/avatars/' + usr.id +'/' + usr.avatar+'.png' } %>
+
+<nav class="navbar is-dark" role="navigation" aria-label="main navigation" style="position: relative;
+top: 0;
+left: 0;
+width: 100%;">
+
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+        <img src="<%= API.client.user.avatarURL() %>" width="30" height="30" style="border-radius: 50%">
+        &nbsp;&nbsp;<%= API.client.user.username %>
+      </a>
+  
+      <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </a>
+
+    </div>
+  
+    <div id="navbarBasicExample" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/">
+          Início
+        </a>
+  
+        <a class="navbar-item" href="/terms">
+          Termos & Licença
+        </a>
+        <!--
+        <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+            Mais
+          </a>
+  
+          <div class="navbar-dropdown">
+            <a class="navbar-item" href="/news">
+              Novidades
+            </a>
+            <a class="navbar-item">
+              Sobre
+            </a>
+            <a class="navbar-item">
+              Contate-nos
+            </a>
+            <hr class="navbar-divider">
+            <a class="navbar-item">
+              Reporte algum problema
+            </a>
+          </div>
+        </div>
+        -->
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item loginDiv">
+  
+          <% if (typeof(user) == "undefined") {%>
+            <div class="buttons">
+  
+              <a class="button is-success" div id="loginb" id="login" href="/oauth2">
+                <i class="fa fa-sign-in"></i>&nbsp&nbspEntrar
+              </a>
+                
+            </div>
+          <%} else {%>
+            
+              <div class="navbar-item has-dropdown is-hoverable">
+  
+                <a class="navbar-link">
+                  <figure class="image is-32x32" style="margin-right: 0.5em">
+                    <img src="<%= getAvatar(user) %>" width="32" height="32" />
+                  </figure>
+                  <%= user.username %>
+                </a>
+
+                <div class="navbar-dropdown is-right">
+                  
+                  <a class="navbar-item" href="/dashboard">
+                    <span class="is-small" style="color: rgb(68, 134, 255)">
+                      <i class="fa fa-tachometer"></i>
+                    </span>
+                    &nbsp; Painel
+                  </a>
+
+                  <hr class="navbar-divider" style="background-color:#36393f">
+                  
+                  <a class="navbar-item" href="/logout">
+                    <span class="is-small" style="color: rgb(255, 96, 96)">
+                      <i class="fa fa-power-off"></i>
+                    </span>
+                    &nbsp; Sair
+                  </a>
+      
+                </div>
+                
+              </div>
+  
+          <%} %>
+        </div>
+      </div>
+
+    </div>
+  
+</nav>
+
+<section class="hero is-black">
+  <div class="hero-body">
+    <p class="title">
+      Nisruksha | <%= menuTitle %>
+    </p>
+    <p class="subtitle">
+      Um bot simples de utilidades, diversão, moderação e uma mega economia.
+    </p>
+    <a href="https://discord.com/oauth2/authorize?client_id=763815343507505183&scope=bot&permissions=388160"><button class="button is-rounded is-dark"><i class="fa fa-plus" style="color: rgb(35, 128, 35)"></i>&nbsp;Adicionar</button>&nbsp;</a>
+    <a href="/dashboard"><button class="button is-rounded is-dark"><i class="fa fa-tachometer" style="color: rgb(68, 134, 255)"></i>&nbsp;Painel</button>&nbsp;</a>
+    <a href="/news"><button class="button is-rounded is-dark"><i class="fa fa-newspaper-o" style="color: rgb(216, 67, 166)"></i>&nbsp;Novidades</button></a>
+  </div>
+</section>
+
+<script>
+
+  $("#loginb").click( function()
+     {
+        var element = document.getElementById("loginb");
+        element.classList.add("is-loading");
+     }
+  );
+
+  $(document).ready(function() {
+
+    // Check for click events on the navbar burger icon
+    $(".navbar-burger").click(function() {
+
+        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+        $(".navbar-burger").toggleClass("is-active");
+        $(".navbar-menu").toggleClass("is-active");
+
+    });
+  });
+
+</script>
