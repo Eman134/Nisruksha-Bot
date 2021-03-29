@@ -422,10 +422,10 @@ shopExtension.execute = async function(msg, p) {
           .setTitle('🛒 | Loja')
           .addField(p.icon + ' Produto', `\`\`\`js\n${p}\`\`\``)
           .addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
-          .addField('<:channel:788949139390988288> Canal', `\`${chan.name} (${msg.channel.id})\``)
+          .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
           .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
           .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-         API.client.channels.cache.get('826177953796587530').send(embedcmd);
+          API.client.channels.cache.get('826177953796587530').send(embedcmd);
 
           const repetir = [2]
 
