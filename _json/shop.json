@@ -357,15 +357,15 @@
 		{
 			"id": 701,
 			"buyable": true,
-			"name": "Placa de Energia Máxima (+4)",
+			"name": "Placa de Energia Máxima (+6)",
 			"icon": "`🔌`",
 			"type": 5,
-			"size": 4,
+			"size": 6,
 			"typeeffect": 1,
-			"info": "Esta placa adiciona +4 na energia máxima da sua máquina",
+			"info": "Esta placa adiciona +6 na energia máxima da sua máquina",
 			"price": 0,
 			"price2": 0,
-			"price3": 4
+			"price3": 10
 		},
 		{
 			"id": 702,
