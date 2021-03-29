@@ -398,7 +398,6 @@ shopExtension.execute = async function(msg, p) {
               break;
           }
 
-          console.log('y')
           buyed = true;
           
           embed.fields = [];
