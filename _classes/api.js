@@ -371,7 +371,7 @@ API.checkAll = async function(msg, req) {
             if (check44) return true;
             API.setCooldown(msg.author, "votealertdelay", 520);
             const voteembed = new API.Discord.MessageEmbed()
-            voteembed.setDescription('Olá, vi que você não votou ainda no 2º SITE DE VOTO <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
+            voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
             msg.quote(msg.author, voteembed)
 			return false;
         });
