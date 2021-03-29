@@ -238,6 +238,7 @@ shopExtension.execute = async function(msg, p) {
             msgconfirm.reactions.removeAll();
             return;
           }
+
           let cashback = 0;
           switch(p.type) {
             case 1:
@@ -396,6 +397,8 @@ shopExtension.execute = async function(msg, p) {
             default:
               break;
           }
+
+          console.log('y')
           buyed = true;
           
           embed.fields = [];
@@ -495,6 +498,39 @@ async function updateInviteJson(member, price) {
   invitejson1.points -= price
 
   API.setInfo(member, 'players_utils', 'invite', invitejson1)
+
+}
+
+async function checkExists(code) {
+
+  const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
+  let array = Array
+  try {
+      let res = await API.db.pool.query(text);
+      array = res.rows
+  } catch (err) {
+      API.client.emit('error', err)
+  }
+
+  let exists = false
+
+  let owner
+  
+  if (array.length <= 0) return exists
+  
+  for (i = 0; i < array.length; i++) {
+
+      if (array[i].invite.code.toLowerCase() == code.toLowerCase()) {
+          exists = true
+          owner = array[i].user_id
+          break;
+      }
+  }
+
+  return {
+      exists,
+      owner
+  }
 
 }
 

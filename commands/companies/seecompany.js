@@ -1,4 +1,16 @@
 const ImageCharts = require('image-charts');
+
+const API = require("../../_classes/api");
+
+let bg
+
+loadbg()
+
+async function loadbg() {
+    bg = await API.img.loadImage(`resources/backgrounds/company/background.png`)
+}
+
+
 module.exports = {
 	name: 'verempresa',
 	aliases: ['seecompany', 'veremp', 'seecomp'],
@@ -101,7 +113,7 @@ module.exports = {
 			if (rends.length == 1) rend = '0,' + rend
 		}
 
-		let background = await API.img.loadImage(`resources/backgrounds/company/background.png`)
+		let background = bg
         if (res2.bglink != null) {
             try{
                 background2 = await API.img.loadImage(res2.bglink)

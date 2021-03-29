@@ -10,8 +10,8 @@ module.exports = class MenuClient extends Client {
         super({
             cacheGuilds: true,
             cacheChannels: false,
-            cacheOverwrites: false,
-            cacheRoles: false,
+            cacheOverwrites: true,
+            cacheRoles: true,
             cacheEmojis: false,
             cachePresences: false,
         
