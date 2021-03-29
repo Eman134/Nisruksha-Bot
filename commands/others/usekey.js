@@ -130,7 +130,7 @@ module.exports = {
             embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
             embedmsg.edit(embed);
 
-			let cchannel = await API.client.channels.fetch(msg.channel.id)
+			let cchannel = await API.client.channels.cache.get(msg.channel.id)
 
             const embed2 = new API.Discord.MessageEmbed()
             .setTitle(`✅ Chave usada`)
@@ -142,7 +142,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
 
 `)
             .setColor(`#5bff45`)
-            let ch = await API.client.channels.fetch('758711135284232263')
+            let ch = await API.client.channels.cache.get('758711135284232263')
             ch.send(embed2);
 
             API.setCooldown(msg.author, "usekey", 0);

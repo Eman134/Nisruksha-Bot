@@ -420,7 +420,7 @@ shopExtension.execute = async function(msg, p) {
           .setColor('#b8312c')
           .setTimestamp()
           .setTitle('🛒 | Loja')
-          .addField(p.icon + ' Produto', `\`\`\`js\n${p}\`\`\``)
+          .addField(p.icon + ' Produto', `\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\`\`\``)
           .addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
           .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
           .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))

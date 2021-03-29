@@ -165,7 +165,7 @@ Produto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret
 ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
 \`\`\``)
             .setColor(`#fc8c03`)
-            let ch = await API.client.channels.fetch('758711135284232263')
+            let ch = await API.client.channels.cache.get('758711135284232263')
             let createdmsg = await ch.send(embed2);
 
             embed.setColor('#5bff45');

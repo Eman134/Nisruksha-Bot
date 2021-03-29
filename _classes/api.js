@@ -99,7 +99,7 @@ API.checkAll = async function(msg, req) {
     let globalstatus = await API.getGlobalInfo('status');
     let globalman = await API.getGlobalInfo('man');
 
-	const chan = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true, cache: false })
+	const chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true, cache: false })
 
     const args = msg.content.slice(API.prefix.length).split(/ +/);
 
