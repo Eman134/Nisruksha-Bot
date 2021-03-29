@@ -44,7 +44,7 @@ module.exports = {
 
         const map = array2.map(crate => `**${crate.split(';')[1]}x** ${API.crateExtension.obj[crate.split(';')[0]].icon} ${API.crateExtension.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
         const pieces = await API.maqExtension.getPieces(member);
-        const piecesmap = pieces.map(p => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${p.id-399}**`).join('\n');
+        const piecesmap = pieces.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
         const embed = new Discord.MessageEmbed()
         .setColor('#a85a32')
         .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))

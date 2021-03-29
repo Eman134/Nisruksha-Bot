@@ -16,9 +16,9 @@ module.exports = {
                 .setColor('#36393f')
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setDescription(`Olá ${msg.author}` + ', meu prefixo é `' + API.prefix + '`, caso precise de ajuda use `' + API.prefix + 'ajuda`')
-                .addField('**Mais informações**', `📨 [Entre em meu servidor](https://discord.gg/AvpRB22)
-🗳 [Vote para receber recompensas](https://zuraaa.com/bots/763815343507505183/votar)
-📩 [Convide-me para seu servidor](https://discord.com/oauth2/authorize?client_id=763815343507505183&scope=bot&permissions=388160)`)
+                .addField('**Mais informações**', `📨 [Entre em meu servidor]https://dsc.gg/svnisru)
+🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)
+📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
                 msg.quote(embed);
             }
         }

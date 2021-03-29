@@ -3,7 +3,7 @@ module.exports = {
     name: "message",
     execute: async(API, msg) => {
 
-        const votosZuraaa = require('../_classes/packages/votosZuraaa.js');
+        /*const votosZuraaa = require('../_classes/packages/votosZuraaa.js');
         votosZuraaa.verificaVotos(msg, (user) => {
             
             let size = 1
@@ -16,7 +16,7 @@ module.exports = {
             API.client.channels.cache.get('777972678069714956').send(embed)
             API.crateExtension.give(user, 1, 1)
 
-        });
+        });*/
         
         const prefix = API.prefix;
         const client = API.client;

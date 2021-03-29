@@ -114,7 +114,7 @@ API.checkAll = async function(msg, req) {
         msg.guild.leave()
         const embed = new API.Discord.MessageEmbed()
         .setColor('#b8312c')
-        .setDescription(`<:banido:756525777981276331> Este servidor está **BANIDO** do Nisruksha!\nMotivo: ${serverobj.banreason}\n[MEU SERVIDOR](https://discord.gg/AvpRB22)`)
+        .setDescription(`<:banido:756525777981276331> Este servidor está **BANIDO** do Nisruksha!\nMotivo: ${serverobj.banreason}\n[MEU SERVIDOR]https://dsc.gg/svnisru)`)
         .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
         .setThumbnail(`https://cdn.discordapp.com/emojis/756525777981276331.png?v=1`)
         await msg.quote(embed)
@@ -137,7 +137,7 @@ API.checkAll = async function(msg, req) {
     if (serverobj.status == 1 && perm < 4) {
         const embed = new API.Discord.MessageEmbed()
         .setColor('#b8312c')
-        .setDescription(`<:error:736274027756388353> Este servidor não está permitido o uso de comandos!\nContate o criador do bot para analisar o motivo.\n[MEU SERVIDOR](https://discord.gg/AvpRB22)`)
+        .setDescription(`<:error:736274027756388353> Este servidor não está permitido o uso de comandos!\nContate o criador do bot para analisar o motivo.\n[MEU SERVIDOR]https://dsc.gg/svnisru)`)
         .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
         .setThumbnail(`https://cdn.discordapp.com/emojis/736274027756388353.png?v=1`)
         await msg.quote(embed)
@@ -165,7 +165,7 @@ API.checkAll = async function(msg, req) {
             API.setCooldown(msg.author, "antispam", 3);
             const embed = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
-            .setDescription(`<:banido:756525777981276331> **O BOT ESTÁ EM MODO MANUTENÇÃO NO MOMENTO!**\nMotivo: **${globalman}**\n[MEU SERVIDOR](https://discord.gg/AvpRB22)`)
+            .setDescription(`<:banido:756525777981276331> **O BOT ESTÁ EM MODO MANUTENÇÃO NO MOMENTO!**\nMotivo: **${globalman}**\n[MEU SERVIDOR]https://dsc.gg/svnisru)`)
             .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
             .setThumbnail(`https://cdn.discordapp.com/emojis/736274027756388353.png?v=1`)
             await msg.quote(embed)
@@ -222,7 +222,7 @@ API.checkAll = async function(msg, req) {
     const mbmfetched = API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id).catch()
 
     if ((!mbmfetched && (totalcmdplayer.cmdsexec > 100 || globalstatus == 0))) {
-        API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI](https://discord.gg/AvpRB22)`)
+        API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI]https://dsc.gg/svnisru)`)
         
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -242,7 +242,7 @@ API.checkAll = async function(msg, req) {
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
-        API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://discord.gg/AvpRB22)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
+        API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR]https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
 
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -294,7 +294,7 @@ API.checkAll = async function(msg, req) {
     result = list.join('\n').toString();
 
     if (result.includes('❌') && perm < 4) {
-        await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[Meu servidor](https://discord.gg/AvpRB22)')
+        await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[Meu servidor]https://dsc.gg/svnisru)')
         
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()

@@ -215,7 +215,20 @@ async function loadToStorage(obj) {
   }
 
   let obj2 = API.shopExtension.getShopObj();
-  for (const r of obj2.placas) {
+
+  let placasobjkeys = Object.keys(obj2)
+
+  let placas = []
+
+  for (i = 0; i < placasobjkeys.length; i++) {
+    for (ai = 0; ai < obj2[placasobjkeys[i]].length; ai++){
+      if (obj2[placasobjkeys[i]][ai].type == 5) {
+        placas.push(obj2[placasobjkeys[i]][ai])
+      }
+    }
+  }
+
+  for (const r of placas) {
       const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "piece:${r.id}" double precision NOT NULL DEFAULT 0;`
       try {
           API.db.pool.query(text);
@@ -313,7 +326,21 @@ maqExtension.getSlotMax = function(level) {
 }
 
 maqExtension.getPieces = async function(member) {
-  let obj = API.shopExtension.getShopObj();
+
+    let obj = API.shopExtension.getShopObj();
+
+    let placasobjkeys = Object.keys(obj)
+
+    let placas = []
+
+    for (i = 0; i < placasobjkeys.length; i++) {
+      for (ai = 0; ai < obj[placasobjkeys[i]].length; ai++){
+        if (obj[placasobjkeys[i]][ai].type == 5) {
+          placas.push(obj[placasobjkeys[i]][ai])
+        }
+      }
+    }
+    
     const text =  `SELECT * FROM storage WHERE user_id=${member.id};`
     let res;
     let array = [];
@@ -327,7 +354,7 @@ maqExtension.getPieces = async function(member) {
 
     if (res == null || res == undefined) return [];
 
-    for (const r of obj.placas) {
+    for (const r of placas) {
       if (res['piece:' + r.id] > 0) {
         let robj = r;
         robj.size = res['piece:' + r.id]

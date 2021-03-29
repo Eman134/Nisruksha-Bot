@@ -1,8 +1,8 @@
 const API = require("../../_classes/api");
 
 module.exports = {
-    name: 'usarcodigo',
-    aliases: ['usarconvite', 'useinvite', 'usereferral'],
+    name: 'apoiar',
+    aliases: ['usereferral', 'usarref'],
     category: 'Social',
     description: 'Utiliza um código de referência para apoiar seu amigo',
 	async execute(API, msg) {

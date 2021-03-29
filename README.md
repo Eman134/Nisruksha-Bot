@@ -3,4 +3,4 @@
  - Sobre a licença GNU General Public License v3.0
  - Adição para a licença: Este material é somente para estudo, é proibido o uso do mesmo para uso público em outra aplicação ou para objetivos financeiros.
 
-Servidor oficial: https://discord.gg/AvpRB22
+Servidor oficial: https://dsc.gg/svnisru

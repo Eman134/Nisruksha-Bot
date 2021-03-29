@@ -1,3 +1,13 @@
+const API = require("../../_classes/api");
+
+let bg
+
+loadbg()
+
+async function loadbg() {
+    bg = await API.img.loadImage(`resources/backgrounds/map/map.jpg`)
+}
+
 module.exports = {
     name: 'mapa',
     aliases: ['map', 'local', 'loc', 'vilas'],
@@ -24,7 +34,8 @@ module.exports = {
 
         let todel = await msg.quote(`<a:loading:736625632808796250> Carregando mapa`)
 
-        let background = await API.img.loadImage(`resources/backgrounds/map/map.jpg`)
+        let background = bg
+
         // Mark
         let mark = await API.img.loadImage(`resources/backgrounds/map/mark.png`)
         mark = await API.img.resize(mark, 250, 250)

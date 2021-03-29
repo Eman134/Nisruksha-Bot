@@ -83,7 +83,7 @@
 	"2.1.0": {
         "date": "09/02/2020 - 11:00",
 		"title": "Games & Treasures",
-        "add": ["Comando n.girar", "Sistema de aparecimento e escavação de tesouros no mapa"],
+        "add": ["Nova placa de energia +7 na loja de convites", "Nova categoria convites na loja", "Comando n.apoiar", "Comando n.meucodigo", "Comando n.girar", "Sistema de aparecimento e escavação de tesouros no mapa"],
         "rem": [],
         "chn": ["Profundidade padrão das máquinas dobrados (Vai mexer numa % da geração, não vai dobrar os minérios)", "Placa de profundidade simples adicionado +5 na profundidade", "Limite do daily dobrado [50 -> 100]", "Aumentada a chance de aparecer peixes no comando de pesca", "Preço dos peixes buffados", "Barra de progresso do daily removida", "Preço em cristais da máquina de diamante reduzido"],
         "fix": ["Bug grave de ao vender um item da mochila sem estar em uma empresa crashar o bot", "O vitem vendia além dos itens, também os minérios", "Caracteres especiais do perfil ocultados"],

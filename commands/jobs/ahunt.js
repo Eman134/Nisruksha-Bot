@@ -1,3 +1,13 @@
+const API = require("../../_classes/api");
+
+let bg
+
+loadbg()
+
+async function loadbg() {
+    bg = await API.img.loadImage(`resources/backgrounds/company/battle.png`)
+}
+
 module.exports = {
     name: 'caçar',
     aliases: ['hunt'],
@@ -135,7 +145,8 @@ module.exports = {
             //collector.stop();
 
             async function build(lost) {
-                let background = await API.img.loadImage(`resources/backgrounds/company/battle.png`)
+
+                let background = bg
     
                 let avatar = await API.img.loadImage(msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 avatar = await API.img.resize(avatar, 98, 98);

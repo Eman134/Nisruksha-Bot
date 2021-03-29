@@ -16,7 +16,7 @@ module.exports = {
                 .setDescription(`Olá ${msg.author}` + ', meu prefixo é `' + API.prefix + '`, caso precise de ajuda use `' + API.prefix + 'ajuda`')
                 .addField(
                     '**Mais informações**', 
-                    `📨 [Entre em meu servidor](https://discord.gg/AvpRB22)\n🗳 [Vote para receber recompensas](https://zuraaa.com/bots/763815343507505183/)\n📩 [Convide-me para seu servidor](https://discord.com/oauth2/authorize?client_id=763815343507505183&scope=bot&permissions=388160)`)
+                    `📨 [Entre em meu servidor]https://dsc.gg/svnisru)\n🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)\n📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
                 msg.quote(embed);
 
 	}

@@ -26,8 +26,10 @@ module.exports = {
         }
         let contains = false;
         let placa;
-        for (const p of pieces) {
-            if (p.id-399 == args[0]) {placa = p;contains = true;break}
+
+        if (pieces.length >= args[0]) {
+            placa = pieces[parseInt(args[0])-1]
+            contains = true
         }
 
         if (contains == false) {
@@ -74,11 +76,11 @@ module.exports = {
 
             let contains1 = false;
 
-            for (const p of pieces1) {
-                if (p.id-399 == args[0]) {contains1 = true;break}
+            if (pieces1.length >= parseInt(args[0])) {
+                contains1 = true
             }
 
-            if (contains1 == false) {
+            if (!contains1) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui esta placa na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar suas placas`)
                 embedmsg.edit(embed);
