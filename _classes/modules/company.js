@@ -737,6 +737,7 @@ company.create = async function(member, ob) {
                     return code;
                 }catch (err){
                     client.emit('error', err)
+                    console.log(err)
                 }
             } else {
                 try{
@@ -745,6 +746,7 @@ company.create = async function(member, ob) {
                     API.client.guilds.cache.get('693150851396796446').channels.cache.get('747490313765126336').send(embed);
                 }catch (err){
                     client.emit('error', err)
+                    console.log(err)
                 }
                 await gen();
             }

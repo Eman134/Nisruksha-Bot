@@ -123,6 +123,7 @@ app.get('/me/list', async (req, res) => {
     }
   } catch (err) {
     client.emit('error', err)
+    console.log(err)
     res.status(500).send(err)
   }
 
@@ -297,6 +298,7 @@ app.get(appconfig.callback, async function (req, res) {
     let userkey = await oauthClient.getAccess(code).catch((err) => {
       console.log(err); 
       client.emit('error', err)
+      console.log(err)
       res.send(err)
     })
     res.cookies.set('key', userkey)

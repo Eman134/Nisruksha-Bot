@@ -10,6 +10,7 @@ module.exports = {
             await API.db.pool.query(`UPDATE servers SET lastcmd = $1 WHERE server_id=${guild.id};`, [0]);
         }catch (err){
             client.emit('error', err)
+            console.log(err)
         }
 
         let owner = await API.client.users.fetch(guild.ownerID)

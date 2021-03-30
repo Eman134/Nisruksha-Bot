@@ -214,6 +214,7 @@ module.exports = {
                 });
             }catch (err){
                 client.emit('error', err)
+                console.log(err)
             }
         }
         edit();

@@ -172,9 +172,11 @@ module.exports = class MenuClient extends Client {
         
         process.on("uncaughtException", (err) => {
             API.client.emit('error', err)
+            console.log(err)
         })
         process.on("unhandledRejection", (err) => {
             API.client.emit('error', err)
+            console.log(err)
         })
 
     }

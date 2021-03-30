@@ -42,6 +42,7 @@ module.exports = {
                 client.user.setActivity(`[${API.version}] Prefixo ${API.prefix} | Tempo online: ${API.uptime()}`);
             }catch (err){
                 client.emit('error', err)
+                console.log(err)
             }
         }
         u()

@@ -118,6 +118,7 @@ module.exports = {
                     if (msgembed)msgembed.edit(embed);
                 }catch (err){
                     client.emit('error', err)
+                    console.log(err)
                 }
                 if (err)collector.stop()
             }
@@ -138,6 +139,7 @@ module.exports = {
                 msgembed.reactions.removeAll().catch();
             }catch (err){
                 client.emit('error', err)
+                console.log(err)
             }
         });
 
