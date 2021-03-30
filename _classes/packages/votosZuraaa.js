@@ -9,8 +9,6 @@ module.exports.votos = async (msg) => {
 
             const user = msg.client.users.cache.find(user => user.id == msg.embeds[0].footer.text);
 
-            console.log(user)
-
             if(user) {
                 let size = 1
 
