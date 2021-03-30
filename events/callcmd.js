@@ -3,20 +3,8 @@ module.exports = {
     name: "message",
     execute: async(API, msg) => {
 
-        /*const votosZuraaa = require('../_classes/packages/votosZuraaa.js');
-        votosZuraaa.verificaVotos(msg, (user) => {
-            
-            let size = 1
-
-            const embed = new API.Discord.MessageEmbed()
-            .setColor('RANDOM')
-            .setDescription(`\`${user.tag}\` votou no **1º SITE** e ganhou ${size}x 📦 Caixa Comum como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://zuraaa.com/bots/763815343507505183/)`)
-            .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://zuraaa.com/bots/763815343507505183/')
-            
-            API.client.channels.cache.get('777972678069714956').send(embed)
-            API.crateExtension.give(user, 1, 1)
-
-        });*/
+        const votosZuraaa = require('../_classes/packages/votosZuraaa.js');
+        votosZuraaa.votos(msg)
         
         const prefix = API.prefix;
         const client = API.client;
