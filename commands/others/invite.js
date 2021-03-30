@@ -16,7 +16,7 @@ module.exports = {
                 .setDescription(`Olá ${msg.author}` + ', meu prefixo é `' + API.prefix + '`, caso precise de ajuda use `' + API.prefix + 'ajuda`')
                 .addField(
                     '**Mais informações**', 
-                    `📨 [Entre em meu servidor]https://dsc.gg/svnisru)\n🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)\n📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
+                    `📨 [Entre em meu servidor](https://dsc.gg/svnisru)\n🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)\n📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
                 msg.quote(embed);
 
 	}

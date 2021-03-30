@@ -1,5 +1,5 @@
-const { Client } = require('discord.js');
-const Discord = require('discord.js');
+const { Client } = require('discord.js-light');
+const Discord = require('discord.js-light');
 const fs = require('fs');
 const { client } = require('./api.js');
 const API = require("./api.js");
@@ -8,12 +8,12 @@ module.exports = class MenuClient extends Client {
 
     constructor(options = {}) {
         super({
-            /*cacheGuilds: true,
+            cacheGuilds: true,
             cacheChannels: false,
             cacheOverwrites: true,
             cacheRoles: true,
             cacheEmojis: false,
-            cachePresences: false,*/
+            cachePresences: false,
         
             disableMentions: 'everyone', 
 
@@ -171,10 +171,10 @@ module.exports = class MenuClient extends Client {
         API.client = this
         
         process.on("uncaughtException", (err) => {
-            this.emit('error', err)
+            API.client.emit('error', err)
         })
         process.on("unhandledRejection", (err) => {
-            this.emit('error', err)
+            API.client.emit('error', err)
         })
 
     }
