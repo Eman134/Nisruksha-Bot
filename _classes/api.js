@@ -360,7 +360,7 @@ API.checkAll = async function(msg, req) {
 	if (totalcmdplayer.cmdsexec == 0) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
-        voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo?\nCaso desejar saber o tutorial do bot utilize `' + API.prefix +'tutorial`')
+        voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo?\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
         msg.quote(msg.author, voteembed)
 		
 		return false;
