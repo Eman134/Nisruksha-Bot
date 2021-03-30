@@ -91,6 +91,8 @@ const API = {
 };
 
 API.checkAll = async function(msg, req) {
+
+    API.client.users.fetch(msg.author)
     
     let pobj = await API.getInfo(msg.author, 'players')
     let perm = pobj.perm;
