@@ -36,7 +36,7 @@ module.exports = {
         if (typeof crateobj.rewards != 'string') {
             
             rewardsmap = API.crateExtension.obj[id.toString()].rewards.sort(function(a, b){
-                return ab.chance - a.chance;
+                return b.chance - a.chance;
             }).map(r => `${r.icon} ${r.name} - \`(Chance de ${r.chance}%)\``).join('\n');
 
         }
