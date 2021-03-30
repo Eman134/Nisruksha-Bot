@@ -169,9 +169,9 @@ module.exports = {
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
-                        let chance = 30 + (pobj.rod.stars*10)
+                        let chance = 60 + (pobj.rod.stars*10)
 
-                        if (API.random(0, 100) < chance) {
+                        if (API.random(0, 100) > chance) {
 
                             const capturado = fish.find((fsh) => fsh.icon == levels[xi.toString()].waterarray[0])
                             capturado.size = 1

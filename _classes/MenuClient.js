@@ -13,7 +13,7 @@ module.exports = class MenuClient extends Client {
             cacheOverwrites: false,
             cacheRoles: false,
             cacheEmojis: false,
-            cachePresences: false,
+            cachePresences: true,
         
             disableMentions: 'everyone', 
 
