@@ -138,16 +138,12 @@ async function getInviteJson(member) {
 
 async function updateInviteJson(member, owner) {
 
-    const utilsobj1 = await API.getInfo(member, 'players_utils')
-
-    const invitejson1 = utilsobj1.invite
-
+    const invitejson1 = await getInviteJson(member)
+    
     invitejson1.points += 5
     invitejson1.usedinvite = true
 
-    const utilsobj2 = await API.getInfo(owner, 'players_utils')
-
-    const invitejson2 = utilsobj2.invite
+    const invitejson2 = await getInviteJson(owner)
 
     invitejson2.points += 1
     invitejson2.qnt += 1

@@ -501,9 +501,7 @@ async function getInviteJson(member) {
 
 async function updateInviteJson(member, price) {
 
-  const utilsobj1 = await API.getInfo(member, 'players_utils')
-
-  const invitejson1 = utilsobj1.invite
+  const invitejson1 = await getInviteJson(member)
 
   invitejson1.points -= price
 
