@@ -1,8 +1,8 @@
 const { Client } = require('discord.js-light');
 const Discord = require('discord.js-light');
 const fs = require('fs');
-const { client } = require('./api.js');
 const API = require("./api.js");
+
 
 module.exports = class MenuClient extends Client {
 
@@ -139,6 +139,8 @@ module.exports = class MenuClient extends Client {
         
         // Upvotes
         function dblCheck(server) {
+            const AutoPoster = require('topgg-autoposter')
+            const ap = AutoPoster(options.dbl.token, this)
             const DBL = require('dblapi.js');
             const dbl = new DBL(options.dbl.token, { webhookAuth: options.dbl.webhookAuthPass, webhookServer: server, statsInterval: options.dbl.statsInterval }, this);
             dbl.webhook.on('ready', hook => {
