@@ -282,36 +282,37 @@ API.checkAll = async function(msg, req) {
 
     const me = await guild.members.fetch(API.client.user.id)
     
-    if (!chan) chan = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true })
+    if (!chan) await API.client.channels.fetch(msg.channel.id, { cache: true, force: true})
 
     chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
-    
-    chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
-    chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-    chan.permissionsFor(me).has("MANAGE_MESSAGES", false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
-    chan.permissionsFor(me).has("USE_EXTERNAL_EMOJIS", false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
-    chan.permissionsFor(me).has("ADD_REACTIONS", false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
-    chan.permissionsFor(me).has("READ_MESSAGE_HISTORY", false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
+    if (chan) {
+        chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
+        chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
+        chan.permissionsFor(me).has("MANAGE_MESSAGES", false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
+        chan.permissionsFor(me).has("USE_EXTERNAL_EMOJIS", false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
+        chan.permissionsFor(me).has("ADD_REACTIONS", false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
+        chan.permissionsFor(me).has("READ_MESSAGE_HISTORY", false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
 
-    let result = "";
-    result = list.join('\n').toString();
+        let result = "";
+        result = list.join('\n').toString();
 
-    if (result.includes('❌') && perm < 4) {
-        await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[Meu serviidor](https://dsc.gg/svnisru)')
-        
-        if (API.logs.falhas) {
-            const embedcmd = new API.Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setTimestamp()
-            .setTitle(`Falha: sem permissão`)
-            .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
-            .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            .addField('Perms', `\`\`\`\n${result}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+        if (result.includes('❌') && perm < 4) {
+            await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[Meu serviidor](https://dsc.gg/svnisru)')
+            
+            if (API.logs.falhas) {
+                const embedcmd = new API.Discord.MessageEmbed()
+                .setColor('#b8312c')
+                .setTimestamp()
+                .setTitle(`Falha: sem permissão`)
+                .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
+                .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .addField('Perms', `\`\`\`\n${result}\`\`\``)
+                API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            }
+            
+            return true;
         }
-        
-        return true;
     }
     
     if (pobj.mvp != null && Date.now()-pobj.mvp > 0) {
