@@ -40,7 +40,7 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
     let p = product[i];
     if (p == undefined) break;
       let price = p.price;
-      if (p.type == 4){price=((price*maq.durability/100)*0.45)*(maq.tier+1);}
+      if (p.type == 4){price=Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1));}
       
 
       embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, `
@@ -163,7 +163,7 @@ shopExtension.execute = async function(msg, p) {
   let playerobj = await API.getInfo(msg.member, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
-  if (p.type == 4){torp=price;price = ((price * maq.durability/100)*0.45)*(maq.tier+1)}
+  if (p.type == 4){torp=price;price = Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1))}
 
   const formatprice = `${price > 0 ? API.format(price)  +  ' ' + API.money + ' ' + API.moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${API.money2} ${API.money2emoji}`:''}${p.price3 > 0 ? `${p.price3} pontos de convite 🎫`:''}`
 
