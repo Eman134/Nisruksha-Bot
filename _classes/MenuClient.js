@@ -10,8 +10,8 @@ module.exports = class MenuClient extends Client {
         super({
             cacheGuilds: true,
             cacheChannels: true,
-            cacheOverwrites: false,
-            cacheRoles: false,
+            cacheOverwrites: true,
+            cacheRoles: true,
             cacheEmojis: false,
             cachePresences: true,
         
@@ -22,7 +22,7 @@ module.exports = class MenuClient extends Client {
                     intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
                 },
 
-            disabledEvents: ['CHANNEL_CREATE', 'CHANNEL_UPDATE', 'CHANNEL_DELETE', 'CHANNEL_PINS_UPDATE', 'GUILD_ROLE_CREATE', 'GUILD_ROLE_DELETE', 'GUILD_ROLE_UPDATE', 'MESSAGE_UPDATE', 'MESSAGE_REACTION_REMOVE_ALL', 'MESSAGE_REACTION_REMOVE_EMOJI', 'MESSAGE_REACTION_REMOVE']
+            disabledEvents: ['GUILD_ROLE_CREATE', 'GUILD_ROLE_DELETE', 'GUILD_ROLE_UPDATE', 'MESSAGE_UPDATE', 'MESSAGE_REACTION_REMOVE_ALL', 'MESSAGE_REACTION_REMOVE_EMOJI', 'MESSAGE_REACTION_REMOVE']
         })
 
         this.validate(options)

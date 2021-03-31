@@ -77,7 +77,7 @@ module.exports = {
 
         let memberobj = await API.getInfo(member, "machines")
         let nivel = memberobj.level
-        let mat = Math.round(Math.pow(nivel, 1.72) * 500);
+        let mat = Math.round(Math.pow(nivel, 2) * 500);
         
         if (total > mat) {
             API.sendError(msg, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
