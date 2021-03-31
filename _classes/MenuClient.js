@@ -134,7 +134,7 @@ module.exports = class MenuClient extends Client {
             server.listen(port, () => {});
         } catch (err) {
             console.log(err)
-            client.emit('error', err)
+            this.emit('error', err)
         }
         
         // Upvotes
