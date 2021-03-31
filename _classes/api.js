@@ -101,7 +101,7 @@ API.checkAll = async function(msg, req) {
     let globalstatus = await API.getGlobalInfo('status');
     let globalman = await API.getGlobalInfo('man');
 
-	const chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
+	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
 
     const args = msg.content.slice(API.prefix.length).split(/ +/);
 
@@ -281,6 +281,10 @@ API.checkAll = async function(msg, req) {
     await guild.roles.fetch({ force: true, cache: true })
 
     const me = await guild.members.fetch(API.client.user.id)
+    
+    if (!chan) chan = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true })
+
+    chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
     
     chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
     chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
