@@ -393,7 +393,7 @@
 		},
 		{
 			"id": 703,
-			"name": "Cor gradiante no perfil (#1)",
+			"name": "Cor RGB no perfil (#1)",
 			"icon": "🎨",
 			"pcolorid": 1,
 			"type": 8,
