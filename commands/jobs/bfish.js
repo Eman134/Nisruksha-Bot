@@ -232,7 +232,6 @@ module.exports = {
                 stars
             }
             
-
         }
 
         async function edit(msg, company) {
@@ -247,30 +246,9 @@ module.exports = {
                 API.playerUtils.execExp(msg, xp);
 
                 await API.maqExtension.stamina.remove(msg.author, gastosta);
-                
-                /*let retorno = await API.company.jobs.giveItem(msg, obj2)
-                let descartados = retorno.descartados
-                let colocados = retorno.colocados
-
-                for (const r of colocados) {
-
-                    
-                    let size = r.size;
-
-
-                    totalcoletado += size;
-                    if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
-                    else coletadox.set(r.name, size)
-                    sizeMap.set(r.name, size)
-                    round += size;
-
-                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
-                    
-                    
-                }*/
 
                 pobj = await API.getInfo(msg.author, 'players')
-                let stamina2 = await API.maqExtension.stamina.get(msg.author)
+
                 stamina = await API.maqExtension.stamina.get(msg.author)
 
                 let cclist = []
@@ -306,28 +284,13 @@ module.exports = {
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px.icon).join(inv))
                 embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-                
-                /*for await (const r of colocados) {
-                    let qnt = sizeMap.get(r.name);
-                    if (qnt == undefined) qnt = 0;
-                    if (qnt < 1) qnt = 0;
-                    
-                    embed.addField(`${r.icon} ${r.displayname} +${qnt}`, `\`\`\`autohotkey\nColetado: ${r.size}\`\`\``, true)
+
+                try{
+                    await embedmsg.edit(embed)
+                }catch{
+                    API.cacheLists.waiting.remove(msg.author, 'fishing')
+                    return
                 }
-
-                for await (const r of descartados) {
-                    let qnt = sizeMap.get(r.name);
-                    if (qnt == undefined) qnt = 0;
-                    if (qnt < 1) qnt = 0;
-                    embed.addField(`${r.icon} ${r.displayname} -${r.size}`, `\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``, true)
-                }*/
-
-                    try{
-                        await embedmsg.edit(embed)
-                    }catch{
-                        API.cacheLists.waiting.remove(msg.author, 'fishing')
-                        return
-                    }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
                     API.sendErrorM(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
@@ -380,6 +343,7 @@ module.exports = {
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                     } else {edit(msg, company);}
                 });
+                
             }catch (err){
                 client.emit('error', err)
             }

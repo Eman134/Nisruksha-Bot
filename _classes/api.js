@@ -221,11 +221,11 @@ API.checkAll = async function(msg, req) {
     }
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
-    if (totalcmdplayer.cmdsexec > 100 || globalstatus == 0) {
+    if (totalcmdplayer.cmdsexec >= 100 || globalstatus == 0) {
         try {
             await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
         } catch {
-            API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI]https://dsc.gg/svnisru)`)
+            API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
         
             if (API.logs.falhas) {
                 const embedcmd = new API.Discord.MessageEmbed()
@@ -273,11 +273,6 @@ API.checkAll = async function(msg, req) {
             return true;
         }
     }
-    
-    /*if (perm < 5 && msg.channel.id != '703293776788979812'){
-        API.sendError(msg, 'Você precisa executar comandos do v2 no <#703293776788979812>.')
-        return true;
-    }*/
     
     let list = [];
 
