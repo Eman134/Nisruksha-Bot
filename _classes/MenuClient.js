@@ -134,13 +134,13 @@ module.exports = class MenuClient extends Client {
             server.listen(port, () => {});
         } catch (err) {
             console.log(err)
-            this.emit('error', err)
+            Client.emit('error', err)
         }
         
         // Upvotes
         function dblCheck(server) {
             const AutoPoster = require('topgg-autoposter')
-            const ap = AutoPoster(options.dbl.token, this)
+            const ap = AutoPoster(options.dbl.token, Client)
             const DBL = require('dblapi.js');
             const dbl = new DBL(options.dbl.token, { webhookAuth: options.dbl.webhookAuthPass, webhookServer: server, statsInterval: options.dbl.statsInterval }, this);
             dbl.webhook.on('ready', hook => {
