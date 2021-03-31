@@ -8,8 +8,6 @@ module.exports = {
 		const boolean = await API.checkAll(msg, 4);
         if (boolean) return;
 
-        const Discord = API.Discord;
-        const client = API.client;
         let args = API.args(msg)
 		if (!args){
             API.sendError(msg, "Digite um número de mensagens para dar purge", `limpar 10`)
@@ -29,10 +27,7 @@ module.exports = {
         try {
             await msg.channel.bulkDelete(arg).catch()
             msg.quote(`Você limpou **${arg}** mensagens deste canal!`).then(ms => ms.delete({ timeout: 5000, reason: 'Limpo por um moderador.' })).catch()
-        } catch (err){
-            msg.quote(`Ocorreu um erro ao tentar limpar as mensagens do canal`)
-            console.log(err)
-            client.emit('error', err)
+        } catch{
         }
 
 	}
