@@ -325,7 +325,6 @@ API.checkAll = async function(msg, req) {
         if (perm == 3) API.setPerm(msg.author, 1)
     }
     
-    
     const check = await API.checkCooldown(msg.author, "global");
     if (check) {
 
@@ -347,7 +346,6 @@ API.checkAll = async function(msg, req) {
     }
     API.setCooldown(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
-        
     API.cmdsexec++;
 
     const totalcmd = await API.getGlobalInfo('totalcmd');
@@ -361,7 +359,7 @@ API.checkAll = async function(msg, req) {
 	if (totalcmdplayer.cmdsexec == 0) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
-        voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo?\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
+        voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `' + API.prefix + 'tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
         msg.quote(msg.author, voteembed)
 		
 		return false;

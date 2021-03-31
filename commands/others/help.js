@@ -16,6 +16,9 @@ module.exports = {
 			.setDescription(`
 <:info:736274028515295262> Olá ${msg.author}, sou o **Nisruksha**.
 ↳ Para me convidar para seu servidor ou entrar no meu, basta usar \`${API.prefix}convite\`
+
+Acesse o tutorial do bot para saber a história e como usá-lo (Em construção) \`${API.prefix}tutorial\`
+
 Apoie quem te convidou para o bot usando \`${API.prefix}apoiar <código>\`
 Caso não tenha o código, peça para a pessoa utilizar \`${API.prefix}meucodigo\`
 
