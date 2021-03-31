@@ -221,21 +221,24 @@ API.checkAll = async function(msg, req) {
     }
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
-    const mbmfetched = API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id).catch()
-
-    if ((!mbmfetched && (totalcmdplayer.cmdsexec > 100 || globalstatus == 0))) {
-        API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI]https://dsc.gg/svnisru)`)
+    if (totalcmdplayer.cmdsexec > 100 || globalstatus == 0) {
+        let mbmfetched
+        try {
+            mbmfetched = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
+        } catch {
+            API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI]https://dsc.gg/svnisru)`)
         
-        if (API.logs.falhas) {
-            const embedcmd = new API.Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setTimestamp()
-            .setTitle(`Falha: fora do servidor oficial`)
-            .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
-            .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            if (API.logs.falhas) {
+                const embedcmd = new API.Discord.MessageEmbed()
+                .setColor('#b8312c')
+                .setTimestamp()
+                .setTitle(`Falha: fora do servidor oficial`)
+                .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
+                .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
+                API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            }
         }
         
         return true;
