@@ -222,9 +222,8 @@ API.checkAll = async function(msg, req) {
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
     if (totalcmdplayer.cmdsexec > 100 || globalstatus == 0) {
-        let mbmfetched
         try {
-            mbmfetched = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
+            await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
         } catch {
             API.sendErrorM(msg, `Você precisa estar em nosso servidor oficial para liberar o uso de comandos!\nA partir do momento que estiver no servidor oficial, você poderá usar o bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI]https://dsc.gg/svnisru)`)
         
@@ -238,10 +237,10 @@ API.checkAll = async function(msg, req) {
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
                 API.client.channels.cache.get('770059589076123699').send(embedcmd);
+                return true;
             }
         }
         
-        return true;
     }
         
 
@@ -350,10 +349,10 @@ API.checkAll = async function(msg, req) {
     API.setCooldown(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
         
-        API.cmdsexec++;
+    API.cmdsexec++;
 
-        const totalcmd = await API.getGlobalInfo('totalcmd');
-        API.setGlobalInfo('totalcmd', parseInt(totalcmd)+1)
+    const totalcmd = await API.getGlobalInfo('totalcmd');
+    API.setGlobalInfo('totalcmd', parseInt(totalcmd)+1)
     API.setInfo(msg.author, 'players', 'cmdsexec', parseInt(totalcmdplayer.cmdsexec)+1)
     
     const totalcmdserver = await API.serverdb.getServerInfo(msg.guild.id);
