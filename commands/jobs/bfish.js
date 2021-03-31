@@ -330,14 +330,14 @@ module.exports = {
                     }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
-                    API.sendErrorM(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author)})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
+                    API.sendErrorM(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     embedmsg.reactions.removeAll();
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
-                    API.sendErrorM(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author)})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
+                    API.sendErrorM(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     embedmsg.reactions.removeAll();
                     return;
