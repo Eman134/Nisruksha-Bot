@@ -10,6 +10,7 @@ Servidor oficial: https://dsc.gg/svnisru
 **💭 • Sobre**
 
 **➡** Para ficar atento sobre atualizações e anúncios, recomendamos que você entre em [**MEU SERVIDOR**]()
+**➡** Caso deseja ver a história e um pequeno tutorial do bot [CLIQUE AQUI](https://eman134.github.io/nisruksha/index.html)
 
 **📩 • Adicionar**
 
