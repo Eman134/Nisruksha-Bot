@@ -17,6 +17,8 @@ module.exports = class MenuClient extends Client {
         
             disableMentions: 'everyone', 
 
+            disabledEvents: ['CHANNEL_DELETE'],
+
             ws: { 
                     properties: { $browser: 'Discord Android' }, 
                     intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
