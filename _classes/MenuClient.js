@@ -10,19 +10,17 @@ module.exports = class MenuClient extends Client {
         super({
             cacheGuilds: true,
             cacheChannels: true,
-            cacheOverwrites: true,
-            cacheRoles: true,
+            cacheOverwrites: false,
+            cacheRoles: false,
             cacheEmojis: false,
-            cachePresences: true,
+            cachePresences: false,
         
             disableMentions: 'everyone', 
 
             ws: { 
                     properties: { $browser: 'Discord Android' }, 
                     intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
-                },
-
-            disabledEvents: ['GUILD_ROLE_CREATE', 'GUILD_ROLE_DELETE', 'GUILD_ROLE_UPDATE', 'MESSAGE_UPDATE', 'MESSAGE_REACTION_REMOVE_ALL', 'MESSAGE_REACTION_REMOVE_EMOJI', 'MESSAGE_REACTION_REMOVE']
+                }
         })
 
         this.validate(options)

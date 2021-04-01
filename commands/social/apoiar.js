@@ -34,7 +34,7 @@ module.exports = {
         const invitejson = await getInviteJson(msg.author)
 
         if (invitejson.usedinvite) {
-            API.sendError(msg, 'Você só pode utilizar um código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
+            API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
             return
         }
 

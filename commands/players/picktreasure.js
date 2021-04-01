@@ -30,7 +30,7 @@ module.exports = {
         function getProgress() {
             const prof2 = API.townExtension.treasure.profundidade
 
-            return API.getProgress(8, '<:escav:807999848196079646>', '<:energyempty:741675234796503041>', prof > prof2? prof2 : prof, prof2, true);
+            return API.getProgress(8, '<:escav:807999848196079646>', '<:energyempty:741675234796503041>', prof > prof2 ? prof2 : prof, prof2, true);
         }
         
         const embed = new Discord.MessageEmbed();
