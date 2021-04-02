@@ -23,3 +23,5 @@ Para adicionar o Nisruksha ao seu servidor [**CLIQUE AQUI**](https://discord.com
 ![](https://cdn.discordapp.com/attachments/693945958857441331/772236206657372160/unknown.png)
 
 ![](https://cdn.discordapp.com/attachments/693945958857441331/772236361331245076/image.png)
+
+![](https://i.imgur.com/DpxS6z1.png)
