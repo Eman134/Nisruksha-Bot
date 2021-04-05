@@ -9,9 +9,9 @@ module.exports = {
         const Discord = API.Discord;
         const prefix = API.prefix;
         const args = API.args(msg)
-        if (args.length == 0) {
-            let as = msg.mentions.users.map(p => p.id).join("\n")
-            if (as.includes(client.user.id)) {
+        
+        const mentionRegex = new RegExp(`^<@!?${client.user.id}>$`);
+        if (msg.content.match(mentionRegex)) {
                 const embed = new Discord.MessageEmbed()
                 .setColor('#36393f')
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
@@ -19,8 +19,7 @@ module.exports = {
                 .addField('**Mais informações**', `📨 [Entre em meu servidor](https://dsc.gg/svnisru)
 🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)
 📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
-                msg.quote(embed);
-            }
+                return msg.quote(embed);
         }
     }
 }
