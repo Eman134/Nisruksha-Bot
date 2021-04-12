@@ -657,7 +657,7 @@ API.getBotInfoProperties = async function() {
 
     embed.addField(`📓 Comandos executados`, `Após iniciar: \`${API.cmdsexec}\`\nTotal: \`${totalcmd}\``, true)
 
-    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nEsperando 🔋: \`${API.cacheLists.rememberenergy.size}\`\nEsperando 🔸: \`${API.cacheLists.rememberstamina.size}\``, true)
+    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nEsperando 🔋: \`${API.cacheLists.rememberenergy.length}\`\nEsperando 🔸: \`${API.cacheLists.rememberstamina.length}\``, true)
 
     embed.addField(`📎 Versões`, `Node.js \`${process.versions.node}\`\nDiscord.js \`${API.Discord.version}\`\nNisruksha \`${API.version}\``, true)
 
