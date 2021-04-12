@@ -54,9 +54,9 @@ module.exports = {
         let stamina = await API.maqExtension.stamina.get(msg.author)
         let staminamax = 1000;
 
-        if (stamina < 200) {
+        if (stamina < 150) {
             
-            API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 200 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
+            API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
             return;
 
         }
