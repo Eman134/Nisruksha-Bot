@@ -40,9 +40,9 @@ module.exports = {
             embed2.setColor('#42f569')
             //embed2.setFooter(`1 ponto de estamina recupera a cada ${API.maqExtension.recoverstamina[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             embedmsg.edit(embed2);
+            collector.stop();
             if (API.cacheLists.rememberstamina.includes(msg.author.id)) return;
             API.cacheLists.rememberstamina.push(msg.author.id);
-            collector.stop();
            // API.updateBotInfo();
             async function rem(){
                 if (await API.maqExtension.stamina.get(msg.author) >= 1000) {

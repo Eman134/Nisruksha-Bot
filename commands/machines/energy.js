@@ -46,10 +46,10 @@ module.exports = {
             embed2.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             
             embedmsg.edit(embed2);
+            collector.stop();
 
             if (API.cacheLists.rememberenergy.includes(msg.author.id)) return;
             API.cacheLists.rememberenergy.push(msg.author.id);
-            collector.stop();
             async function rem(){
                 if (await API.maqExtension.getEnergy(msg.author) >= await API.maqExtension.getEnergyMax(msg.author)) {
                     msg.quote({ content: `Relatório de energia: ${await API.maqExtension.getEnergy(msg.author)}/${await API.maqExtension.getEnergyMax(msg.author)}`, mention: true})

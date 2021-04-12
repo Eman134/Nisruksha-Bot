@@ -42,7 +42,7 @@ module.exports = {
             return;
         }
 
-        let total = 250*(pobj2.level)
+        let total = 500*(pobj2.level)
         let disp = API.company.jobs.fish.rods.possibilities(pobj2.level)
 
         const embed = new Discord.MessageEmbed()

@@ -15,7 +15,7 @@ module.exports = class MenuClient extends Client {
             cacheEmojis: false,
             cachePresences: false,
         
-            disableMentions: 'everyone', 
+            allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, 
 
             disabledEvents: ['CHANNEL_DELETE'],
 
