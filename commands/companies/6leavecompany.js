@@ -71,8 +71,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 .setDescription(`O trabalhador ${msg.author.tag} (${msg.author.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
                 owner.send(embed)
-            }catch (err){
-                client.emit('error', err)
+            }catch{
             }
 
             const list = company2.workers;

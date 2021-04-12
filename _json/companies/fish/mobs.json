@@ -5,7 +5,7 @@
         "icon": "🐟",
         "profundidade": 0.5,
         "chance": 60,
-        "price": 800
+        "price": 400
     },
     {
         "name": "\"tropfish\"",
@@ -13,7 +13,7 @@
         "icon": "🐠",
         "profundidade": 1,
         "chance": 60,
-        "price": 920
+        "price": 620
     },
     {
         "name": "\"bikcu\"",
@@ -21,7 +21,7 @@
         "icon": "🐡",
         "profundidade": 1.7,
         "chance": 47,
-        "price": 1550
+        "price": 1250
     },
     {
         "name": "\"peiza\"",
@@ -29,7 +29,7 @@
         "icon": "<:peixe1:830819804658925578>",
         "profundidade": 2.5,
         "chance": 40,
-        "price": 1700
+        "price": 1500
     },
     {
         "name": "\"poison fiha\"",

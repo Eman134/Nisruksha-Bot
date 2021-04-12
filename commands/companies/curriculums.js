@@ -91,8 +91,7 @@ module.exports = {
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
                 usr.send(embed)
 
-            } catch (err){
-                client.emit('error', err)
+            } catch{
             }
 
             let workers = company.workers == null ? [] : company.workers
@@ -136,8 +135,7 @@ module.exports = {
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
                 usr.send(embed)
 
-            } catch (err){
-                client.emit('error', err)
+            } catch{
             }
 
             await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
