@@ -1,11 +1,11 @@
 module.exports = {
     name: 'clear',
     aliases: ['limpar', 'purge'],
-    category: 'Mod',
-    description: 'Limpa um número de mensagens do canal',
+    category: 'none',
+    description: 'none',
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg, 4);
+		const boolean = await API.checkAll(msg, 5);
         if (boolean) return;
 
         let args = API.args(msg)
@@ -26,7 +26,7 @@ module.exports = {
 
         try {
             await msg.channel.bulkDelete(arg).catch()
-            msg.quote(`Você limpou **${arg}** mensagens deste canal!`).then(ms => ms.delete({ timeout: 5000, reason: 'Limpo por um moderador.' })).catch()
+            await msg.quote(`Você limpou **${arg}** mensagens deste canal!`).then(ms => ms.delete({ timeout: 5000, reason: 'Limpo por um moderador.' })).catch()
         } catch{
         }
 

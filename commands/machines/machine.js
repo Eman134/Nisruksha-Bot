@@ -1,6 +1,6 @@
 module.exports = {
     name: 'máquina',
-    aliases: ['maquina', 'maq', 'machine', 'maquinas', 'máquinas'],
+    aliases: ['maquina', 'maq', 'machine'],
     category: 'Maquinas',
     description: 'Visualiza as informações da sua máquina',
 	async execute(API, msg) {
@@ -10,20 +10,24 @@ module.exports = {
 
         let member;
         let args = API.args(msg)
-        if (msg.mentions.users.size < 1) {
-            if (args.length == 0) {
-                member = msg.author;
-            } else {
-                let member2 = await API.client.users.fetch(args[0])
-                if (!member2) {
-                    member = msg.author
+        try {
+            if (msg.mentions.users.size < 1) {
+                if (args.length == 0) {
+                    member = msg.author;
                 } else {
-                    member = member2
+                    let member2 = await API.client.users.fetch(args[0])
+                    if (!member2) {
+                        member = msg.author
+                    } else {
+                        member = member2
+                    }
                 }
+            } else {
+                member = msg.mentions.users.first();
             }
-        } else {
-            member = msg.mentions.users.first();
-        }
+        } catch {
+            member = msg.author
+        } 
 
         const Discord = API.Discord;
         

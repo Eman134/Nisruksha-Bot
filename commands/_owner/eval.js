@@ -44,7 +44,8 @@ module.exports = {
                 .addField('Erro', code('js', error), true)
                 .setColor('RED')
             } finally {
-                  msgembed.edit('**Executado em ' + (Date.now()-tempo)+" ms**", embed).catch(error => {
+                    const content = '**Executado em ' + (Date.now()-tempo)+" ms**"
+                    msgembed.edit({ content, embed, allowedMentions: {"replied_user": false}}).catch(error => {
                     msg.quote(`Ocorreu um erro ao dar eval! ${error.message}`)
                     })
                 msgembed.react('🗑');

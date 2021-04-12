@@ -21,11 +21,12 @@ module.exports = {
 \`3.\` Uma bandeira de MVP no seu perfil
 \`4.\` Menor cooldown em comandos
 \`5.\` Caixa comum no daily
+\`6.\` Caça automática na exploração
+\`7.\` 20% de Tempo de crescimento menor para agricultura
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 
 `)
-//\`5.\` No sistema de empresas possui algumas pequenas vantagens
                 .setColor(`RANDOM`)
                 .addField(`<:mvp:758717273304465478> Como adquirir um MVP?`, `
 

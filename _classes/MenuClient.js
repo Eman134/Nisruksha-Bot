@@ -45,7 +45,9 @@ module.exports = class MenuClient extends Client {
 
     }
 
-    loadModules() {
+    async loadModules() {
+
+        API.client = this;
         require('./packages/quote.js')
         API.db = require('./db.js');
         API.eco = require("./modules/eco.js");
@@ -61,6 +63,9 @@ module.exports = class MenuClient extends Client {
         API.playerUtils = require("./modules/playerUtils.js");
         API.Discord = Discord;
         API.client = this;
+
+        
+
     }
 
     loadEvents() {
@@ -126,7 +131,7 @@ module.exports = class MenuClient extends Client {
         const http = require("http");
 
         try {
-            let app = require('express')//require('../site/app.js')
+            let app = require('express')
             const server = http.createServer(app)
 
             if (options.ip != 'localhost') dblCheck(server)

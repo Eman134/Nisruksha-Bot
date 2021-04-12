@@ -39,7 +39,7 @@
         "name": "Varetiz",
         "id": 4,
         "icon": "<:vara1:782314194414469160>",
-        "level": 10,
+        "level": 8,
         "stars": 1,
         "sta": 4,
         "profundidade": 1.7
@@ -48,9 +48,54 @@
         "name": "Vrekz",
         "id": 5,
         "icon": "<:vara2:782319811371728928>",
-        "level": 12,
+        "level": 9,
         "stars": 2,
         "sta": 5,
-        "profundidade": 1.7
+        "profundidade": 2.5
+    },
+    {
+        "name": "Vorty",
+        "id": 6,
+        "icon": "<:vara3:830811051188682773>",
+        "level": 11,
+        "stars": 2,
+        "sta": 4,
+        "profundidade": 2.7
+    },
+    {
+        "name": "Vegix",
+        "id": 7,
+        "icon": "<:vara4:830811913217900594>",
+        "level": 13,
+        "stars": 2,
+        "sta": 5,
+        "profundidade": 3.2
+    },
+    {
+        "name": "Vuntor",
+        "id": 8,
+        "icon": "<:vara5:830814567277920297>",
+        "level": 15,
+        "stars": 2,
+        "sta": 4,
+        "profundidade": 3.4
+    },
+    {
+        "name": "Vifos",
+        "id": 9,
+        "icon": "<:vara6:830815035709980722>",
+        "level": 17,
+        "stars": 3,
+        "sta": 6,
+        "profundidade": 4
+    },
+    {
+        "name": "Asen",
+        "id": 10,
+        "icon": "<:vara7:830815499205345310>",
+        "level": 19,
+        "stars": 3,
+        "sta": 5,
+        "profundidade": 4.3
     }
 ]

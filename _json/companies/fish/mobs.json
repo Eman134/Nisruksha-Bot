@@ -4,7 +4,7 @@
         "displayname": "Mumxe",
         "icon": "🐟",
         "profundidade": 0.5,
-        "chance": 20,
+        "chance": 60,
         "price": 800
     },
     {
@@ -12,7 +12,7 @@
         "displayname": "Tropfish",
         "icon": "🐠",
         "profundidade": 1,
-        "chance": 20,
+        "chance": 60,
         "price": 920
     },
     {
@@ -20,15 +20,15 @@
         "displayname": "Bikcu",
         "icon": "🐡",
         "profundidade": 1.7,
-        "chance": 27,
+        "chance": 47,
         "price": 1550
     },
     {
         "name": "\"peiza\"",
         "displayname": "Peiza",
-        "icon": "<:peixe1:782295111660601415>",
+        "icon": "<:peixe1:830819804658925578>",
         "profundidade": 2.5,
-        "chance": 20,
+        "chance": 40,
         "price": 1700
     },
     {
@@ -36,39 +36,87 @@
         "displayname": "Poison fiha",
         "icon": "<:peixe2:782297639081082890>",
         "profundidade": 3,
-        "chance": 20,
+        "chance": 50,
         "price": 1800
     },
     {
         "name": "\"orgh\"",
         "displayname": "Orgh",
-        "icon": "<:peixe3:782300137334243379>",
-        "profundidade": 3.4,
-        "chance": 22,
+        "icon": "<:peixe3:830823148705284167>",
+        "profundidade": 3.2,
+        "chance": 46,
         "price": 2280
     },
     {
         "name": "\"lislif\"",
         "displayname": "Lislif",
         "icon": "<:peixe4:782306352688398384>",
-        "profundidade": 3.8,
-        "chance": 15,
+        "profundidade": 3.5,
+        "chance": 44,
         "price": 2500
     },
     {
         "name": "\"ahaco\"",
         "displayname": "Ahaco",
         "icon": "<:peixe5:782312801636712458>",
-        "profundidade": 4.5,
-        "chance": 10,
+        "profundidade": 4.0,
+        "chance": 30,
         "price": 3000
     },
     {
         "name": "\"abehi\"",
         "displayname": "Abehi",
         "icon": "<:peixe6:782320686944485376>",
-        "profundidade": 4.7,
-        "chance": 13,
+        "profundidade": 4.5,
+        "chance": 35,
         "price": 4000
+    },
+    {
+        "name": "\"octo\"",
+        "displayname": "Octo",
+        "icon": "🐙",
+        "profundidade": 5.0,
+        "chance": 50,
+        "price": 6300
+    },
+    {
+        "name": "\"codd\"",
+        "displayname": "Codd",
+        "icon": "<:peixe7:830823495977140254>",
+        "profundidade": 5.7,
+        "chance": 55,
+        "price": 5400
+    },
+    {
+        "name": "\"seem\"",
+        "displayname": "Seem",
+        "icon": "<:peixe8:830823746544992257>",
+        "profundidade": 7,
+        "chance": 40,
+        "price": 8400
+    },
+    {
+        "name": "\"crab\"",
+        "displayname": "Crab",
+        "icon": "🦀",
+        "profundidade": 8.2,
+        "chance": 50,
+        "price": 10400
+    },
+    {
+        "name": "\"angler\"",
+        "displayname": "Angler",
+        "icon": "<:peixe9:830824555223187466>",
+        "profundidade": 9,
+        "chance": 10,
+        "price": 20400
+    },
+    {
+        "name": "\"swe\"",
+        "displayname": "Angler",
+        "icon": "<:peixe10:830824811478515762>",
+        "profundidade": 9.5,
+        "chance": 15,
+        "price": 30400
     }
 ]

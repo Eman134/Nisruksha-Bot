@@ -58,8 +58,17 @@ module.exports = {
 
         background = await API.img.resize(background, 1024, 768);
         let townname = await API.townExtension.getTownName(msg.author);
+        let townnum = await API.townExtension.getTownNumByName(townname);
+        let res
         try {
-            await API.img.sendImage(msg.channel, background, `${msg.author}\nVocê se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}**.`);
+            res = await API.db.pool.query('SELECT * FROM companies WHERE loc=$1', [townnum]);
+            res = res.rows
+        } catch (err) {
+            API.client.emit('error', err)
+        }
+
+        try {
+            await API.img.sendImage(msg.channel, background, `${msg.author}\nVocê se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nEmpresas: **${res.length}**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}**.`);
             await todel.delete();
         }catch{}
         

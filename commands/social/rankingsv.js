@@ -46,7 +46,10 @@ module.exports = {
         
         collector.on('collect', async (reaction, user) => {
             reaction.users.remove(user.id).catch();
+
             if (!(emojis.includes(reaction.emoji.id)) && !(emojis.includes(reaction.emoji.name))) return;
+            if (emojis.includes(reaction.emoji.name)) reaction.emoji.id = reaction.emoji.name
+
             collector.stop();
 
             const text =  `SELECT * FROM ${vare[reaction.emoji.id].split(';')[0]};`

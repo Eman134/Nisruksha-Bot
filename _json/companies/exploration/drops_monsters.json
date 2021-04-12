@@ -87,60 +87,144 @@
         "name": "\"antena de baraz\"",
         "displayname": "Antena de Baraz",
         "icon": "<:ant2:764898650768932894>",
-        "price": 7000
+        "price": 4750
     },
     {
         "name": "\"perna de baraz\"",
         "displayname": "Perna de Baraz",
         "icon": "<:perna2:764898650546896969>",
-        "price": 9500
+        "price": 5300
     },
     {
         "name": "\"antena de poison baraz\"",
         "displayname": "Antena de Poison Baraz",
         "icon": "<:ant1:764898650945093652>",
-        "price": 10800
+        "price": 5150
     },
     {
         "name": "\"perna de poison baraz\"",
         "displayname": "Perna de Poison Baraz",
         "icon": "<:perna1:764898650869989406>",
-        "price": 14500
+        "price": 6000
     },
     {
         "name": "\"ovo de tzarrin\"",
         "displayname": "Ovo de Tzarrin",
         "icon": "<:egg:764944320142114826>",
-        "price": 35000
+        "price": 7000
     },
     {
         "name": "\"ovo de cold tzarrin\"",
         "displayname": "Ovo de Cold Tzarrin",
         "icon": "<:coldegg:764944320033062984>",
-        "price": 60000
+        "price": 10000
     },
 	{
         "name": "\"asas de shiny kirebat\"",
         "displayname": "Asas de Shiny Kirebat",
         "icon": "<:shinybatwing:764565255207649280>",
-        "price": 75000
+        "price": 6500
     },
 	{
         "name": "\"antena de shiny baraz\"",
         "displayname": "Antena de Shiny Baraz",
         "icon": "<:ant3:764898650856882186>",
-        "price": 82000
+        "price": 9610
     },
     {
         "name": "\"perna de shiny baraz\"",
         "displayname": "Perna de Shiny Baraz",
         "icon": "<:perna3:764898650458423338>",
-        "price": 102000
+        "price": 12390
     },
     {
         "name": "\"ovo de shiny tzarrin\"",
         "displayname": "Ovo de Shiny Tzarrin",
         "icon": "<:shinyegg:764944320095977504>",
-        "price": 178000
+        "price": 9200
+    },
+    {
+        "name": "\"parte de xipta\"",
+        "displayname": "Parte de Xipta",
+        "icon": "<:xiptacarcaa:830600754690523136>",
+        "price": 9700
+    },
+    {
+        "name": "\"carola de xipta\"",
+        "displayname": "Carola de Xipta",
+        "icon": "<:xiptahead2:830602346345136148>",
+        "price": 12000
+    },
+    {
+        "name": "\"carola de poison xipta\"",
+        "displayname": "Carola de Poison Xipta",
+        "icon": "<:xiptahead:830601760988463185>",
+        "price": 16000
+    },
+    {
+        "name": "\"carola de shiny xipta\"",
+        "displayname": "Carola de Shiny Xipta",
+        "icon": "<:xiptahead3:830602731126259712>",
+        "price": 23000
+    },
+    {
+        "name": "\"pele de imea\"",
+        "displayname": "Pele de Imea",
+        "icon": "<:imeaskin:830600038643269692>",
+        "price": 17000
+    },
+    {
+        "name": "\"corpo de gasho\"",
+        "displayname": "Corpo de Gasho",
+        "icon": "<:gashostones:830603998520147979>",
+        "price": 35000
+    },
+    {
+        "name": "\"carola de saseu\"",
+        "displayname": "Carola de Saseu",
+        "icon": "<:craniosaseu:830604626423185489>",
+        "price": 24000
+    },
+    {
+        "name": "\"perna de saseu\"",
+        "displayname": "Perna de Saseu",
+        "icon": "<:pernasaseu:830605223336738887>",
+        "price": 14000
+    },
+    {
+        "name": "\"membro do cleitin\"",
+        "displayname": "Membro do Cleitin",
+        "icon": "<:partedecleitin:830605952259981385>",
+        "price": 25000
+    },
+    {
+        "name": "\"pernas do cleitin\"",
+        "displayname": "Pernas do Cleitin",
+        "icon": "<:pernascleitin:830606357227896842>",
+        "price": 20000
+    },
+    {
+        "name": "\"armadura de olp\"",
+        "displayname": "Armadura de Olp",
+        "icon": "<:olparmor:830607080159313920>",
+        "price": 29000
+    },
+    {
+        "name": "\"pernas de olp\"",
+        "displayname": "Pernas de Olp",
+        "icon": "<:olppernas:830607398993264641>",
+        "price": 34500
+    },
+    {
+        "name": "\"restos de basg\"",
+        "displayname": "Restos de Basg",
+        "icon": "<:restosdebasg:830608024007344199>",
+        "price": 55000
+    },
+    {
+        "name": "\"corpo de meil\"",
+        "displayname": "Corpo de Meil",
+        "icon": "<:corpomeil:830608595597918208>",
+        "price": 120000
     }
 ]

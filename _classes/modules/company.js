@@ -40,10 +40,10 @@ const stars = {};
 
     stars.gen = function() {
         let x1 = API.random(0, 3)
-        let x2 = API.random(0, 3)
+        let x2 = API.random(2, 6)
 
         let y = parseFloat('0.' + x1 + '' + x2)
-        return y
+        return y.toFixed(2)
     }
 
 }
@@ -198,7 +198,7 @@ get.company = async function(owner) {
 
 const jobs = { 
     itens: {},
-    maxitens: 25,
+    maxitens: 30,
     explore: {
         mobs: {
             obj: {}
@@ -535,7 +535,7 @@ const jobs = {
 
         let seedPerArea = (Math.round(plant.qnt/plant.area))+2
 
-        ms = (200-adubacao)*seedPerArea*(250000)
+        ms = (200-adubacao)*seedPerArea*(200000)
         ms += (plant.price*500000)+1
 
         return Math.round(ms)
@@ -601,7 +601,7 @@ const jobs = {
             return b.level - a.level;
         });
 
-        filteredequips = filteredequips.slice(0, 5)
+        filteredequips = filteredequips.slice(0, 3)
 
         return filteredequips;
 
@@ -690,7 +690,7 @@ const company = {
         'tecnologia': {tipo: 3, icon: '<:icon3:745663998871076904>'}, 
         'hackeamento': {tipo: 4, icon: '<:icon4:745663998887854080>'}, 
         'segurança': {tipo: 5, icon: '<:icon5:745663998900568235>'},
-        'pescaria': {tipo:6, icon: '<:icon6:778594558745378846>'}
+        'pescaria': {tipo:6, icon: '<:icon6:830966666082910228>'}
        },
     types: {
         1: 'agricultura',

@@ -2,7 +2,7 @@ module.exports = {
     name: 'pescar',
     aliases: ['fish'],
     category: 'Trabalhos',
-    description: '<:icon6:778594558745378846> Inicie uma pesca, pegue os melhores peixes e venda-os',
+    description: '<:icon6:830966666082910228> Inicie uma pesca, pegue os melhores peixes e venda-os',
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -66,14 +66,14 @@ module.exports = {
         let pd = header.profundidades
 
         let inv = '<:inv:781993473331036251>'
-        let anzol = '<:anzol:781992758529097738>'
+        let anzol = '<:anzol:830810178440921128>'
 
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Pescando`)
         embed.setDescription(`Pescador: ${msg.author}`);
         embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina}/1000 🔸`)
-        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
+        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
         embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedmsg = await msg.quote(embed).catch();
         embedmsg.react('🔴')
@@ -120,7 +120,11 @@ module.exports = {
 
         async function gen(pobj, header) {
 
-            let profundidades = [(pobj.rod.profundidade/4).toFixed(1), (pobj.rod.profundidade/2).toFixed(1), (pobj.rod.profundidade).toFixed(1)] 
+            let profundidades = [
+                (parseFloat(pobj.rod.profundidade)/4).toFixed(1), 
+                (parseFloat(pobj.rod.profundidade)/2).toFixed(1), 
+                (parseFloat(pobj.rod.profundidade)).toFixed(1)
+            ] 
 
             
             let stars = 0
@@ -169,25 +173,37 @@ module.exports = {
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
-                        let chance = 60 + (pobj.rod.stars*10)
+                        let chance = 50 + (pobj.rod.stars*5)
 
-                        if (API.random(0, 100) > chance) {
+                        if (API.random(0, 100) < chance) {
 
                             const capturado = fish.find((fsh) => fsh.icon == levels[xi.toString()].waterarray[0])
+
+                            let ca = coletadosx.get(capturado.icon)
+                            if (!ca) ca = capturado
+                            if (!ca.tx1) ca.tx1 = 0
+                            const wtf = ca.tx1+1
+                            
                             capturado.size = 1
+                            capturado.tx1 = 1
+
                             retorno = await API.company.jobs.giveItem(msg, [capturado])
+
+                            const x = capturado
+
                             if (retorno.descartados.length == 0) {
 
-                                stars = API.company.stars.gen()/4
-                                
-                                let ca = coletadosx.get(capturado.icon)
+                                stars = API.company.stars.gen()/2
     
                                 if (!coletadosx.has(capturado.icon)){
-                                    coletadosx.set(capturado.icon, capturado)
+                                    coletadosx.set(capturado.icon, x)
                                 } else {
-                                    ca.size = ca.size + 1
+                                    ca.tx1 = wtf
                                     coletadosx.set(ca.icon, ca)
                                 }
+
+                                ca = coletadosx.get(capturado.icon)
+
                             }
 
                         }
@@ -204,7 +220,7 @@ module.exports = {
 
                     
                     if ((fish[i].profundidade >= levels[xi.toString()].profundidade) && (fish[i].profundidade <= levels[xi.toString()].profundidade*2)) {
-                        if (API.random(0, 100) < 60 && API.random(0, 100) < fish[i].chance) {
+                        if (API.random(0, 100) < 50 && API.random(0, 220) < fish[i].chance) {
                             levels[xi.toString()].waterarray.push(fish[i].icon)
                             break;
                         }
@@ -236,6 +252,23 @@ module.exports = {
 
         async function edit(msg, company) {
 
+            header = await gen(pobj, header)
+            body = header.levels
+            pd = header.profundidades
+
+            let cclist = [ ...coletadosx.values()];
+
+            let totalpages = cclist.length % 5;
+            if (totalpages == 0) totalpages = (cclist.length)/5;
+            else totalpages = ((cclist.length-totalpages)/5)+1;
+
+            let ccmap = ""
+            for (i = 0; i < totalpages; i++){
+                ccmap += cclist.slice((totalpages-1)*5, totalpages*5).map((peixe) => peixe.tx1 + 'x ' + peixe.icon).join(inv) + '\n'
+            }
+
+            if (cclist.length == 0) ccmap += "Nenhum"
+
             try{
 
                 let gastosta = 0
@@ -251,28 +284,6 @@ module.exports = {
 
                 stamina = await API.maqExtension.stamina.get(msg.author)
 
-                let cclist = []
-
-                coletadosx.forEach((values,keys)=>{ 
-                    cclist.push(values)
-                }) 
-
-                let totalpages = cclist.length % 5;
-                if (totalpages == 0) totalpages = (cclist.length)/5;
-                else totalpages = ((cclist.length-totalpages)/5)+1;
-
-                let ccmap = ""
-                for (i = 0; i < totalpages; i++){
-                    ccmap += cclist.slice((totalpages-1)*5, totalpages*5).map((peixe) => peixe.size + 'x ' + peixe.icon).join(inv) + '\n'
-                }
-
-                if (ccmap == "") ccmap += "Nenhum"
-
-
-                header = await gen(pobj, header)
-                body = header.levels
-                pd = header.profundidades
-
                 if (header.stars > 0 ) API.company.stars.add(msg.author, company.company_id, { score: header.stars })
 
                 embed.fields = [];
@@ -280,7 +291,7 @@ module.exports = {
                 let sta2 = await API.maqExtension.stamina.get(msg.author);
                 embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
                 embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina}/1000 🔸`)
-                embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
+                embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px.icon).join(inv))
                 embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
@@ -309,13 +320,13 @@ module.exports = {
                 let reacted = false
                 const collector = embedmsg.createReactionCollector(filter, { time: API.company.jobs.fish.update*1000 });
                 let lastreacttime = Date.now()-10000;
-                collector.on('collect', (reaction, user) => {
+                collector.on('collect', async (reaction, user) => {
                     reaction.users.remove(user.id).catch();
                     if (reaction.emoji.name == '🔴') {
                         reacted = true;
                         collector.stop();
                     } else if (reaction.emoji.name == '⬇') {
-                        if (Date.now()-lastreacttime < 5000) return;
+                        if (Date.now()-lastreacttime < 4000) return;
                         lastreacttime = Date.now()
                         header.levels["0"] = (header.levels["0"] == 5 ? 1 : header.levels["0"]+1)
                         body = header.levels
@@ -324,11 +335,11 @@ module.exports = {
                         embed.fields = [];
                         embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
                         embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina}/1000 🔸`)
-                        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-                        embed.addField(`➰ Coletados`, ccmap)
+                        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
+                        await embed.addField(`➰ Coletados`, ccmap)
                         embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            embedmsg.edit(embed).catch()
+                            await embedmsg.edit(embed).catch()
                         }catch{
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             return

@@ -1,6 +1,6 @@
 module.exports = {
     name: 'mochila',
-    aliases: ['backpack', 'bag'],
+    aliases: ['backpack', 'bag', 'inv'],
     category: 'Players',
     description: 'Visualiza os itens que estão na sua mochila',
 	async execute(API, msg) {

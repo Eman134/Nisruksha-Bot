@@ -1,5 +1,4 @@
 
-const API = require("../api.js");
 
 const waiting = {}
 const waitingmap = new Map();

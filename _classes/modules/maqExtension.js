@@ -183,7 +183,7 @@ const maqExtension = {
   ores: ores, 
   storage,
   stamina,
-  update: 20,
+  update: 18,
   recoverenergy: {
     1: 60,
     2: 58,

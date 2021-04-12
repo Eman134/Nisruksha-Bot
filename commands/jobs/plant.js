@@ -94,6 +94,11 @@ module.exports = {
             return;
         }
 
+        if (parseInt(quantidade) > 20) {
+            API.sendError(msg, `A __quantidade__ precisa ser no __máximo 20__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            return;
+        }
+
         if (area > plot.area-plot.areaplant) {
             API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terreno\``)
             return;
@@ -133,6 +138,8 @@ module.exports = {
         seed.area = area
 
         let maxtime = API.company.jobs.agriculture.calculatePlantTime(seed)
+
+        if (await API.getPerm(msg.author) >= 3) maxtime = Math.round(80*maxtime/100)
         
         let lote = {
             loc: townnum,

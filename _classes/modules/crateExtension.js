@@ -50,7 +50,6 @@ crateExtension.load = async function() {
             await API.db.pool.query(text);
         } catch (err) {
             console.log(err.stack)
-            client.emit('error', err)
         }
     }
 }

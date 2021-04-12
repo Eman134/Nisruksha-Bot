@@ -46,7 +46,7 @@ module.exports = {
            // API.updateBotInfo();
             async function rem(){
                 if (await API.maqExtension.stamina.get(msg.author) >= 1000) {
-                    msg.quote(`${msg.author} Relatório de estamina: ${await API.maqExtension.stamina.get(msg.author)}/1000`)
+                    msg.quote({ content: `Relatório de estamina: ${await API.maqExtension.stamina.get(msg.author)}/1000`, mention: true})
                     const index = API.cacheLists.rememberstamina.indexOf(msg.author.id);
                     //API.updateBotInfo();
                     if (index > -1) {

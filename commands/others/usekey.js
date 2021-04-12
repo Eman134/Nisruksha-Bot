@@ -81,6 +81,8 @@ module.exports = {
                 return;
             }
 
+            objgkeys = await API.getGlobalInfo('keys') || [];
+
             let key2 = args[0]
             let exists2 = false;
 

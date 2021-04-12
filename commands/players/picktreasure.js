@@ -78,7 +78,7 @@ module.exports = {
                     embed.setFooter(`Tempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                     API.crateExtension.give(msg.author, 3, 1)
                     const channel = API.client.channels.cache.get(API.townExtension.getConfig().treasure.channel)
-                    //channel.bulkDelete(100).catch()
+                    channel.bulkDelete(100).catch()
                 } else if (prof < API.townExtension.treasure.profundidade){
                     embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.townExtension.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
                     embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.townExtension.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));

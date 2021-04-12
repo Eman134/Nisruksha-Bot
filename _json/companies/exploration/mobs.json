@@ -3,7 +3,7 @@
         "name": "Neutral Chick",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125358655668284/1.png",
         "level": 3,
-        "sta": 40,
+        "sta": 30,
         "drops": [
             {
                 "name": "\"pena\"",
@@ -16,7 +16,7 @@
         "name": "Chickange",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125386702979082/2.png",
         "level": 3,
-        "sta": 70,
+        "sta": 36,
         "drops": [
             {
                 "name": "\"pena laranja\"",
@@ -33,8 +33,8 @@
     {
         "name": "Zumbified Chick",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125398450569246/3.png",
-        "level": 4,
-        "sta": 90,
+        "level": 3,
+        "sta": 40,
         "drops": [
             {
                 "name": "\"pena zumbi\"",
@@ -46,8 +46,8 @@
     {
         "name": "Neutral Chicken",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125440171311144/4.png",
-        "level": 5,
-        "sta": 140,
+        "level": 3,
+        "sta": 50,
         "drops": [
             {
                 "name": "\"pena\"",
@@ -59,8 +59,8 @@
     {
         "name": "Chickenge",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125442872442940/5.png",
-        "level": 7,
-        "sta": 180,
+        "level": 4,
+        "sta": 50,
         "drops": [
             {
                 "name": "\"pena laranja\"",
@@ -77,8 +77,8 @@
     {
         "name": "Zumbified Chicken",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125570056716318/6.png",
-        "level": 8,
-        "sta": 150,
+        "level": 4,
+        "sta": 60,
         "drops": [
             {
                 "name": "\"pena zumbi\"",
@@ -95,8 +95,8 @@
     {
         "name": "Burkec",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125571742957598/7.png",
-        "level": 9,
-        "sta": 180,
+        "level": 5,
+        "sta": 72,
         "drops": [
             {
                 "name": "\"dente quebrado\"",
@@ -118,8 +118,8 @@
     {
         "name": "Burkecrange",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125578843914270/8.png",
-        "level": 10,
-        "sta": 157,
+        "level": 5,
+        "sta": 70,
         "drops": [
             {
                 "name": "\"dente quebrado\"",
@@ -136,8 +136,8 @@
     {
         "name": "Poison Burkec",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125582950531092/9.png",
-        "level": 11,
-        "sta": 200,
+        "level": 6,
+        "sta": 82,
         "drops": [
             {
                 "name": "\"dente quebrado\"",
@@ -154,8 +154,8 @@
     {
         "name": "Kirebat",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125589976121384/10.png",
-        "level": 12,
-        "sta": 210,
+        "level": 6,
+        "sta": 77,
         "drops": [
             {
                 "name": "\"asas de kirebat\"",
@@ -172,8 +172,8 @@
     {
         "name": "Poison Kirebat",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125593628442644/11.png",
-        "level": 13,
-        "sta": 200,
+        "level": 7,
+        "sta": 81,
         "drops": [
             {
                 "name": "\"asas de poison kirebat\"",
@@ -190,8 +190,8 @@
     {
         "name": "Gazbur",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125605130010645/13.png",
-        "level": 15,
-        "sta": 179,
+        "level": 7,
+        "sta": 80,
         "drops": [
             {
                 "name": "\"olho\"",
@@ -218,8 +218,8 @@
     {
         "name": "Cold Gazbur",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125613341802546/14.png",
-        "level": 16,
-        "sta": 310,
+        "level": 8,
+        "sta": 92,
         "drops": [
             {
                 "name": "\"olho\"",
@@ -246,8 +246,8 @@
     {
         "name": "Poison Gazbur",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125619528532048/15.png",
-        "level": 17,
-        "sta": 290,
+        "level": 8,
+        "sta": 92,
         "drops": [
             {
                 "name": "\"olho\"",
@@ -274,8 +274,8 @@
     {
         "name": "Frikki",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125624532074516/16.png",
-        "level": 18,
-        "sta": 300,
+        "level": 9,
+        "sta": 90,
         "drops": [
             {
                 "name": "\"carne de monstro\"",
@@ -297,8 +297,8 @@
     {
         "name": "Frikkange",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125628802793523/17.png",
-        "level": 19,
-        "sta": 323,
+        "level": 9,
+        "sta": 91,
         "drops": [
             {
                 "name": "\"carne de monstro\"",
@@ -320,8 +320,8 @@
     {
         "name": "Poison Frikki",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125633466466324/18.png",
-        "level": 20,
-        "sta": 280,
+        "level": 9,
+        "sta": 86,
         "drops": [
             {
                 "name": "\"carne de monstro\"",
@@ -343,8 +343,8 @@
     {
         "name": "Baraz",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125638948421652/19.png",
-        "level": 22,
-        "sta": 280,
+        "level": 10,
+        "sta": 80,
         "drops": [
             {
                 "name": "\"perna de baraz\"",
@@ -361,8 +361,8 @@
     {
         "name": "Poison Baraz",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125642605723678/20.png",
-        "level": 24,
-        "sta": 270,
+        "level": 11,
+        "sta": 100,
         "drops": [
             {
                 "name": "\"perna de poison baraz\"",
@@ -379,8 +379,8 @@
     {
         "name": "Tzarrin",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125661488087056/22.png",
-        "level": 28,
-        "sta": 263,
+        "level": 11,
+        "sta": 102,
         "drops": [
             {
                 "name": "\"ovo de tzarrin\"",
@@ -392,8 +392,8 @@
     {
         "name": "Cold Tzarrin",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125666152939520/23.png",
-        "level": 29,
-        "sta": 250,
+        "level": 11,
+        "sta": 106,
         "drops": [
             {
                 "name": "\"ovo de cold tzarrin\"",
@@ -405,8 +405,8 @@
 	{
         "name": "Shiny Kirebat",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125600700825630/12.png",
-        "level": 32,
-        "sta": 220,
+        "level": 12,
+        "sta": 120,
         "drops": [
             {
                 "name": "\"asas de shiny kirebat\"",
@@ -423,8 +423,8 @@
     {
         "name": "Shiny Baraz",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125652038320198/21.png",
-        "level": 35,
-        "sta": 290,
+        "level": 13,
+        "sta": 99,
         "drops": [
             {
                 "name": "\"perna de shiny baraz\"",
@@ -441,13 +441,189 @@
     {
         "name": "Shiny Tzarrin",
         "image": "https://cdn.discordapp.com/attachments/764111274756931625/764125671047430154/24.png",
-        "level": 40,
-        "sta": 300,
+        "level": 14,
+        "sta": 102,
         "drops": [
             {
                 "name": "\"ovo de shiny tzarrin\"",
                 "maxdrops": 2,
                 "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Xipta",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/828392441601064990/25.png",
+        "level": 15,
+        "sta": 110,
+        "drops": [
+            {
+                "name": "\"parte de xipta\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"carola de xipta\"",
+                "maxdrops": 1,
+                "chance": 45
+            }
+        ]
+    },
+    {
+        "name": "Poison Xipta",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/828396294304825444/26.png",
+        "level": 15,
+        "sta": 115,
+        "drops": [
+            {
+                "name": "\"parte de xipta\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"carola de poison xipta\"",
+                "maxdrops": 1,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Shiny Xipta",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/828396668663365632/27.png",
+        "level": 16,
+        "sta": 118,
+        "drops": [
+            {
+                "name": "\"parte de xipta\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"carola de shiny xipta\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Imea",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830557811933970452/28.png",
+        "level": 18,
+        "sta": 100,
+        "drops": [
+            {
+                "name": "\"pele de imea\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"pele de imea\"",
+                "maxdrops": 3,
+                "chance": 60
+            }
+        ]
+    },
+    {
+        "name": "Gasho",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830565098854678561/29.png",
+        "level": 20,
+        "sta": 125,
+        "drops": [
+            {
+                "name": "\"corpo de gasho\"",
+                "maxdrops": 1,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Saseu",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830570185764896838/30.png",
+        "level": 21,
+        "sta": 143,
+        "drops": [
+            {
+                "name": "\"carola de saseu\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"perna de saseu\"",
+                "maxdrops": 1,
+                "chance": 40
+            }
+        ]
+    },
+    {
+        "name": "Cleitin",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830582298545094696/31.png",
+        "level": 22,
+        "sta": 155,
+        "drops": [
+            {
+                "name": "\"olho\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"membro do cleitin\"",
+                "maxdrops": 1,
+                "chance": 80
+            },
+            {
+                "name": "\"pernas do cleitin\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+
+        ]
+    },
+    {
+        "name": "Olp",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830582870723657738/32.png",
+        "level": 23,
+        "sta": 180,
+        "drops": [
+            {
+                "name": "\"armadura de olp\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"pernas de olp\"",
+                "maxdrops": 1,
+                "chance": 70
+            }
+        ]
+    },
+    {
+        "name": "Basg",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830583949108838431/33.png",
+        "level": 25,
+        "sta": 250,
+        "drops": [
+            {
+                "name": "\"restos de basg\"",
+                "maxdrops": 1,
+                "chance": 100
+            }
+        ]
+    },
+    {
+        "name": "Meil",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/830588108884934656/34.png",
+        "level": 27,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"corpo de meil\"",
+                "maxdrops": 1,
+                "chance": 100
             }
         ]
     }

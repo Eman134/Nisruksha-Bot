@@ -1,4 +1,4 @@
-const { prefix, owner, token, ip } = require("../_classes/config");
+const { prefix, owner, token, ip, app } = require("../_classes/config");
 const db = require('./db.js');
 const serverdb = {};
 const version = require('../package.json').version
@@ -225,7 +225,7 @@ API.checkAll = async function(msg, req) {
         try {
             await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
         } catch {
-            API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que tenha-o!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
+            API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
         
             if (API.logs.falhas) {
                 const embedcmd = new API.Discord.MessageEmbed()
@@ -285,36 +285,35 @@ API.checkAll = async function(msg, req) {
     if (!chan) await API.client.channels.fetch(msg.channel.id, { cache: true, force: true})
 
     chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
-    if (chan) {
         
-        chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
-        chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-        chan.permissionsFor(me).has("MANAGE_MESSAGES", false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
-        chan.permissionsFor(me).has("USE_EXTERNAL_EMOJIS", false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
-        chan.permissionsFor(me).has("ADD_REACTIONS", false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
-        chan.permissionsFor(me).has("READ_MESSAGE_HISTORY", false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
+    chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
+    chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
+    chan.permissionsFor(me).has("MANAGE_MESSAGES", false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
+    chan.permissionsFor(me).has("USE_EXTERNAL_EMOJIS", false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
+    chan.permissionsFor(me).has("ADD_REACTIONS", false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
+    chan.permissionsFor(me).has("READ_MESSAGE_HISTORY", false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
 
-        let result = "";
-        result = list.join('\n').toString();
+    let result = "";
+    result = list.join('\n').toString();
 
-        if (result.includes('❌') && perm < 4) {
-            await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[MEU SERVIDOR](https://dsc.gg/svnisru)')
+    if (result.includes('❌') && perm < 4) {
+        msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[MEU SERVIDOR](https://dsc.gg/svnisru)')
             
-            if (API.logs.falhas) {
-                const embedcmd = new API.Discord.MessageEmbed()
-                .setColor('#b8312c')
-                .setTimestamp()
-                .setTitle(`Falha: sem permissão`)
-                .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
-                .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-                .addField('Perms', `\`\`\`\n${result}\`\`\``)
-                API.client.channels.cache.get('770059589076123699').send(embedcmd);
-            }
+        if (API.logs.falhas) {
+            const embedcmd = new API.Discord.MessageEmbed()
+            .setColor('#b8312c')
+            .setTimestamp()
+            .setTitle(`Falha: sem permissão`)
+            .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
+            .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            .addField('Perms', `\`\`\`\n${result}\`\`\``)
+            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+        }
             
             return true;
-        }
     }
+    
     
     if (pobj.mvp != null && Date.now()-pobj.mvp > 0) {
         const embed = new API.Discord.MessageEmbed()
@@ -339,10 +338,13 @@ API.checkAll = async function(msg, req) {
         .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para digitar outro comando!')
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
-        
+        try {
         await msg.quote(embed).then(msg => {
             msg.delete({ timeout: 5000 })
-        })
+        }).catch()
+        } catch {
+            
+        }
         API.setCooldown(msg.author, "antispam", 3);
         return true;
     }
@@ -375,6 +377,11 @@ API.checkAll = async function(msg, req) {
             API.setCooldown(msg.author, "votealertdelay", 520);
             const voteembed = new API.Discord.MessageEmbed()
             voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
+            
+            if (API.random(0, 100) < 50) {
+                voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
+            }
+
             msg.quote(msg.author, voteembed)
 			return false;
         });
@@ -399,11 +406,11 @@ API.checkAll = async function(msg, req) {
 }
 
 API.setGlobalInfo = async function(info, value) {
-    API.setInfo(API.client.user, "globals", info, value);
+    API.setInfo(app, "globals", info, value);
 }
 
 API.getGlobalInfo = async function(info) {
-    const obj = await API.getInfo(API.client.user, "globals");
+    const obj = await API.getInfo(app, "globals");
     return obj[info];
 }
 
@@ -535,7 +542,9 @@ API.sendError = async function (msg, s, usage) {
     if (usage) {
         embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
-    await msg.quote(embed);
+    try {
+        await msg.quote(embed).catch();
+    } catch {}
     
 }
 
@@ -548,7 +557,7 @@ API.sendErrorM = async function (msg, s, usage) {
     if (usage) {
         embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
-    await msg.quote({ embed, mention: true });
+    await msg.quote({ content: msg.author, embed, mention: true });
     
 }
 
@@ -648,7 +657,7 @@ API.getBotInfoProperties = async function() {
 
     embed.addField(`📓 Comandos executados`, `Após iniciar: \`${API.cmdsexec}\`\nTotal: \`${totalcmd}\``, true)
 
-    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nEsperando 🔋: \`${API.cacheLists.rememberenergy.length}\`\nEsperando 🔸: \`${API.cacheLists.rememberstamina.length}\``, true)
+    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nEsperando 🔋: \`${API.cacheLists.rememberenergy.size}\`\nEsperando 🔸: \`${API.cacheLists.rememberstamina.size}\``, true)
 
     embed.addField(`📎 Versões`, `Node.js \`${process.versions.node}\`\nDiscord.js \`${API.Discord.version}\`\nNisruksha \`${API.version}\``, true)
 

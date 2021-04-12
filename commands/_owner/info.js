@@ -69,7 +69,7 @@ async function send(API, msg) {
         var rank1 = 1;
         for (var i = 0; i < array1.length; i++) {
 
-            let server = await API.client.guilds.cache.get(`${array1[i].server_id}`);
+            let server = await API.client.guilds.cache.get(array1[i].server_id);
             if (server) {
 
                 array1[i].server = server;
@@ -101,7 +101,7 @@ async function send(API, msg) {
         var rank2 = 1;
         for (var i = 0; i < array2.length; i++) {
 
-            let server = await API.client.guilds.cache.get(`${array2[i].server_id}`);
+            let server = await API.client.guilds.cache.get(array2[i].server_id);
             if (server) {
                 array2[i].server = server;
                 array2[i].rank = rank2;
@@ -109,25 +109,30 @@ async function send(API, msg) {
                 rank2++;
             } else {
                 const text =  `UPDATE servers SET lastcmd = $2 WHERE server_id=$1;`,
-                values = [array2[i].server_id, null]
+                values = [array2[i].server_id, 0]
                 try {
                     await API.db.pool.query(text, values);
                 } catch (err) {
                     console.log(err.stack)
-                    client.emit('error', err)
+                    API.client.emit('error', err)
                 }
                 array2.splice(i, 1)
 
             }
         }
 
+        array1 = array1.filter((i) => i.server !== undefined)
+        array2 = array2.filter((i) => i.server !== undefined)
         
         const embed = new API.Discord.MessageEmbed()
         .setTitle(`Painel de Moderação | Visão Geral`)
         .setColor(`RANDOM`)
-        .setDescription(`📃 Registrados: **${array.length}**\n📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`\n💤 Mais inativo: **${array2[0].server.name}** (${array2[0].server.id}) \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-array2[0].lastcmd))}\``)
+        .setDescription(`📃 Registrados: **${array.length}**
+📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
+💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-array2[0].lastcmd))}\``)
         .setTimestamp()
         await msg.quote(embed)
+
         await sendCmdsExec(API, msg, array1)
         await sendInative(API, msg, array2)
 
@@ -138,7 +143,7 @@ async function send(API, msg) {
         }
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         console.log(err.stack)
     }
 

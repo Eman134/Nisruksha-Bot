@@ -46,23 +46,26 @@ module.exports = {
             embed2.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             
             embedmsg.edit(embed2);
+
             if (API.cacheLists.rememberenergy.includes(msg.author.id)) return;
             API.cacheLists.rememberenergy.push(msg.author.id);
-            //API.updateBotInfo();
             collector.stop();
             async function rem(){
                 if (await API.maqExtension.getEnergy(msg.author) >= await API.maqExtension.getEnergyMax(msg.author)) {
-                    msg.quote(`${msg.author} Relatório de energia: ${await API.maqExtension.getEnergy(msg.author)}/${await API.maqExtension.getEnergyMax(msg.author)}`)
-                    //API.updateBotInfo();
-                    const index = API.cacheLists.rememberenergy.indexOf(msg.author.id);
-                    if (index > -1) {
-                        API.cacheLists.rememberenergy.splice(index, 1);
+                    msg.quote({ content: `Relatório de energia: ${await API.maqExtension.getEnergy(msg.author)}/${await API.maqExtension.getEnergyMax(msg.author)}`, mention: true})
+                    if (API.cacheLists.rememberenergy.includes(msg.author.id)) {
+                        const index = API.cacheLists.rememberenergy.indexOf(msg.author.id);
+                        //API.updateBotInfo();
+                        if (index > -1) {
+                            API.cacheLists.rememberenergy.splice(index, 1);
+                        }
                     }
                     return;
                 } else {
                     setTimeout(function(){rem()}, await API.maqExtension.getEnergyTime(msg.author)+1000)
                 }
-            }  
+            
+            }
             rem();
         });
         

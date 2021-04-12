@@ -2,7 +2,7 @@ module.exports = {
     name: 'uparvara',
     aliases: ['rodupgrade', 'varaupgrade', 'rodup', 'varaup'],
     category: 'Trabalhos',
-    description: '<:icon6:778594558745378846> Dê upgrade na vara de pesca para melhorar a pescaria',
+    description: '<:icon6:830966666082910228> Dê upgrade na vara de pesca para melhorar a pescaria',
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -43,12 +43,12 @@ module.exports = {
             return API.sendError(msg, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
         }
 
-        let total = Math.round(500*(pobj2.level*pobj2.level*0.6))
+        let total = Math.round(1500*pobj2.level)
 
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
-        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\` *(20% chance de aumentar)* \nGasto por turno: **${pobj.rod.sta} 🔸** *(35% chance de aumentar)*\nProfundidade: **${pobj.rod.profundidade}m** *(60% chance de aumentar)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\` *(20% chance de aumentar)* \nGasto por turno: **${pobj.rod.sta} 🔸** *(36% chance de aumentar)*\nProfundidade: **${pobj.rod.profundidade}m** *(44% chance de aumentar)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
         let embedmsg
         await msg.quote(embed).then((emsg) => {
             embedmsg = emsg
@@ -99,9 +99,9 @@ module.exports = {
             if (pobj2.rod.sta < 10) {
                 list.push(1)
             }
-           // if (pobj2.rod.profundidade < 10) {
+            if (pobj2.rod.profundidade < 10) {
                 list.push(2)
-            //}
+            }
 
             if (list.length == 0) {
                 embed.setColor('#a60000');
@@ -109,52 +109,35 @@ module.exports = {
                 return embedmsg.edit(embed);
             }
 			upgraded = true
-            switch (list[API.random(0, list.length-1)]) {
-                case 0:
 
-                    if (API.random(0, 100) > 20) {
-                        embed.setColor('#a60000');
-                        embed.addField(`❌ Falha no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e o upgrade não funcionou!`)
-                        return embedmsg.edit(embed);
-                    } else {
+            const randomd = API.random(0, 100)
 
-                        pobj2.rod.stars += 1
-                        API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
-                        embed.setColor('#5bff45');
-                        embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
-                        return embedmsg.edit(embed);
-                    }
-                case 1:
+            if (list.includes(0) && randomd <= 20) {
 
-                    if (API.random(0, 100) > 35) {
-                        embed.setColor('#a60000');
-                        embed.addField(`❌ Falha no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e o upgrade não funcionou!`)
-                        return embedmsg.edit(embed);
-                    } else {
+                pobj2.rod.stars += 1
+                API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
+                embed.setColor('#5bff45');
+                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
+                return embedmsg.edit(embed);
 
-                        pobj2.rod.sta += 1
-                        API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
-                        embed.setColor('#5bff45');
-                        embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou o gasto de estamina 🔸 da sua vara de pesca!`)
-                        return embedmsg.edit(embed);
-                    }
+            } else if (list.includes(1) && randomd <= 56) {
+                pobj2.rod.sta += 1
+                API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
+                embed.setColor('#5bff45');
+                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou o gasto de estamina 🔸 da sua vara de pesca!`)
+                return embedmsg.edit(embed);
 
-                case 2:
-                    
-                    if (API.random(0, 100) > 60) {
-                        embed.setColor('#a60000');
-                        embed.addField(`❌ Falha no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e o upgrade não funcionou!`)
-                        return embedmsg.edit(embed);
-                    } else {
-
-                        pobj2.rod.profundidade += parseFloat("0." + API.random(1, 5))
-                        pobj2.rod.profundidade = Math.round(pobj2.rod.profundidade)
-                        API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
-                        embed.setColor('#5bff45');
-                        embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
-                        return embedmsg.edit(embed);
-                    }
-                default: return msg.quote('Erro ao dar upgrade na vara de pesca')
+            } else if (list.includes(2) && randomd <= 100) {
+                pobj2.rod.profundidade = (parseFloat(pobj2.rod.profundidade) + parseFloat("0." + API.random(2, 5))).toFixed(1)
+                API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
+                embed.setColor('#5bff45')
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance de aumentar)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance de aumentar)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance de aumentar)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
+                return embedmsg.edit(embed)
+            } else {
+                embed.setColor('#a60000');
+                embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
+                return embedmsg.edit(embed);
             }
             
         });

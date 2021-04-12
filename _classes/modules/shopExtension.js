@@ -44,7 +44,7 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
       
 
       embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, `
-      Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' pontos de convite` ' + '🎫' : ''}\nUtilize ${API.prefix}comprar ${p.id}${p['token'] ? '\nQuantia: **' + p['token'] + ' fichas**':''}${p['tier'] ? `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`:''}${p['profundidade'] ? '\nProfundidade: ' + p['profundidade'] + 'm':''}${p['durability'] ? '\nDurabilidade: ' + p['durability'] + 'u':''}${p['level'] ? '\n**Requer Nível ' + p['level'] + '**':''}${p['info'] ? '\n' + p['info']:''}
+      Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' pontos de convite` ' + '🎫' : ''}\nUtilize ${API.prefix}comprar ${p.id}${p['token'] ? '\nQuantia: ' + p['token'] + ' fichas':''}${p['tier'] ? `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`:''}${p['profundidade'] ? '\nProfundidade: ' + p['profundidade'] + 'm':''}${p['durability'] ? '\nDurabilidade: ' + p['durability'] + 'u':''}${p['level'] ? '\n**Requer Nível ' + p['level'] + '**':''}${p['info'] ? '\n' + p['info']:''}
       `, false)
   }
   if (product.length == 0) embed.addField('❌ Oops, um problema inesperado ocorreu', 'Esta categoria não possui produtos ainda!');
@@ -474,7 +474,7 @@ async function getInviteJson(member) {
 
       function randomString(length) {
           var result = '';
-          var characters = 'ABCDEFGHIJKLMNOPQRSTUV192387898123jjXlsaWXYZ01010101010101098342819273057801010101';
+          var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
           var charactersLength = characters.length;
           for ( var i = 0; i < length; i++ ) {
               result += characters.charAt(Math.floor(Math.random() * charactersLength));

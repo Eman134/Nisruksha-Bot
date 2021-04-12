@@ -44,28 +44,27 @@ module.exports = {
 
         const sta = await API.maqExtension.stamina.get(msg.author);
 
-        if (sta < 30) {
-            API.sendError(msg, `Você precisa de no mínimo 50 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
+        if (sta <= 40) {
+            API.sendError(msg, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
             return;
         }
 
         let init = Date.now();
 
+        let seedobj = API.maqExtension.ores.getObj().drops.filter(i => i.type == "seed");
+        let loc = await API.townExtension.getTownNum(msg.author)
+        seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
+        if (API.debug) console.log(seedobj)
+
         let obj6 = await API.getInfo(msg.author, "machines");
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Coletando`)
-        embed.setDescription(`Agricultor: ${msg.author}`);
+        embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
         embed.setFooter(`Reaja com 🔴 para parar a coleta\nTempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedmsg = await msg.quote(embed);
         embedmsg.react('🔴')
         API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
-        
-        let seedobj = API.maqExtension.ores.getObj().drops.filter(i => i.type == "seed");
-        let loc = await API.townExtension.getTownNum(msg.author)
-        seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
-        if (API.debug) console.log(seedobj)
-        
         
         function gen(){
             let por = 6;
@@ -137,7 +136,7 @@ module.exports = {
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");
                 let sta2 = await API.maqExtension.stamina.get(msg.author);
-                embed.setDescription(`Agricultor: ${msg.author}`);
+                embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
                 await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.maqExtension.stamina.get(msg.author)}/1000 🔸 \`(-30)\``)
                 embed.setFooter(`Reaja com 🔴 para parar a coleta\nTempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 

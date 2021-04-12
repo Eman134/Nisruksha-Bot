@@ -47,11 +47,11 @@
 		"icon": "<:caixaup:782307290295435304>",
 		"rewards": [
 			{
-				"name": "600x Moedas",
-				"chance": 62,
+				"name": "1000x Moedas",
+				"chance": 59,
 				"icon": "<:moneybag:736290479406317649>",
 				"type": 0,
-				"size": 600
+				"size": 1000
 			},
 			{
 				"name": "4x Fichas",
@@ -62,7 +62,7 @@
 			},
 			{
 				"name": "3x Cristal",
-				"chance": 2,
+				"chance": 5,
 				"icon": "<:estilhas:743176785986060390>",
 				"type": 2,
 				"size": 3

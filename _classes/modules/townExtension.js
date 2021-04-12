@@ -34,7 +34,6 @@ const townExtension = {
         array = res.rows;
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
     }
 
     for (const r of array) {
@@ -75,7 +74,7 @@ townExtension.forceTreasure = async function() {
     townExtension.treasure.profundidade = API.random(15, 45)
     townExtension.treasure.picked = false
     const channel = API.client.channels.cache.get(config.treasure.channel)
-    //await channel.bulkDelete(100).catch()
+    await channel.bulkDelete(20).catch()
     await channel.send(embed).then((embedmsg) => {
 		if (channel.type == 'news') embedmsg.crosspost()
 	})

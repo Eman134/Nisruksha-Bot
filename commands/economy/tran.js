@@ -1,6 +1,6 @@
 module.exports = {
     name: 'transferir',
-    aliases: ['tn'],
+    aliases: ['tn', 'pay'],
     category: 'Economia',
     description: 'Transfere uma quantia de dinheiro para outro jogador',
 	async execute(API, msg) {
@@ -61,7 +61,7 @@ module.exports = {
             await msg.quote(embed);
             return;
         }
-        API.setCooldown(msg.author, "transferir", 20);
+        
 
         const check2 = await API.checkCooldown(member, "receivetr");
         if (check2) {
@@ -83,6 +83,8 @@ module.exports = {
             API.sendError(msg, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
             return;
         }
+
+        API.setCooldown(msg.author, "transferir", 20);
         
 		const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');

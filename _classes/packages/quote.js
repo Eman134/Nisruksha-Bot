@@ -10,10 +10,10 @@ Message.prototype.quote = async function (content, options) {
     message_channel: this.channel.id
   }
 
-  let arr //= {"parse": []}
+  let arr = {"replied_user": false}
 
   if (typeof content === 'object' && content.mention) {
-    arr = undefined
+    arr.replied_user = true
   }
 
   const { data: parsed, files } = await APIMessage
@@ -25,7 +25,7 @@ Message.prototype.quote = async function (content, options) {
   
   try {
     msg = await this.client.api.channels[this.channel.id].messages.post({
-      data: { ...parsed, message_reference: reference, allowed_mentions: arr },
+      data: { ...parsed, message_reference: reference, allowed_mentions: arr, allowedMentions: arr },
       files
     })
   } catch { 
@@ -37,9 +37,7 @@ Message.prototype.quote = async function (content, options) {
 
   await this.channel.messages.fetch(msg.id)
             .then(message => msg = message)
-            .catch((err) => {
-                console.log(err.stack)
-            });
+            .catch();
 
   return msg
 }

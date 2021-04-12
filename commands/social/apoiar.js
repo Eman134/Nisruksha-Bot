@@ -111,7 +111,7 @@ async function getInviteJson(member) {
 
         function randomString(length) {
             var result = '';
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUV192387898123jjXlsaWXYZ01010101010101098342819273057801010101';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
             var charactersLength = characters.length;
             for ( var i = 0; i < length; i++ ) {
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));

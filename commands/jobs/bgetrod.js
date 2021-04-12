@@ -2,14 +2,13 @@ module.exports = {
     name: 'pegarvara',
     aliases: ['getrod', 'trocarvara', 'comprarvara'],
     category: 'Trabalhos',
-    description: '<:icon6:778594558745378846> Compre ou troque uma vara de pesca',
+    description: '<:icon6:830966666082910228> Compre ou troque uma vara de pesca',
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
         if (boolean) return;
 
         const Discord = API.Discord;
-        const client = API.client;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de pescaria para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
@@ -43,7 +42,7 @@ module.exports = {
             return;
         }
 
-        let total = 2000*(pobj2.level*2)
+        let total = 250*(pobj2.level)
         let disp = API.company.jobs.fish.rods.possibilities(pobj2.level)
 
         const embed = new Discord.MessageEmbed()

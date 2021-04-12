@@ -8,7 +8,7 @@ module.exports = {
 		const boolean = await API.checkAll(msg, 5);
         if (boolean) return;
 
-        msg.reply(`Debug foi setado para ${!API.debug}`)
+        msg.quote(`Debug foi setado para ${!API.debug}`)
         API.debug = !API.debug
 
 	}

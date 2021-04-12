@@ -47,13 +47,14 @@ module.exports = {
         let profundidade = await API.maqExtension.getDepth(msg.author)
         let gtotal = calcGTotal(profundidade)
 
-        function calcGTotal(profundidade) {
+        function calcGTotal(pew2) {
+            
             let gtotal = 225;
-            gtotal += profundidade/1.5;
-            gtotal += API.random(1, API.random(2, Math.round(profundidade*0.76)))
-            gtotal += profundidade*2
+            gtotal += (pew2*2)/1;
+            gtotal += API.random(1, API.random(2, Math.round((pew2*2)*0.76)))
+            gtotal += (pew2*2)*2
 
-            gtotal -= profundidade/(maq.tier+1)
+            gtotal -= (pew2*2)/(maq.tier+1)
 
             gtotal = Math.round(gtotal);
 
@@ -169,7 +170,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({embed, allowedMentions: {"parse": []}}).catch()
+                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch()
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return

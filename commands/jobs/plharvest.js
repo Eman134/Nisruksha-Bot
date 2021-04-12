@@ -142,7 +142,7 @@ module.exports = {
         
         embed.setColor('#5bff45')
         embed.setTitle(selectedplant.seed.icon + ' Colheita realizada!')
-        embed.setDescription(`Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
+        embed.setDescription(`Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
         await msg.quote(embed)
 
         API.eco.addToHistory(msg.member, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)

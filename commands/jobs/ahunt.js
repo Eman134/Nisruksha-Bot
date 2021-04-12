@@ -92,15 +92,17 @@ module.exports = {
             return;
         }
 		
+        const perm = await API.getPerm(msg.author)
         
         embed
-        .addField(`Você deseja iniciar uma nova caçada?`, `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\nCaso deseja iniciar o combate reaja com ⚔.`)
+        .addField(`Você deseja iniciar uma nova caçada?`, `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\nCaso deseja iniciar o combate reaja com ⚔.${perm >= 3 ? '\nCaso deseja iniciar o combate automático reaja com 🤖': ''}\nCaso deseja fugir do monstro reaja com 🏃🏾‍♂️.`)
         .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
         const embedmsg = await msg.quote(embed);
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
         
         await embedmsg.react('⚔')
+        if (perm >= 3) await embedmsg.react('🤖')
         embedmsg.react('🏃🏾‍♂️')
 
         const filter = (reaction, user) => {
@@ -113,10 +115,11 @@ module.exports = {
         let dead = false;
         let equips = API.company.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
-        let reactequiplist = ['⚔', '🏃🏾‍♂️'];
+        let reactequiplist = ['⚔', '🏃🏾‍♂️', '🤖'];
         let fixedembed = embed
         let lastmsg
         let lastreacttime = Date.now()-4000;
+        let autohunt = false
         collector.on('collect', async (reaction, user) => {
             
             if (user.id != client.user.id) await reaction.users.remove(user.id);
@@ -124,7 +127,8 @@ module.exports = {
             if (Date.now()-lastreacttime < 1900) return;
             lastreacttime = Date.now()
             if (reaction.emoji.name == '❌' && API.debug && (await API.getPerm(msg.author) > 4)) {
-                await fixedembed.setImage(await build({player: 0, monster: monster.sta}))
+                const tbuild = await build({player: 0, monster: monster.sta})
+                await fixedembed.setImage(tbuild.url)
                 await monsterlost(monster, fixedembed)
                 await embedmsg.edit(fixedembed);
                 dead = true;
@@ -285,7 +289,7 @@ module.exports = {
                 let colocadosmap = colocados.map(d => `**${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
                 let descartadosmap = descartado.map(d => `**${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
 
-                let score = (API.company.stars.gen()/2.5).toFixed(2)
+                let score = (API.company.stars.gen())
                 API.company.stars.add(msg.author, company.company_id, { score })
 
                 embed.fields = []
@@ -306,22 +310,26 @@ module.exports = {
 
             }
             
-            if (reaction.emoji.name == '⚔' && inbattle == false) {
+            if (reaction.emoji.name == '⚔' || reaction.emoji.name == '🤖' && inbattle == false) {
                 
+                if (perm >= 3 && reaction.emoji.name == '🤖') {
+                    autohunt = true
+                }
+
                 API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
                 inbattle = true
                 
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                 
                 embedmsg.reactions.removeAll();
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
-                    embedmsg.react(API.client.emojis.cache.get(id));
+                    if (!autohunt) embedmsg.react(API.client.emojis.cache.get(id));
                     reactequips[id] = r;
                     reactequiplist.push(id)
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
@@ -332,13 +340,28 @@ module.exports = {
                 await embed.setImage(firstbuild.url)
                 embedmsg.edit(embed);
                 fixedembed = embed
+
+                if (autohunt) {
+
+                    setTimeout(async function(){ 
+                        await go() 
+                    }, 6000)
+                }
+
                 return;
                 
             }
             
             if(inbattle == false) return
+
+            async function go() {
             
             let eq = reactequips[reaction.emoji.id];
+
+            if (autohunt) {
+                Object.keys(reactequips)
+                eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
+            }
             
             if (!eq) return
 
@@ -350,7 +373,7 @@ module.exports = {
             let roll = API.random(0, 100)
             if (roll < eq.chance) {
                 let reroll = API.random(0, 50)
-                lost.player = Math.round(eq.dmg/API.random(2, 3))
+                lost.player = Math.round(eq.dmg/API.random(3, 4))
                 if (reroll < 13) lost.player = Math.round(1.5*lost.player)
                 else if(API.random(0, 50) < 10) lost.player = 0
                 let roll3 = API.random(0, 100)
@@ -359,7 +382,7 @@ module.exports = {
                 }
                 lost.monster = Math.round(eq.dmg)+crit
             } else {
-                lost.player = monster.level+1*2+Math.round(80*eq.dmg/100)
+                lost.player = monster.level+Math.round(80*eq.dmg/100)
             }
             
             if (API.debug) console.log(`${eq.name}`.yellow)
@@ -367,7 +390,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
             embed.setTitle(`Caçada`)
             .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                 
                 for (const r of equips) {
                 embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
@@ -400,15 +423,28 @@ module.exports = {
             }
             }
             
-            await embed.setFooter(`Informações do ataque atual\n${currmsg}`)
+            await embed.setFooter(`Informações do ataque atual\n${currmsg}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
 
             await embedmsg.edit(embed);
             lastreacttime = Date.now()
             fixedembed = embed
+
             if (dead) {
                 API.cacheLists.waiting.remove(msg.author, 'hunting')
                 collector.stop();
+                autohunt = false
             }
+
+            if (autohunt && !dead) {
+                setTimeout(async function(){ 
+                    collector.resetTimer();
+                    await go() 
+                }, 16000)
+            }
+
+            }
+
+            await go()
 
         });
         
