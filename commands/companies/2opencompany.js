@@ -46,7 +46,7 @@ module.exports = {
         let r2 = 50000;
         let r3 = 50000;
         let r4 = 25000;
-        let c1 = 100;
+        let c1 = 125;
 
         total = r1+r2+r3+r4
         

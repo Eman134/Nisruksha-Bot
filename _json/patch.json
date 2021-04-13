@@ -85,5 +85,13 @@
         "chn": ["Máximo de cada item na mochila [25 -> 30]", "Máximo de quantidade das plantações [25 -> 20]", "Custo de estamina ao se mover [200 -> 150]", "Balanceamento de itens das empresas", "Delay de mineração modificado [20s -> 18s]", "Dados e drops de monstros reformulados na empresa de exploração", "Preço da compra/troca de vara de pesca reduzido", "A mensagem de level up foi trocada por uma imagem", "Preço para comprar/upar vara de pesca reduzidos", "Tempo de crescimento das plantações levemente reduzidos"],
         "fix": ["Erro de snowflake id no n.maquina", "Bug da contagem dos peixes na pesca ficarem travadas em 2x", "Peixes não estavam sincronizados com a rodada de coleta"],
         "alc": ["mochila > inv", "transferir > pay"]
+    },
+	"2.1.2": {
+        "title": "Segundo Luar",
+        "add": [],
+        "rem": [],
+        "chn": ["Custo de cristais para abrir uma empresa [100 -> 125]"],
+        "fix": [],
+        "alc": []
     }
 }

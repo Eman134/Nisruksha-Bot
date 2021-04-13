@@ -75,6 +75,13 @@ waiting.add = function(member, msg, list) {
 }
 }
 
+const remember = {}
+{
+  remember.includes = function() {
+    
+  }
+}
+
 module.exports = {
 
     waiting,

@@ -148,6 +148,8 @@ module.exports = {
         API.eco.addToHistory(msg.member, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
 
         API.eco.money.add(msg.author, total)
+
+        API.company.stars.add(msg.author, company.company_id, { score, rend })
         
         if (company == undefined || msg.author.id == owner.id) return
         let rend = company.rend || []
@@ -157,8 +159,6 @@ module.exports = {
         API.setCompanieInfo(owner, company.company_id, 'rend', rend)
 
         API.eco.bank.add(owner, totaltaxa)
-
-        API.company.stars.add(msg.author, company.company_id, { score, rend })
 
 	}
 };

@@ -193,7 +193,7 @@ module.exports = {
 
                             if (retorno.descartados.length == 0) {
 
-                                stars = API.company.stars.gen()/2
+                                stars = (API.company.stars.gen()/4).toFixed(2)
     
                                 if (!coletadosx.has(capturado.icon)){
                                     coletadosx.set(capturado.icon, x)
