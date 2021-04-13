@@ -49,7 +49,7 @@ playerUtils.execExp = async function(msg, xp) {
   
       API.crateExtension.give(msg.author, 2, 3)
   
-      await msg.quote(`${msg.author}`, embed);
+      await msg.quote({content: msg.author, embed, mention: true});
   
     } else API.setInfo(msg.author, "machines", "xp", obj.xp+xp);
   

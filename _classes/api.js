@@ -364,7 +364,7 @@ API.checkAll = async function(msg, req) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `' + API.prefix + 'tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
-        msg.quote(msg.author, voteembed)
+        msg.quote({ content: msg.author, embed: voteembed, mention: true})
 		
 		return false;
 		
@@ -382,7 +382,7 @@ API.checkAll = async function(msg, req) {
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
             }
 
-            msg.quote(msg.author, voteembed)
+            msg.quote({ content: msg.author, embed: voteembed, mention: true})
 			return false;
         });
     }

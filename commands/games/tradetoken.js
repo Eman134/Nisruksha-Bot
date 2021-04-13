@@ -100,7 +100,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria trocar $${fichas} ${API.money3} ${API.money3emoji} pelo valor de ${total} ${API.money} ${API.moneyemoji}, porém o tempo expirou!`)
+            Você iria trocar ${fichas} ${API.money3} ${API.money3emoji} pelo valor de ${total} ${API.money} ${API.moneyemoji}, porém o tempo expirou!`)
             embedmsg.edit(embed);
             return;
         });
