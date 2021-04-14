@@ -48,7 +48,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
-        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\` *(20% chance de aumentar)* \nGasto por turno: **${pobj.rod.sta} 🔸** *(36% chance de aumentar)*\nProfundidade: **${pobj.rod.profundidade}m** *(44% chance de aumentar)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
         let embedmsg
         await msg.quote(embed).then((emsg) => {
             embedmsg = emsg
