@@ -99,6 +99,22 @@ module.exports = {
             if (pobj2.rod.sta < 10) {
                 list.push(1)
             }
+            
+
+            if (!pobj2.rod.maxprofundidade) {
+
+                let equipobj = jobs.fish.rods.obj;
+        
+                for (const r of equipobj) {
+                    
+                    if (pobj2.rod.level == r.level) {
+                        pobj2.rod.maxprofundidade = r.maxprofundidade;
+                    }
+        
+                }
+
+            }
+            
             if (pobj2.rod.profundidade < pobj2.rod.maxprofundidade) {
                 list.push(2)
             }
