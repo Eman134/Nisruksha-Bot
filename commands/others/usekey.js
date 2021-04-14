@@ -56,7 +56,7 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
-        const embedmsg
+        let embedmsg
         try {
             
         } catch {
