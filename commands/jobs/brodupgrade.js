@@ -132,14 +132,16 @@ module.exports = {
 
                 pobj2.rod.stars += 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
-                embed.setColor('#5bff45');
+                embed.setColor('#5bff45')
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
             } else if (list.includes(1) && randomd <= 56) {
                 pobj2.rod.sta -= 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
-                embed.setColor('#5bff45');
+                embed.setColor('#5bff45')
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
