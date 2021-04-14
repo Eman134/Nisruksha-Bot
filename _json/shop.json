@@ -278,6 +278,26 @@
 			"token": 3000,
 			"price": 3000000,
 			"price2": 0
+		},
+		{
+			"id": 309,
+			"buyable": true,
+			"name": "5000x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 5000,
+			"price": 5000000,
+			"price2": 0
+		},
+		{
+			"id": 310,
+			"buyable": true,
+			"name": "10000x Fichas",
+			"icon": "<:ficha:741827151879471115>",
+			"type": 2,
+			"token": 10000,
+			"price": 10000000,
+			"price2": 0
 		}
 	],
 	"placas": [

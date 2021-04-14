@@ -76,15 +76,32 @@ waiting.add = function(member, msg, list) {
 }
 
 const remember = {}
+const remembermap = new Map();
 {
-  remember.includes = function() {
+  remember.load = async function(){
+    let globalremember = await API.getGlobalInfo('remember');
+    if (globalremember == null) return
+    for (const b of globalremember) {
+      remembermap.set(b.memberid, b)
+    }
+  }
+
+  remember.includes = function(member, type) {
     
   }
+  remember.add = function(member, type) {
+
+  }
+  remember.remove = function(member, type) {
+
+  }
+
 }
 
 module.exports = {
 
     waiting,
+    remember,
     rememberenergy: [],
     rememberstamina: []
     
