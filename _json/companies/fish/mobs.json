@@ -109,14 +109,14 @@
         "icon": "<:peixe9:830824555223187466>",
         "profundidade": 9,
         "chance": 10,
-        "price": 20400
+        "price": 16400
     },
     {
         "name": "\"swe\"",
-        "displayname": "Angler",
+        "displayname": "Swe",
         "icon": "<:peixe10:830824811478515762>",
         "profundidade": 10,
         "chance": 15,
-        "price": 30400
+        "price": 25400
     }
 ]

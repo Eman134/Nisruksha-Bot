@@ -50,7 +50,7 @@ module.exports = {
         .setTitle('🎣 Varas disponíveis')
         .setDescription('**Explicação:** Ao confirmar a reação, o sistema irá sortear uma vara dentre as disponíveis, e a vara de pesca será essa.\n**Preço atual: ' + API.format(total) + ' ' + API.money + '** ' + API.moneyemoji)
         for (i = 0; i < disp.length; i++) {
-            embed.addField(disp[i].icon + ' ' + disp[i].name, `\`${API.company.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**`)
+            embed.addField(disp[i].icon + ' ' + disp[i].name, `\`${API.company.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`)
         }
         let embedmsg
         await msg.quote(embed).then((emsg) => { 
@@ -100,7 +100,7 @@ module.exports = {
             embed.fields = []
 
             for (let i = 0; i < disp.length; i++) {
-                embed.addField((disp[i] == vara ? ( troca ? '🔁':'✅') : ' ') + disp[i].icon + ' ' + disp[i].name, `\`${API.company.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**`)
+                embed.addField((disp[i] == vara ? ( troca ? '🔁':'✅') : ' ') + disp[i].icon + ' ' + disp[i].name, `\`${API.company.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`)
             }
 
             embed

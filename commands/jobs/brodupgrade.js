@@ -43,7 +43,7 @@ module.exports = {
             return API.sendError(msg, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
         }
 
-        let total = Math.round(3200*pobj2.level*2)
+        let total = Math.round(3200*pobj.rod.level*4)
 
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
