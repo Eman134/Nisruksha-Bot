@@ -43,7 +43,7 @@ module.exports = {
             return API.sendError(msg, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
         }
 
-        let total = Math.round(1500*pobj2.level)
+        let total = Math.round(3200*pobj2.level*2)
 
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
@@ -99,7 +99,7 @@ module.exports = {
             if (pobj2.rod.sta < 10) {
                 list.push(1)
             }
-            if (pobj2.rod.profundidade < 10) {
+            if (pobj2.rod.profundidade < pobj2.rod.maxprofundidade) {
                 list.push(2)
             }
 
@@ -121,17 +121,21 @@ module.exports = {
                 return embedmsg.edit(embed);
 
             } else if (list.includes(1) && randomd <= 56) {
-                pobj2.rod.sta += 1
+                pobj2.rod.sta -= 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45');
-                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou o gasto de estamina 🔸 da sua vara de pesca!`)
+                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
             } else if (list.includes(2) && randomd <= 100) {
                 pobj2.rod.profundidade = (parseFloat(pobj2.rod.profundidade) + parseFloat("0." + API.random(2, 5))).toFixed(1)
+
+                if (pobj2.rod.profundidade >= pobj2.rod.maxprofundidade) pobj2.rod.profundidade = pobj2.rod.maxprofundidade
+
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
+
                 embed.setColor('#5bff45')
-                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance de aumentar)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance de aumentar)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance de aumentar)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
                 return embedmsg.edit(embed)
             } else {

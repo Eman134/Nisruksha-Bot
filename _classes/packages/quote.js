@@ -29,10 +29,14 @@ Message.prototype.quote = async function (content, options) {
       files
     })
   } catch { 
+    try {
     msg = await this.client.api.channels[this.channel.id].messages.post({
       data: { ...parsed},
       files
     })
+    } catch {
+      
+    }
   }
 
   await this.channel.messages.fetch(msg.id)

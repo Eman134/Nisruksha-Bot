@@ -99,7 +99,7 @@
         "name": "\"crab\"",
         "displayname": "Crab",
         "icon": "🦀",
-        "profundidade": 8.2,
+        "profundidade": 8,
         "chance": 50,
         "price": 10400
     },
@@ -115,7 +115,7 @@
         "name": "\"swe\"",
         "displayname": "Angler",
         "icon": "<:peixe10:830824811478515762>",
-        "profundidade": 9.5,
+        "profundidade": 10,
         "chance": 15,
         "price": 30400
     }

@@ -5,8 +5,9 @@
         "id": 0,
         "level": 3,
         "stars": 1,
-        "sta": 2,
-        "profundidade": 1.1
+        "sta": 10,
+        "profundidade": 1.1,
+        "maxprofundidade": 3
     },
     {
         "name": "Vara comum",
@@ -14,8 +15,9 @@
         "icon": "🎣",
         "level": 5,
         "stars": 1,
-        "sta": 3,
-        "profundidade": 1.2
+        "sta": 10,
+        "profundidade": 1.2,
+        "maxprofundidade": 3
     },
     {
         "name": "Vara comum",
@@ -23,8 +25,9 @@
         "icon": "🎣",
         "level": 6,
         "stars": 1,
-        "sta": 3,
-        "profundidade": 1.3
+        "sta": 10,
+        "profundidade": 1.3,
+        "maxprofundidade": 3
     },
     {
         "name": "Vara comum",
@@ -32,8 +35,9 @@
         "icon": "🎣",
         "level": 7,
         "stars": 1,
-        "sta": 4,
-        "profundidade": 1.4
+        "sta": 10,
+        "profundidade": 1.4,
+        "maxprofundidade": 3
     },
     {
         "name": "Varetiz",
@@ -41,8 +45,9 @@
         "icon": "<:vara1:782314194414469160>",
         "level": 8,
         "stars": 1,
-        "sta": 4,
-        "profundidade": 1.7
+        "sta": 12,
+        "profundidade": 1.7,
+        "maxprofundidade": 4
     },
     {
         "name": "Vrekz",
@@ -50,8 +55,9 @@
         "icon": "<:vara2:782319811371728928>",
         "level": 9,
         "stars": 2,
-        "sta": 5,
-        "profundidade": 2.5
+        "sta": 14,
+        "profundidade": 2.5,
+        "maxprofundidade": 5
     },
     {
         "name": "Vorty",
@@ -59,8 +65,9 @@
         "icon": "<:vara3:830811051188682773>",
         "level": 11,
         "stars": 2,
-        "sta": 4,
-        "profundidade": 2.7
+        "sta": 16,
+        "profundidade": 2.7,
+        "maxprofundidade": 5.5
     },
     {
         "name": "Vegix",
@@ -68,8 +75,9 @@
         "icon": "<:vara4:830811913217900594>",
         "level": 13,
         "stars": 2,
-        "sta": 5,
-        "profundidade": 3.2
+        "sta": 16,
+        "profundidade": 3.2,
+        "maxprofundidade": 6
     },
     {
         "name": "Vuntor",
@@ -77,8 +85,9 @@
         "icon": "<:vara5:830814567277920297>",
         "level": 15,
         "stars": 2,
-        "sta": 4,
-        "profundidade": 3.4
+        "sta": 20,
+        "profundidade": 3.4,
+        "maxprofundidade": 7
     },
     {
         "name": "Vifos",
@@ -86,8 +95,9 @@
         "icon": "<:vara6:830815035709980722>",
         "level": 17,
         "stars": 3,
-        "sta": 6,
-        "profundidade": 4
+        "sta": 14,
+        "profundidade": 4.2,
+        "maxprofundidade": 8
     },
     {
         "name": "Asen",
@@ -95,7 +105,8 @@
         "icon": "<:vara7:830815499205345310>",
         "level": 19,
         "stars": 3,
-        "sta": 5,
-        "profundidade": 4.3
+        "sta": 15,
+        "profundidade": 4.6,
+        "maxprofundidade": 10
     }
 ]

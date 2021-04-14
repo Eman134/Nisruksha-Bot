@@ -88,9 +88,9 @@
     },
 	"2.1.2": {
         "title": "Segundo Luar",
-        "add": [],
+        "add": ["Máximo de profundidade para cada vara de pesca"],
         "rem": [],
-        "chn": ["Custo de cristais para abrir uma empresa [100 -> 125]"],
+        "chn": ["Agora ao upar a vara de pesca a estamina vai diminuir ao invés de aumentar", "Estamina padrão das varas de pesca modificados", "Custo de cristais para abrir uma empresa [100 -> 125]"],
         "fix": [],
         "alc": []
     }
