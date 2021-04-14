@@ -102,7 +102,7 @@ module.exports = {
             
 
             if (!pobj2.rod.maxprofundidade) {
-
+                if (Object.keys(API.company.jobs.fish.rods.obj).length == 0) API.company.jobs.fish.rods.load();
                 let equipobj = API.company.jobs.fish.rods.obj;
         
                 for (const r of equipobj) {
