@@ -137,9 +137,7 @@ module.exports = class MenuClient extends Client {
             if (options.ip != 'localhost') dblCheck(server)
 
             server.listen(port, () => {});
-        } catch (err) {
-            console.log(err)
-            API.client.emit('error', err)
+        } catch {
         }
         
         // Upvotes
