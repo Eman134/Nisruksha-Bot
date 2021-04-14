@@ -103,7 +103,7 @@ module.exports = {
 
             if (!pobj2.rod.maxprofundidade) {
 
-                let equipobj = jobs.fish.rods.obj;
+                let equipobj = API.jobs.fish.rods.obj;
         
                 for (const r of equipobj) {
                     
