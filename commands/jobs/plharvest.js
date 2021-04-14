@@ -149,15 +149,17 @@ module.exports = {
 
         API.eco.money.add(msg.author, total)
 
-        API.company.stars.add(msg.author, company.company_id, { score, rend })
+        API.company.stars.add(msg.author, company.company_id, { score })
         
         if (company == undefined || msg.author.id == owner.id) return
         let rend = company.rend || []
         rend.unshift(totaltaxa)
         rend = rend.slice(0, 10)
-
+        
         API.setCompanieInfo(owner, company.company_id, 'rend', rend)
 
+        API.company.stars.add(msg.author, company.company_id, { rend: totaltaxa })
+        
         API.eco.bank.add(owner, totaltaxa)
 
 	}
