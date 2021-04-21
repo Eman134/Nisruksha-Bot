@@ -53,6 +53,7 @@ const townExtension = {
     setInterval(async () => {
         
         townExtension.forceTreasure()
+        API.maqExtension.forceCot()
 
     }, intervalTreasure);
 
