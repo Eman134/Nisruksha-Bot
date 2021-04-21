@@ -67,7 +67,7 @@ townExtension.forceTreasure = async function() {
     const embed = new API.Discord.MessageEmbed()
     embed.setColor('RANDOM')
     embed.setTitle("Siga este canal em seu servidor para avisos de tesouros")
-    embed.setDescription("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `" + API.prefix + "mapa` e `" + API.prefix + "pegartesouro` respectivamente para procurar e pegar o tesouro.")
+    embed.setDescription("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `" + API.prefix + "mapa` e `" + API.prefix + "pegartesouro` respectivamente para procurar e pegar o tesouro.\nA cotação pode ter sofrido ajustes pelo tesouro!")
 
     townExtension.treasure.loc = API.random(1, 4)
     const treasurepos = await API.townExtension.getPosByTownNum(townExtension.treasure.loc);
