@@ -57,11 +57,11 @@ const townExtension = {
     }, intervalTreasure);
 
     console.log('[' + API.getFormatedDate() + '] Atualizando cotação 1... ')
-    maqExtension.forceCot()
+    API.maqExtension.forceCot()
     setInterval(async () => {
         
         console.log('[' + API.getFormatedDate() + '] Atualizando cotação... ')
-        maqExtension.forceCot()
+        API.maqExtension.forceCot()
 
     }, 60000*20);
 
