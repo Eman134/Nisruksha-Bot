@@ -196,6 +196,12 @@ maqExtension.loadToStorage = async function(obj) {
       }
   }
 
+  setInterval(async () => {
+        
+    maqExtension.forceCot()
+
+  }, 60000*20);
+
 }
 
 maqExtension.forceCot = async function() {
