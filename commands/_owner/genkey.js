@@ -1,11 +1,11 @@
 module.exports = {
     name: 'gerarkey',
     aliases: ['gerarchave', 'gchave', 'gkey', 'genkey'],
-    category: 'Mod',
+    category: 'none',
     description: 'Gera uma chave de ativação com um produto de recompensa',
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg, 4);
+		const boolean = await API.checkAll(msg, 5);
         if (boolean) return;
 
         const Discord = API.Discord;

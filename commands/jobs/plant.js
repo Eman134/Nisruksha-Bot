@@ -89,8 +89,8 @@ module.exports = {
             return;
         }
 
-        if (parseInt(quantidade) < 10) {
-            API.sendError(msg, `A __quantidade__ precisa ser no __mínimo 10__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+        if (parseInt(quantidade) < 5) {
+            API.sendError(msg, `A __quantidade__ precisa ser no __mínimo 5__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
             return;
         }
 

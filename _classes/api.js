@@ -60,20 +60,8 @@ const API = {
 
     // Extensions
     serverdb,
-    eco: {},
-    helpExtension: {},
-    company: {},
-    shopExtension: {},
-    maqExtension: {},
-    townExtension: {},
-    crateExtension: {},
-    siteExtension: {},
     db: db,
-    img: {},
-    dbl: undefined,
     // Utils
-    client: {},
-    Discord: {},
     prefix,
     owner,
     version,
@@ -108,6 +96,11 @@ API.checkAll = async function(msg, req) {
     const command = args.shift().toLowerCase();
 
     let arg = API.args(msg);
+
+    if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
+        API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
+        return true
+    }
     
     if (serverobj.status == 2 && perm < 4) {
         const check2 = await API.checkCooldown(msg.author, "antispam");
@@ -221,24 +214,33 @@ API.checkAll = async function(msg, req) {
     }
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
+    function limitedpatrao() {
+        API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
+        
+        if (API.logs.falhas) {
+            const embedcmd = new API.Discord.MessageEmbed()
+            .setColor('#b8312c')
+            .setTimestamp()
+            .setTitle(`Falha: fora do servidor oficial`)
+            .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
+            .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
+            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            return true;
+        }
+    }
+
     if (totalcmdplayer.cmdsexec >= 100 || globalstatus == 0) {
         try {
-            await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id)
-        } catch {
-            API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
-        
-            if (API.logs.falhas) {
-                const embedcmd = new API.Discord.MessageEmbed()
-                .setColor('#b8312c')
-                .setTimestamp()
-                .setTitle(`Falha: fora do servidor oficial`)
-                .setDescription(`${msg.author} executou o comando \`${API.prefix}${command}\` em #${chan.name}`)
-                .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-                if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-                API.client.channels.cache.get('770059589076123699').send(embedcmd);
-                return true;
+            const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true })
+
+            if (!x) {
+                if (limitedpatrao()) return true
             }
+
+        } catch {
+            if (limitedpatrao()) return true
         }
         
     }
@@ -297,7 +299,7 @@ API.checkAll = async function(msg, req) {
     result = list.join('\n').toString();
 
     if (result.includes('❌') && perm < 4) {
-        msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\n[MEU SERVIDOR](https://dsc.gg/svnisru)')
+        msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://dsc.gg/svnisru').catch()
             
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -308,7 +310,7 @@ API.checkAll = async function(msg, req) {
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             .addField('Perms', `\`\`\`\n${result}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send(embedcmd).catch();
         }
             
             return true;
@@ -321,7 +323,7 @@ API.checkAll = async function(msg, req) {
         .setTitle(`Opa, deslizou ai?`)
         .setDescription(`Seu **MVP** acaba de ter seu tempo expirado!\nPara adquirir **MVP** basta doar usando \`${API.prefix}doar\` e em seguida contatar o criador do bot\nPara conseguir cristais rapidamente você precisa doar para o bot e contatando o criador.\nPara entrar no servidor de suporte utilize \`${API.prefix}convite\``)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        await msg.quote(embed)
+        await msg.quote({ content: msg.author, embed, mention: true})
         API.setInfo(msg.author, 'players', 'mvp', null)
         if (perm == 3) API.setPerm(msg.author, 1)
     }
@@ -378,7 +380,7 @@ API.checkAll = async function(msg, req) {
             const voteembed = new API.Discord.MessageEmbed()
             voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
             
-            if (API.random(0, 100) < 50) {
+            if (API.random(0, 100) < 50 && perm < 3) {
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
             }
 
@@ -522,17 +524,6 @@ API.format = function(num) {
 	return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
 }
 
-API.sendConsoleError = async function (error) {
-    const Discord = API.Discord;
-    let channel = API.client.channels.cache.get('769757806835531827')
-    const embed = new Discord.MessageEmbed()
-        .setColor('#b8312c')
-        .setTitle('<:error:736274027756388353> Um erro foi encontrado')
-        .setDescription(`\`\`\`js\n${error.slice(0, 1000)}\`\`\``)
-    if (channel) await channel.send(embed).catch();
-    
-}
-
 API.sendError = async function (msg, s, usage) {
     const Discord = API.Discord;
     const embed = new Discord.MessageEmbed()
@@ -578,7 +569,10 @@ API.uptime = function() {
     
 }
 
-API.random = function(min, max) {
+API.random = function(min, max, doubled) {
+
+    if (doubled) return min + (max - min) * Math.random();
+
     return Math.floor(Math.random() * (max - min) + min);
 }
 
@@ -657,7 +651,7 @@ API.getBotInfoProperties = async function() {
 
     embed.addField(`📓 Comandos executados`, `Após iniciar: \`${API.cmdsexec}\`\nTotal: \`${totalcmd}\``, true)
 
-    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nEsperando 🔋: \`${API.cacheLists.rememberenergy.length}\`\nEsperando 🔸: \`${API.cacheLists.rememberstamina.length}\``, true)
+    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nAguardando: \`${API.cacheLists.remember.get().size}\``, true)
 
     embed.addField(`📎 Versões`, `Node.js \`${process.versions.node}\`\nDiscord.js \`${API.Discord.version}\`\nNisruksha \`${API.version}\``, true)
 
@@ -714,7 +708,7 @@ API.getInfo = async function (member, table) {
 
 }
 
-API.setInfo = async function (member, table, string, value, iscompany) {
+API.setInfo = async function (member, table, string, value) {
 
     await API.setPlayer(member, table);
 
@@ -725,7 +719,7 @@ API.setInfo = async function (member, table, string, value, iscompany) {
         await db.pool.query(text, values);
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
 };

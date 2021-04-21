@@ -25,17 +25,17 @@
 				"size": 2
 			},
 			{
-				"name": "1x Placa de Energia Máxima (+5)",
+				"name": "1x Chipe de Energia Máxima (+5)",
 				"chance": 1,
-				"icon": "🔌",
+				"icon": "<:chip2:833804232795619379>",
 				"pid": 400,
 				"type": 3,
 				"size": 1
 			},
 			{
-				"name": "1x Placa de Profundidade (+20m)",
+				"name": "1x Chipe de Profundidade (+20m)",
 				"chance": 1,
-				"icon": "⤵",
+				"icon": "<:chip1:833803786022682636>",
 				"pid": 401,
 				"type": 3,
 				"size": 1
@@ -68,17 +68,17 @@
 				"size": 3
 			},
 			{
-				"name": "1x Placa de Energia Máxima (+5)",
+				"name": "1x Chipe de Energia Máxima (+5)",
 				"chance": 1,
-				"icon": "`🔌`",
+				"icon": "<:chip2:833804232795619379>",
 				"pid": 400,
 				"type": 3,
 				"size": 1
 			},
 			{
-				"name": "1x Placa de Profundidade (+20m)",
+				"name": "1x Chipe de Profundidade (+20m)",
 				"chance": 1,
-				"icon": "`⤵`",
+				"icon": "<:chip1:833803786022682636>",
 				"pid": 401,
 				"type": 3,
 				"size": 1

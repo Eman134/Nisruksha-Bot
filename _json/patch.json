@@ -87,11 +87,10 @@
         "alc": ["mochila > inv", "transferir > pay"]
     },
 	"2.1.2": {
-        "title": "Segundo Luar",
-        "add": ["Máximo de profundidade para cada vara de pesca"],
+        "add": ["Movimentação no n.cotação", "Novo chipe \"Aceleração\"", "Novo chipe \"Antidesgastante\"", "Mesmo depois de reiniciar o bot a energia e estamina serão relembradas", "Máximo de aposta de fichas em flip (giro)", "Máximo de profundidade para cada vara de pesca"],
         "rem": [],
-        "chn": ["Agora ao upar a vara de pesca a estamina vai diminuir ao invés de aumentar", "Estamina padrão das varas de pesca modificados", "Custo de cristais para abrir uma empresa [100 -> 125]"],
-        "fix": [],
+        "chn": ["Nome das placas foram modificados para CHIP'S", "O upgrade da vara de pesca não é mais randômico: estrela -> estamina -> profundidade", "Quando morrer na exploração perde apenas o progresso em xp", "Quantidade mínima de plantas na plantação [10 -> 5]", "Agora ao upar a vara de pesca a estamina vai diminuir ao invés de aumentar", "Estamina padrão das varas de pesca modificados"],
+        "fix": ["Quando passava de 5 peixes coletados na pesca as infos bugavam"],
         "alc": []
     }
 }

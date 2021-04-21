@@ -87,16 +87,14 @@ module.exports = {
                 embedmsg.edit(embed);
                 return
             }
-            
-            API.eco.money.remove(msg.author, total)
-            API.eco.addToHistory(msg.member, `Upgrade da vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
 
             let list = []
 
             if (pobj2.rod.stars < 5) {
                 list.push(0)
             }
-            if (pobj2.rod.sta < 10) {
+
+            if (pobj2.rod.sta > 4) {
                 list.push(1)
             }
             
@@ -126,9 +124,10 @@ module.exports = {
             }
 			upgraded = true
 
-            const randomd = API.random(0, 100)
+            API.eco.money.remove(msg.author, total)
+            API.eco.addToHistory(msg.member, `Upgrade da vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
 
-            if (list.includes(0) && randomd <= 20) {
+            if (list.includes(0)) {
 
                 pobj2.rod.stars += 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
@@ -137,7 +136,7 @@ module.exports = {
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
-            } else if (list.includes(1) && randomd <= 56) {
+            } if (list.includes(1)) {
                 pobj2.rod.sta -= 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45')
@@ -145,7 +144,7 @@ module.exports = {
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
-            } else if (list.includes(2) && randomd <= 100) {
+            } if (list.includes(2)) {
                 pobj2.rod.profundidade = (parseFloat(pobj2.rod.profundidade) + parseFloat("0." + API.random(2, 5))).toFixed(1)
 
                 if (pobj2.rod.profundidade >= pobj2.rod.maxprofundidade) pobj2.rod.profundidade = pobj2.rod.maxprofundidade
@@ -161,6 +160,7 @@ module.exports = {
                 embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
                 return embedmsg.edit(embed);
             }
+            
             
         });
         

@@ -181,7 +181,7 @@ module.exports = {
                     embed2.setColor('#5bff45')
                     embed2.setDescription(`O membro ${msg.author} enviou um currículo para a sua empresa!\nUtilize \`${API.prefix}curriculos\` em algum servidor do bot para visualizar os currículos pendentes.`)
                     .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                    companyowner.send(embed2)
+                    companyowner.send(embed2).catch()
                 } catch { 
                 }
                 

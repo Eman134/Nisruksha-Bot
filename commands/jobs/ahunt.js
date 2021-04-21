@@ -213,9 +213,9 @@ module.exports = {
                 background = await API.img.drawImage(background, progress01, 146, 46)
                 background = await API.img.drawImage(background, progress02, 146, 46)
                 
-                background = await API.img.drawText(background, `Estamina: ${stptdp}/1000`, 16, './fonts/Uni Sans.ttf', '#ffffff', 396, 40, 8)
-                background = await API.img.drawText(background, `${msg.author.username}`, 16, './fonts/Uni Sans.ttf', '#ffffff', 396, 70, 2)
-                background = await API.img.drawText(background, `Nível ${playerlevel2}`, 16, './fonts/Uni Sans.ttf', '#ffffff', 155, 70, 0)
+                background = await API.img.drawText(background, `Estamina: ${stptdp}/1000`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 40, 8)
+                background = await API.img.drawText(background, `${msg.author.username}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 70, 2)
+                background = await API.img.drawText(background, `Nível ${playerlevel2}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 70, 0)
                 
                 // Monster
                 let stcstatdm = monster.csta-td_.monster <= 0 ? 0 : monster.csta-td_.monster
@@ -237,9 +237,9 @@ module.exports = {
                 background = await API.img.drawImage(background, progress2, 146, 166)
                 background = await API.img.drawImage(background, progress20, 146, 166)
 
-                background = await API.img.drawText(background, `Estamina: ${stcstatdm}/${monster.sta}`, 16, './fonts/Uni Sans.ttf', '#ffffff', 396, 160, 8)
-                background = await API.img.drawText(background, `${monster.name}`, 16, './fonts/Uni Sans.ttf', '#ffffff', 396, 190, 2)
-                background = await API.img.drawText(background, `Nível ${monster.level}`, 16, './fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
+                background = await API.img.drawText(background, `Estamina: ${stcstatdm}/${monster.sta}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 160, 8)
+                background = await API.img.drawText(background, `${monster.name}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 190, 2)
+                background = await API.img.drawText(background, `Nível ${monster.level}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
                 
                 let msg2 = await API.img.sendImage(API.client.channels.cache.get('761582265741475850'), background);
                 let url = await msg2.attachments.array()[0].url
@@ -293,7 +293,7 @@ module.exports = {
                 API.company.stars.add(msg.author, company.company_id, { score })
 
                 embed.fields = []
-                embed.setDescription(`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0.00 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`${API.prefix}mochila\``:`Sem drops`}`)
+                embed.setDescription(`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`${API.prefix}mochila\``:`Sem drops`}`)
                 
             }
             
@@ -301,10 +301,6 @@ module.exports = {
                 
                 embed.fields = []
                 embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu 1 nível e o seu progresso de xp!\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-                
-				const obj57 = await API.getInfo(member, "machines")
-
-                API.setInfo(member, "machines", "level", parseInt(obj57.level)-1)
                 API.setInfo(member, "machines", "xp", 0)
                 API.maqExtension.stamina.subset(member, 0)
 

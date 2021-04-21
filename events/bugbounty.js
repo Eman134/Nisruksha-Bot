@@ -7,7 +7,12 @@ module.exports = {
 
         if (dados.t != 'MESSAGE_REACTION_ADD') return;
         
-        const member = await client.users.fetch(dados.d.user_id);
+        let member
+        try {
+            member = await client.users.fetch(dados.d.user_id);
+        } catch (err) {
+            return client.emit('error', err)
+        }
         if (member.bot) return;
         if (dados.d.message_id != '780145465529729034') return;
         const guild = client.guilds.cache.get('693150851396796446');
@@ -34,8 +39,7 @@ module.exports = {
 
         let info = await msg.quote(`Criando nova thread...`)
         setTimeout(function(){info.delete()}, 6000);
-            
-        
+             
         let fetched = guild.channels.cache.find(r => r.name.includes(`${member.id.slice(0,4)}`));
         if (fetched){
             info.edit(`Você já possui um canal de thread! ${fetched}`)

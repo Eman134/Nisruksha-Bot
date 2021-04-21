@@ -8,7 +8,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
             .setColor('#b8312c')
             .setTitle('<:error:736274027756388353> Um erro foi encontrado')
-            .setDescription(`\`\`\`js\n${err.stack.slice(0, 1000)}\`\`\``)
+            .setDescription(`\`\`\`js\n${err.stack ? err.stack.slice(0, 1000) : err}\`\`\``)
         if (channel) await channel.send(embed).catch();
 
     }

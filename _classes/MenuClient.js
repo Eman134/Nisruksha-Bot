@@ -25,6 +25,7 @@ module.exports = class MenuClient extends Client {
                 }
         })
 
+        console.log(' ');
         this.validate(options)
         this.loadEvents()
         this.loadModules()
@@ -45,26 +46,24 @@ module.exports = class MenuClient extends Client {
 
     }
 
-    async loadModules() {
+    loadModules() {
 
         API.client = this;
         require('./packages/quote.js')
+
+        fs.readdir("./_classes/modules/", (err, files) => {
+            if (err) return console.error(err);
+            files.forEach(file => {
+                let eventFunction = require(`./modules/${file}`);
+                API[file.replace('.js', '')] = eventFunction
+            });
+        });
+
         API.db = require('./db.js');
-        API.eco = require("./modules/eco.js");
-        API.helpExtension = require("./modules/helpExtension.js");
-        API.shopExtension = require("./modules/shopExtension.js");
-        API.siteExtension = require("./modules/siteExtension.js");
-        API.maqExtension = require("./modules/maqExtension.js");
-        API.townExtension = require("./modules/townExtension.js");
-        API.crateExtension = require("./modules/crateExtension.js");
-        API.company = require("./modules/company.js");
-        API.img = require("./modules/canvas.js");
-        API.cacheLists = require("./modules/cacheLists.js");
-        API.playerUtils = require("./modules/playerUtils.js");
         API.Discord = Discord;
         API.client = this;
 
-        
+        console.log(`[MÓDULOS] Carregados`.green )
 
     }
 
@@ -76,12 +75,11 @@ module.exports = class MenuClient extends Client {
                 this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
             });
         });
+        console.log(`[EVENTOS] Carregados`.green )
     }
 
     loadCommands() {
         const x = new Discord.Collection(undefined, undefined);
-        
-        console.log(' ');
         
         const glob = require('glob');
 
@@ -89,7 +87,7 @@ module.exports = class MenuClient extends Client {
             
             if(er) {
             console.log(er)
-            API.sendConsoleError(er.stack)
+            API.client.emit('error', er)
             }
             files.forEach(file=>{
 

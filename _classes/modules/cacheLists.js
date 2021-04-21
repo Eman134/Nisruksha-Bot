@@ -1,3 +1,4 @@
+const API = require("../api");
 
 
 const waiting = {}
@@ -78,25 +79,127 @@ waiting.add = function(member, msg, list) {
 const remember = {}
 const remembermap = new Map();
 {
+
+  remember.get = function(){return remembermap}
+
+  remember.loadold = async function(type, member, channel){
+
+    let from
+    let to
+    let time
+
+    switch (type) {
+      case "energia":
+        
+        from = await API.maqExtension.getEnergy(member)
+        to = await API.maqExtension.getEnergyMax(member)
+        time = await API.maqExtension.getEnergyTime(member)+1000
+
+        break;
+      case "estamina":
+        from = await API.maqExtension.stamina.get(member)
+        to = 1000
+        time = await API.maqExtension.stamina.time(member)+1000
+      default:
+        break;
+    }
+
+    if (from >= eval(to)) {
+        channel.send(`🔁 | ${member} Relatório de ${type}: ${from}/${to}`)
+        if (remember.includes(member, type)) {
+            remember.remove(member, type)
+        }
+        return;
+    } else {
+        setTimeout(async function(){remember.loadold(type, member, channel)}, time)
+    }
+
+  }
+
   remember.load = async function(){
     let globalremember = await API.getGlobalInfo('remember');
     if (globalremember == null) return
     for (const b of globalremember) {
-      remembermap.set(b.memberid, b)
+      if (b != null) remembermap.set(b.memberid, b)
     }
+
+    
+    let keys = Array.from( remembermap.values());
+
+      for (i = 0; i < keys.length; i++) {
+        
+
+        if (keys[i]["energia"] && keys[i]["energia"].active){
+          const fetched = await API.client.users.fetch(keys[i].memberid)
+          const channel = await API.client.channels.fetch(keys[i]["energia"].channelid)
+          this.loadold("energia", fetched, channel)
+        } if (keys[i]["estamina"] && keys[i]["estamina"].active){
+          const fetched = await API.client.users.fetch(keys[i].memberid)
+          const channel = await API.client.channels.fetch(keys[i]["estamina"].channelid)
+          this.loadold("estamina", fetched, channel)
+
+        } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
+          remembermap.delete(keys[i].memberid)
+        }
+
+      }
+
+      this.save()
+
+  }
+
+  remember.save = async function(){
+    let keys = Array.from( remembermap.values());
+    API.setGlobalInfo('remember', keys)
   }
 
   remember.includes = function(member, type) {
-    
+    return remembermap.has(member.id) && remembermap.get(member.id)[type] && remembermap.get(member.id)[type].active
   }
-  remember.add = function(member, type) {
 
+  remember.add = function(member, channelid, type) {
+
+    let obj = {
+      memberid: member.id
+    }
+
+    if (remembermap.has(member.id)) {
+      obj = remembermap.get(member.id)
+    }
+
+    obj[type] = {
+      channelid,
+      active: false
+    }
+
+    if (!this.includes(member, type)) {
+      obj[type].active = true
+      remembermap.set(member.id, obj)
+    }
+
+    this.save()
   }
+
   remember.remove = function(member, type) {
+    
+    if (this.includes(member, type)) {
+      let obj = remembermap.get(member.id)
+      obj[type].active = false
+      remembermap.set(member.id, obj)
+    }
 
+    const mapped = remembermap.get(member.id)
+
+    if ((!mapped["energia"] || !mapped["energia"].active) && (!mapped["estamina"] || !mapped["estamina"].active)) {
+      remembermap.delete(member.id)
+    }
+
+    this.save()
   }
 
 }
+
+remember.load()
 
 module.exports = {
 

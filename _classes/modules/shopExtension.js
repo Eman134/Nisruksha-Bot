@@ -6,7 +6,51 @@ const shopExtension = {
 
 };
 
+shopExtension.loadItens = async function() {
+  const { readFileSync } = require('fs')
+
+  let bigobj = {}
+
+  try {
+
+    
+    const jsonStringores = readFileSync('./_json/ores.json', 'utf8')
+    const customerores = JSON.parse(jsonStringores);
+    bigobj["minerios"] = customerores
+    
+    // Load all itens
+
+    let list = []
+    
+    const jsonStringdrops = readFileSync('./_json/companies/exploration/drops_monsters.json', 'utf8')
+    const customerdrops = JSON.parse(jsonStringdrops);
+    
+    list = list.concat(customerdrops)
+    
+    const jsonStringseeds = readFileSync('./_json/companies/agriculture/seeds.json', 'utf8')
+    const customerseeds = JSON.parse(jsonStringseeds);
+    
+    list = list.concat(customerseeds)
+
+    const jsonStringfish = readFileSync('./_json/companies/fish/mobs.json', 'utf8')
+    const customerfish = JSON.parse(jsonStringfish);
+    
+    list = list.concat(customerfish)
+    
+    bigobj["drops"] = list
+      
+  } catch (err) {
+      console.log('Error parsing JSON string:', err);
+      ores.obj = `Error on pick ores obj`;
+      client.emit('error', err)
+  }
+  API.maqExtension.ores.obj = bigobj;
+
+  return bigobj
+}
+
 shopExtension.reload = async function() {
+
   const { readFileSync } = require('fs')
     const path = './_json/shop.json'
     try {
@@ -23,9 +67,12 @@ shopExtension.reload = async function() {
         shopExtension.obj = '`Error on load shop list`';
         client.emit('error', err)
     }
+
+    await API.maqExtension.loadToStorage(await this.loadItens())
+
 }
 
-  shopExtension.reload();
+shopExtension.reload();
 
 
 shopExtension.getShopObj = function() {

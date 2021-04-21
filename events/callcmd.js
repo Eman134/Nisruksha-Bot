@@ -23,7 +23,7 @@ module.exports = {
                 commandfile.execute(API, msg, ...args);
             } catch (error) {
                 console.error(error);
-                API.sendConsoleError(error.stack)
+                API.client.emit('error', error)
                 msg.quote('Ocorreu um erro ao executar o comando ' + command);
             }
 

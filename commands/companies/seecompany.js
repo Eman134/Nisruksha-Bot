@@ -128,7 +128,7 @@ module.exports = {
 		let logo
 		if (res2.logo == null) {
 			logo = await API.img.createImage(150, 150, '#915cf2')
-			logo = await API.img.drawText(logo, `${API.prefix}empresaedit logo`, 12, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 75, 75, 4)
+			logo = await API.img.drawText(logo, `${API.prefix}empresaedit logo`, 12, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 75, 75, 4)
 		} else {
 			try{
 				logo = await API.img.loadImage(res2.logo)
@@ -146,13 +146,13 @@ module.exports = {
 		companyicon = await API.img.resize(companyicon, 25, 25);
 		
 		background = await API.img.drawImage(background, companyicon, 218, 57)
-		background = await API.img.drawText(background, `${res2.name}`, 20, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 254, 70,3)
+		background = await API.img.drawText(background, `${res2.name}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 254, 70,3)
 		
-        background = await API.img.drawText(background, `Fundador:`, 16, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 213, 185,3)
-		background = await API.img.drawText(background, `@${member.username}`, 16, './fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
+        background = await API.img.drawText(background, `Fundador:`, 16, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 213, 185,3)
+		background = await API.img.drawText(background, `@${member.username}`, 16, './resources/fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
 		
-        background = await API.img.drawText(background, `${res2.score.toFixed(2)}`, 20, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 620, 70,5)
-        background = await API.img.drawText(background, `${res2.descr == null ? `Nenhuma descrição da empresa foi definida! ${API.prefix}empresaedit desc`: res2.descr}`, 15, './fonts/Uni-Sans-Light.ttf', '#FFFFFF', 211, 105,3)
+        background = await API.img.drawText(background, `${res2.score.toFixed(2)}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 620, 70,5)
+        background = await API.img.drawText(background, `${res2.descr == null ? `Nenhuma descrição da empresa foi definida! ${API.prefix}empresaedit desc`: res2.descr}`, 15, './resources/fonts/Uni-Sans-Light.ttf', '#FFFFFF', 211, 105,3)
 
 		const chart_url = await ImageCharts()
 		
@@ -184,13 +184,13 @@ module.exports = {
 
 		// Infos
 
-		background = await API.img.drawText(background, `Código: ${res2.company_id}`, 15, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 239,3)
+		background = await API.img.drawText(background, `Código: ${res2.company_id}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 239,3)
 
-		background = await API.img.drawText(background, `Taxa: ${res2.taxa}%`, 15, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 272,3)
+		background = await API.img.drawText(background, `Taxa: ${res2.taxa}%`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 272,3)
 
-		background = await API.img.drawText(background, `Loc: ${API.townExtension.getTownNameByNum(res2.loc)}`, 15, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 305,3)
+		background = await API.img.drawText(background, `Loc: ${API.townExtension.getTownNameByNum(res2.loc)}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 305,3)
 
-		background = await API.img.drawText(background, `Funcionários: ${res2.workers ? res2.workers.length : 0}`, 15, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 338,3)
+		background = await API.img.drawText(background, `Funcionários: ${res2.workers ? res2.workers.length : 0}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 338,3)
 		
 		let vagas = await API.company.check.hasVacancies(res2.company_id);
 
@@ -200,7 +200,7 @@ module.exports = {
 
 		background = await API.img.drawImage(background, onoff, 95, 361)
 
-		background = await API.img.drawText(background, `Vagas`, 15, './fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 371,3)
+		background = await API.img.drawText(background, `Vagas`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 371,3)
 
 		try {
 			background = await API.img.resize(background, 950, 650)

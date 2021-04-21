@@ -2,7 +2,7 @@ module.exports = {
     name: 'desequipar',
     aliases: ['unequip'],
     category: 'Maquinas',
-    description: 'Desquipa alguma placa da sua mochila',
+    description: 'Desquipa algum chipe da sua máquina',
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -14,7 +14,7 @@ module.exports = {
         var args = API.args(msg);
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você não pode equipar/desequipar placas enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
             return;
         }
 
@@ -26,14 +26,14 @@ module.exports = {
         let placa;
         let slot = parseInt(args[0])-1;
         if (API.isInt(args[0]) == false || parseInt(args[0]) < 0 || pieces[slot] == null || pieces[slot] == undefined|| pieces[slot] == 0) {
-            API.sendError(msg, `Você não possui placas neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+            API.sendError(msg, `Você não possui chipes neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
             return;
         } 
         
         placa = API.shopExtension.getProduct(pieces[slot]);
         const embed = new Discord.MessageEmbed();
         embed.setColor('#5bff45');
-        embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${placa.icon ? placa.icon+' ':''}${placa.name}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e placas\nUtilize \`${API.prefix}mochila\` para ver sua placa na mochila`)
+        embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${placa.icon ? placa.icon+' ':''}${placa.name}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes\nUtilize \`${API.prefix}mochila\` para ver seu chipe na mochila`)
         msg.quote(embed);
 
         pieces.length == 1 ? pieces = [] : pieces.splice(slot, 1);

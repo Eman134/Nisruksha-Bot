@@ -16,12 +16,16 @@ module.exports = {
             if (args.length == 0) {
                 member = msg.author;
             } else {
-                let member2 = await API.client.users.fetch(args[0])
-                if (!member2) {
+                try {
+                    let member2 = await API.client.users.fetch(args[0])
+                    if (!member2) {
+                        member = msg.author
+                    } else {
+                        member = member2
+                    }
+                } catch {
                     member = msg.author
-                } else {
-                    member = member2
-                }
+                } 
             }
         } else {
             member = msg.mentions.users.first();
@@ -100,8 +104,8 @@ module.exports = {
                     let total = 0;
                     for (const r of obj['minerios']) {
                         if (obj2[r.name] > 0) {
-                            embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} | ${Math.round(obj2[r.name]*r.price)} ${API.moneyemoji}`, `\`\`\`autohotkey\n${obj2[r.name] > 1000 ? (obj2[r.name]/1000).toFixed(1) + 'kg' : obj2[r.name] + 'g'}\`\`\``, true)
-                            total += obj2[r.name]*r.price;
+                            embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} | ${Math.round(obj2[r.name]*r.price.atual)} ${API.moneyemoji}`, `\`\`\`autohotkey\n${obj2[r.name] > 1000 ? (obj2[r.name]/1000).toFixed(1) + 'kg' : obj2[r.name] + 'g'}\`\`\``, true)
+                            total += obj2[r.name]*r.price.atual;
                         }
                     }
                     if (await API.maqExtension.storage.getSize(member) == 0) {

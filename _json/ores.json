@@ -2,67 +2,122 @@
     {
         "name": "pedra",
         "icon": "<:pedra:737381947197620289>",
-        "price": 0.25,
+        "price": {
+            "min": 0.20,
+            "atual": 0.25,
+            "max": 0.30,
+            "ultimoupdate": ""
+        },
         "por": 96
     },
     {
         "name": "cobre",
         "icon": "<:cobre:737382572211961886>",
-        "price": 3.58,
+        "price": {
+            "min": 3.44,
+            "atual": 3.50,
+            "max": 3.63,
+            "ultimoupdate": ""
+        },
         "por": 70
     },
     {
         "name": "ferro",
         "icon": "<:ferro:737383041277755392>",
-        "price": 7.28,
+        "price": {
+            "min": 6.80,
+            "atual": 7.15,
+            "max": 7.46,
+            "ultimoupdate": ""
+        },
         "por": 59
     },
     {
         "name": "bauxita",
         "icon": "<:bauxita:737383336464482336>",
-        "price": 15,
+        "price": {
+            "min": 10,
+            "atual": 14,
+            "max": 16,
+            "ultimoupdate": ""
+        },
         "por": 56
     },
     {
         "name": "manganes",
         "icon": "<:manganes:737383544447303731>",
-        "price": 25,
+        "price": {
+            "min": 19.5,
+            "atual": 25,
+            "max": 30,
+            "ultimoupdate": ""
+        },
         "por": 53
     },
     {
         "name": "niobio",
         "icon": "<:niobio:739967867805761556>",
-        "price": 36,
+        "price": {
+            "min": 33,
+            "atual": 36,
+            "max": 39,
+            "ultimoupdate": ""
+        },
         "por": 40
     },
     {
         "name": "ouro",
         "icon": "<:ouro:739969415382171831>",
-        "price": 67,
+        "price": {
+            "min": 48,
+            "atual": 55,
+            "max": 70,
+            "ultimoupdate": ""
+        },
         "por": 20
     },
     {
         "name": "rubi",
         "icon": "<:rubi:739972116149174392>",
-        "price": 317,
+        "price": {
+            "min": 287,
+            "atual": 300,
+            "max": 317,
+            "ultimoupdate": ""
+        },
         "por": 7
     },
     {
         "name": "ametista",
         "icon": "<:ametista:739972116455096341>",
-        "price": 507,
+        "price": {
+            "min": 460,
+            "atual": 480,
+            "max": 507,
+            "ultimoupdate": ""
+        },
         "por": 5
     },
     {
         "name": "diamante",
         "icon": "<:diamante:739972116811612201>",
-        "price": 1800,
+        "price": {
+            "min": 890,
+            "atual": 1300,
+            "max": 1800,
+            "ultimoupdate": ""
+        },
         "por": 2
     },
     {
         "name": "jade",
         "icon": "<:jade:739972115943653376>",
-        "price": 4000,
+        "price": {
+            "min": 3400,
+            "atual": 3800,
+            "max": 4100,
+            "ultimoupdate": ""
+        },
         "por": 1
     }
 ]

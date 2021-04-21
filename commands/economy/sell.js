@@ -85,7 +85,7 @@ module.exports = {
             case 0:
                 //for (const key in obj) {
                     for (const r of obj.minerios) {
-                        total += obj2[r.name]*r.price;
+                        total += obj2[r.name]*r.price.atual;
                         totalsize += obj2[r.name]
                     }
                 //}
@@ -94,7 +94,7 @@ module.exports = {
                 //for (const key in obj) {
                     for (const r of obj.minerios) {
                         let _id = r.name;
-                        if (id == _id) caseprice = r.price;
+                        if (id == _id) caseprice = r.price.atual;
                     }
                 //}
                 total += obj2[id]*caseprice;
@@ -104,7 +104,7 @@ module.exports = {
                 //for (const key in obj) {
                     for (const r of obj.minerios) {
                         let _id = r.name;
-                        if (id == _id) caseprice = r.price;
+                        if (id == _id) caseprice = r.price.atual;
                     }
                 //}
                 totalsize = parseInt(arg0);

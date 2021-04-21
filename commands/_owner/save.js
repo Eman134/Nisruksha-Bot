@@ -38,7 +38,7 @@ module.exports = {
             zip.addLocalFolder("./_json/", '_json');
             zip.addLocalFolder("./commands/", 'commands');
             zip.addLocalFolder("./events/", 'events');
-            zip.addLocalFolder("./fonts/", 'fonts');
+            zip.addLocalFolder("./resources/fonts/", 'fonts');
             zip2.addLocalFolder("./resources/", 'resources');
             zip3.addLocalFolder("./psd/", 'psd');
             zip4.addLocalFolder("./psd-2/", 'psd-2');

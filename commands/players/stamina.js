@@ -41,20 +41,16 @@ module.exports = {
             //embed2.setFooter(`1 ponto de estamina recupera a cada ${API.maqExtension.recoverstamina[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             embedmsg.edit(embed2);
             collector.stop();
-            if (API.cacheLists.rememberstamina.includes(msg.author.id)) return;
-            API.cacheLists.rememberstamina.push(msg.author.id);
+            if (API.cacheLists.remember.includes(msg.author, "estamina")) return;
+            API.cacheLists.remember.add(msg.author, msg.channel.id, "estamina");
            // API.updateBotInfo();
             async function rem(){
                 if (await API.maqExtension.stamina.get(msg.author) >= 1000) {
                     msg.quote({ content: `Relatório de estamina: ${await API.maqExtension.stamina.get(msg.author)}/1000`, mention: true})
-                    const index = API.cacheLists.rememberstamina.indexOf(msg.author.id);
-                    //API.updateBotInfo();
-                    if (index > -1) {
-                        API.cacheLists.rememberstamina.splice(index, 1);
-                    }
+                    API.cacheLists.remember.remove(msg.author, "estamina")
                     return;
                 } else {
-                    setTimeout(function(){rem()}, await API.maqExtension.getEnergyTime(msg.author)+1000)
+                    setTimeout(function(){rem()}, await API.maqExtension.stamina.time(msg.author)+1000)
                 }
             }  
             rem();

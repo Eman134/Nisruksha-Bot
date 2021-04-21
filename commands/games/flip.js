@@ -52,6 +52,10 @@ module.exports = {
             API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar <cara/coroa> <aposta>`)
             return;
         }
+        if (aposta > 1000) {
+            API.sendError(msg, `A quantia máxima de apostas é de 1000 fichas!`, `girar <cara/coroa> <aposta>`)
+            return;
+        }
 
         const token = await API.eco.token.get(msg.author)
 

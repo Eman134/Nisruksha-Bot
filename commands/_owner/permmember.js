@@ -1,11 +1,11 @@
 module.exports = {
     name: 'permm',
     aliases: ['permmember', 'setmperm', 'setmp'],
-    category: 'Mod',
+    category: 'none',
     description: 'Seta a permissão de algum membro',
 	async execute(API, msg) {
 
-        const boolean = await API.checkAll(msg, 4);
+        const boolean = await API.checkAll(msg, 5);
         if (boolean) return;
 
         let perm = await API.getPerm(msg.author)

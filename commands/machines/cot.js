@@ -13,7 +13,12 @@ module.exports = {
         
 		const embed = new Discord.MessageEmbed()
         .setColor('#32a893')
-        .setDescription(`**📈 Cotação atual dos minérios**\n${API.maqExtension.ores.getObj().minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price} ${API.money}\` ${API.moneyemoji}`).join('\n')}`)
+        .setTitle('📈 Cotação atual dos minérios')
+        .setDescription(`${API.maqExtension.ores.getObj().minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+        if (API.maqExtension.lastcot !== '') {
+            embed.setFooter('Última atualização em ' + API.maqExtension.lastcot)
+        }
+
         msg.quote(embed);
 
 	}

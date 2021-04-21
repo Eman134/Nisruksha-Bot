@@ -39,13 +39,13 @@
         "name": "\"olho\"",
         "displayname": "Olho",
         "icon": "<:eyeball:764870551075946526>",
-        "price": 950
+        "price": 780
     },
     {
         "name": "\"pele de gazbur\"",
         "displayname": "Pele de Gazbur",
         "icon": "<:wolfskin1:764870476710674453>",
-        "price": 1500
+        "price": 1300
     },
     {
         "name": "\"pele de cold gazbur\"",
@@ -63,7 +63,7 @@
         "name": "\"carne de monstro\"",
         "displayname": "Carne de monstro",
         "icon": "<:beef:764882082500837406>",
-        "price": 3000
+        "price": 2500
     },
     {
         "name": "\"veneno de frikki\"",

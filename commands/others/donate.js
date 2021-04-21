@@ -25,8 +25,8 @@ module.exports = {
 \`2.\` Cargo Doador no servidor principal
 \`3.\` Acesso a sorteios exclusivos para Doadores
 \`4.\` Acesso ao desenvolvimento de novas versões
-\`5.\` Chave de ativação de MVP com duração de 1 mês (\`${API.prefix}mvp\`)
-Para cada \`R$1,00\` = 50 ${API.money2} ${API.money2emoji}
+\`5.\` Chave de ativação de MVP com duração de 15 dias (\`${API.prefix}mvp\`)
+Para cada \`R$1,00\` = 25 ${API.money2} ${API.money2emoji}
 
 OBS: As vantagens são ativadas por cada doação
 OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \`R$5,00\` agora e doar a mesma quantia daqui 3 horas, a donate é contada como um todo de \`R$10,00\` e as vantagens serão agrupadas.        

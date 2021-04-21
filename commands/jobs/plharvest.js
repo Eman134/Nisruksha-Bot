@@ -138,7 +138,7 @@ module.exports = {
         let xp = API.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
         API.playerUtils.execExp(msg, xp);
         
-        let score = (API.company.stars.gen()*1.5).toFixed(2)
+        let score = (API.company.stars.gen()*2).toFixed(2)
         
         embed.setColor('#5bff45')
         embed.setTitle(selectedplant.seed.icon + ' Colheita realizada!')
@@ -149,7 +149,7 @@ module.exports = {
 
         API.eco.money.add(msg.author, total)
 
-        API.company.stars.add(msg.author, company.company_id, { score })
+        await API.company.stars.add(msg.author, company.company_id, { score })
         
         if (company == undefined || msg.author.id == owner.id) return
         let rend = company.rend || []

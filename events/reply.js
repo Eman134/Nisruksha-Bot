@@ -19,7 +19,7 @@ module.exports = {
                 .addField('**Mais informações**', `📨 [Entre em meu servidor](https://dsc.gg/svnisru)
 🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)
 📩 [Convide-me para seu servidor](https://dsc.gg/nisru)`)
-                return msg.quote(embed);
+                return msg.quote(embed).catch();
         }
     }
 }

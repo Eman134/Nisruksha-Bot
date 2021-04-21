@@ -322,7 +322,8 @@ const jobs = {
         }
 
         if (filteredmobs.length == 0) {
-			API.sendConsoleError('Search mob fail: filteredmobs length == 0\nLevel: ' + level)
+			API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
+			console.log('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
 			return undefined
 		}
 

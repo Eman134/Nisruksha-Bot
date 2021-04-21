@@ -81,8 +81,8 @@ module.exports = {
         }
 
         // Draw username
-        background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './fonts/MartelSans-Regular.ttf', textcolor, 200, 52,3)
-        background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './fonts/MartelSans-Regular.ttf', textcolor, 200, 117,3)
+        background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 200, 52,3)
+        background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 200, 117,3)
         // Draw circle avatar
         let avatar = await API.img.loadImage(member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         avatar = await API.img.resize(avatar, 145, 145);
@@ -97,8 +97,8 @@ module.exports = {
         let townname = await API.townExtension.getTownName(member);
 
         background = await API.img.drawImage(background, mark, 655, 27)
-        background = await API.img.drawText(background, `${townname}`, 30, './fonts/MartelSans-Regular.ttf', textcolor, 705, 52,3)*/
-        background = await API.img.drawText(background, `${obj.reps} REPS`, 30, './fonts/MartelSans-Regular.ttf', textcolor, 756, 50,4)
+        background = await API.img.drawText(background, `${townname}`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 705, 52,3)*/
+        background = await API.img.drawText(background, `${obj.reps} REPS`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 756, 50,4)
 
         const obj2 = await API.getInfo(member, "machines")
         const players_utils = await API.getInfo(member, "players_utils")
@@ -106,8 +106,8 @@ module.exports = {
         let progress = await API.img.generateProgressBar(1, 75, 155, Math.round(100*obj2.xp/(obj2.level*1980)), 5, 1, colors[perm])
         background = await API.img.drawImage(background, progress, 5, 5)
 
-        background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 20, './fonts/MartelSans-Bold.ttf', textcolor, 450, 445, 4)
-        background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 20, './fonts/MartelSans-Bold.ttf', '#FFFFFF', 450, 475, 4)
+        background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 20, './resources/fonts/MartelSans-Bold.ttf', textcolor, 450, 445, 4)
+        background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 20, './resources/fonts/MartelSans-Bold.ttf', '#FFFFFF', 450, 475, 4)
 
         let progress2 = await API.img.generateProgressBar(0, 900, 17, Math.round(100*obj2.xp/(obj2.level*1980)), 10, 0, colors[perm])
         background = await API.img.drawImage(background, progress2, 0, 407)
@@ -130,7 +130,7 @@ module.exports = {
 
         try {
         await API.img.sendImage(msg.channel, background);
-        todel.delete();
+        todel.delete().catch();
         }catch{}
 
 	}

@@ -16,12 +16,19 @@ module.exports = {
             if (args.length == 0) {
                 member = msg.author;
             } else {
-                let member2 = await API.client.users.fetch(args[0])
-                if (!member2) {
+                try {
+                    
+                    let member2 = await API.client.users.fetch(args[0])
+                    if (!member2) {
+                        member = msg.author
+                    } else {
+                        member = member2
+                    }
+
+                } catch {
                     member = msg.author
-                } else {
-                    member = member2
                 }
+                
             }
         } else {
             member = msg.mentions.users.first();
@@ -48,7 +55,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         .setColor('#a85a32')
         .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        .addField(`🧩 Placas de Aprimoramento`, `\nPara equipar uma placa utilize \`${API.prefix}equipar <ID DA PLACA>\`\n` + (pieces.length <= 0 ? '**Não possui peças de aprimoramento**' : `${piecesmap}`))
+        .addField(`<:chip:833521401951944734> Chipes de Aprimoramento`, `\nPara equipar um chipe utilize \`${API.prefix}equipar <ID DO CHIPE>\`\n` + (pieces.length <= 0 ? '**Não possui chipes de aprimoramento**' : `${piecesmap}`))
         .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa use \`${API.prefix}abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`${API.prefix}recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
         .addField(`🦴 Itens [${arrayitens.length}/10]`, `Para vender itens use \`${API.prefix}venderitem\`\n` + (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
         msg.quote(embed);

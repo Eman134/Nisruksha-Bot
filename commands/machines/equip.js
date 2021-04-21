@@ -16,12 +16,12 @@ module.exports = {
         var args = API.args(msg);
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você não pode equipar/desequipar placas enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
             return;
         }
 
         if (args.length < 1) {
-            API.sendError(msg, `Você precisa escrever um ID de placa para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar suas placas`, `equipar <id>`);
+            API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`, `equipar <id>`);
             return;
         }
         let contains = false;
@@ -33,7 +33,7 @@ module.exports = {
         }
 
         if (contains == false) {
-            API.sendError(msg, `Você não possui esta placa na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar suas placas`);
+            API.sendError(msg, `Você não possui este chipe na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`);
             return;
         }
 
@@ -82,7 +82,7 @@ module.exports = {
 
             if (!contains1) {
                 embed.setColor('#a60000')
-                .addField('❌ Falha ao equipar', `Você não possui esta placa na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar suas placas`)
+                .addField('❌ Falha ao equipar', `Você não possui este chipe na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`)
                 embedmsg.edit(embed);
                 return;
             }
@@ -95,7 +95,7 @@ module.exports = {
             }
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Sucesso ao equipar', `Você equipou **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e placas`)
+            embed.addField('✅ Sucesso ao equipar', `Você equipou **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
             embedmsg.edit(embed);
 
             API.maqExtension.givePiece(msg.author, placa.id);

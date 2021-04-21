@@ -1,7 +1,7 @@
 module.exports = {
     name: 'sairsv',
     aliases: ['leaveserver'],
-    category: 'Mod',
+    category: 'none',
     description: 'Faz com que o bot saia de algum servidor',
 	async execute(API, msg) {
 

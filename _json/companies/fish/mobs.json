@@ -37,7 +37,7 @@
         "icon": "<:peixe2:782297639081082890>",
         "profundidade": 3,
         "chance": 50,
-        "price": 1800
+        "price": 2400
     },
     {
         "name": "\"orgh\"",
@@ -45,7 +45,7 @@
         "icon": "<:peixe3:830823148705284167>",
         "profundidade": 3.2,
         "chance": 46,
-        "price": 2280
+        "price": 2680
     },
     {
         "name": "\"lislif\"",
@@ -53,7 +53,7 @@
         "icon": "<:peixe4:782306352688398384>",
         "profundidade": 3.5,
         "chance": 44,
-        "price": 2500
+        "price": 3500
     },
     {
         "name": "\"ahaco\"",
@@ -61,7 +61,7 @@
         "icon": "<:peixe5:782312801636712458>",
         "profundidade": 4.0,
         "chance": 30,
-        "price": 3000
+        "price": 3700
     },
     {
         "name": "\"abehi\"",

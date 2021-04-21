@@ -44,50 +44,6 @@ const ores = {
   obj: {}
 
 };
-(async() => {
-
-  const { readFileSync } = require('fs')
-
-  let bigobj = {}
-
-  try {
-
-    
-    const jsonStringores = readFileSync('./_json/ores.json', 'utf8')
-    const customerores = JSON.parse(jsonStringores);
-    bigobj["minerios"] = customerores
-    
-    // Load all itens
-
-    let list = []
-    
-    const jsonStringdrops = readFileSync('./_json/companies/exploration/drops_monsters.json', 'utf8')
-    const customerdrops = JSON.parse(jsonStringdrops);
-    
-    list = list.concat(customerdrops)
-    
-    const jsonStringseeds = readFileSync('./_json/companies/agriculture/seeds.json', 'utf8')
-    const customerseeds = JSON.parse(jsonStringseeds);
-    
-    list = list.concat(customerseeds)
-
-    const jsonStringfish = readFileSync('./_json/companies/fish/mobs.json', 'utf8')
-    const customerfish = JSON.parse(jsonStringfish);
-    
-    list = list.concat(customerfish)
-    
-    bigobj["drops"] = list
-      
-  } catch (err) {
-      console.log('Error parsing JSON string:', err);
-      ores.obj = `Error on pick ores obj`;
-      client.emit('error', err)
-  }
-  ores.obj = bigobj;
-
-  loadToStorage(bigobj)
-
-})()
 
 ores.getObj = function() {
   return ores.obj;
@@ -183,7 +139,8 @@ const maqExtension = {
   ores: ores, 
   storage,
   stamina,
-  update: 18,
+  update: 20,
+  lastcot: "",
   recoverenergy: {
     1: 60,
     2: 58,
@@ -200,7 +157,7 @@ const maqExtension = {
   }
 };
 
-async function loadToStorage(obj) {
+maqExtension.loadToStorage = async function(obj) {
   for (const key in obj) {
     for (const r of obj[key]) {
       const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS ${r.name} double precision NOT NULL DEFAULT 0;`
@@ -234,11 +191,52 @@ async function loadToStorage(obj) {
           API.db.pool.query(text);
       } catch (err) {
           console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          client.emit('error', err)
+          API.client.emit('error', err)
           process.exit()
       }
   }
 
+  setInterval(async () => {
+        
+    maqExtension.forceCot()
+
+  }, 60000*20);
+
+}
+
+maqExtension.forceCot = async function() {
+
+  maqExtension.lastcot = API.getFormatedDate()
+
+  const oreslist = maqExtension.ores.obj.minerios
+
+  for (i = 0; i < oreslist.length; i++) {
+    if (API.random(0, 100) < 30) {
+      
+      
+      let x = {
+        update: "",
+        price: API.random(API.maqExtension.ores.obj.minerios[i].price.min, API.maqExtension.ores.obj.minerios[i].price.max, true).toFixed(2)
+      }
+
+      let mudou = (API.maqExtension.ores.obj.minerios[i].price.atual-x.price).toFixed(2)
+
+      if (mudou < 0) mudou *= -1
+
+      if (mudou == 0) {
+        return API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = ""
+      }
+
+      mudou = mudou*2/2
+      
+      x.update = ((x.price < API.maqExtension.ores.obj.minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
+
+      API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = x.update
+      API.maqExtension.ores.obj.minerios[i].price.atual = x.price*2/2
+    } else {
+      API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = ""
+    }
+  }
 }
 
 maqExtension.get = async function(member) {

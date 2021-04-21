@@ -68,13 +68,23 @@ module.exports = {
         let armazematual = await API.maqExtension.storage.getSize(msg.author);
         let armazemmax = await API.maqExtension.storage.getMax(msg.author);
         let obj6 = await API.getInfo(msg.author, "machines");
+
+        let timeupdate = API.maqExtension.update*1000
+
+        const array = obj6.slots == null ? [] : obj6.slots
+        for (const i of array){
+            if (API.shopExtension.getProduct(i).typeeffect == 4) {
+            timeupdate -= Math.round(API.shopExtension.getProduct(i).size*1000)
+            };
+        }
+
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`${maq.name}`)
         embed.setDescription(`Minerador: ${msg.author}`);
         embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${armazematual}/${armazemmax}]g\nTotal coletado: 0g\nColetado neste update: 0g`)
-        embed.addField(`${maq.icon ? maq.icon + ' ':''}Informações da máquina`, `${ep == null || ep.length == 0?'\nPlacas: Nenhuma instalada\n': `\nPlacas: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
+        embed.addField(`${maq.icon ? maq.icon + ' ':''}Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
         embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEnergia: ${progress}`)
-        embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${API.maqExtension.update} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
         let embedmsg
         try {
@@ -122,11 +132,19 @@ module.exports = {
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 				
-                let rd = API.random(1, 15) * (maq.tier+1);
+                let rd = API.random(1, 16) * (maq.tier+1);
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
                     API.setInfo(msg.author, 'machines', 'durability', 0)
 
-                } else API.setInfo(msg.author, 'machines', 'durability', playerobj.durability-rd)
+                } else {
+                    const array = playerobj.slots == null ? [] : playerobj.slots
+                    for (const i of array){
+                        if (API.shopExtension.getProduct(i).typeeffect == 3) {
+                        rd -= Math.round(API.shopExtension.getProduct(i).size*rd/100)
+                        };
+                    }
+                    API.setInfo(msg.author, 'machines', 'durability', playerobj.durability-rd)
+                }
                 
                 for await(const r of obj2) {
 
@@ -160,9 +178,9 @@ module.exports = {
                 let profundidade = await API.maqExtension.getDepth(msg.author)
                 await embed.setDescription(`Minerador: ${msg.author}`);
                 await embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
-                await embed.addField(`${maq.icon ? maq.icon + ' ':''}Informações da máquina`, `${ep == null || ep.length == 0?'\nPlacas: Nenhuma instalada\n': `\nPlacas: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
+                await embed.addField(`${maq.icon ? maq.icon + ' ':''}Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
                 await embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEnergia: ${progress2}`)
-                embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${API.maqExtension.update} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 for await (const r of obj2) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
@@ -176,7 +194,7 @@ module.exports = {
                     return
                 }
                 playerobj = await API.getInfo(msg.member, 'machines');
-                if (playerobj.durability <= Math.round(1*maq.durability/100)) {
+                if (playerobj.durability <= Math.round(maq.durability/100)) {
                     API.sendErrorM(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
@@ -197,7 +215,8 @@ module.exports = {
                 }
 
                 let reacted = false
-                const collector = embedmsg.createReactionCollector(filter, { time: API.maqExtension.update*1000 });
+
+                const collector = embedmsg.createReactionCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (reaction, user) => {
                     if (reaction.emoji.name == '🔴') {
