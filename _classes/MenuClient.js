@@ -166,10 +166,10 @@ module.exports = class MenuClient extends Client {
                     })
 
                 });
+                API.dbl = dbl
             } catch {
                 
             }
-            API.dbl = dbl
         } 
     }
 

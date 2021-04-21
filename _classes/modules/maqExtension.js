@@ -270,6 +270,9 @@ maqExtension.getEnergy = async function(member) {
   } else {
     energia = (energiamax-((time-(time%recover))/recover))-1;
   }
+
+  if (!energia || energia == null || energia == NaN) return 0
+
   return energia;
 }
 
@@ -305,6 +308,9 @@ maqExtension.getEnergyMax = async function(member) {
 }
 
 maqExtension.setEnergy = async function(member, valor) {
+
+  if (valor == null) valor = 0
+
   API.setInfo(member, 'machines', 'energy', valor)
 }
 
