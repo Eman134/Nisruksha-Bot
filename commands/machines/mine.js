@@ -93,7 +93,7 @@ module.exports = {
         embedmsg.react('🔴')
         API.cacheLists.waiting.add(msg.author, embedmsg, 'mining');
 
-        let oreobj = API.maqExtension.ores.getObj().minerios;
+        const oreobj = API.maqExtension.ores.getObj().minerios;
 
         function gen(){
             let por = maq.tier * 10;
@@ -240,3 +240,8 @@ module.exports = {
         edit();
 	}
 };
+
+function sendCot(API) {
+
+    console.log(`${API.maqExtension.ores.obj.minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+}

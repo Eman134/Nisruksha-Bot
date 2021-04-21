@@ -50,16 +50,14 @@ ores.getObj = function() {
 }
 
 ores.checkExists = function(args, k) {
-  let obj = maqExtension.ores.getObj();
+  const obj = maqExtension.ores.getObj();
   let id = args.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   if (!k) key = "minerios"
   else key = k
- // for (const key in obj) {
-      for (const r of obj[key]) {
-        let _id = r.name;
-        if (id.replace(/"/g, '') == _id.replace(/"/g, '')) return true;
-      }
- // }
+  for (const r of obj[key]) {
+    let _id = r.name;
+    if (id.replace(/"/g, '') == _id.replace(/"/g, '')) return true;
+  }
   return false;
 }
 
@@ -85,7 +83,7 @@ const storage = {
 
 storage.giveOre = async function(member, ore, value) {
   let ore2 = ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  let obj = await API.getInfo(member, "storage");
+  const obj = await API.getInfo(member, "storage");
   API.setInfo(member, "storage", ore2, obj[ore2] + value);
 }
 
@@ -102,7 +100,7 @@ storage.getMax = async function(member) {
 
 storage.getSize = async function(member) {
   let size = 0;
-  let obj = maqExtension.ores.getObj();
+  const obj = maqExtension.ores.getObj();
   await API.setPlayer(member, 'storage')
   let res;
   const text =  `SELECT * FROM storage WHERE user_id = $1;`,

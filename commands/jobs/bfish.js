@@ -256,7 +256,7 @@ module.exports = {
             body = header.levels
             pd = header.profundidades
 
-            let cclist = [ ...coletadosx.valuesz()];
+            let cclist = [ ...coletadosx.values()];
 
             let totalpages = cclist.length % 5;
             if (totalpages == 0) totalpages = (cclist.length)/5;
