@@ -206,6 +206,8 @@ maqExtension.loadToStorage = async function(obj) {
 
 maqExtension.forceCot = async function() {
 
+  console.log('Cotação atualizada')
+
   maqExtension.lastcot = API.getFormatedDate()
 
   const oreslist = maqExtension.ores.obj.minerios
