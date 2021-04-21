@@ -48,7 +48,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
-        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+        .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
         let embedmsg
         await msg.quote(embed).then((emsg) => {
             embedmsg = emsg
@@ -132,7 +132,7 @@ module.exports = {
                 pobj2.rod.stars += 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45')
-                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
@@ -140,7 +140,7 @@ module.exports = {
                 pobj2.rod.sta -= 1
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45')
-                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
                 return embedmsg.edit(embed);
 
@@ -152,7 +152,7 @@ module.exports = {
                 API.setInfo(msg.author, 'players', 'rod', pobj2.rod)
 
                 embed.setColor('#5bff45')
-                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\` *(20% chance)* \nGasto por turno: **${pobj2.rod.sta} 🔸** *(36% chance)*\nProfundidade: **${pobj2.rod.profundidade}m** *(44% chance)*\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
+                .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
                 return embedmsg.edit(embed)
             } else {
