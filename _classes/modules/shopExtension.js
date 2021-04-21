@@ -2,7 +2,8 @@ const API = require("../api.js");
 
 const shopExtension = {
 
-  obj: {}
+  obj: {},
+  obj2: {}
 
 };
 
@@ -58,6 +59,7 @@ shopExtension.reload = async function() {
         const jsonString = readFileSync(path, 'utf8')
         const customer = JSON.parse(jsonString);
         shopExtension.obj = customer;
+        shopExtension.obj2 = customer;
       } else {
         console.log('File path is missing from shopExtension!')
         shopExtension.obj = '`Error on load shop list`';
@@ -65,7 +67,7 @@ shopExtension.reload = async function() {
     } catch (err) {
         console.log('Error parsing JSON string:', err);
         shopExtension.obj = '`Error on load shop list`';
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
     await API.maqExtension.loadToStorage(await this.loadItens())
@@ -177,7 +179,25 @@ shopExtension.checkIdExists = function(id) {
 }
 
 shopExtension.getProduct = function(id) {
-  const obj = shopExtension.getShopObj();
+  let obj
+
+  const { readFileSync } = require('fs')
+  const path = './_json/shop.json'
+  try {
+    if (path) {
+      const jsonString = readFileSync(path, 'utf8')
+      const customer = JSON.parse(jsonString);
+      obj = customer;
+    } else {
+      console.log('File path is missing from shopExtension!')
+      shopExtension.obj = '`Error on load shop list`';
+    }
+  } catch (err) {
+      console.log('Error parsing JSON string:', err);
+      shopExtension.obj = '`Error on load shop list`';
+      API.client.emit('error', err)
+  }
+
   let array = Object.keys(obj);
   let product;
   for (i = 0; i < array.length; i++) {
