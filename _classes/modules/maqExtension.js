@@ -196,6 +196,7 @@ maqExtension.loadToStorage = async function(obj) {
       }
   }
 
+  console.log('[' + API.getFormatedDate() + '] Atualizando cotação 1... ')
   maqExtension.forceCot()
   setInterval(async () => {
     
