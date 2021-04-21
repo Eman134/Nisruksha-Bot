@@ -193,7 +193,7 @@ module.exports = {
 
                             if (retorno.descartados.length == 0) {
 
-                                stars = (API.company.stars.gen()/4).toFixed(2)
+                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/2.5).toFixed(2)
     
                                 if (!coletadosx.has(capturado.icon)){
                                     coletadosx.set(capturado.icon, x)
@@ -256,7 +256,7 @@ module.exports = {
             body = header.levels
             pd = header.profundidades
 
-            let cclist = [ ...coletadosx.values()];
+            let cclist = [ ...coletadosx.valuesz()];
 
             let totalpages = cclist.length % 5;
             if (totalpages == 0) totalpages = (cclist.length)/5;
