@@ -51,20 +51,11 @@ const townExtension = {
     let intervalTreasure = (API.random(config.treasure.minInterval, config.treasure.maxInterval))*60*1000
     
     setInterval(async () => {
-        
-        townExtension.forceTreasure()
-
-    }, intervalTreasure);
-
     
-    console.log('[' + API.getFormatedDate() + '] Atualizando cotação 1... ')
-    API.maqExtension.forceCot()
-    setInterval(async () => {
-        
-        console.log('[' + API.getFormatedDate() + '] Atualizando cotação... ')
+        townExtension.forceTreasure()
         API.maqExtension.forceCot()
 
-    }, 60000*20);
+    }, intervalTreasure);
 
 })();
 
@@ -73,6 +64,9 @@ townExtension.getConfig = function() {
 }
 
 townExtension.forceTreasure = async function() {
+
+    console.log('[' + API.getFormatedDate() + '] Tesouro gerado ')
+
     const embed = new API.Discord.MessageEmbed()
     embed.setColor('RANDOM')
     embed.setTitle("Siga este canal em seu servidor para avisos de tesouros")
