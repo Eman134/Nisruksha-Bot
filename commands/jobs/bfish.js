@@ -267,10 +267,6 @@ module.exports = {
             for (i = totalpages; i > 0; i--){
                 let ic = totalpages+1-i
                 ccmap += cclist.slice((ic-1)*5, ic*5).map((peixe) => peixe.tx1 + 'x ' + peixe.icon).join(inv) + '\n'
-                console.log('totalpages: ' + totalpages)
-                console.log('totalpages slice: ' + (ic-1)*5 + ':' + ic*5)
-                console.log('totalpages i: ' + i)
-                console.log('totalpages ic: ' + ic)
             }
             console.log('-------------------')
 
