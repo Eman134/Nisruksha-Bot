@@ -29,6 +29,7 @@ module.exports = {
 
         let playerobj = await API.getInfo(msg.author, 'machines');
         let maqid = playerobj.machine;
+
         let maq = API.shopExtension.getProduct(maqid);
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
             API.sendError(msg, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
@@ -36,6 +37,7 @@ module.exports = {
         }
 
         const eng = await API.maqExtension.getEnergy(msg.author);
+
         const engmax = await API.maqExtension.getEnergyMax(msg.author);
 
         if (eng < Math.round(15*engmax/100)) {
@@ -240,8 +242,3 @@ module.exports = {
         edit();
 	}
 };
-
-function sendCot(API) {
-
-    console.log(`${API.maqExtension.ores.obj.minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
-}

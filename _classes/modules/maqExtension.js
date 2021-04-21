@@ -244,8 +244,10 @@ maqExtension.has = async function(member) {
 }
 
 maqExtension.getEnergy = async function(member) {
+
   const obj = await API.getInfo(member, 'machines')
   let energia = obj.energy;
+  
   let energiamax = await maqExtension.getEnergyMax(member);
   
   let res = (Date.now()/1000)-(energia/1000);
@@ -281,11 +283,10 @@ maqExtension.getEnergyTime = async function(member) {
 }
 
 maqExtension.getEnergyMax = async function(member) {
+
   const obj = await API.getInfo(member, 'machines')
 
   let r = 0;
-
-  await API.shopExtension.reload();
 
   const array = obj.slots == null ? [] : obj.slots
   for (const i of array){

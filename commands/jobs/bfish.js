@@ -263,12 +263,10 @@ module.exports = {
             else totalpages = ((cclist.length-totalpages)/5)+1;
 
             let ccmap = ""
-            console.log('-------------------')
             for (i = totalpages; i > 0; i--){
                 let ic = totalpages+1-i
                 ccmap += cclist.slice((ic-1)*5, ic*5).map((peixe) => peixe.tx1 + 'x ' + peixe.icon).join(inv) + '\n'
             }
-            console.log('-------------------')
 
             if (cclist.length == 0) ccmap += "Nenhum"
 
