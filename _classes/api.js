@@ -620,6 +620,13 @@ API.isOdd = function(n) {
 }*/
 
 API.getBotInfoProperties = async function() {
+
+         function formatBytes(bytes) {
+		if (bytes === 0) return '0 Bytes';
+		const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+		const i = Math.floor(Math.log(bytes) / Math.log(1024));
+		return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
+	}
 	
 	
 	let plataforma;
@@ -658,7 +665,7 @@ API.getBotInfoProperties = async function() {
 
 	let ownerx = await API.client.users.fetch('422002630106152970')
 
-    embed.addField(`<:list:736274028179750922> Detalhados`, `Ping: \`${API.client.ws.ping} ms\`\nConsumo: \`${Math.floor((process.memoryUsage().rss / 1024)/1024)} MB\`\nTamanho da db: \`${dbsize}\`\nFundador: \`${ownerx.tag}\``, true)
+    embed.addField(`<:list:736274028179750922> Detalhados`, `Ping: \`${API.client.ws.ping} ms\`\nConsumo: \`${formatBytes(process.memoryUsage().rss)}\`\nTamanho da db: \`${formatBytes(dbsize)}\`\nFundador: \`${ownerx.tag}\``, true)
     
     embed.setTimestamp()
 	
