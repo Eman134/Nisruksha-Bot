@@ -665,7 +665,7 @@ API.getBotInfoProperties = async function() {
 
 	let ownerx = await API.client.users.fetch('422002630106152970')
 
-    embed.addField(`<:list:736274028179750922> Detalhados`, `Ping: \`${API.client.ws.ping} ms\`\nConsumo: \`${formatBytes(process.memoryUsage().rss)}\`\nTamanho da db: \`${formatBytes(dbsize)}\`\nFundador: \`${ownerx.tag}\``, true)
+    embed.addField(`<:list:736274028179750922> Detalhados`, `Ping: \`${API.client.ws.ping} ms\`\nConsumo: \`${formatBytes(process.memoryUsage().rss)}\`\nTamanho da db: \`${dbsize}\`\nFundador: \`${ownerx.tag}\``, true)
     
     embed.setTimestamp()
 	
