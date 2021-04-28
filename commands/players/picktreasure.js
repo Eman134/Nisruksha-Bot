@@ -12,7 +12,7 @@ module.exports = {
 
         let townnum = await API.townExtension.getTownNum(msg.author);
 
-        if (parseInt(API.townExtension.treasure.loc) != parseInt(townnum) || API.townExtension.treasure.picked) {
+        if (parseInt(API.events.treasure.loc) != parseInt(townnum) || API.events.treasure.picked) {
             API.sendError(msg, `Não possui nenhum tesouro não explorado na sua vila atual!\nUtilize \`${API.prefix}mapa\` para achar algum tesouro em outras vilas\nOBS: Os alertas de novos tesouros são feitos no servidor oficial do Nisruksha (\`${API.prefix}convidar\`)`)
             return;
         }
@@ -28,7 +28,7 @@ module.exports = {
         const init = Date.now()
 
         function getProgress() {
-            const prof2 = API.townExtension.treasure.profundidade
+            const prof2 = API.events.treasure.profundidade
 
             return API.getProgress(8, '<:escav:807999848196079646>', '<:energyempty:741675234796503041>', prof > prof2 ? prof2 : prof, prof2, true);
         }
@@ -36,8 +36,8 @@ module.exports = {
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`🔎 Procurando tesouro`);
         embed.setDescription(`Escavador: ${msg.author}`);
-        embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(API.townExtension.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-        embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.townExtension.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
+        embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
         let embedmsg
         try {
@@ -65,23 +65,23 @@ module.exports = {
 
                 let stop = false
 
-                if (API.townExtension.treasure.picked) {
+                if (API.events.treasure.picked) {
                     embed.setTitle(`❌ Tesouro não encontrado`);
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.townExtension.treasure.profundidade/3)}m\nEscavação: ❌ Parece que alguém o pegou antes!`)
+                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ❌ Parece que alguém o pegou antes!`)
                     embed.setFooter(`Tempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                     stop = true
-                } else if (prof >= API.townExtension.treasure.profundidade && API.townExtension.treasure.picked == false) {
-                    API.townExtension.treasure.picked = true
+                } else if (prof >= API.events.treasure.profundidade && API.events.treasure.picked == false) {
+                    API.events.treasure.picked = true
                     stop = true
                     embed.setTitle(`✅ Tesouro coletado`);
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.townExtension.treasure.profundidade/3)}m\nEscavação: ✅ Tesouro coletado com sucesso! (Utilize \`${API.prefix}mochila\`)`)
+                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ✅ Tesouro coletado com sucesso! (Utilize \`${API.prefix}mochila\`)`)
                     embed.setFooter(`Tempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                     API.crateExtension.give(msg.author, 3, 1)
-                    const channel = API.client.channels.cache.get(API.townExtension.getConfig().treasure.channel)
+                    const channel = API.client.channels.cache.get(API.events.getConfig().events.channel)
                     channel.bulkDelete(100).catch()
-                } else if (prof < API.townExtension.treasure.profundidade){
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.townExtension.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-                    embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.townExtension.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                } else if (prof < API.events.treasure.profundidade){
+                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
+                    embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 }
                 
 
@@ -99,7 +99,7 @@ module.exports = {
                 }
 
                 let reacted = false
-                const collector = embedmsg.createReactionCollector(filter, { time: API.townExtension.treasure.update*1000 });
+                const collector = embedmsg.createReactionCollector(filter, { time: API.events.treasure.update*1000 });
 
                 collector.on('collect', (reaction, user) => {
                     if (reaction.emoji.name == '🔴') {

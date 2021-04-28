@@ -13,6 +13,8 @@ const events = {
 
 }
 
+events.getConfig() = function(){ return config }
+
 events.alert = async function(text) {
     try {
         const embed = new API.Discord.MessageEmbed()
