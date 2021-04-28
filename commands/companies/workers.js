@@ -74,12 +74,14 @@ module.exports = {
 
         let ownerobj = await API.getInfo(owner, 'players')
         let ownerobj2 = await API.getInfo(owner, 'machines')
+
+        const price = 80
         
 		const embed = new Discord.MessageEmbed()
         .setTitle('Score da empresa: ' + company.score + ' ⭐')
         .setThumbnail(company.logo)
         .setColor("#34fa3a")
-        .setFooter((owner.id == msg.author.id ? "Para demitir um funcionário utilize " + API.prefix + "demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa 100 ⭐ da empresa)' : '') : "Para sair da empresa utilize " + API.prefix + "sairempresa"), company.logo)
+        .setFooter((owner.id == msg.author.id ? "Para demitir um funcionário utilize " + API.prefix + "demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa ' + price + ' ⭐ da empresa)' : '') : "Para sair da empresa utilize " + API.prefix + "sairempresa"), company.logo)
         embed.addField('📌 `' + owner.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + owner.id + '\nNível: **' + ownerobj2.level + '**\n**Fundador**', false)
         for (i = 0; i < list.length; i++) {
             const func = list[i]
@@ -111,8 +113,6 @@ module.exports = {
             reacted = true;
             collector.stop();
             embed.fields = [];
-
-            const price = 80
 
             if ((res2.score < price)) {
                 embed.setColor('#a60000');
