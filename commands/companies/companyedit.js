@@ -21,15 +21,15 @@ module.exports = {
           const companyid = await API.company.get.idByOwner(msg.author)
 
           if (args.length == 0) {
-              embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.`)
+              embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.`)
               await msg.quote(embed);
               return;
             }
             
             let ch = args[0].toLowerCase();
             
-          if (['background', 'bg', 'logo', 'desc', 'description', 'descrição'].includes(ch) == false) {
-            embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.`)
+          if (['background', 'bg', 'logo', 'desc', 'description', 'descrição', 'setarvaga', 'vaga', 'vagas', 'setvaga', 'taxa'].includes(ch) == false) {
+            embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.`)
             await msg.quote(embed);
             return;
           }
@@ -131,9 +131,60 @@ module.exports = {
             \`\`\`${API.getMultipleArgs(msg, 2)}\`\`\``)
             .setFooter('Quantia de caracteres da descrição: ' + API.getMultipleArgs(msg, 2).length + '/50')
             await msg.quote(embed);
+
+        } else if (ch.startsWith('vaga')) {
+          if (args.length == 1) {
+            API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+            return;
+          }
+
+          let boo = false;
+          
+
+          if (args[1] != 'on' && args[1] != 'off') {
+              API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+              return;
+          }
+
+          boo = (args[1] == 'on' ? boo = true : boo = false)
+
+          const embed = new Discord.MessageEmbed()
+          .setColor((boo ? '#5bff45':'#a60000'))
+          .setDescription('Você setou as vagas da sua empresa para ' +  (boo ? '🟢':'🔴')  + ' **' + args[1] + '**')
+          await msg.quote(embed)
+          const companyid = await API.company.get.idByOwner(msg.author)
+          API.setCompanieInfo(msg.author, companyid, 'openvacancie', boo)
+
+        } else if (ch.startsWith('taxa')) {
+
+          if (args.length == 1) {
+            API.sendError(msg, `Você deve digitar o valor da taxa para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+            return;
+          }
+
+          let taxa = args[1].replace(/%/g, '')
+
+          if (!API.isInt(taxa)) {
+              API.sendError(msg, `Você deve digitar o valor da taxa __EM NÚMERO__ para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+              return;
+          }
+          taxa = parseInt(taxa)
+          if (taxa < 1 || taxa > 50) {
+              API.sendError(msg, `Você deve digitar o valor da taxa entre 1% e 50%! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+              return;
+          }
+
+
+          const embed = new Discord.MessageEmbed()
+          .setColor('RANDOM')
+          .setDescription('Você setou a taxa da sua empresa para __' + taxa + '%__')
+          await msg.quote(embed)
+          const companyid = await API.company.get.idByOwner(msg.author)
+          API.setCompanieInfo(msg.author, companyid, 'taxa', taxa)
+          API.playerUtils.cooldown.set(msg.author, "settaxa", 86400);
         }
 
-        API.setCooldown(msg.author, "seecompany", 0);
+        API.playerUtils.cooldown.set(msg.author, "seecompany", 0);
   
       }
   };

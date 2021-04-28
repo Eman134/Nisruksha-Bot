@@ -36,7 +36,7 @@ module.exports = {
         let allplots = pobj.plots
         let plot
         let townnum = await API.townExtension.getTownNum(msg.author);
-        let townname = await API.townExtension.getTownName(msg.author);
+
         let contains = false
         if (pobj.plots) {
             for (let r of Object.keys(pobj.plots)) {
@@ -65,56 +65,99 @@ module.exports = {
         }
         
         if (!plot.plants) {
-            API.sendError(msg, `Você não possui plantações neste terreno!\nVisualize seu terreno utilizando \`${API.prefix}terreno\``)
+            API.sendError(msg, `Você não possui plantações neste terreno!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
             return;
         }
 
         
         if (args.length < 1) {
-            API.sendError(msg, `Você precisa digitar o número do lote para colher!\nUtilize \`${API.prefix}terreno\` para visualizar seus lotes`, `colher 1`)
+            API.sendError(msg, `Você precisa digitar o número do lote para colher!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`, `colher 1\ncolher tudo`)
             return;
         }
 
-        if (!API.isInt(args[0])) {
-            API.sendError(msg, `Você precisa digitar o __número__ do lote para colher!\nUtilize \`${API.prefix}terreno\` para visualizar seus lotes`, `colher 1`)
+        if (!API.isInt(args[0]) && args[0] != "tudo") {
+            API.sendError(msg, `Você precisa digitar o __número__ do lote para colher!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`, `colher 1\ncolher tudo`)
             return;
         }
 
         if (parseInt(args[0]) < 0 || parseInt(args[0]) > plot.plants.length) {
-            API.sendError(msg, `Você não possui uma plantação nesse lote!\nUtilize \`${API.prefix}terreno\` para visualizar seus lotes`)
+            API.sendError(msg, `Você não possui uma plantação nesse lote!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`)
             return;
         }
 
-        let selectedplant = plot.plants[parseInt(args[0])-1]
-
-        let ob = {
-            percent: 100,
-            ms: 0
+        if (args[0] == "tudo" && pobj.mvp == null && pobj.perm != 5) {
+            API.sendError(msg, `Você deve possuir um **MVP** para utilizar o \`${API.prefix}colher tudo\`.\nUtilize \`${API.prefix}mvp\` para mais informações de mvp`)
+            return;
         }
 
-        if (selectedplant.maxtime-(Date.now()-selectedplant.planted) < 0) {
-            ob.percent = 100
+        let selectedplant
+
+        let allselectedplants = []
+
+        if (args[0] == "tudo") {
+
+            let hasplants = false
+
+            for (i = 0; i < plot.plants.length; i++) {
+                let selectedplant2 = plot.plants[i]
+        
+                if (selectedplant2.maxtime-(Date.now()-selectedplant2.planted) < 0) {
+                    hasplants = true
+                    allselectedplants.push(selectedplant2)
+                }
+            }
+            
+            if (!hasplants) {
+                API.sendError(msg, `Você não possui plantações crescidas nesse terreno!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seu terreno.`)
+                return;
+            }
+            
         } else {
-            ob.ms = selectedplant.maxtime-(Date.now()-selectedplant.planted)
 
-            ob.percent = 100-Math.round(ob.ms*100/selectedplant.maxtime)
+            selectedplant = plot.plants[parseInt(args[0])-1]
+
+            let ob = {
+                percent: 100,
+                ms: 0
+            }
+    
+            if (selectedplant.maxtime-(Date.now()-selectedplant.planted) < 0) {
+                ob.percent = 100
+            } else {
+                ob.ms = selectedplant.maxtime-(Date.now()-selectedplant.planted)
+    
+                ob.percent = 100-Math.round(ob.ms*100/selectedplant.maxtime)
+            }
+    
+            if (ob.percent < 100) {
+                API.sendError(msg, `Esta plantação ainda não está crescida!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`)
+                return;
+            }
+
         }
 
-        if (ob.percent < 100) {
-            API.sendError(msg, `Esta plantação ainda não está crescida!\nUtilize \`${API.prefix}terreno\` para visualizar seus lotes`)
-            return;
-        }
+        if (args[0] != "tudo") {
 
-        allplots[townnum].plants.splice([parseInt(args[0])-1], 1)
-        if (allplots[townnum].plants.length == 0) {
+            allplots[townnum].plants.splice([parseInt(args[0])-1], 1)
+            if (allplots[townnum].plants.length == 0) {
+                delete allplots[townnum].plants
+            }
+
+        } else {
             delete allplots[townnum].plants
         }
 
         API.setInfo(msg.author, 'players', 'plots', allplots)
 
-        //API.setInfo(msg.author, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantidade)
-
-        let total = Math.round(selectedplant.qnt*2*selectedplant.seed.price*pobj2.level)
+        let total = 0
+        
+        if (args[0] != "tudo") {
+            total = Math.round(selectedplant.qnt*2*selectedplant.seed.price*pobj2.level)
+        } else {
+            for (i = 0; i < allselectedplants.length; i++) {
+                total += Math.round(allselectedplants[i].qnt*2*allselectedplants[i].seed.price*pobj2.level)
+            }
+        }
 
         const embed = new Discord.MessageEmbed()
         
@@ -136,18 +179,24 @@ module.exports = {
         }
 
         let xp = API.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
-        API.playerUtils.execExp(msg, xp);
         
-        let score = (API.company.stars.gen()*2).toFixed(2)
+        let score = ((API.company.stars.gen()*2.5).toFixed(2)) 
+
+        if (args[0] == "tudo") {
+            score *= allselectedplants.length
+            xp *= allselectedplants.length
+        }
         
         embed.setColor('#5bff45')
-        embed.setTitle(selectedplant.seed.icon + ' Colheita realizada!')
-        embed.setDescription(`Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
+        embed.setTitle((args[0] == "tudo" ? '<:mvp:758717273304465478>' : selectedplant.seed.icon) + ' Colheita realizada!')
+        embed.setDescription(`Você colheu **${args[0] == "tudo" ? `tudo (${allselectedplants.map((plan) => plan.seed.icon).join('')})` : `${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}`}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
         await msg.quote(embed)
 
-        API.eco.addToHistory(msg.member, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
+        API.eco.addToHistory(msg.member, `Colheita ${args[0] == "tudo" ? '' : selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
 
         API.eco.money.add(msg.author, total)
+
+        API.playerUtils.execExp(msg, xp);
 
         await API.company.stars.add(msg.author, company.company_id, { score })
         

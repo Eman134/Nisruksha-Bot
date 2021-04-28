@@ -70,7 +70,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${msg.author.tag} (${msg.author.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                owner.send(embed)
+                owner.send(embed).catch()
             }catch{
             }
 
@@ -80,11 +80,11 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 list.splice(index, 1);
             }
 
-            let score = -(pobj.companyact == null ? 0 : pobj.companyact.score)
+            //let score = -(pobj.companyact == null ? 0 : pobj.companyact.score)
 
             API.setCompanieInfo(owner, company.company_id, 'workers', list)
             API.setInfo(msg.author, 'players', 'company', null)
-            await API.company.stars.add(msg.author, company.company_id, { score })
+            //await API.company.stars.add(msg.author, company.company_id, { score })
             API.setInfo(msg.author, 'players', 'companyact', null)
             
         });

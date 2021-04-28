@@ -65,7 +65,7 @@ module.exports = {
         }
         
         if (plot.plants && plot.plants.length == 5) {
-            API.sendError(msg, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`${API.prefix}terreno\``)
+            API.sendError(msg, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
             return;
         }
 
@@ -100,7 +100,7 @@ module.exports = {
         }
 
         if (area > plot.area-plot.areaplant) {
-            API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terreno\``)
+            API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
             return;
         }
 
@@ -139,7 +139,7 @@ module.exports = {
 
         let maxtime = API.company.jobs.agriculture.calculatePlantTime(seed)
 
-        if (await API.getPerm(msg.author) >= 3) maxtime = Math.round(80*maxtime/100)
+        if (pobj.perm != null || pobj.perm == 5) maxtime = Math.round(90*maxtime/100)
         
         let lote = {
             loc: townnum,
@@ -164,7 +164,7 @@ module.exports = {
 
         embed.setColor('RANDOM')
         embed.setTitle(seed.icon + ' Plantação realizada!')
-        embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantidade}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`${API.prefix}terreno\``)
+        embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantidade}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`${API.prefix}terrenoatual\``)
         await msg.quote(embed)
 
 	}

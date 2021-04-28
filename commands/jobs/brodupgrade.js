@@ -1,6 +1,6 @@
 module.exports = {
     name: 'uparvara',
-    aliases: ['rodupgrade', 'varaupgrade', 'rodup', 'varaup'],
+    aliases: ['rodupgrade', 'varaupgrade', 'rodup', 'varaup', 'uv'],
     category: 'Trabalhos',
     description: '<:icon6:830966666082910228> Dê upgrade na vara de pesca para melhorar a pescaria',
 	async execute(API, msg) {

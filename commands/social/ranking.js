@@ -22,10 +22,10 @@ module.exports = {
         let embedmsg = await msg.quote(embed);
 
         try {
-            embedmsg.react(API.client.emojis.cache.get('736290479406317649'));
-            embedmsg.react(API.client.emojis.cache.get('741827151879471115'));
-            embedmsg.react(API.client.emojis.cache.get('743176785986060390'));
-            embedmsg.react(API.client.emojis.cache.get('736284021436317727'));
+            embedmsg.react('736290479406317649');
+            embedmsg.react('741827151879471115');
+            embedmsg.react('743176785986060390');
+            embedmsg.react('736284021436317727');
             embedmsg.react('👍🏽');
         }catch{}
 

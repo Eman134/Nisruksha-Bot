@@ -105,14 +105,14 @@ check.hasVacancies = async function(company_id) {
 const get = {};
 {
 get.maxWorkers = async function(company_id) {
-    let result = 5;
+    let result = 3;
 
     try {
-        const owner = await API.company.get.ownerById(company_id)
-        const res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
+        let res = await API.company.get.companyById(company_id)
+        result = res.funcmax
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 
@@ -188,7 +188,7 @@ get.company = async function(owner) {
         res = res.rows[0];
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 

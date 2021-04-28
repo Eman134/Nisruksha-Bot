@@ -367,41 +367,6 @@
 			"price2": 0
 		}
 	],
-	"terrenos": [
-		{
-			"id": 600,
-			"buyable": true,
-			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
-			"name": "Terreno 10m²",
-			"icon": "<:terreno:765944910179336202>",
-			"size": 10,
-			"type": 6,
-			"price": 100000,
-			"price2": 0
-		},
-		{
-			"id": 601,
-			"buyable": true,
-			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
-			"name": "Terreno 50m²",
-			"icon": "<:terreno:765944910179336202>",
-			"size": 50,
-			"type": 6,
-			"price": 700000,
-			"price2": 10
-		},
-		{
-			"id": 602,
-			"buyable": true,
-			"info": "**Exclusivo para setor de agricultura\nApenas uma compra por vila**",
-			"name": "Terreno 100m²",
-			"icon": "<:terreno:765944910179336202>",
-			"size": 100,
-			"type": 6,
-			"price": 1500000,
-			"price2": 20
-		}
-	],
 	"convites": [
 		{
 			"id": 700,

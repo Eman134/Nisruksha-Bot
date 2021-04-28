@@ -1,5 +1,5 @@
 module.exports = {
-    name: 'terreno',
+    name: 'terrenoatual',
     aliases: ['landplot', 'terrain', 'lote', 'plot'],
     category: 'Trabalhos',
     description: '<:icon1:745663998854430731> Visualiza as informações da plantação e terreno',
@@ -33,6 +33,16 @@ module.exports = {
             }
         }
 
+        const check = await API.playerUtils.cooldown.check(msg.author, "landplot");
+        if (check) {
+
+            API.playerUtils.cooldown.message(msg, 'landplot', 'executar outro comando de terreno')
+
+            return;
+        }
+
+        API.playerUtils.cooldown.set(msg.author, "landplot", 20);
+
         let plot = {}
         let townnum = await API.townExtension.getTownNum(msg.author);
         let townname = await API.townExtension.getTownName(msg.author);
@@ -57,15 +67,92 @@ module.exports = {
                 }
             }
         }
+        
+        const embed = new Discord.MessageEmbed()
 
         if (!contains) {
-            API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}loja terrenos\``)
+
+            const price = 100000
+
+            const embedmsg = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
+        
+            await embedmsg.react('765944910179336202')
+    
+            const filter = (reaction, user) => {
+                return user.id === msg.author.id;
+            };
+            
+            const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+            let reacted = false;
+            collector.on('collect', async (reaction, user) => {
+                await reaction.users.remove(user.id);
+                if (!(['765944910179336202'].includes(reaction.emoji.id))) return;
+                reacted = true;
+                collector.stop();
+                embed.fields = [];
+
+                pobj = await API.getInfo(msg.author, 'players')
+
+                const money = await API.eco.money.get(msg.author);
+      
+                if (!(money >= price)) {
+                  embed.setColor('#a60000');
+                  embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${API.format(money)}/${API.format(price)} ${API.money} ${API.moneyemoji}**`)
+                  embedmsg.edit(embed);
+                  return;
+                }
+
+                let townnum = await API.townExtension.getTownNum(msg.author);
+                let plot = {
+                  loc: townnum,
+                  area: 10,
+                  cons: 100
+                }
+                let plots = pobj.plots
+                if (plots) {
+                  if (Object.keys(plots).includes(townnum.toString())) {
+                    embed.setColor('#a60000');
+                    embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`${API.prefix}terrenos\` para visualizar seus terrenos`)
+                    embedmsg.edit(embed);
+                    return;
+                  }
+                } else {
+                  plots = {}
+                }
+  
+                plots[townnum] = plot
+  
+                API.setInfo(msg.author, 'players', 'plots', plots)
+    
+                embed.setColor('#5bff45');
+                embed.addField('✅ Terreno adquirido', `
+                Você comprou seu terreno na vila **${townname}**\nUtilize \`${API.prefix}terrenoatual\` e \`${API.prefix}terrenos\` para mais informações.`)
+                embedmsg.edit(embed);
+
+                API.playerUtils.cooldown.set(msg.author, "landplot", 0);
+
+                await API.eco.money.remove(msg.author, price);
+                await API.eco.addToHistory(msg.member, `Compra <:terreno:765944910179336202> | - ${API.format(price)}`)
+    
+            });
+            
+            collector.on('end', async collected => {
+                embedmsg.reactions.removeAll();
+                if (reacted) return
+                embed.setColor('#a60000');
+                embed.addField('❌ Tempo expirado', `
+                Você iria comprar um terreno, porém o tempo expirou!`)
+                embedmsg.edit(embed);
+            });
+
             return;
         }
 
-		const embed = new Discord.MessageEmbed().setColor(`#a4e05a`)
+        const priceupgrade = 10
+
+		embed.setColor(`#a4e05a`)
         .setTitle(`<:terreno:765944910179336202> Informações do seu terreno`) // \nConservação do terreno: \`${plot.cons}%\`
-        .setDescription(`Área máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\``)
+        .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${API.money2}\` ${API.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\``)
         if (plot.plants && plot.plants.length > 0){
             let x = 1;
             for (const r of plot.plants) {
@@ -92,7 +179,64 @@ module.exports = {
         } else {
             embed.addField(`❌ Não possui plantações`, `Utilize \`${API.prefix}coletar\` para coletar plantas ou sementes e começar a plantar`)
         }
-        msg.quote(embed);
+        if (plot.area < 100) embed.setFooter('Reaja com 🔼 para realizar o upgrade no terreno')
+        const embedmsg = await msg.quote(embed);
+        if (plot.area >= 100) return
+
+        await embedmsg.react('🔼')
+
+        const filter = (reaction, user) => {
+            return user.id === msg.author.id;
+        };
+        
+        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+
+        collector.on('collect', async (reaction, user) => {
+
+            await reaction.users.remove(user.id);
+            if (!(['🔼'].includes(reaction.emoji.name))) return;
+            reacted = true;
+            collector.stop();
+            embed.setFooter('')
+
+            const points = await API.eco.points.get(msg.author);
+
+            pobj = await API.getInfo(msg.author, 'players')
+
+            if (!(points >= priceupgrade)) {
+                embed.setColor('#a60000');
+                embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
+                embedmsg.edit(embed);
+                return;
+            }
+
+            if (plot.area+10 > 100) {
+                embed.setColor('#a60000');
+                embed.addField('❌ Falha no upgrade', `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!`)
+                embedmsg.edit(embed);
+                return;
+            }
+
+            embed.setColor('#5bff45');
+            embed.addField('✅ Upgrade realizado', `
+            Você pagou \`${priceupgrade} ${API.money2}\` ${API.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
+            embedmsg.edit(embed);
+
+            let plots = pobj.plots
+            plots[townnum].area = plot.area+10
+
+            API.setInfo(msg.author, 'players', 'plots', plots)
+
+            API.playerUtils.cooldown.set(msg.author, "landplot", 0);
+
+            API.eco.points.remove(msg.author, priceupgrade);
+            await API.eco.addToHistory(msg.member, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${API.money2emoji}`)
+
+        });
+        
+        collector.on('end', async collected => {
+            embedmsg.reactions.removeAll();
+        });
 
 	}
 };

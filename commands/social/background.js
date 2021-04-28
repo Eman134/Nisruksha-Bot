@@ -44,7 +44,7 @@ module.exports = {
             .setColor('#8adb5e')
             .setDescription(`Seu background foi definido para:`)
             .setImage(url);
-            msg.quote(embed);
+         await msg.quote(embed);
           const embed2 = new Discord.MessageEmbed()
             .setColor('#8adb5e')
             .setDescription(`Background de \`${msg.author.tag} | ${msg.author.id}\``)

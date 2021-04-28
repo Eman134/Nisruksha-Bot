@@ -50,23 +50,19 @@ module.exports = {
         const Discord = API.Discord;
         const client = API.client;
 
-        const check = await API.checkCooldown(msg.author, "transferir");
+        const check = await API.playerUtils.cooldown.check(msg.author, "transferir");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "transferir");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para usar outro comando de transferir!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            await msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'transferir', 'usar outro comando de transferir')
+
             return;
         }
         
 
-        const check2 = await API.checkCooldown(member, "receivetr");
+        const check2 = await API.playerUtils.cooldown.check(member, "receivetr");
         if (check2) {
 
-            let cooldown = await API.getCooldown(member, "receivetr");
+            let cooldown = await API.playerUtils.cooldown.get(member, "receivetr");
             const embed = new Discord.MessageEmbed()
             .setColor('#b8312c')
             .setDescription('❌ Este membro já recebeu uma transferência nas últimas 12 horas!\nAguarde mais `' + API.ms(cooldown) + '` para fazer uma transferência para ele!')
@@ -84,7 +80,7 @@ module.exports = {
             return;
         }
 
-        API.setCooldown(msg.author, "transferir", 20);
+        API.playerUtils.cooldown.set(msg.author, "transferir", 20);
         
 		const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
@@ -133,18 +129,18 @@ module.exports = {
                     let obj = await API.getInfo(msg.author, "players");
                     API.setInfo(msg.author, "players", "tran", obj.tran + 1);
                     if (total > mat/2.5) {
-                        API.setCooldown(member, "receivetr", 43200);
+                        API.playerUtils.cooldown.set(member, "receivetr", 43200);
                     }
                 }
             }
-            API.setCooldown(msg.author, "transferir", 0);
+            API.playerUtils.cooldown.set(msg.author, "transferir", 0);
             embedmsg.edit(embed);
         });
         
         collector.on('end', collected => {
             embedmsg.reactions.removeAll();
             if (reacted) return
-            API.setCooldown(msg.author, "transferir", 0);
+            API.playerUtils.cooldown.set(msg.author, "transferir", 0);
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `

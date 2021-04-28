@@ -103,9 +103,9 @@ API.checkAll = async function(msg, req) {
     }
     
     if (serverobj.status == 2 && perm < 4) {
-        const check2 = await API.checkCooldown(msg.author, "antispam");
+        const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
         if (check2) return true;
-        API.setCooldown(msg.author, "antispam", 3);
+        API.playerUtils.cooldown.set(msg.author, "antispam", 3);
         msg.guild.leave()
         const embed = new API.Discord.MessageEmbed()
         .setColor('#b8312c')
@@ -155,9 +155,9 @@ API.checkAll = async function(msg, req) {
     if (perm < 4) {
         
         if (globalstatus == 2) {
-            const check2 = await API.checkCooldown(msg.author, "antispam");
+            const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
             if (check2) return true;
-            API.setCooldown(msg.author, "antispam", 3);
+            API.playerUtils.cooldown.set(msg.author, "antispam", 3);
             const embed = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
             .setDescription(`<:banido:756525777981276331> **O BOT ESTÁ EM MODO MANUTENÇÃO NO MOMENTO!**\nMotivo: **${globalman}**\n[MEU SERVIDOR](https://dsc.gg/svnisru)`)
@@ -185,10 +185,10 @@ API.checkAll = async function(msg, req) {
     
     if (perm == 0) {
         
-        const check = await API.checkCooldown(msg.author, "banned");
+        const check = await API.playerUtils.cooldown.check(msg.author, "banned");
         if (check) return true
 
-        API.setCooldown(msg.author, "banned", 60);
+        API.playerUtils.cooldown.set(msg.author, "banned", 60);
 
         const embed = new API.Discord.MessageEmbed()
         .setColor('#b8312c')
@@ -268,9 +268,9 @@ API.checkAll = async function(msg, req) {
         
     if (req > 1) {
         if (perm < req) {
-            const check2 = await API.checkCooldown(msg.author, "antispam");
+            const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
             if (check2) return true;
-            API.setCooldown(msg.author, "antispam", 3);
+            API.playerUtils.cooldown.set(msg.author, "antispam", 3);
             API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
             return true;
         }
@@ -299,7 +299,7 @@ API.checkAll = async function(msg, req) {
     result = list.join('\n').toString();
 
     if (result.includes('❌') && perm < 4) {
-        msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://dsc.gg/svnisru').catch()
+     await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://dsc.gg/svnisru').catch()
             
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -328,29 +328,19 @@ API.checkAll = async function(msg, req) {
         if (perm == 3) API.setPerm(msg.author, 1)
     }
     
-    const check = await API.checkCooldown(msg.author, "global");
+    const check = await API.playerUtils.cooldown.check(msg.author, "global");
     if (check) {
 
-        const check2 = await API.checkCooldown(msg.author, "antispam");
+        const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
         if (check2) return true;
 
-        let cooldown = await API.getCooldown(msg.author, "global");
-        const embed = new API.Discord.MessageEmbed()
-        .setColor('#b8312c')
-        .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para digitar outro comando!')
-        .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        
-        try {
-        await msg.quote(embed).then(msg => {
-            msg.delete({ timeout: 5000 })
-        }).catch()
-        } catch {
-            
-        }
-        API.setCooldown(msg.author, "antispam", 3);
+        const spamcheckmsg = await API.playerUtils.cooldown.message(msg, 'global', 'digitar outro comando')
+        spamcheckmsg.delete({ timeout: 5000 })
+
+        API.playerUtils.cooldown.set(msg.author, "antispam", 3);
         return true;
     }
-    API.setCooldown(msg.author, "global", Math.round((4500-(perm*500))/1000));
+    API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
     API.cmdsexec++;
 
@@ -366,7 +356,7 @@ API.checkAll = async function(msg, req) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `' + API.prefix + 'tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
-        msg.quote({ content: msg.author, embed: voteembed, mention: true})
+     await msg.quote({ content: msg.author, embed: voteembed, mention: true})
 		
 		return false;
 		
@@ -374,9 +364,9 @@ API.checkAll = async function(msg, req) {
 	} else if (API.client.user.id != '726943606761324645') {
         API.dbl.hasVoted(msg.author.id).then(async voted => {
             if (voted) return
-            const check44 = await API.checkCooldown(msg.author, "votealertdelay");
+            const check44 = await API.playerUtils.cooldown.check(msg.author, "votealertdelay");
             if (check44) return true;
-            API.setCooldown(msg.author, "votealertdelay", 520);
+            API.playerUtils.cooldown.set(msg.author, "votealertdelay", 520);
             const voteembed = new API.Discord.MessageEmbed()
             voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
             
@@ -384,7 +374,7 @@ API.checkAll = async function(msg, req) {
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
             }
 
-            msg.quote({ content: msg.author, embed: voteembed, mention: true})
+         await msg.quote({ content: msg.author, embed: voteembed, mention: true})
 			return false;
         });
     }
@@ -423,37 +413,6 @@ API.getPerm = async function(member) {
 
 API.setPerm = async function(member, perm) {
     API.setInfo(member, "players", 'perm', perm);
-}
-
-API.checkCooldown = async function(member, string) {
-    let time = await API.getCooldown(member, string)
-    if (time < 1 ) return false;
-    return true;
-}
-
-API.getCooldown = async function(member, string) { 
-
-    const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-    await API.db.pool.query(text);
-
-    const obj = await API.getInfo(member, "cooldowns");
-    if (obj == null || obj == "0;0" || obj == undefined) {
-        API.setCooldown(member, string, 0);
-        return 0;
-    }
-    let cooldown = obj[string];
-    let res = (Date.now()/1000)-(parseInt(cooldown.split(";")[0])/1000)
-    let time = parseInt(cooldown.split(";")[1]) - res;
-    time = Math.round(time)*1000
-    return time;
-}
-
-API.setCooldown = async function(member, string, ms) {
-
-    const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-    await API.db.pool.query(text);
-
-    API.setInfo(member, "cooldowns", string, `${Date.now()};${ms}`);
 }
 
 API.ms = function(s) {
@@ -533,9 +492,14 @@ API.sendError = async function (msg, s, usage) {
     if (usage) {
         embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
+
+    let messageembed
+
     try {
-        await msg.quote(embed).catch();
+        messageembed = await msg.quote(embed).catch();
     } catch {}
+
+    return messageembed
     
 }
 

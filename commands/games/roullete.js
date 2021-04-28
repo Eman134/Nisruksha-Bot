@@ -12,15 +12,11 @@ module.exports = {
         const client = API.client;
         const args = API.args(msg);
 
-        const check = await API.checkCooldown(msg.author, "roullete");
+        const check = await API.playerUtils.cooldown.check(msg.author, "roullete");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "roullete");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para girar a roleta!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'roullete', 'girar a roleta')
+
             return;
         }
 
@@ -133,8 +129,8 @@ module.exports = {
                 } else {
                     let title
                     let emote
-                    if (selected == array[5]) {API.eco.addToHistory(msg.member, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; await API.eco.token.add(msg.author, (Math.round(aposta*multiplier[selected])-aposta));API.setCooldown(msg.author, "roullete", 0);}
-                    else {API.eco.addToHistory(msg.member, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(msg.author, aposta);API.setCooldown(msg.author, "roullete", 0);}
+                    if (selected == array[5]) {API.eco.addToHistory(msg.member, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; await API.eco.token.add(msg.author, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(msg.author, "roullete", 0);}
+                    else {API.eco.addToHistory(msg.member, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(msg.author, aposta);API.playerUtils.cooldown.set(msg.author, "roullete", 0);}
                     embed2.fields = [];
                     embed2.addField(`Sua aposta`, `Aposta: ${API.format(aposta)} ${API.money3} ${API.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${API.money3} ${API.money3emoji}`, true)
                     .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
@@ -152,7 +148,7 @@ module.exports = {
         collector.on('end', async collected => {
             msgembed.reactions.removeAll();
         });
-        API.setCooldown(msg.author, "roullete", 60);
+        API.playerUtils.cooldown.set(msg.author, "roullete", 60);
     
     }
 };

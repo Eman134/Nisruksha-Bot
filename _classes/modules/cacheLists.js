@@ -105,8 +105,8 @@ const remembermap = new Map();
     }
 
     if (from >= eval(to)) {
-        channel.send(`🔁 | ${member} Relatório de ${type}: ${from}/${to}`)
         if (remember.includes(member, type)) {
+            channel.send(`🔁 | ${member} Relatório de ${type}: ${from}/${to}`)
             remember.remove(member, type)
         }
         return;
@@ -128,18 +128,19 @@ const remembermap = new Map();
 
       for (i = 0; i < keys.length; i++) {
         
+        if (keys[i]) {
+          if (keys[i]["energia"] && keys[i]["energia"].active){
+            const fetched = await API.client.users.fetch(keys[i].memberid)
+            const channel = await API.client.channels.fetch(keys[i]["energia"].channelid)
+            this.loadold("energia", fetched, channel)
+          } if (keys[i]["estamina"] && keys[i]["estamina"].active){
+            const fetched = await API.client.users.fetch(keys[i].memberid)
+            const channel = await API.client.channels.fetch(keys[i]["estamina"].channelid)
+            this.loadold("estamina", fetched, channel)
 
-        if (keys[i]["energia"] && keys[i]["energia"].active){
-          const fetched = await API.client.users.fetch(keys[i].memberid)
-          const channel = await API.client.channels.fetch(keys[i]["energia"].channelid)
-          this.loadold("energia", fetched, channel)
-        } if (keys[i]["estamina"] && keys[i]["estamina"].active){
-          const fetched = await API.client.users.fetch(keys[i].memberid)
-          const channel = await API.client.channels.fetch(keys[i]["estamina"].channelid)
-          this.loadold("estamina", fetched, channel)
-
-        } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
-          remembermap.delete(keys[i].memberid)
+          } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
+            remembermap.delete(keys[i].memberid)
+          }
         }
 
       }

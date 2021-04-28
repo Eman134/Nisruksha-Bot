@@ -35,8 +35,8 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed().setColor(`#b8312c`)
         if (!pobj.plots || Object.keys(pobj.plots).length == 0) {
-            embed.addField(`❌ Não possui terrenos`, `Utilize \`${API.prefix}loja terrenos\` para adquirir um terreno`)
-            msg.quote(embed);
+            embed.addField(`❌ Não possui terrenos`, `Utilize \`${API.prefix}terrenoatual\` para adquirir um terreno`)
+         await msg.quote(embed);
             return;
         }
 

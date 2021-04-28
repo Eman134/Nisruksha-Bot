@@ -21,15 +21,11 @@ module.exports = {
             return API.sendError(msg, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
         }
 
-        const check = await API.checkCooldown(msg.author, "rep");
+        const check = await API.playerUtils.cooldown.check(msg.author, "rep");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "rep");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para dar outra reputação!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            await msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'rep', 'dar outra reputação')
+
             return;
         }
 
@@ -41,11 +37,11 @@ module.exports = {
 
         let { reps } = await API.getInfo(member, "players")
         
-        API.setCooldown(msg.author, "rep", 43200)
+        API.playerUtils.cooldown.set(msg.author, "rep", 43200)
 
         API.setInfo(member, "players", "reps", parseInt(reps)+1)
 
-        msg.quote('Você deu **+1 REP** para **' + member.tag + '**!')
+     await msg.quote('Você deu **+1 REP** para **' + member.tag + '**!')
 
     },
 };

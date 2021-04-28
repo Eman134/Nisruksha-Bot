@@ -47,9 +47,8 @@ module.exports = {
         if (member != msg.author)return;
         let money = await API.eco.money.get(msg.author);
         try {
-            msgembed.react(API.client.emojis.cache.get('738434840457642054'));
-            msgembed.react(API.client.emojis.cache.get('738429524416528554'));
-            //msgembed.react(API.client.emojis.cache.get('738429524248625253'));
+            msgembed.react('738434840457642054');
+            msgembed.react('738429524416528554');
         }catch (err){
             client.emit('error', err)
         }

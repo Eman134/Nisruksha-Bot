@@ -37,7 +37,7 @@ module.exports = {
             .setFooter(("Para demitir um funcionário utilize " + API.prefix + "demitir <id>"), company.logo)
             embed.addField('📌 `' + msg.author.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + msg.author.id + '\nNível: **' + ownerobj2.level + '**\nÚltima atividade: **' + (ownerobj.companyact == null ? 'Não houve' : API.ms2(Date.now() - ownerobj.companyact.last)) + '**\n**Fundador**', false)
 
-            const embedmsg = await msg.quote(embed);
+            await msg.quote(embed);
             return;
         }
 
@@ -76,9 +76,10 @@ module.exports = {
         let ownerobj2 = await API.getInfo(owner, 'machines')
         
 		const embed = new Discord.MessageEmbed()
+        .setTitle('Score da empresa: ' + company.score + ' ⭐')
         .setThumbnail(company.logo)
         .setColor("#34fa3a")
-        .setFooter((owner.id == msg.author.id ? "Para demitir um funcionário utilize " + API.prefix + "demitir <id>" : "Para sair da empresa utilize " + API.prefix + "sairempresa"), company.logo)
+        .setFooter((owner.id == msg.author.id ? "Para demitir um funcionário utilize " + API.prefix + "demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa 100 ⭐ da empresa)' : '') : "Para sair da empresa utilize " + API.prefix + "sairempresa"), company.logo)
         embed.addField('📌 `' + owner.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + owner.id + '\nNível: **' + ownerobj2.level + '**\n**Fundador**', false)
         for (i = 0; i < list.length; i++) {
             const func = list[i]
@@ -86,6 +87,54 @@ module.exports = {
         }
 
         const embedmsg = await msg.quote(embed);
+
+        
+        if (!(await API.company.check.hasCompany(msg.author))) return
+        
+        let res2 = await API.company.get.company(msg.author)
+        
+        const maxWorkers = await API.company.get.maxWorkers(res2.company_id)
+
+        if (maxWorkers >= 8) return
+
+        await embedmsg.react('🔼')
+
+        const filter = (reaction, user) => {
+            return user.id === msg.author.id;
+        };
+        
+        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        let reacted = false;
+        collector.on('collect', async (reaction, user) => {
+            await reaction.users.remove(user.id);
+            if (!(['🔼'].includes(reaction.emoji.name))) return;
+            reacted = true;
+            collector.stop();
+            embed.fields = [];
+
+            const price = 80
+
+            if ((res2.score < price)) {
+                embed.setColor('#a60000');
+                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(res2.score)}/${API.format(price)} ⭐**`)
+                embedmsg.edit(embed);
+                return;
+            }
+
+            API.setCompanieInfo(msg.author, company.company_id, 'score', parseFloat(company.score) - price)
+            API.setCompanieInfo(msg.author, company.company_id, 'funcmax', parseFloat(company.funcmax) + 1)
+
+            embed.setColor('#5bff45');
+            embed.addField('✅ Upgrade realizado', `
+            Você subiu um nível da empresa e agora tem maior capacidade de funcionários máximo.`)
+            embed.setFooter('')
+            embedmsg.edit(embed);
+
+        });
+        
+        collector.on('end', async collected => {
+            embedmsg.reactions.removeAll();
+        });
 
 	}
 };

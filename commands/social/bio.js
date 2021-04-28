@@ -26,7 +26,7 @@ module.exports = {
         .setDescription(`Sua biografia foi definida para:
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
         .setFooter('Quantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/40')
-        msg.quote(embed);
+     await msg.quote(embed);
 
 	}
 };

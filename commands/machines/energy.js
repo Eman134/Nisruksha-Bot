@@ -52,7 +52,7 @@ module.exports = {
             API.cacheLists.remember.add(msg.author, msg.channel.id, "energia");
             async function rem(){
                 if (await API.maqExtension.getEnergy(msg.author) >= await API.maqExtension.getEnergyMax(msg.author)) {
-                    msg.quote({ content: `Relatório de energia: ${await API.maqExtension.getEnergy(msg.author)}/${await API.maqExtension.getEnergyMax(msg.author)}`, mention: true})
+                 await msg.quote({ content: `Relatório de energia: ${await API.maqExtension.getEnergy(msg.author)}/${await API.maqExtension.getEnergyMax(msg.author)}`, mention: true})
                     if (API.cacheLists.remember.includes(msg.author, "energia")) {
                         API.cacheLists.remember.remove(msg.author, "energia")
                     }

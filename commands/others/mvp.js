@@ -22,7 +22,8 @@ module.exports = {
 \`4.\` Menor cooldown em comandos
 \`5.\` Caixa comum no daily
 \`6.\` Caça automática na exploração
-\`7.\` 20% de Tempo de crescimento menor para agricultura
+\`7.\` 10% de Tempo de crescimento menor para agricultura
+\`8.\` Colher todas as plantações de um terreno de uma vez na agricultura
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 
@@ -38,7 +39,7 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
                 if (pobj.mvp != null && pobj.perm == 3) {
                     embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${API.ms2((Date.now()-pobj.mvp)*-1)}**`)
                 }
-                msg.quote(embed);
+             await msg.quote(embed);
         
         
 	}

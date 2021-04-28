@@ -65,19 +65,15 @@ module.exports = {
 
         }
 
-        const check = await API.checkCooldown(msg.author, "hunt");
+        const check = await API.playerUtils.cooldown.check(msg.author, "hunt");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "hunt");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para realizar uma nova caçada!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'hunt', 'realizar uma nova caçada')
+
             return;
         }
 
-        API.setCooldown(msg.author, "hunt", 0);
+        API.playerUtils.cooldown.set(msg.author, "hunt", 0);
 
         API.maqExtension.stamina.remove(msg.author, cost-1)
 
@@ -88,7 +84,7 @@ module.exports = {
         if (monster == undefined) {
             embed.setTitle(`Nenhum monstro por perto`)
             .setDescription(`Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`)
-            msg.quote(embed);
+         await msg.quote(embed);
             return;
         }
 		
@@ -102,7 +98,7 @@ module.exports = {
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
         
         await embedmsg.react('⚔')
-        if (perm >= 3) await embedmsg.react('🤖')
+        if (pobj.mvp != null || perm == 5) await embedmsg.react('🤖')
         embedmsg.react('🏃🏾‍♂️')
 
         const filter = (reaction, user) => {
@@ -268,8 +264,10 @@ module.exports = {
 					let rx = API.random(0, 100)
                     if (rx < r.chance) {
                         let d = API.maqExtension.ores.getDrop(r.name);
-                        d.size = API.random(1, r.maxdrops)
-                        drops.push(d);
+                        if (d) {
+                            d.size = API.random(1, r.maxdrops)
+                            drops.push(d);
+                        }
                     }
                 }
                 drops = drops.filter(xxx => xxx.size > 0)
@@ -289,7 +287,7 @@ module.exports = {
                 let colocadosmap = colocados.map(d => `**${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
                 let descartadosmap = descartado.map(d => `**${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
 
-                let score = (API.company.stars.gen())
+                let score = ((API.company.stars.gen())*1.8).toFixed(2)
                 API.company.stars.add(msg.author, company.company_id, { score })
 
                 embed.fields = []
@@ -325,7 +323,7 @@ module.exports = {
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
-                    if (!autohunt) embedmsg.react(API.client.emojis.cache.get(id));
+                    if (!autohunt) embedmsg.react(id);
                     reactequips[id] = r;
                     reactequiplist.push(id)
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)

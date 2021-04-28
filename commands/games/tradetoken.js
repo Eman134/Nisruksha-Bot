@@ -48,7 +48,7 @@ module.exports = {
             return;
         }
 
-        let total = fichas*910;
+        let total = fichas*810;
         
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')

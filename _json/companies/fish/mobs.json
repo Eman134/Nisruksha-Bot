@@ -21,7 +21,7 @@
         "icon": "🐡",
         "profundidade": 1.7,
         "chance": 47,
-        "price": 1250
+        "price": 1050
     },
     {
         "name": "\"peiza\"",
@@ -29,7 +29,7 @@
         "icon": "<:peixe1:830819804658925578>",
         "profundidade": 2.5,
         "chance": 40,
-        "price": 1500
+        "price": 1250
     },
     {
         "name": "\"poison fiha\"",
@@ -61,7 +61,7 @@
         "icon": "<:peixe5:782312801636712458>",
         "profundidade": 4.0,
         "chance": 30,
-        "price": 3700
+        "price": 3670
     },
     {
         "name": "\"abehi\"",
@@ -77,7 +77,7 @@
         "icon": "🐙",
         "profundidade": 5.0,
         "chance": 50,
-        "price": 6300
+        "price": 4300
     },
     {
         "name": "\"codd\"",
@@ -85,7 +85,7 @@
         "icon": "<:peixe7:830823495977140254>",
         "profundidade": 5.7,
         "chance": 55,
-        "price": 5400
+        "price": 5100
     },
     {
         "name": "\"seem\"",
@@ -93,7 +93,7 @@
         "icon": "<:peixe8:830823746544992257>",
         "profundidade": 7,
         "chance": 40,
-        "price": 8400
+        "price": 7400
     },
     {
         "name": "\"crab\"",
@@ -109,7 +109,7 @@
         "icon": "<:peixe9:830824555223187466>",
         "profundidade": 9,
         "chance": 10,
-        "price": 16400
+        "price": 14400
     },
     {
         "name": "\"swe\"",

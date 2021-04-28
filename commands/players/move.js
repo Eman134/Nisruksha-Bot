@@ -62,18 +62,14 @@ module.exports = {
         }
 
         
-        const check = await API.checkCooldown(msg.author, "move");
+        const check = await API.playerUtils.cooldown.check(msg.author, "move");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "move");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para mover-se pelas vilas!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'move', 'mover-se pelas vilas')
+
             return;
         }
-        API.setCooldown(msg.author, "move", 60*5);
+        API.playerUtils.cooldown.set(msg.author, "move", 60*5);
         
         API.townExtension.population[API.townExtension.getTownNameByNum(prox)]++;
         API.townExtension.population[API.townExtension.getTownNameByNum(atual)]--;
@@ -102,7 +98,7 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
         .setDescription(`Você usou 150 pontos de Estamina 🔸 e se moveu da vila **${API.townExtension.getTownNameByNum(atual)}** para a vila **${API.townExtension.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${API.format(total)} ${API.money} ${API.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
-        msg.quote(`${msg.author}`, embed);
+     await msg.quote(`${msg.author}`, embed);
 
 	}
 };

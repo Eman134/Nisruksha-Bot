@@ -33,13 +33,13 @@ module.exports = { // Rename to config.js
     },
 
     modules: {
-        townExtension: {
-            treasure: {
-                channel: "",
-                minInterval: 30, // In minutes
-                maxInterval: 60
-            }
-            
+
+        cotacao: 20, // In minutes
+
+        events: {
+            channel: "",
+            minInterval: 30, // In minutes
+            maxInterval: 60
         }
     }
 

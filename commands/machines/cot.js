@@ -18,7 +18,7 @@ module.exports = {
             embed.setFooter('Última atualização em ' + API.maqExtension.lastcot)
         }
 
-        msg.quote(embed);
+     await msg.quote(embed);
 
 	}
 };

@@ -1,6 +1,4 @@
 const API = require("../api.js");
-const conf = require("../../_classes/config");
-const config = conf.modules.townExtension
 
 const townExtension = {
 
@@ -15,13 +13,6 @@ const townExtension = {
         'Harotec': ['roleta', 'flip'],
         'Massibi': ['roleta', 'flip'],
         'Tyris': ['roleta', 'flip']
-    },
-    treasure: {
-        loc: 0,
-        update: 5,
-        profundidade: 0,
-        pos: {},
-        picked: false
     }
 
 };
@@ -48,47 +39,10 @@ const townExtension = {
         }
     }
 
-    let intervalTreasure = (API.random(config.treasure.minInterval, config.treasure.maxInterval))*60*1000
-    
-    setInterval(async () => {
-    
-        townExtension.forceTreasure()
-
-    }, intervalTreasure);
-
-    API.maqExtension.forceCot()
-    setInterval(async () => {
-        
-        API.maqExtension.forceCot()
-
-    }, 60000*20);
-
 })();
 
 townExtension.getConfig = function() {
     return config
-}
-
-townExtension.forceTreasure = async function() {
-
-    console.log('[' + API.getFormatedDate() + '] Tesouro gerado ')
-
-    const embed = new API.Discord.MessageEmbed()
-    embed.setColor('RANDOM')
-    embed.setTitle("Siga este canal em seu servidor para avisos de tesouros")
-    embed.setDescription("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `" + API.prefix + "mapa` e `" + API.prefix + "pegartesouro` respectivamente para procurar e pegar o tesouro.\nA cotação pode ter sofrido ajustes pelo tesouro!")
-
-    townExtension.treasure.loc = API.random(1, 4)
-    const treasurepos = await API.townExtension.getPosByTownNum(townExtension.treasure.loc);
-    townExtension.treasure.pos = treasurepos
-    townExtension.treasure.profundidade = API.random(15, 45)
-    townExtension.treasure.picked = false
-    const channel = API.client.channels.cache.get(config.treasure.channel)
-    await channel.bulkDelete(20).catch()
-    await channel.send(embed).then((embedmsg) => {
-		if (channel.type == 'news') embedmsg.crosspost()
-	})
-    return "Enviado com sucesso para " + config.treasure.channel
 }
 
 townExtension.getTownNum = async function(member) {
@@ -165,7 +119,7 @@ townExtension.getTownTax = async function(member) {
         r = obj.loc;
     }
 
-    const taxa = ((150+townExtension.population[API.townExtension.getTownNameByNum(r)])/65);
+    const taxa = ((150+townExtension.population[API.townExtension.getTownNameByNum(r)])/75);
     return Math.round(taxa) <= 0 ? 1: Math.round(taxa);
 }
 

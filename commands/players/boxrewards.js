@@ -45,7 +45,7 @@ module.exports = {
 	    .setColor('#606060')
         .setDescription(`🏅 Recompensas disponíveis\n \n${rewardsmap}`)
         .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        msg.quote(embed);
+     await msg.quote(embed);
 
 	}
 };

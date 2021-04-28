@@ -24,7 +24,7 @@ module.exports = {
             } catch (error) {
                 console.error(error);
                 API.client.emit('error', error)
-                msg.quote('Ocorreu um erro ao executar o comando ' + command);
+             await msg.quote('Ocorreu um erro ao executar o comando ' + command);
             }
 
         }

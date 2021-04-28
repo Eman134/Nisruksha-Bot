@@ -45,7 +45,8 @@ module.exports = {
 			if (msg.mentions.users.size == 1) {
 
 				const res = await API.db.pool.query(`SELECT * FROM companies WHERE user_id=$1`, [msg.mentions.users.first().id]);
-				if (res) {
+
+				if (res.rows[0]) {
 					const owner = await API.company.get.ownerById(res.rows[0].company_id)
 					member = owner;
 				} else if(await API.company.check.isWorker(msg.mentions.users.first())){
@@ -54,8 +55,7 @@ module.exports = {
 					member = owner;
 				}
 
-
-				if (!res && !func) {
+				if (!member) {
 					API.sendError(msg, `O membro ${msg.mentions.users.first()} não é funcionário e nem dono de uma empresa!\nPesquise empresas utilizando \`${API.prefix}empresas\`\nOu utilize \`${API.prefix}verempresa @donodeumaempresa\``)
 					return;
 				}
@@ -80,19 +80,14 @@ module.exports = {
 
 		}
 
-		const check = await API.checkCooldown(msg.author, "seecompany");
+		const check = await API.playerUtils.cooldown.check(msg.author, "seecompany");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "seecompany");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para visualizar a empresa!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            await msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'seecompany', 'visualizar uma empresa')
             return;
         }
 
-        API.setCooldown(msg.author, "seecompany", 0);
+        API.playerUtils.cooldown.set(msg.author, "seecompany", 0);
 
 		let res2 = await API.company.get.company(member)
 		

@@ -60,7 +60,7 @@ module.exports = {
             
             let embedmsg = await msg.channel.send(embed);
             msg.delete()
-            embedmsg.react(API.client.emojis.cache.get('762018420370833488'));
+            embedmsg.react('762018420370833488');
             embedmsg.react('👍🏽');
             embedmsg.react('👎🏽');
         }

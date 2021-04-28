@@ -279,7 +279,7 @@ shopExtension.execute = async function(msg, p) {
               collector.stop();
               embed.fields = [];
               embed.setColor('#a60000');
-              embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSuas estilhas atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
+              embed.addField('❌ Falha na compra', `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
               msgconfirm.edit(embed);
               msgconfirm.reactions.removeAll();
               return;
@@ -290,7 +290,7 @@ shopExtension.execute = async function(msg, p) {
               collector.stop();
               embed.fields = [];
               embed.setColor('#a60000');
-              embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus pontos de convites atuais: **${API.format(convites.points)}/${API.format(p.price3)} pontos de convite 🎫**`)
+              embed.addField('❌ Falha na compra', `Você não possui pontos de convite o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus pontos de convites atuais: **${API.format(convites.points)}/${API.format(p.price3)} pontos de convite 🎫**`)
               msgconfirm.edit(embed);
               msgconfirm.reactions.removeAll();
               return;
@@ -349,12 +349,7 @@ shopExtension.execute = async function(msg, p) {
               API.eco.token.add(msg.author, p.token)
               break;
             case 3:
-              const emb = new API.Discord.MessageEmbed()
-              .setColor('#3262a8')
-              .setTitle('População de todas as vilas')
-              .addField(`Nomes das vilas`, `~~------~~\n${Object.keys(API.townExtension.population).join('\n~~------~~\n')}\n~~------~~`, true)
-              .addField(`População das vilas`, `~~------~~\n${Object.values(API.townExtension.population).join('\n~~------~~\n')}\n~~------~~`, true)
-              await msg.quote(emb)
+
               break;
             case 4:
 
@@ -387,72 +382,6 @@ shopExtension.execute = async function(msg, p) {
 
               break;
             case 6:
-
-
-              if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-                buyed = true;
-                collector.stop();
-                embed.fields = [];
-                embed.setColor('#a60000');
-                embed.addField('❌ Falha na compra', `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                msgconfirm.edit(embed);
-                msgconfirm.reactions.removeAll();
-                return;
-              }
-              
-              let company;
-              let pobj = await API.getInfo(msg.author, 'players')
-              if (await API.company.check.isWorker(msg.author)) {
-                  company = await API.company.get.companyById(pobj.company);
-                  if (company.type != 1) {
-                      buyed = true;
-                      collector.stop();
-                      embed.fields = [];
-                      embed.setColor('#a60000');
-                      embed.addField('❌ Falha na compra', `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                      msgconfirm.edit(embed);
-                      msgconfirm.reactions.removeAll();
-                      return;
-                  }
-              } else {
-                  company = await API.company.get.company(msg.author);
-                  if (company.type != 1) {
-                      buyed = true;
-                      collector.stop();
-                      embed.fields = [];
-                      embed.setColor('#a60000');
-                      embed.addField('❌ Falha na compra', `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                      msgconfirm.edit(embed);
-                      msgconfirm.reactions.removeAll();
-                      return;
-                  }
-              }
-
-              let townnum = await API.townExtension.getTownNum(msg.author);
-              let plot = {
-                loc: townnum,
-                area: p.size,
-                cons: 100
-              }
-              let plots = pobj.plots
-              if (plots) {
-                if (Object.keys(plots).includes(townnum.toString())) {
-                  buyed = true;
-                  collector.stop();
-                  embed.fields = [];
-                  embed.setColor('#a60000');
-                  embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`${API.prefix}terrenos\` para visualizar seus terrenos`)
-                  msgconfirm.edit(embed);
-                  msgconfirm.reactions.removeAll();
-                  return;
-                }
-              } else {
-                plots = {}
-              }
-
-              plots[townnum] = plot
-
-              API.setInfo(msg.author, 'players', 'plots', plots)
 
               break;
             case 7:

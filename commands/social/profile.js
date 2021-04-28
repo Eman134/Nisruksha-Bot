@@ -36,19 +36,15 @@ module.exports = {
             member = msg.mentions.users.first();
         }
 
-        const check = await API.checkCooldown(msg.author, "profile");
+        const check = await API.playerUtils.cooldown.check(msg.author, "profile");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "profile");
-            const embed = new API.Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para visualizar um perfil!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'profile', 'visualizar um perfil')
+
             return;
         }
 
-        API.setCooldown(msg.author, "profile", 10);
+        API.playerUtils.cooldown.set(msg.author, "profile", 10);
 
         let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações do perfil`)
 

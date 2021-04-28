@@ -20,7 +20,7 @@ module.exports = {
         .setAuthor(`${msg.author.tag} | ${msg.author.id}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setDescription(`Sugestão enviada com sucesso!
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
-        msg.quote(embed);
+     await msg.quote(embed);
 
         const embed2 = new Discord.MessageEmbed()
         .setColor('RANDOM')

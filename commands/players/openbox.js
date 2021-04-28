@@ -12,15 +12,11 @@ module.exports = {
         const client = API.client;
         const args = API.args(msg);
 
-        const check = await API.checkCooldown(msg.author, "crate");
+        const check = await API.playerUtils.cooldown.check(msg.author, "crate");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "crate");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para abrir outra caixa!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'crate', 'abrir outra caixa')
+
             return;
         }
 
@@ -81,7 +77,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
                 embedmsg.edit(embed);
-                API.setCooldown(msg.author, "crate", 0);
+                API.playerUtils.cooldown.set(msg.author, "crate", 0);
                 return;
             } 
 
@@ -169,7 +165,7 @@ module.exports = {
                     let t1 = 1000+(100-ltchance)*30;
                     setTimeout(function(){win(rewards[currnum], rewards)} , t1);
                 } else {
-                    API.setCooldown(msg.author, "crate", 0);
+                    API.playerUtils.cooldown.set(msg.author, "crate", 0);
                 }
 
             }
@@ -184,6 +180,6 @@ module.exports = {
             embedmsg.edit(embed);
         });
 
-        API.setCooldown(msg.author, "crate", 30);
+        API.playerUtils.cooldown.set(msg.author, "crate", 30);
 	}
 };

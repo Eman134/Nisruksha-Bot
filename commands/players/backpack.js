@@ -58,7 +58,7 @@ module.exports = {
         .addField(`<:chip:833521401951944734> Chipes de Aprimoramento`, `\nPara equipar um chipe utilize \`${API.prefix}equipar <ID DO CHIPE>\`\n` + (pieces.length <= 0 ? '**Não possui chipes de aprimoramento**' : `${piecesmap}`))
         .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa use \`${API.prefix}abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`${API.prefix}recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
         .addField(`🦴 Itens [${arrayitens.length}/10]`, `Para vender itens use \`${API.prefix}venderitem\`\n` + (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
-        msg.quote(embed);
+     await msg.quote(embed);
 
 	}
 };

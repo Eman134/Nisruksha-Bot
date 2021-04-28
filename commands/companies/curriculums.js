@@ -89,7 +89,7 @@ module.exports = {
                 embed.setColor("#5bff45")
                 .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                usr.send(embed)
+                await usr.send(embed).catch()
 
             } catch{
             }

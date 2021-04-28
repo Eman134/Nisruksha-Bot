@@ -40,19 +40,15 @@ module.exports = {
             member = msg.author
         } 
 
-        const check = await API.checkCooldown(msg.author, "profile");
+        const check = await API.playerUtils.cooldown.check(msg.author, "maq");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "profile");
-            const embed = new API.Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para visualizar um perfil!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'maq', 'visualizar uma máquina')
+
             return;
         }
 
-        API.setCooldown(msg.author, "profile", 10);
+        API.playerUtils.cooldown.set(msg.author, "maq", 10);
 
         let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações da máquina`)
 
@@ -146,7 +142,7 @@ module.exports = {
         embed.attachFiles([attachment])
         embed.setImage('attachment://maq.png')
 
-        msg.quote(embed);
+     await msg.quote(embed);
 
         try {
             todel.delete().catch();

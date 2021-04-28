@@ -33,15 +33,11 @@ module.exports = {
             }
         }
 
-        const check = await API.checkCooldown(msg.author, "sellterrain");
+        const check = await API.playerUtils.cooldown.check(msg.author, "sellterrain");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "sellterrain");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para usar este comando!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            await msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'sellterrain', 'usar este comando')
+
             return;
         }
 
@@ -79,7 +75,7 @@ module.exports = {
 
         let index = Object.keys(pobj.plots).indexOf(townnum.toString())
 
-        let total = plot.area*6000
+        let total = plot.area*10000
 
 		const embed = new Discord.MessageEmbed().setColor(`#a4e05a`)
         .setTitle(`Venda de terreno`)
@@ -95,7 +91,7 @@ module.exports = {
         
         let collector = embedmsg.createReactionCollector(filter, { time: 15000 });
         let selled = false;
-        API.setCooldown(msg.author, "sellterrain", 20);
+        API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
         collector.on('collect', async(reaction, user) => {
             selled = true;
             collector.stop();
@@ -105,7 +101,7 @@ module.exports = {
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**.`)
                 embedmsg.edit(embed);
-                API.setCooldown(msg.author, "sellterrain", 0);
+                API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
                 return;
             }
 
@@ -137,7 +133,7 @@ module.exports = {
             API.eco.addToHistory(msg.member, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
             API.eco.money.add(msg.author, total)
-            API.setCooldown(msg.author, "sellterrain", 0);
+            API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
 
             delete allplots[townnum.toString()]
             API.setInfo(msg.author, 'players', 'plots', allplots)
@@ -161,7 +157,7 @@ module.exports = {
             embed.addField('❌ Tempo expirado', `
             Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**, porém o tempo expirou!`)
             embedmsg.edit(embed);
-            API.setCooldown(msg.author, "sellterrain", 0);
+            API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
             return;
         });
 

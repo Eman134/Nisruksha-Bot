@@ -24,7 +24,7 @@ async function sendCmdsExec(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`📕 Comandos executados`, `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`)
         .setTimestamp()
-    msg.quote(embed)
+ await msg.quote(embed)
 
 }
 
@@ -40,7 +40,7 @@ async function sendInative(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-s.lastcmd))}\``).join('\n')}`)
         .setTimestamp()
-    msg.quote(embed)
+ await msg.quote(embed)
 
 }
 
@@ -138,7 +138,7 @@ async function send(API, msg) {
 
         if (array.length == 0) return
 
-        if (array1[0].server == undefined) {
+        if (!array1[0].server) {
             return
         }
 

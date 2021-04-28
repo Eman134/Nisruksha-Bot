@@ -22,7 +22,7 @@ module.exports = {
         .setTitle('<:info:736274028515295262> Informações de Convite')
         .setColor('#34ebcf')
         .setDescription('Convide seus amigos para jogar o bot e ganhe recompensas!\nQuem utilizar seu código receberá 🎫 5 pontos de convite, e você ganhará 🎫 1 ponto de convite a cada amigo que usar o código\nPara resgatar suas recompensas acesse \`'+ API.prefix +'loja convites\`\n\n📩 Código de Convite: **' + code + '**\n\`' + API.prefix +'apoiar ' + code +'\`\n✨ Total de usos: **' + qnt + '**\n🎫 Pontos de convites: **' + points + '**\nJá utilizou um código: ' + (invitejson.usedinvite ? '✅' : '❌'))
-        msg.quote(embed)
+     await msg.quote(embed)
 
 	}
 };

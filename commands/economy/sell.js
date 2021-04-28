@@ -78,6 +78,17 @@ module.exports = {
                 return;
             }
         }
+
+        const check = await API.playerUtils.cooldown.check(msg.author, "venda");
+        if (check) {
+
+            API.playerUtils.cooldown.message(msg, 'venda', 'vender minérios novamente')
+
+            return;
+        }
+
+        API.playerUtils.cooldown.set(msg.author, "venda", 35);
+
         let total = 0;
         let totalsize = 0;
         let caseprice = 0;
@@ -203,6 +214,7 @@ module.exports = {
         
         collector.on('end', collected => {
             msgembed.reactions.removeAll();
+            API.playerUtils.cooldown.set(msg.author, "venda", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');

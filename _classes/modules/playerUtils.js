@@ -1,6 +1,8 @@
 const API = require("../api.js");
 
-const playerUtils = {}
+const playerUtils = {
+  cooldown: {}
+}
 
 let bglevelup
 
@@ -56,6 +58,47 @@ Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 
   
     API.setInfo(msg.author, "machines", "totalxp", obj.totalxp+xp);
   
+}
+
+playerUtils.cooldown.check = async function(member, string) {
+  let time = await API.playerUtils.cooldown.get(member, string)
+  if (time < 1 ) return false;
+  return true;
+}
+
+playerUtils.cooldown.get = async function(member, string) { 
+
+  const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
+  await API.db.pool.query(text);
+
+  const obj = await API.getInfo(member, "cooldowns");
+  if (obj == null || obj == "0;0" || obj == undefined) {
+      API.playerUtils.cooldown.set(member, string, 0);
+      return 0;
   }
+  let cooldown = obj[string];
+  let res = (Date.now()/1000)-(parseInt(cooldown.split(";")[0])/1000)
+  let time = parseInt(cooldown.split(";")[1]) - res;
+  time = Math.round(time)*1000
+  return time;
+}
+
+playerUtils.cooldown.set = async function(member, string, ms) {
+
+  const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
+  await API.db.pool.query(text);
+
+  API.setInfo(member, "cooldowns", string, `${Date.now()};${ms}`);
+}
+
+playerUtils.cooldown.message = async function(msg, vare, text) {
+  let cooldown = await API.playerUtils.cooldown.get(msg.author, vare);
+  const embed = new API.Discord.MessageEmbed()
+  .setColor('#b8312c')
+  .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para ' + text + '.')
+  .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+  const embedmsg = await msg.quote(embed);
+  return embedmsg;
+}
 
 module.exports = playerUtils

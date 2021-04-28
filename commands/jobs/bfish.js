@@ -204,6 +204,8 @@ module.exports = {
 
                                 ca = coletadosx.get(capturado.icon)
 
+                            } else {
+                                retorno.descartados = [ca]
                             }
 
                         }

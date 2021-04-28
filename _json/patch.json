@@ -92,5 +92,12 @@
         "chn": ["Nome das placas foram modificados para CHIP'S", "O upgrade da vara de pesca não é mais randômico: estrela -> estamina -> profundidade", "Quando morrer na exploração perde apenas o progresso em xp", "Quantidade mínima de plantas na plantação [10 -> 5]", "Agora ao upar a vara de pesca a estamina vai diminuir ao invés de aumentar", "Estamina padrão das varas de pesca modificados"],
         "fix": ["Quando passava de 5 peixes coletados na pesca as infos bugavam"],
         "alc": []
+    },
+	"2.1.3": {
+        "add": ["Opção para mais funcionários máximos na empresa em n.funcionários", "Comando n.cooldowns", "Compra de terrenos e upgrade no \"n.terrenoatual\"", "Adicionada opção para MVPS usarem n.colher tudo para agricultura", "Integrado novas opções de setarvagas e taxa no n.empresaedit", "Balanceamento no ganho de estrelas"],
+        "rem": ["Categoria \"terrenos\" da loja", "Comando n.setarvaga", "comando n.setartaxa"],
+        "chn": ["Preço de venda por cada ficha [910 -> 810]"],
+        "fix": ["Burlar cooldown de venda de minérios/itens", "Quando executava n.veremp <qualquer pessoa> o bot não respondia a empresa"],
+        "alc": ["uparvara > uv", "terreno modificado para terrenoatual"]
     }
 }

@@ -1,3 +1,5 @@
+const { json } = require("body-parser");
+
 module.exports = {
     name: 'girar',
     aliases: ['flip'],
@@ -12,15 +14,11 @@ module.exports = {
         const client = API.client;
         const args = API.args(msg);
 
-        const check = await API.checkCooldown(msg.author, "flip");
+        const check = await API.playerUtils.cooldown.check(msg.author, "flip");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "flip");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para girar cara ou coroa!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'flip', 'girar cara ou coroa')
+
             return;
         }
 
@@ -68,7 +66,9 @@ module.exports = {
         let fresponse = ""
         let response = "cara"
 
-        if (API.random(0, 100) < 50) response = "coroa"
+        const rd = API.random(0, 100)
+
+        if (rd < 50) response = "coroa"
 
         if (response == lado) { // Ganhou
             fcolor += "56fc03"
@@ -82,12 +82,45 @@ module.exports = {
             API.eco.addToHistory(msg.member, `Flip | - ${API.format(aposta)} ${API.money3emoji}`);
         }
 
-        const embed = new Discord.MessageEmbed()
-        embed.setDescription(fresponse)
-        embed.setColor(fcolor)
-        msg.quote(embed)
+        API.playerUtils.cooldown.set(msg.author, "flip", 0);
 
-        API.setCooldown(msg.author, "flip", 0);
+        
+        async function applyBet(rd) {
+            
+            const bets = await API.getGlobalInfo("bets")
+
+            let jsonbet = {
+                "flip": []
+            }
+    
+            
+            if (bets != null) {
+                jsonbet = bets
+            }
+    
+            jsonbet.flip.push(rd)
+    
+            API.setGlobalInfo('bets', jsonbet)
+
+            let chancemedia = 0
+    
+            for (i = 0; i < jsonbet.flip.length; i++) {
+                chancemedia += jsonbet.flip[i]
+            }
+
+            return (chancemedia/jsonbet.flip.length).toFixed(3)
+        }
+
+        const chances = await applyBet(rd, response) 
+
+
+        const embed = new Discord.MessageEmbed()
+        embed.setDescription(fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
+        embed.setColor(fcolor)
+     await msg.quote(embed)
+
+        API.playerUtils.cooldown.set(msg.author, "flip", 5);
+
     
     }
 };

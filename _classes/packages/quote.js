@@ -39,6 +39,8 @@ Message.prototype.quote = async function (content, options) {
     }
   }
 
+  if (!msg) return
+
   await this.channel.messages.fetch(msg.id)
             .then(message => msg = message)
             .catch();

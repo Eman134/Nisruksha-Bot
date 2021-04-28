@@ -13,7 +13,7 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
         .setDescription('🏓 Latência: ' + client.ws.ping + ' ms')
-        msg.quote(embed);
+     await msg.quote(embed);
 
 	}
 };

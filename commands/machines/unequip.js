@@ -34,7 +34,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed();
         embed.setColor('#5bff45');
         embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${placa.icon ? placa.icon+' ':''}${placa.name}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes\nUtilize \`${API.prefix}mochila\` para ver seu chipe na mochila`)
-        msg.quote(embed);
+     await msg.quote(embed);
 
         pieces.length == 1 ? pieces = [] : pieces.splice(slot, 1);
 

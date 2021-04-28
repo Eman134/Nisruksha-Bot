@@ -18,19 +18,15 @@ module.exports = {
 		const boolean = await API.checkAll(msg);
         if (boolean) return;
 
-        const check = await API.checkCooldown(msg.author, "map");
+        const check = await API.playerUtils.cooldown.check(msg.author, "map");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "map");
-            const embed = new API.Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para visualizar o mapa!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'map', 'visualizar o mapa')
+
             return;
         }
 
-        API.setCooldown(msg.author, "map", 120);
+        API.playerUtils.cooldown.set(msg.author, "map", 60);
 
         let todel = await msg.quote(`<a:loading:736625632808796250> Carregando mapa`)
 
@@ -50,8 +46,8 @@ module.exports = {
 
         // Tesouro
         let tmsg = "\n<:treasure:807671407160197141> Há um tesouro não explorado na sua vila atual!\nPara pegá-lo utilize `" + API.prefix + "pegartesouro`"
-        if (API.townExtension.treasure.loc != 0 && API.townExtension.treasure.picked == false) {
-            let treasurepos = API.townExtension.treasure.pos
+        if (API.events.treasure.loc != 0 && API.events.treasure.picked == false) {
+            let treasurepos = API.events.treasure.pos
             let treasureicon = await API.img.loadImage(`resources/backgrounds/map/treasure.png`)
             background = await API.img.drawImage(background, treasureicon, treasurepos.x + 75, treasurepos.y + 150)
         }

@@ -8,7 +8,7 @@ module.exports = {
         const boolean = await API.checkAll(msg, 5);
         if (boolean) return;
 
-        msg.quote(`Um novo tesouro apareceu! Utilizem \`${API.prefix}mapa\``)
+     await msg.quote(`Um novo tesouro apareceu! Utilizem \`${API.prefix}mapa\``)
         API.townExtension.forceTreasure()
 
     }

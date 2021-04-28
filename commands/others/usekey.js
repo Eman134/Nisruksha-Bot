@@ -37,19 +37,15 @@ module.exports = {
             return;
         }
 
-        const check = await API.checkCooldown(msg.author, "usekey");
+        const check = await API.playerUtils.cooldown.check(msg.author, "usekey");
         if (check) {
 
-            let cooldown = await API.getCooldown(msg.author, "usekey");
-            const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para usar uma chave!')
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            msg.quote(embed);
+            API.playerUtils.cooldown.message(msg, 'usekey', 'usar uma chave')
+
             return;
         }
 
-        API.setCooldown(msg.author, "usekey", 30);
+        API.playerUtils.cooldown.set(msg.author, "usekey", 30);
 
         let size = item.size || 0
         let time = item.time || 0
@@ -116,7 +112,7 @@ module.exports = {
             switch (item.form.type) {
                 case 0:
                     API.setInfo(msg.author, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
-                    API.setPerm(msg.author, 3)
+                    if (await API.getPerm(msg.author) == 1) API.setPerm(msg.author, 3)
                     break;
                 case 1:
                     API.eco.money.add(msg.author, item.size)
@@ -151,7 +147,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
             let ch = await API.client.channels.cache.get('758711135284232263')
             ch.send(embed2);
 
-            API.setCooldown(msg.author, "usekey", 0);
+            API.playerUtils.cooldown.set(msg.author, "usekey", 0);
 
         });
         
@@ -162,7 +158,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
             embedmsg.edit(embed);
-            API.setCooldown(msg.author, "usekey", 0);
+            API.playerUtils.cooldown.set(msg.author, "usekey", 0);
             return;
         });
 

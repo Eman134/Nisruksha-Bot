@@ -29,7 +29,7 @@ module.exports = {
                 middle += "|--" + res2.rows[xi].column_name + "\n"
 
             }
-            msg.quote(istring + middle.slice(0, 1980) + fstring)
+            await msg.quote(istring + middle.slice(0, 1980) + fstring)
             return
         }
 
@@ -43,7 +43,7 @@ module.exports = {
 
         }
 
-        msg.quote(istring + middle.slice(0, 1980) + fstring)
+        await msg.quote(istring + middle.slice(0, 1980) + fstring)
 
 	}
 };
