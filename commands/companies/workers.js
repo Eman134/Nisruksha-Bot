@@ -78,7 +78,7 @@ module.exports = {
         const price = 80
         
 		const embed = new Discord.MessageEmbed()
-        .setTitle('Score da empresa: ' + company.score + ' ⭐')
+        .setTitle('Score da empresa: ' + company.score.toFixed(2) + ' ⭐')
         .setThumbnail(company.logo)
         .setColor("#34fa3a")
         .setFooter((owner.id == msg.author.id ? "Para demitir um funcionário utilize " + API.prefix + "demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa ' + price + ' ⭐ da empresa)' : '') : "Para sair da empresa utilize " + API.prefix + "sairempresa"), company.logo)
