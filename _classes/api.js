@@ -349,8 +349,8 @@ API.checkAll = async function(msg, req) {
     API.setInfo(msg.author, 'players', 'cmdsexec', parseInt(totalcmdplayer.cmdsexec)+1)
     
     const totalcmdserver = await API.serverdb.getServerInfo(msg.guild.id);
-    API.serverdb.setServerInfo(msg.guild.id, 'cmdsexec', parseInt(totalcmdserver.cmdsexec)+1)
-    API.serverdb.setServerInfo(msg.guild.id, 'lastcmd', Date.now())
+    API.serverdb.setServerInfo(guild.id, 'cmdsexec', parseInt(totalcmdserver.cmdsexec)+1)
+    API.serverdb.setServerInfo(guild.id, 'lastcmd', Date.now())
     
 	if (totalcmdplayer.cmdsexec == 0) {
 		
@@ -389,7 +389,7 @@ API.checkAll = async function(msg, req) {
 		embedcmd.addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
 		.addField('<:channel:788949139390988288> Canal', `\`${chan.name} (${msg.channel.id})\``)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-		.setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+		.setFooter(guild.name + " | " + guild.id, guild.iconURL())
         API.client.channels.cache.get('768465691547271168').send(embedcmd);
     }
     
