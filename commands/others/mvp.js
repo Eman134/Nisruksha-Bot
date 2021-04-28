@@ -24,6 +24,7 @@ module.exports = {
 \`6.\` Caça automática na exploração
 \`7.\` 10% de Tempo de crescimento menor para agricultura
 \`8.\` Colher todas as plantações de um terreno de uma vez na agricultura
+\`9.\` Aumenta em 10% a chance de pegar peixes na pescaria
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 
@@ -36,7 +37,7 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
 `).setTimestamp()
                 let pobj = await API.getInfo(msg.author, 'players')
                 if (API.debug)console.log(Date.now()-pobj.mvp)
-                if (pobj.mvp != null && pobj.perm == 3) {
+                if (pobj.mvp != null) {
                     embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${API.ms2((Date.now()-pobj.mvp)*-1)}**`)
                 }
              await msg.quote(embed);
