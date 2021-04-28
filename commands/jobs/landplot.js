@@ -205,7 +205,7 @@ module.exports = {
 
             if (!(points >= priceupgrade)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
+                embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${API.format(points)}/${API.format(priceupgrade)} ${API.money2} ${API.money2emoji}**`)
                 embedmsg.edit(embed);
                 return;
             }
