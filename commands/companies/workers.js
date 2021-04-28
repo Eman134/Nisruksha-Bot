@@ -124,9 +124,10 @@ module.exports = {
             API.setCompanieInfo(msg.author, company.company_id, 'score', parseFloat(company.score) - price)
             API.setCompanieInfo(msg.author, company.company_id, 'funcmax', parseFloat(company.funcmax) + 1)
 
-            embed.setColor('#5bff45');
+            embed.setColor('#5bff45')
+            .setTitle('')
             embed.addField('✅ Upgrade realizado', `
-            Você subiu um nível da empresa e agora tem maior capacidade de funcionários máximo.`)
+            Você gastou ${price} ⭐ da empresa subiu um nível dela, agora a empresa possui maior capacidade de funcionários máximo.`)
             embed.setFooter('')
             embedmsg.edit(embed);
 
