@@ -91,6 +91,12 @@ API.checkAll = async function(msg, req) {
 
 	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
 
+    const guild = await API.client.guilds.fetch(msg.guild.id, { force: true })
+
+    await guild.roles.fetch({ force: true, cache: true })
+
+    const me = await guild.members.fetch(API.client.user.id)
+
     const args = msg.content.slice(API.prefix.length).split(/ +/);
 
     const command = args.shift().toLowerCase();
@@ -277,12 +283,6 @@ API.checkAll = async function(msg, req) {
     }
     
     let list = [];
-
-    const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
-
-    await guild.roles.fetch({ force: true, cache: true })
-
-    const me = await guild.members.fetch(API.client.user.id)
     
     if (!chan) await API.client.channels.fetch(msg.channel.id, { cache: true, force: true})
 
