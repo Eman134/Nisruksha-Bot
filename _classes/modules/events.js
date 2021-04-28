@@ -13,7 +13,7 @@ const events = {
 
 }
 
-events.getConfig() = function(){ return config }
+events.getConfig = function(){ return config }
 
 events.alert = async function(text) {
     try {

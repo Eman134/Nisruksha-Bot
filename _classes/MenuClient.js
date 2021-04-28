@@ -51,7 +51,6 @@ module.exports = class MenuClient extends Client {
 
         API.client = this;
         require('./packages/quote.js')
-        require('discord-buttons')(this)
 
         fs.readdir("./_classes/modules/", (err, files) => {
             if (err) return console.error(err);
