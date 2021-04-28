@@ -267,7 +267,7 @@ module.exports = {
         
         collector.on('end', collected => {
             msgembed.reactions.removeAll();
-            API.playerUtils.cooldown.set(msg.author, "vendaitem", 35000);
+            API.playerUtils.cooldown.set(msg.author, "vendaitem", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');

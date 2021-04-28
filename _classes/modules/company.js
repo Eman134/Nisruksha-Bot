@@ -17,7 +17,7 @@ const stars = {};
         
         if (options.score) {
 
-            options.score = parseFloat(options.score)
+            options.score = parseFloat(options.score).toFixed(2)
             
             API.setCompanieInfo(owner, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
             obj.score = (parseFloat(obj.score) + parseFloat(options.score)).toFixed(2)

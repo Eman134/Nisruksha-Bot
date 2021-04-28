@@ -10,14 +10,14 @@ module.exports = class MenuClient extends Client {
         super({
             cacheGuilds: true,
             cacheChannels: true,
-            cacheOverwrites: false,
-            cacheRoles: false,
-            cacheEmojis: false,
-            cachePresences: false,
+            cacheOverwrites: true,
+            cacheRoles: true,
+            cacheEmojis: true,
+            cachePresences: true,
         
             allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, 
 
-            disabledEvents: ['CHANNEL_DELETE'],
+            disabledEvents: [],
 
             ws: { 
                     properties: { $browser: 'Discord Android' }, 
