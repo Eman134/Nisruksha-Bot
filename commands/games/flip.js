@@ -114,7 +114,6 @@ module.exports = {
 
         const chances = await applyBet(rd, response) 
 
-
         const embed = new Discord.MessageEmbed()
         embed.setDescription(fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
         embed.setColor(fcolor)

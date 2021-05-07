@@ -93,7 +93,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         }
 
         if (vencedor != 0) {
-            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostadores e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + API.format(Math.round(apostas*1.5)) + ' ' + API.money + '` ' + API.moneyemoji + ' foi distribuído para os apostadores.')
+            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostas e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + API.format(Math.round(apostas*1.5)) + ' ' + API.money + '` ' + API.moneyemoji + ' foi distribuído para os apostadores.')
         }
 
         return embed
