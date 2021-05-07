@@ -98,7 +98,8 @@ module.exports = {
                 jsonbet = bets
             }
     
-            jsonbet.flip.push(rd)
+            jsonbet.flip.unshift(rd)
+            jsonbet.flip.slice(0, 100)
     
             API.setGlobalInfo('bets', jsonbet)
 
@@ -117,7 +118,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         embed.setDescription(fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
         embed.setColor(fcolor)
-     await msg.quote(embed)
+        await msg.quote(embed)
 
         API.playerUtils.cooldown.set(msg.author, "flip", 5);
 

@@ -93,7 +93,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         }
 
         if (vencedor != 0) {
-            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram ' + events.race.apostas[vencedorcornome].length + ' apostadores **\nUm total de `' + API.format(Math.round(apostas*1.5)) + ' ' + API.money + '` ' + API.moneyemoji + ' foi distribuido para os apostadores.')
+            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostadores e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + API.format(Math.round(apostas*1.5)) + ' ' + API.money + '` ' + API.moneyemoji + ' foi distribuído para os apostadores.')
         }
 
         return embed
@@ -212,9 +212,9 @@ async function editRace(embedmsg) {
 
         for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             const user = events.race.apostas[vencedorcornome][i]
-            API.eco.money.add({ id: user.id }, Math.round(user.aposta*1.5))
-            API.eco.money.globalremove(Math.round(user.aposta*1.5))
-            API.eco.addToHistory(user, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
+            await API.eco.money.add({ id: user.id }, Math.round(user.aposta*1.5))
+            await API.eco.money.globalremove(Math.round(user.aposta*1.5))
+            await API.eco.addToHistory({ id: user.id }, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
         }
         
         embedmsg.edit(events.getRaceEmbed())

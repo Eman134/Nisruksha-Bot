@@ -17,13 +17,13 @@ module.exports = {
             return;
         }
 
-		if (isFull) {
-            API.sendError(msg, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+        if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
+            API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
             return;
         }
 
-        if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+		if (isFull) {
+            API.sendError(msg, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
             return;
         }
 
@@ -90,7 +90,7 @@ module.exports = {
         
         let embedmsg
         try {
-            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems).catch(API.cacheLists.waiting.remove(msg.author, 'mining'));
+            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems);
             await embedmsg.react('🔴')
         } catch {
             API.cacheLists.waiting.remove(msg.author, 'mining');
@@ -193,7 +193,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch(API.cacheLists.waiting.remove(msg.author, 'mining'))
+                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch()
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return

@@ -10,8 +10,6 @@ module.exports = {
 
         const Discord = API.Discord;
         const client = API.client;
-        const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
-
 
 		const embed = new Discord.MessageEmbed()
         .setColor('#32a893')
@@ -67,7 +65,7 @@ module.exports = {
             array = await array.filter(async (userobj) => {
 
                 try {
-                    const x = await guild.members.fetch(userobj.user_id, { force: true, cache: true })
+                    const x = await guild.members.fetch(userobj.user_id)
                     if (x) return true
                     else return false
                 } catch {
