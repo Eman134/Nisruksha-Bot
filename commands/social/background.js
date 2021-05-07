@@ -11,7 +11,7 @@ module.exports = {
         const Discord = API.Discord;
         const attachment = msg.attachments.array()
 		    if (attachment.length < 1) {
-            API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 900x500')
+            API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 1200x750')
             return;
         }
 
