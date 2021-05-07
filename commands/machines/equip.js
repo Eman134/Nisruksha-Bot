@@ -12,6 +12,7 @@ module.exports = {
 
         let pieces = await API.maqExtension.getPieces(msg.author);
         let playerobj = await API.getInfo(msg.author, 'machines');
+        let pobj = await API.getInfo(msg.author, 'players');
 
         var args = API.args(msg);
 
@@ -37,7 +38,9 @@ module.exports = {
             return;
         }
 
-        if (playerobj.slots != null && playerobj.slots.length >= API.maqExtension.getSlotMax(playerobj.level)) {
+        const mvp = (pobj.mvp == null ? false : true)
+
+        if (playerobj.slots != null && playerobj.slots.length >= API.maqExtension.getSlotMax(playerobj.level, mvp)) {
             API.sendError(msg, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
             return;
         }
@@ -87,7 +90,7 @@ module.exports = {
                 return;
             }
 
-            if (playerobj.slots != null && playerobj1.slots.length >= API.maqExtension.getSlotMax(playerobj1.level) || API.maqExtension.getSlotMax(playerobj1.level) == 0) {
+            if (playerobj.slots != null && playerobj1.slots.length >= API.maqExtension.getSlotMax(playerobj1.level, mvp) || API.maqExtension.getSlotMax(playerobj1.level, mvp) == 0) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`)
                 embedmsg.edit(embed);

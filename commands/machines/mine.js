@@ -90,9 +90,12 @@ module.exports = {
         
         let embedmsg
         try {
-            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems).catch();
-        } catch {}
-        embedmsg.react('🔴')
+            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems).catch(API.cacheLists.waiting.remove(msg.author, 'mining'));
+            await embedmsg.react('🔴')
+        } catch {
+            API.cacheLists.waiting.remove(msg.author, 'mining');
+            return
+        }
         API.cacheLists.waiting.add(msg.author, embedmsg, 'mining');
 
         const oreobj = API.maqExtension.ores.getObj().minerios;
@@ -128,7 +131,7 @@ module.exports = {
                 let sizeMap = new Map();
                 let round = 0;
                 let xp = API.random(15, 35);
-                API.playerUtils.execExp(msg, xp);
+                xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.removeEnergy(msg.author, 1);
                 let playerobj = await API.getInfo(msg.member, 'machines');
                 let maqid = playerobj.machine;
@@ -190,7 +193,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch()
+                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch(API.cacheLists.waiting.remove(msg.author, 'mining'))
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return

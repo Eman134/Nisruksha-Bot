@@ -98,7 +98,7 @@ module.exports = {
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
         
         await embedmsg.react('⚔')
-        if (pobj.mvp != null || perm == 5) await embedmsg.react('🤖')
+        if (pobj.mvp != null) await embedmsg.react('🤖')
         embedmsg.react('🏃🏾‍♂️')
 
         const filter = (reaction, user) => {
@@ -276,7 +276,7 @@ module.exports = {
                 let colocados = []
                 
                 let xp = API.random(Math.round((mo.level+1)*2.5), Math.round((mo.level+1)*3))
-                API.playerUtils.execExp(msg, xp)
+                xp = await API.playerUtils.execExp(msg, xp)
                 
                 let retorno = await API.company.jobs.giveItem(msg, drops)
 

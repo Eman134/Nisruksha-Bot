@@ -84,10 +84,10 @@ module.exports = {
                     } else {
                         embed.setColor('#5bff45');
                         pago += price;
-                        await API.setInfo(msg.author, 'storage', 'storage', lvl+1)
+                        await API.setInfo(msg.author, 'storage', 'storage', lvl+r1)
                         let obj55 = await API.getInfo(member, 'storage');
                         let lvl55 = obj55.storage;
-                        embed.addField('<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', `Peso máximo: **${API.format(max)}g (+${r1*API.maqExtension.storage.sizeperlevel})**\nNível do armazém: **${API.format(lvl55)} (+${r1})**\nPreço pago: **${API.format(pago)} ${API.money} ${API.moneyemoji}**\nPreço do próximo aprimoramento: **${API.format(await API.maqExtension.storage.getPrice(member, max+(r1*API.maqExtension.storage.sizeperlevel)))} ${API.money} ${API.moneyemoji}**`)
+                        embed.addField('<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', `Peso máximo: **${API.format(max)}g (+${r1*API.maqExtension.storage.sizeperlevel})**\nNível do armazém: **${API.format(lvl55)} (+${r1})**\nPreço pago: **${API.format(pago)} ${API.money} ${API.moneyemoji}**\nPreço do próximo aprimoramento: **${API.format(await API.maqExtension.storage.getPrice(member, undefined, max+(r1*API.maqExtension.storage.sizeperlevel)))} ${API.money} ${API.moneyemoji}**`)
                         .setFooter('')
                         API.eco.money.remove(msg.author, price)
                         API.eco.addToHistory(msg.author, `Aprimoramento Armazém | - ${API.format(price)} ${API.moneyemoji}`)

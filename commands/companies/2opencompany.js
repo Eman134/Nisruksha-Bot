@@ -159,7 +159,7 @@ module.exports = {
             
             API.eco.money.remove(msg.author, total)
             API.eco.points.remove(msg.author, c1)
-            API.eco.addToHistory(msg.member, `Nova empresa | - ${API.format(total)} ${API.moneyemoji}${c1 > 0 ? ` | - ${API.format(c1)} ${API.money2} ${API.money2emoji}`:''}`)
+            API.eco.addToHistory(msg.member, `Nova empresa | - ${API.format(total)} ${API.moneyemoji}${c1 > 0 ? ` | - ${API.format(c1)} ${API.money2emoji}`:''}`)
             townname = await API.townExtension.getTownName(msg.author);
             embed
             .addField(`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${API.company.e[API.company.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`)

@@ -17,8 +17,6 @@ module.exports = class MenuClient extends Client {
         
             allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, 
 
-            disabledEvents: [],
-
             ws: { 
                     properties: { $browser: 'Discord Android' }, 
                     intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 

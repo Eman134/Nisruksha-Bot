@@ -1,7 +1,7 @@
 module.exports = {
     name: 'pegartesouro',
     aliases: ['picktreasure'],
-    category: 'Players',
+    category: 'none',
     description: 'Faça uma escavação na sua vila atual e tente encontrar tesouros',
 	async execute(API, msg) {
 
@@ -58,7 +58,7 @@ module.exports = {
                 prof += API.random(0, 6)
 
                 let xp = API.random(5, 20);
-                API.playerUtils.execExp(msg, xp);
+                xp = await API.playerUtils.execExp(msg, xp);
                 
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");

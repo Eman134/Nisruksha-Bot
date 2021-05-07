@@ -71,42 +71,65 @@ module.exports = {
         if (obj.bglink != null) {
             try{
                 background2 = await API.img.loadImage(obj.bglink)
-                res = await API.img.resize(background2, 900, 500)
+                res = await API.img.resize(background2, 1200, 750)
                 background = await API.img.drawImage(res, background, 0, 0)
             }catch(err){API.setInfo(member, 'players', 'bglink', null);API.sendErrorM(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)}
         }
 
         // Draw username
-        background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 200, 52,3)
-        background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 200, 117,3)
+        background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 117,3)
+        background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 181,3)
         // Draw circle avatar
         let avatar = await API.img.loadImage(member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        avatar = await API.img.resize(avatar, 145, 145);
-        avatar = await API.img.editBorder(avatar, 75, true)
-        background = await API.img.drawImage(background, avatar, 10, 10)
-        // Badge
-        if (perm > 1) background = await API.img.drawImage(background, await API.img.loadImage(`resources/backgrounds/profile/${perm}.png`), 590, 27)
+        avatar = await API.img.resize(avatar, 180, 180);
+        avatar = await API.img.editBorder(avatar, 90, true)
+        background = await API.img.drawImage(background, avatar, 85, 59)
 
-        // Town name and Mark
-        /*let mark = await API.img.loadImage(`resources/backgrounds/map/mark.png`)
-        mark = await API.img.resize(mark, 50, 50)
-        let townname = await API.townExtension.getTownName(member);
+        // Badges
+        let tempx = 0
+        let tempy = 605
+        if (perm > 1) {
+            let tempbadge = await API.img.loadImage(`resources/backgrounds/profile/${perm}.png`)
+            tempbadge = await API.img.resize(tempbadge, 35, 35);
+            background = await API.img.drawImage(background, tempbadge, tempx, tempy)
+            tempx += 45
+        }
 
-        background = await API.img.drawImage(background, mark, 655, 27)
-        background = await API.img.drawText(background, `${townname}`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 705, 52,3)*/
-        background = await API.img.drawText(background, `${obj.reps} REPS`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 756, 50,4)
+        const playerobj = await API.getInfo(member, 'machines')
+
+        let maqid = playerobj.machine;
+        let maq = API.shopExtension.getProduct(maqid);
+
+        let maqimg = await API.img.loadImage(maq.img)
+        maqimg = await API.img.resize(maqimg, 35, 35);
+
+        background = await API.img.drawImage(background, maqimg, tempx, tempy)
+        tempx += 45
+
+        if (obj.badges != null) {
+            for (i = 0; i < obj.badges.length; i++) {
+                let tempbadge0 = API.badges.get(obj.badges[i])
+                let tempbadge = await API.img.loadImage(tempbadge0.url);
+                tempbadge = await API.img.resize(tempbadge, 35, 35);
+                background = await API.img.drawImage(background, tempbadge, tempx, tempy)
+                if (tempx < 1100) tempx += 45
+                else break
+            }
+        }
+
+        background = await API.img.drawText(background, `${obj.reps} REPS`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 1060, 117, 3)
 
         const obj2 = await API.getInfo(member, "machines")
         const players_utils = await API.getInfo(member, "players_utils")
 
-        let progress = await API.img.generateProgressBar(1, 75, 155, Math.round(100*obj2.xp/(obj2.level*1980)), 5, 1, colors[perm])
-        background = await API.img.drawImage(background, progress, 5, 5)
+        //let progress = await API.img.generateProgressBar(1, 75, 155, Math.round(100*obj2.xp/(obj2.level*1980)), 5, 1, colors[perm])
+        //background = await API.img.drawImage(background, progress, 5, 5)
 
-        background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 20, './resources/fonts/MartelSans-Bold.ttf', textcolor, 450, 445, 4)
-        background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 20, './resources/fonts/MartelSans-Bold.ttf', '#FFFFFF', 450, 475, 4)
+        background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', textcolor, 600, 675, 4)
+        background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', '#FFFFFF', 600, 705, 4)
 
-        let progress2 = await API.img.generateProgressBar(0, 900, 17, Math.round(100*obj2.xp/(obj2.level*1980)), 10, 0, colors[perm])
-        background = await API.img.drawImage(background, progress2, 0, 407)
+        let progress2 = await API.img.generateProgressBar(0, 1200, 10, Math.round(100*obj2.xp/(obj2.level*1980)), 10, 0, colors[perm])
+        background = await API.img.drawImage(background, progress2, 0, 740)
 
         if (perm > 1 || players_utils.profile_color > 0) {
 
@@ -114,13 +137,13 @@ module.exports = {
 
             if (players_utils.profile_color > 0) gradcolor = players_utils.profile_color
 
-            let colorbord = await API.img.createImage(440, 2, colors[perm], gradcolor)
-            let colorbord2 = await API.img.createImage(682, 2, colors[perm], gradcolor)
-            let colorbord3 = await API.img.createImage(225, 2, colors[perm], gradcolor)
+            let colorbord = await API.img.createImage(593, 2, colors[perm], gradcolor)
+            let colorbord2 = await API.img.createImage(163, 2, colors[perm], gradcolor)
+            let colorbord3 = await API.img.createImage(782, 2, colors[perm], gradcolor)
 
-            background = await API.img.drawImage(background, colorbord, 186, 27)
-            background = await API.img.drawImage(background, colorbord2, 186, 92)
-            background = await API.img.drawImage(background, colorbord3, 643, 27)
+            background = await API.img.drawImage(background, colorbord, 387, 91)
+            background = await API.img.drawImage(background, colorbord2, 1006, 91)
+            background = await API.img.drawImage(background, colorbord3, 387, 154)
 
         }
 

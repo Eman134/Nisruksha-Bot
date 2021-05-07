@@ -11,11 +11,11 @@
 				"size": 500
 			},
 			{
-				"name": "5x Fichas",
+				"name": "4x Fichas",
 				"chance": 35,
 				"icon": "<:ficha:741827151879471115>",
 				"type": 1,
-				"size": 5
+				"size": 4
 			},
 			{
 				"name": "2x Cristal",
@@ -54,11 +54,11 @@
 				"size": 1000
 			},
 			{
-				"name": "4x Fichas",
+				"name": "10x Fichas",
 				"chance": 34,
 				"icon": "<:ficha:741827151879471115>",
 				"type": 1,
-				"size": 4
+				"size": 10
 			},
 			{
 				"name": "3x Cristal",

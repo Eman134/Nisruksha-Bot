@@ -91,7 +91,7 @@ API.checkAll = async function(msg, req) {
 
 	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
 
-    const guild = await API.client.guilds.fetch(msg.guild.id, { force: true })
+    const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
 
     await guild.roles.fetch({ force: true, cache: true })
 
@@ -239,7 +239,7 @@ API.checkAll = async function(msg, req) {
 
     if (totalcmdplayer.cmdsexec >= 100 || globalstatus == 0) {
         try {
-            const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true })
+            const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true, cache: true })
 
             if (!x) {
                 if (limitedpatrao()) return true
@@ -585,7 +585,7 @@ API.isOdd = function(n) {
 
 API.getBotInfoProperties = async function() {
 
-         function formatBytes(bytes) {
+    function formatBytes(bytes) {
 		if (bytes === 0) return '0 Bytes';
 		const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
 		const i = Math.floor(Math.log(bytes) / Math.log(1024));

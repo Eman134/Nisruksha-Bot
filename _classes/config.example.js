@@ -1,9 +1,9 @@
-module.exports = { // Rename to config.js
+module.exports = { // Renomeie para config.js
     prefix: ".",
     owner: ["422002630106152970"],
 
     ip: "localhost",
-    port: 80, // Default 80
+    port: 80, // Padrão 80
     ssl: false,
 
     db: {
@@ -16,7 +16,7 @@ module.exports = { // Rename to config.js
 
     dbl: {
         token: "",
-        statsInterval: 1800000, // In ms
+        statsInterval: 1800000, // em ms
         webhookAuthPass: "",
         voteLogs_channel: ""
     },
@@ -27,19 +27,24 @@ module.exports = { // Rename to config.js
         callback: "/oauth2/callback",
 
         system: {
-            timeout: 120000 // In ms
+            timeout: 120000 // em ms
         }
 
     },
 
     modules: {
 
-        cotacao: 20, // In minutes
+        cotacao: 20, // em minutos
 
         events: {
             channel: "",
-            minInterval: 30, // In minutes
-            maxInterval: 60
+            minInterval: 30, // em minutos
+            maxInterval: 60,
+
+            race: {
+                time: 30 // Tempo para apostas, em minutos
+            }
+
         }
     }
 

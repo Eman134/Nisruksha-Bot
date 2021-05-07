@@ -99,5 +99,12 @@
         "chn": ["Preço de venda por cada ficha [910 -> 810]"],
         "fix": ["Burlar cooldown de venda de minérios/itens", "Quando executava n.veremp <qualquer pessoa> o bot não respondia a empresa"],
         "alc": ["uparvara > uv", "terreno modificado para terrenoatual"]
+    },
+	"2.1.4": {
+        "add": ["Sistema de badges para perfil", "Comando n.upararmazém", "Novo evento Corrida de Cavalos", "Slot 5 de chipes da máquina somente para MVPS", "10% de chance a mais de pegar peixe para MVPS", "Botão de subir anzol na pescaria para MVPS"],
+        "rem": [],
+        "chn": ["Imagem de perfil padrão modificada", "A biografia de perfil suporta +10 caracteres", "Rework nos níveis gerais e ganho de experiência"],
+        "fix": ["Contagem de peixes reiniciava quando descartava o peixe"],
+        "alc": []
     }
 }

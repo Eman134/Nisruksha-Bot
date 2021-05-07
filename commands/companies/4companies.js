@@ -24,14 +24,12 @@ async function formatList(API, embed2, page2) {
 
         
         let totalpages = 1+((array.length-(array.length % 6))/6);
-        console.log(totalpages)
-        console.log(array.length)
         
         if (page > totalpages) page = 1;
         
             embed2.setDescription(`**Página atual: ${page}/${totalpages}**\nPara navegar entre as páginas use \`${API.prefix}empresas <página>\`\nUtilize \`${API.prefix}verempresa <código>\` para visualizar as informações de uma empresa`)
             
-            array.slice((page*6)-6, page*6);
+            array = array.slice((page*6)-6, page*6);
             
             for (const r of array) {
                 let owner = await API.client.users.fetch(r.user_id);

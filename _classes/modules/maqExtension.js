@@ -120,11 +120,32 @@ storage.getSize = async function(member) {
   return size;
 }
 
-storage.getPrice = async function(member, max2) {
-  let max = await maqExtension.storage.getMax(member);
-  if (max2) max = max2
-  max += (max*7.8/50)*5.15
-  return Math.round(max);
+storage.getPrice = async function(member, level, max2) {
+  const obj = await API.getInfo(member, 'storage');
+  let max
+  let pricetotal = 0
+  if (!level) {
+    max = await maqExtension.storage.getMax(member);
+    if (max2) max = max2
+    max += (max*7.8/50)*5.15
+    pricetotal = max
+  } else {
+    let levelatual = obj.storage
+
+    for (i = 0; i < level; i++) {
+
+      max = levelatual * storage.sizeperlevel;
+      if (max2) max = max2
+      max += (max*7.8/50)*5.15
+
+      pricetotal += max
+      
+      levelatual++
+
+    }
+  }
+  
+  return Math.round(pricetotal);
 }
 
 storage.isFull = async function(member) {
@@ -317,9 +338,16 @@ maqExtension.setEnergyMax = async function(member, valor) {
   API.setInfo(member, 'machines', 'energymax', valor)
 }
 
-maqExtension.getSlotMax = function(level) {
+maqExtension.getSlotMax = function(level, mvp) {
   let r = ((((level)-((level)%6))/6));
-  return r > 5 ? 5 : r;
+
+  let res = r > 5 ? 5 : r
+
+  if (!mvp) {
+    if (res > 4) res = 4
+  }
+
+  return res;
 }
 
 maqExtension.getPieces = async function(member) {

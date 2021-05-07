@@ -276,7 +276,7 @@ const jobs = {
             y.size = y.sz
         }
 
-        return { descartados: descartados, colocados: colocados }
+        return { descartados, colocados }
 
     }
 

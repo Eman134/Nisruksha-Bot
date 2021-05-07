@@ -20,11 +20,12 @@ module.exports = {
 \`2.\` Cor de destaque MVP no seu perfil
 \`3.\` Uma bandeira de MVP no seu perfil
 \`4.\` Menor cooldown em comandos
-\`5.\` Caixa comum no daily
+\`5.\` 2x Caixa comum no daily
 \`6.\` Caça automática na exploração
 \`7.\` 10% de Tempo de crescimento menor para agricultura
 \`8.\` Colher todas as plantações de um terreno de uma vez na agricultura
 \`9.\` Aumenta em 10% a chance de pegar peixes na pescaria
+\`10.\` Opção de subir anzol na pescaria
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 

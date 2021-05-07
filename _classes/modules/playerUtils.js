@@ -12,10 +12,14 @@ async function loadbg() {
     bglevelup = await API.img.loadImage(`resources/backgrounds/profile/levelup.png`)
 }
 
-playerUtils.execExp = async function(msg, xp) {
+playerUtils.execExp = async function(msg, xpp) {
 
     const Discord = API.Discord;
     const obj = await API.getInfo(msg.author, "machines")
+
+    let maq = API.shopExtension.getProduct(obj.machine);
+
+    let xp = xpp * (maq.tier+1)
   
     if (obj.xp + xp >= (obj.level*1980)) {
   
@@ -57,6 +61,8 @@ Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 
     } else API.setInfo(msg.author, "machines", "xp", obj.xp+xp);
   
     API.setInfo(msg.author, "machines", "totalxp", obj.totalxp+xp);
+
+    return xp
   
 }
 

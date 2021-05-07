@@ -59,6 +59,7 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 
         const playerobj = await API.getInfo(member, 'machines')
+        const pobj = await API.getInfo(member, 'players')
         let energia = await API.maqExtension.getEnergy(member);
         let energymax = await API.maqExtension.getEnergyMax(member);
 
@@ -73,7 +74,7 @@ module.exports = {
 
         background = await API.img.drawText(background, Math.round(energia/energymax)*100 + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 104, 3)
         
-        background = await API.img.drawText(background, Math.round(playerobj.durability/maq.durability)*100 + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
+        background = await API.img.drawText(background, Math.round(100*playerobj.durability/maq.durability) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
 
         background = await API.img.drawText(background, profundidade + 'm', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 167, 3)
 
@@ -83,11 +84,15 @@ module.exports = {
         background = await API.img.drawImage(background, maqimg, 200, 80)
 
         const locked = await API.img.loadImage(`resources/backgrounds/maq/locked.png`)
+        
 
-        const maxslots = API.maqExtension.getSlotMax(playerobj.level)
+        const mvp = (pobj.mvp == null ? false : true)
 
+        const maxslots = API.maqExtension.getSlotMax(playerobj.level, mvp)
+        
         if (maxslots < 5) {
-            background = await API.img.drawImage(background, locked, 398, 220)
+            const locked2 = await API.img.loadImage(`resources/backgrounds/maq/locked2.png`)
+            background = await API.img.drawImage(background, locked2, 398, 220)
         }
         if (maxslots < 4) {
             background = await API.img.drawImage(background, locked, 312, 252)
@@ -142,11 +147,13 @@ module.exports = {
         embed.attachFiles([attachment])
         embed.setImage('attachment://maq.png')
 
-     await msg.quote(embed);
+        await msg.quote(embed);
 
         try {
-            todel.delete().catch();
-        }catch{}
+            await todel.delete().catch();
+        }catch{
+
+        }
 
 	}
 };

@@ -10,6 +10,8 @@ module.exports = {
 
         const Discord = API.Discord;
         const client = API.client;
+        const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
+
 
 		const embed = new Discord.MessageEmbed()
         .setColor('#32a893')
@@ -62,7 +64,17 @@ module.exports = {
                 client.emit('error', err)
             }
 
-            array = array.filter((userobj) => msg.guild.members.cache.has(userobj.user_id))
+            array = await array.filter(async (userobj) => {
+
+                try {
+                    const x = await guild.members.fetch(userobj.user_id, { force: true, cache: true })
+                    if (x) return true
+                    else return false
+                } catch {
+                    return false
+                }
+
+            })
 
             array.sort(function(a, b){
                 return b[vare[reaction.emoji.id].split(';')[1]] - a[vare[reaction.emoji.id].split(';')[1]];
@@ -89,7 +101,8 @@ module.exports = {
             }
 
             const embed2 = new Discord.MessageEmbed()
-            .setTitle('Ranking local - ' + msg.guild.name)
+            .setTitle('Ranking local')
+            .setAuthor(guild.name, guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
             .setColor('#32a893')
             .setDescription(array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`))
             embedmsg.edit(embed2)

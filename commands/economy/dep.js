@@ -90,6 +90,7 @@ module.exports = {
                     API.eco.addToHistory(msg.member, `📥 Depósito | + ${API.format(total)} ${API.moneyemoji}`)
                     let obj = await API.getInfo(msg.author, "players");
                     API.setInfo(msg.author, "players", "dep", obj.dep + 1);
+                    API.eco.money.globaladd(taxa)
                 }
             }
             embedmsg.edit(embed);

@@ -152,7 +152,7 @@ module.exports = {
         let total = 0
         
         if (args[0] != "tudo") {
-            total = Math.round(selectedplant.qnt*2*selectedplant.seed.price*pobj2.level)
+            total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level)
         } else {
             for (i = 0; i < allselectedplants.length; i++) {
                 total += Math.round(allselectedplants[i].qnt*2*allselectedplants[i].seed.price*pobj2.level)
@@ -179,6 +179,7 @@ module.exports = {
         }
 
         let xp = API.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
+        xp = await API.playerUtils.execExp(msg, xp);
         
         let score = ((API.company.stars.gen()*2.5).toFixed(2)) 
 
@@ -196,7 +197,6 @@ module.exports = {
 
         API.eco.money.add(msg.author, total)
 
-        API.playerUtils.execExp(msg, xp);
 
         await API.company.stars.add(msg.author, company.company_id, { score })
         

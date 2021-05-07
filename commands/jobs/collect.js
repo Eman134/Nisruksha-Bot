@@ -103,7 +103,7 @@ module.exports = {
                 let sizeMap = new Map();
                 let round = 0;
                 let xp = API.random(2, 6);
-                API.playerUtils.execExp(msg, xp);
+                xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.stamina.remove(msg.author, 30);
                 
                 let retorno = await API.company.jobs.giveItem(msg, obj2)
