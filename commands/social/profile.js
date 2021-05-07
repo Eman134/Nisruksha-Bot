@@ -117,7 +117,7 @@ module.exports = {
             }
         }
 
-        background = await API.img.drawText(background, `${obj.reps} REPS`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 1060, 117, 3)
+        background = await API.img.drawText(background, obj.reps, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 1060, 117, 3)
 
         const obj2 = await API.getInfo(member, "machines")
         const players_utils = await API.getInfo(member, "players_utils")
