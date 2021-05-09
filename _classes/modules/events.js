@@ -186,7 +186,7 @@ async function editRace(embedmsg) {
     } else {
 
         events.race.rodando = false
-        events.race.vencedor = API.random(0, 4)
+        events.race.vencedor = API.random(1, 3)
 
         let vencedorcor = ''
         let vencedorcornome = ''
