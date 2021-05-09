@@ -127,16 +127,20 @@ module.exports = class MenuClient extends Client {
         
         let express = require('express')
 
-        const http = require("http");
+        const app = express()
 
-        const app = http.createServer(express)
+        //const http = require("http");
 
-        if (options.ip != 'localhost') dblCheck(express)
+        //const app = http.createServer(express)
 
-        app.listen(port, () => {});
+        if (options.ip != 'localhost') {
+            dblCheck(app)
+            app.listen(port);
+        }
+
         
         // Upvotes
-        function dblCheck(sv) {
+        function dblCheck(app) {
             try {
 
                 const Topgg = require("@top-gg/sdk")
@@ -145,7 +149,7 @@ module.exports = class MenuClient extends Client {
 
                 console.log(webhook)
 
-                sv.post("/dblwebhook", webhook.listener(vote => {
+                app.post("/dblwebhook", webhook.listener(vote => {
                     
                     API.client.users.fetch(vote.user).then((user) => {
 
@@ -165,8 +169,8 @@ module.exports = class MenuClient extends Client {
                 }))
 
                 API.dbl = new Topgg.Api(options.dbl.token)
-            } catch {
-                
+            } catch (err) {
+                API.client.emit('error', err)
             }
         } 
     }
