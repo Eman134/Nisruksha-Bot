@@ -361,7 +361,7 @@ API.checkAll = async function(msg, req) {
 		return false;
 		
 		
-	} else if (API.client.user.id != '726943606761324645') {
+	} else if (API.client.user.id != '726943606761324645' && API.dbl) {
         API.dbl.hasVoted(msg.author.id).then(async voted => {
             if (voted) return
             const check44 = await API.playerUtils.cooldown.check(msg.author, "votealertdelay");
