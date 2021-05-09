@@ -99,7 +99,7 @@ module.exports = {
             }
     
             jsonbet.flip.unshift(rd)
-            jsonbet.flip.slice(0, 100)
+            jsonbet.flip = jsonbet.flip.slice(0, 100)
     
             API.setGlobalInfo('bets', jsonbet)
 
