@@ -143,6 +143,8 @@ module.exports = class MenuClient extends Client {
 
                 const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
 
+                console.log(webhook)
+
                 sv.post("/dblwebhook", webhook.listener(vote => {
                     
                     API.client.users.fetch(vote.user).then((user) => {
