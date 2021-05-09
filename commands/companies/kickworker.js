@@ -98,7 +98,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 embed.setColor("#a60000")
                 .setDescription(`Você foi demitido da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**\nMotivo: ${API.getMultipleArgs(msg, 2)}`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações da empresa onde trabalha!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                member.send(embed).catch()
+                await member.send(embed).catch()
             }catch{}
 
             
