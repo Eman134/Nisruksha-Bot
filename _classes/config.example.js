@@ -16,7 +16,6 @@ module.exports = { // Renomeie para config.js
 
     dbl: {
         token: "",
-        statsInterval: 1800000, // em ms
         webhookAuthPass: "",
         voteLogs_channel: ""
     },

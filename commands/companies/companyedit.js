@@ -21,15 +21,15 @@ module.exports = {
           const companyid = await API.company.get.idByOwner(msg.author)
 
           if (args.length == 0) {
-              embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.`)
+              embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.\n\`${API.prefix}empresaedit nome <novonome>\` - Modifica o nome da sua empresa.`)
               await msg.quote(embed);
               return;
             }
             
             let ch = args[0].toLowerCase();
             
-          if (['background', 'bg', 'logo', 'desc', 'description', 'descrição', 'setarvaga', 'vaga', 'vagas', 'setvaga', 'taxa'].includes(ch) == false) {
-            embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.`)
+          if (['background', 'bg', 'logo', 'desc', 'description', 'descrição', 'setarvaga', 'vaga', 'vagas', 'setvaga', 'taxa', 'nome', 'name'].includes(ch) == false) {
+            embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a empresaedit:\n \n\`${API.prefix}empresaedit background\` - Envie uma imagem junto do comando e seta o background da empresa no \`${API.prefix}veremp\`\n\`${API.prefix}empresaedit logo\` - Envie uma imagem junto do comando e seta a logo da empresa\n\`${API.prefix}empresaedit desc <texto>\` - Seta a descrição da sua empresa.\n\`${API.prefix}empresaedit vagas <on|off>\` - Seta a disponibilidade de vagas.\n\`${API.prefix}empresaedit taxa <1-50%>\` - Seta a taxa da empresa.\n\`${API.prefix}empresaedit nome <novonome>\` - Modifica o nome da sua empresa.`)
             await msg.quote(embed);
             return;
           }
@@ -181,7 +181,40 @@ module.exports = {
           await msg.quote(embed)
           const companyid = await API.company.get.idByOwner(msg.author)
           API.setCompanieInfo(msg.author, companyid, 'taxa', taxa)
+
           API.playerUtils.cooldown.set(msg.author, "settaxa", 86400);
+
+        } else if (ch.startsWith('name') || ch.startsWith('nome')) {
+
+          const company = await API.company.get.company(msg.author)
+
+          if (args.length == 1) {
+            API.sendError(msg, `Você deve digitar o novo nome para a sua empresa`, `empresaedit nome <nome>`)
+            return;
+          }
+
+          const price = 35
+
+          if ((company.score < price)) {
+            const embed = new Discord.MessageEmbed()
+            embed.setColor('#a60000');
+            embed.addField('❌ Falha na alteração', `A sua empresa não possui score o suficiente para realizar a alteração de nome!\nScore: **${API.format(company.score)}/${API.format(price)} ⭐**`)
+            await msg.quote(embed)
+            return;
+          }
+
+          API.setCompanieInfo(msg.author, company.company_id, 'score', parseFloat(company.score) - price)
+
+          let novonome = args[1]
+
+          embed.setColor('#5bff45')
+          .setTitle('')
+          embed.addField('✅ Nome modificado', `
+          Você gastou ${price} ⭐ da empresa para modificar o nome da sua empresa para **${novonome}**.`)
+          embed.setFooter('')
+          await msg.quote(embed)
+          API.setCompanieInfo(msg.author, company.company_id, 'name', novonome)
+          API.playerUtils.cooldown.set(msg.author, "setname", 86400*2);
         }
 
         API.playerUtils.cooldown.set(msg.author, "seecompany", 0);

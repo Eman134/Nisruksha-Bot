@@ -124,48 +124,45 @@ module.exports = class MenuClient extends Client {
     loadExpressServer(options) {
 
         const port = options.port
+        
+        let express = require('express')
 
         const http = require("http");
 
-        try {
-            let app = require('express')
-            const server = http.createServer(app)
+        const app = http.createServer(express)
 
-            if (options.ip != 'localhost') dblCheck(server)
+        if (options.ip != 'localhost') dblCheck(app)
 
-            server.listen(port, () => {});
-        } catch {
-        }
+        app.listen(port, () => {});
         
         // Upvotes
-        function dblCheck(server) {
+        function dblCheck(app) {
             try {
-                const AutoPoster = require('topgg-autoposter')
-                const ap = AutoPoster(options.dbl.token, API.client)
-                const DBL = require('dblapi.js');
-                const dbl = new DBL(options.dbl.token, { webhookAuth: options.dbl.webhookAuthPass, webhookServer: server, statsInterval: options.dbl.statsInterval }, this);
-                dbl.webhook.on('ready', hook => {
-                    console.log(`[UPVOTE] Rodando em http://${hook.hostname}:${hook.port}${hook.path}`.green);
-                });
-                dbl.webhook.on('vote', vote => {
 
+                const Topgg = require("@top-gg/sdk")
+
+                const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
+
+                app.post("/dblwebhook", webhook.listener(vote => {
+                    
                     API.client.users.fetch(vote.user).then((user) => {
 
-                    let size = 1
+                        let size = 1
 
-                    const embed = new Discord.MessageEmbed()
-                    .setColor('RANDOM')
-                    .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
-                    .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
+                        const embed = new Discord.MessageEmbed()
+                        .setColor('RANDOM')
+                        .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
+                        .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
-                    API.client.channels.cache.get(options.dbl.voteLogs_channel).send(embed)
-                    API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
-                    API.eco.points.add(user, size)
+                        API.client.channels.cache.get(options.dbl.voteLogs_channel).send(embed)
+                        API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
+                        API.eco.points.add(user, size)
 
                     })
 
-                });
-                API.dbl = dbl
+                }))
+
+                API.dbl = new Topgg.Api(options.dbl.token)
             } catch {
                 
             }

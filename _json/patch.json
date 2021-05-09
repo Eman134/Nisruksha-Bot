@@ -106,5 +106,12 @@
         "chn": ["Imagem de perfil padrão modificada", "A biografia de perfil suporta +10 caracteres", "Rework nos níveis gerais e ganho de experiência"],
         "fix": ["Contagem de peixes reiniciava quando descartava o peixe"],
         "alc": []
+    },
+	"2.1.5": {
+        "add": ["Nova opção no n.empresaedit para modificar o nome da empresa"],
+        "rem": [],
+        "chn": [],
+        "fix": [],
+        "alc": []
     }
 }
