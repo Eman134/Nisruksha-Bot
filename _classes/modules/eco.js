@@ -56,8 +56,7 @@ money.add = async function (member, money) {
     await API.setInfo(member, "players", "money", Math.round(parseInt(obj["money"]) + parseInt(money)));
 }
 money.globaladd = async function (money) {
-    let obj = await API.getGlobalInfo("money");
-    await API.setGlobalInfo("money", Math.round(obj) + parseInt(money));
+    money.add({ id: API.app.id}, money)
 }
 
 money.remove = async function (member, money) {
@@ -66,8 +65,7 @@ money.remove = async function (member, money) {
 }
 
 money.globalremove = async function (money) {
-    let obj = await API.getGlobalInfo("money");
-    await API.setGlobalInfo("money", Math.round(obj) - parseInt(money));
+    money.remove({ id: API.app.id}, money)
 }
 
 money.set = async function (member, money) {
