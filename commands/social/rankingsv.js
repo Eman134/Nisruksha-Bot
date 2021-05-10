@@ -17,7 +17,7 @@ module.exports = {
         .addField(`RANKING DE DINHEIRO`, `Reaja com ${API.client.emojis.cache.get('736290479406317649')}`)
         .addField(`RANKING DE FICHAS`, `Reaja com ${API.client.emojis.cache.get('741827151879471115')}`)
         .addField(`RANKING DE CRISTAIS`, `Reaja com ${API.client.emojis.cache.get('743176785986060390')}`)
-        .addField(`RANKING DE NÍVEIS`, `Reaja com ${API.client.emojis.cache.get('736284021436317727')}`)
+        .addField(`RANKING DE NÍVEIS`, `Reaja com ${API.client.emojis.cache.get('833363716615307324')}`)
         .addField(`RANKING DE REPUTAÇÃO`, `Reaja com 👍🏽`)
         let embedmsg = await msg.quote(embed);
 
@@ -25,7 +25,7 @@ module.exports = {
             embedmsg.react('736290479406317649');
             embedmsg.react('741827151879471115');
             embedmsg.react('743176785986060390');
-            embedmsg.react('736284021436317727');
+            embedmsg.react('833363716615307324');
             embedmsg.react('👍🏽');
         }catch{}
 
@@ -33,13 +33,13 @@ module.exports = {
             return user.id === msg.author.id;
         };
       
-        const emojis = ['736290479406317649', '741827151879471115', '736284021436317727', '743176785986060390', '👍🏽'];
+        const emojis = ['736290479406317649', '741827151879471115', '833363716615307324', '743176785986060390', '👍🏽'];
         const vare = {
             '736290479406317649': 'players;money',
             '741827151879471115': 'players;token',
             '743176785986060390': 'players;points',
             '👍🏽': 'players;reps',
-            '736284021436317727': 'machines;level'
+            '833363716615307324': 'machines;level'
         }
         
         const collector = embedmsg.createReactionCollector(filter, { time: 30000 });
