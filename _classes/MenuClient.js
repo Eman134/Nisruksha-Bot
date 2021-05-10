@@ -1,5 +1,5 @@
-const { Client } = require('discord.js-light');
-const Discord = require('discord.js-light');
+const { Client } = require('discord.js');
+const Discord = require('discord.js');
 const fs = require('fs');
 const API = require("./api.js");
 
@@ -146,8 +146,6 @@ module.exports = class MenuClient extends Client {
                 const Topgg = require("@top-gg/sdk")
 
                 const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
-
-                console.log(webhook)
 
                 app.post("/dblwebhook", webhook.listener(vote => {
                     

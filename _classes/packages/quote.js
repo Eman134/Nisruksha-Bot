@@ -1,4 +1,4 @@
-const { APIMessage, Message } = require("discord.js-light");
+const { APIMessage, Message } = require("discord.js");
 
 Message.prototype.quote = async function (content, options) {
   const reference = {

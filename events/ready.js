@@ -5,7 +5,7 @@ module.exports = {
         
         const client = API.client;
 
-        {
+        /*{
 
             client.guilds.fetch('693150851396796446').then((guild) => {
               guild.emojis.fetch({ cache: true })
@@ -32,7 +32,7 @@ module.exports = {
           
             console.log(`[CACHE] Otimização carregada`.green )
           
-        }
+        }*/
 
         console.log(`\n         Bot iniciado.\n`.green);
         //API.updateBotInfo();
