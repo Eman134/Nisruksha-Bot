@@ -66,6 +66,7 @@ const API = {
     owner,
     version,
     token,
+    id: app.id,
     ip,
     lastsave: '',
     cmdsexec: 0,
