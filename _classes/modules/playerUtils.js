@@ -19,7 +19,7 @@ playerUtils.execExp = async function(msg, xpp) {
 
     let maq = API.shopExtension.getProduct(obj.machine);
 
-    let xp = Math.round((xpp * (maq.tier+1))/2)
+    let xp = Math.round((xpp * (maq.tier+1))/1.35)
   
     if (obj.xp + xp >= (obj.level*1980)) {
   
