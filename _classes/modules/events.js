@@ -151,7 +151,7 @@ events.forceRace = async function() {
     events.race.vencedor = 0
 
 
-    const msg = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `" + API.prefix + "apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**")
+    const msg = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `" + API.prefix + "apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
     const embedmsg = await msg.quote(events.getRaceEmbed())
 
