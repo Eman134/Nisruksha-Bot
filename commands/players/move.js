@@ -89,6 +89,7 @@ module.exports = {
                     assaltado = false;
                 } else {
                     API.eco.money.remove(msg.author, total);
+                    API.eco.money.globaladd(msg.author, total);
                     API.eco.addToHistory(msg.member, `Assalto | - ${API.format(total)} ${API.moneyemoji}`)
                 }
             }
