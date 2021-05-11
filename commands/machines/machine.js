@@ -72,9 +72,9 @@ module.exports = {
 
         background = await API.img.drawText(background, maq.name, 24, './resources/fonts/Uni Sans.ttf', '#ffffff', 250, 38, 4)
 
-        background = await API.img.drawText(background, Math.round(energia/energymax)*100 + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 104, 3)
+        background = await API.img.drawText(background, (Math.round((energia/energymax)*100)) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 104, 3)
         
-        background = await API.img.drawText(background, Math.round(100*playerobj.durability/maq.durability) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
+        background = await API.img.drawText(background, Math.round(100*(playerobj.durability/maq.durability)) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
 
         background = await API.img.drawText(background, profundidade + 'm', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 167, 3)
 
