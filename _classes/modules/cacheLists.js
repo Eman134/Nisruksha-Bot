@@ -106,7 +106,7 @@ const remembermap = new Map();
 
     if (from >= eval(to)) {
         if (remember.includes(member, type)) {
-            channel.send(`🔁 | ${member} Relatório de ${type}: ${from}/${to}`)
+            if (channel) channel.send(`🔁 | ${member} Relatório de ${type}: ${from}/${to}`)
             remember.remove(member, type)
         }
         return;

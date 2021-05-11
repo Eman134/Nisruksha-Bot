@@ -116,7 +116,7 @@ module.exports = {
 
             if ((res2.score < price)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(res2.score)}/${API.format(price)} ⭐**`)
+                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(res2.score.toFixed(2))}/${API.format(price)} ⭐**`)
                 embedmsg.edit(embed);
                 return;
             }
