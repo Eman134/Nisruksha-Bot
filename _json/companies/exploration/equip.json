@@ -164,7 +164,7 @@
         "icon": "<:shuriken:762798278739230752>",
         "level": 35,
         "dmg": 50,
-        "chance": 45,
+        "chance": 60,
         "crit": 10
     },
     {
@@ -180,7 +180,7 @@
         "icon": "<:scythe:762798312368898069>",
         "level": 38,
         "dmg": 57,
-        "chance": 90,
+        "chance": 56,
         "crit": 3
     },
     {
@@ -188,7 +188,7 @@
         "icon": "<:scythec:762798312604041216>",
         "level": 41,
         "dmg": 60,
-        "chance": 80,
+        "chance": 50,
         "crit": 5
     },
     {

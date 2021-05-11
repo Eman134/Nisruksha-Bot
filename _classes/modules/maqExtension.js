@@ -160,6 +160,7 @@ const maqExtension = {
   stamina,
   update: 20,
   lastcot: "",
+  proxcot: 0,
   recoverenergy: {
     1: 60,
     2: 58,

@@ -298,7 +298,7 @@ module.exports = {
             async function playerlost(member, embed) {
                 
                 embed.fields = []
-                embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu 1 nível e o seu progresso de xp!\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
+                embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
                 API.setInfo(member, "machines", "xp", 0)
                 API.maqExtension.stamina.subset(member, 0)
 

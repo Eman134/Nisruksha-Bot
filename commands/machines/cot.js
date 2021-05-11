@@ -17,6 +17,9 @@ module.exports = {
         if (API.maqExtension.lastcot !== '') {
             embed.setFooter('Última atualização em ' + API.maqExtension.lastcot)
         }
+        if (API.maqExtension.proxcot !== 0) {
+            embed.setFooter('Próxima atualização em ' + API.ms2(API.maqExtension.proxcot-Date.now()+(60000*20)))
+        }
 
      await msg.quote(embed);
 

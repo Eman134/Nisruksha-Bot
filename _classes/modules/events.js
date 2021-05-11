@@ -287,9 +287,12 @@ async function loadIntervals() {
 
     }, intervalEvents);
 
+    API.maqExtension.proxcot = Date.now()
+
     setInterval(async () => {
         
         API.maqExtension.forceCot()
+        API.maqExtension.proxcot = Date.now()
 
     }, 60000*config.cotacao);
 

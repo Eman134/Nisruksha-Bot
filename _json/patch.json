@@ -108,8 +108,8 @@
         "alc": []
     },
 	"2.1.5": {
-        "add": ["Nova opção no n.empresaedit para modificar o nome da empresa"],
-        "rem": [],
+        "add": ["Visualização de quando será a próxima modificação da cotação", "Nova opção no n.empresaedit para modificar o nome da empresa", "Novo site para votos"],
+        "rem": ["Site zuraaa de votos"],
         "chn": [],
         "fix": [],
         "alc": []

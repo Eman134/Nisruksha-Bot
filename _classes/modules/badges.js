@@ -9,23 +9,25 @@ badges.add = async function (member, id) {
     badges.load()
     const obj = await API.getInfo(member, "players")
     const temphas = await badges.has(member, id)
-    if (temphas) return
+    if (temphas) return "Has"
     let tempbadges = (obj.badges == null ? [] : obj.badges)
-    tempbadges.push(id)
+    tempbadges.push(parseInt(id))
     API.setInfo(member, "players", "badges", tempbadges)
+    return "Added"
 }
 
 badges.remove = async function (member, id) {
     badges.load()
     const obj = await API.getInfo(member, "players")
     const temphas = await badges.has(member, id)
-    if (!temphas) return
+    if (!temphas) return "Don't have"
     let tempbadges = (obj.badges == null ? [] : obj.badges)
-    const index = tempbadges.indexOf(id);
+    const index = tempbadges.indexOf(parseInt(id));
     if (index > -1) {
         tempbadges.splice(index, 1);
     }
     API.setInfo(member, "players", "badges", tempbadges)
+    return "Removed"
 }
 
 badges.has = async function (member, id) {
@@ -33,7 +35,7 @@ badges.has = async function (member, id) {
     const obj = await API.getInfo(member, "players")
     let has = false
     if (obj.badges != null) {
-        if (obj.badges.includes(id)) has = true
+        if (obj.badges.includes(id) || obj.badges.includes(id.toString())) has = true
     }
     return has
 }
