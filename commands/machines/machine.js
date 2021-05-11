@@ -68,7 +68,7 @@ module.exports = {
 
         let profundidade = await API.maqExtension.getDepth(member)
 
-        const ep = await API.maqExtension.getEquipedPieces(member);
+        let ep = await API.maqExtension.getEquipedPieces(member);
 
         background = await API.img.drawText(background, maq.name, 24, './resources/fonts/Uni Sans.ttf', '#ffffff', 250, 38, 4)
 
@@ -93,7 +93,25 @@ module.exports = {
         if (maxslots < 5) {
             const locked2 = await API.img.loadImage(`resources/backgrounds/maq/locked2.png`)
             background = await API.img.drawImage(background, locked2, 398, 220)
+
+            let placa;
+            let slot = 5-1;
+            if (!(ep[slot] == null || ep[slot] == undefined|| ep[slot] == 0)) {
+                placa = API.shopExtension.getProduct(ep[slot]);
+
+                ep.length == 1 ? ep = [] : ep.splice(slot, 1);
+
+                const pic = await API.getInfo(member, 'storage')
+            
+                await API.setInfo(member, 'storage', `"piece:${placa.id}"`, pic[`piece:${placa.id}`]+1)
+                await API.setInfo(member, 'machines', `slots`, ep)
+                ep = await API.maqExtension.getEquipedPieces(member);
+
+            }
+
         }
+
+
         if (maxslots < 4) {
             background = await API.img.drawImage(background, locked, 312, 252)
         }

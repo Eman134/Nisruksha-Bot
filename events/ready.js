@@ -52,6 +52,8 @@ module.exports = {
         const moment = require('moment')
         moment.suppressDeprecationWarnings = true;
 
+        API.cacheLists.remember.load()
+
     }
 
 }

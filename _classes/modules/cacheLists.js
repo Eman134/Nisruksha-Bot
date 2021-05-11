@@ -200,8 +200,6 @@ const remembermap = new Map();
 
 }
 
-remember.load()
-
 module.exports = {
 
     waiting,
