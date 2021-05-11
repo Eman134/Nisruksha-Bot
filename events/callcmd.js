@@ -3,8 +3,8 @@ module.exports = {
     name: "message",
     execute: async(API, msg) => {
 
-        const votosZuraaa = require('../_classes/packages/votosZuraaa.js');
-        votosZuraaa.votos(msg)
+        const votosBest = require('../_classes/packages/votosBest.js');
+        votosBest.votos(msg)
         
         const prefix = API.prefix;
         const client = API.client;

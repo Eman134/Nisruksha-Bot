@@ -14,8 +14,8 @@ module.exports.votos = async (msg) => {
 
                 const embed = new API.Discord.MessageEmbed()
                 .setColor('RANDOM')
-                .setDescription(`\`${user.tag}\` votou no **Zuraaa** e ganhou ${size}x 📦 Caixa Comum como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://zuraaa.com/bots/763815343507505183/)`)
-                .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://zuraaa.com/bots/763815343507505183/')
+                .setDescription(`\`${user.tag}\` votou na **Best** e ganhou ${size}x 📦 Caixa Comum como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://www.bestlist.online/bots/763815343507505183)`)
+                .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://www.bestlist.online/bots/763815343507505183')
                 
                 API.client.channels.cache.get('777972678069714956').send(embed)
                 API.crateExtension.give(user, 1, 1)
@@ -23,7 +23,7 @@ module.exports.votos = async (msg) => {
 
         }catch(err){
             console.log(err);
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
     }
 }
