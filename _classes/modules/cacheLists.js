@@ -131,11 +131,11 @@ const remembermap = new Map();
         if (keys[i]) {
           if (keys[i]["energia"] && keys[i]["energia"].active){
             const fetched = await API.client.users.fetch(keys[i].memberid)
-            const channel = await API.client.channels.fetch(keys[i]["energia"].channelid)
+            const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
             this.loadold("energia", fetched, channel)
           } if (keys[i]["estamina"] && keys[i]["estamina"].active){
             const fetched = await API.client.users.fetch(keys[i].memberid)
-            const channel = await API.client.channels.fetch(keys[i]["estamina"].channelid)
+            const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
             this.loadold("estamina", fetched, channel)
 
           } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
