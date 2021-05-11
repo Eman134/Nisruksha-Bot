@@ -21,9 +21,10 @@ async function formatList(API, embed2, page2) {
     if (array.length < 1) {
         embed2.setDescription(`❌ Ainda não possui empresas registradas!\nAbra sua empresa agora usando \`${API.prefix}abrirempresa\``)
     } else {
-
         
-        let totalpages = 1+((array.length-(array.length % 6))/6);
+        let totalpages = array.length % 6;
+        if (totalpages == 0) totalpages = (array.length)/6;
+        else totalpages = ((array.length-totalpages)/6)+1;
         
         if (page > totalpages) page = 1;
         
