@@ -7,7 +7,7 @@ module.exports.votos = async (msg) => {
 
             await API.client.users.fetch(msg.embeds[0].footer.text)
 
-            const user = msg.client.users.cache.find(user => user.id == msg.embeds[0].footer.text);
+            const user = msg.client.users.cache.find(user => user.id == msg.embeds[0].footer.text.split(' • ')[0]);
 
             if(user) {
                 let size = 1
