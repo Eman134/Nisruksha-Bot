@@ -64,7 +64,7 @@ module.exports = {
             array = await array.filter(async (userobj) => {
 
                 try {
-                    const x = await guild.members.fetch(userobj.user_id)
+                    const x = await msg.guild.members.fetch(userobj.user_id)
                     if (x) return true
                     else return false
                 } catch {
