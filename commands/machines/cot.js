@@ -14,14 +14,16 @@ module.exports = {
         .setColor('#32a893')
         .setTitle('📈 Cotação atual dos minérios')
         .setDescription(`${API.maqExtension.ores.obj.minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+        let footer = ""
         if (API.maqExtension.lastcot !== '') {
-            embed.setFooter('Última atualização em ' + API.maqExtension.lastcot)
+           footer += ('Última atualização em ' + API.maqExtension.lastcot)
         }
         if (API.maqExtension.proxcot !== 0) {
-            embed.setFooter('Próxima atualização em ' + API.ms2(API.maqExtension.proxcot-Date.now()+(60000*20)))
+            footer += ('\nPróxima atualização em ' + API.ms2(API.maqExtension.proxcot-Date.now()+(60000*20)))
         }
+        if (footer != "") embed.setFooter(footer)
 
-     await msg.quote(embed);
+        await msg.quote(embed);
 
 	}
 };

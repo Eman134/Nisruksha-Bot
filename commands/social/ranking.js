@@ -33,7 +33,6 @@ module.exports = {
             return user.id === msg.author.id;
         };
       
-        const emojis = ['736290479406317649', '741827151879471115', '833363716615307324', '743176785986060390', '👍🏽'];
         const vare = {
             '736290479406317649': 'players;money',
             '741827151879471115': 'players;token',
@@ -46,9 +45,9 @@ module.exports = {
         
         collector.on('collect', async (reaction, user) => {
             reaction.users.remove(user.id).catch();
-            if (!(emojis.includes(reaction.emoji.id)) && !(emojis.includes(reaction.emoji.name))) return;
+            if (!(Object.keys(vare).includes(reaction.emoji.id)) && !(Object.keys(vare).includes(reaction.emoji.name))) return;
 
-            if (emojis.includes(reaction.emoji.name)) reaction.emoji.id = reaction.emoji.name
+            if (Object.keys(vare).includes(reaction.emoji.name)) reaction.emoji.id = reaction.emoji.name
 
             collector.stop();
 
