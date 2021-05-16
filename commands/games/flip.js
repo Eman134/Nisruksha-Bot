@@ -23,7 +23,7 @@ module.exports = {
         }
 
         if (msg.mentions.users.size < 1) {
-            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @membro <quantia | tudo>`)
+            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `flip @membro <quantia | tudo>`)
             return;
         }
         const member = msg.mentions.users.first();
