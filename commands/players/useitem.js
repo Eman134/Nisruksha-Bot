@@ -122,7 +122,9 @@ module.exports = {
                             let playerobj = await API.getInfo(msg.member, 'machines');
                             let maqid = playerobj.machine;
                             const maq1 = API.shopExtension.getProduct(maqid);
-                            const maq = maq1
+                            let maq = maq1
+
+                            maq.tier = drop.tier+2
                         
                             const obj2 = await API.maqExtension.ores.gen(maq, profundidade*drop.tier*5);
 
@@ -131,29 +133,27 @@ module.exports = {
                             let round = 0;
                             let xp = API.random(15, 35)*drop.tier;
                             xp = await API.playerUtils.execExp(msg, xp);
-                            
-                            maq.tier = ( maq.tier > 2 ? Math.round(maq.tier/2) : maq.tier)
 
-                                for await (const r of obj2) {
+                            for await (const r of obj2) {
             
             
-                                    let size = r.size*drop.tier;
+                                let size = r.size*drop.tier;
                 
-                                    let arMax = await API.maqExtension.storage.getMax(msg.author);
+                                let arMax = await API.maqExtension.storage.getMax(msg.author);
                 
-                                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) {
-                                        size -= (await API.maqExtension.storage.getSize(msg.author)+size-arMax)
-                                    }
-                                    totalcoletado += size;
-                                    if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
-                                    else coletadox.set(r.name, size)
-                                    sizeMap.set(r.name, size)
-                                    API.maqExtension.storage.giveOre(msg.author, r.name, size)
-                                    round += size;
-                
-                                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
-                                    
+                                if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) {
+                                    size -= (await API.maqExtension.storage.getSize(msg.author)+size-arMax)
                                 }
+                                totalcoletado += size;
+                                if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
+                                else coletadox.set(r.name, size)
+                                sizeMap.set(r.name, size)
+                                API.maqExtension.storage.giveOre(msg.author, r.name, size)
+                                round += size;
+                
+                                if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
+                                    
+                            }
                             
                             
                             let armazemmax2 = await API.maqExtension.storage.getMax(msg.author);
