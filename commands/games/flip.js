@@ -162,15 +162,15 @@ module.exports = {
                     API.eco.token.add(msg.author, aposta);
                     API.eco.token.remove(member, aposta);
 
-                    API.eco.addToHistory(msg.author, `Flip | + ${API.format(aposta)} ${API.money3emoji}`);
-                    API.eco.addToHistory(member, `Flip | - ${API.format(aposta)} ${API.money3emoji}`);
+                    API.eco.addToHistory(msg.author, `Flip ${member} | + ${API.format(aposta)} ${API.money3emoji}`);
+                    API.eco.addToHistory(member, `Flip ${msg.author} | - ${API.format(aposta)} ${API.money3emoji}`);
                 } else { // Membro ganhou
                     fresponse += `Caiu em **COROA** e ${member} foi o ganhador das \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}`
                     API.eco.token.add(member, aposta);
                     API.eco.token.remove(msg.author, aposta);
 
-                    API.eco.addToHistory(member, `Flip | + ${API.format(aposta)} ${API.money3emoji}`);
-                    API.eco.addToHistory(msg.author, `Flip | - ${API.format(aposta)} ${API.money3emoji}`);
+                    API.eco.addToHistory(member, `Flip ${msg.author} | + ${API.format(aposta)} ${API.money3emoji}`);
+                    API.eco.addToHistory(msg.author, `Flip ${member} | - ${API.format(aposta)} ${API.money3emoji}`);
                 }
                 
                 async function applyBet(rd) {
