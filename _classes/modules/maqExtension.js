@@ -99,9 +99,11 @@ ores.checkExists = function(args, k) {
     
     let _id = r.name;
     let _id2 = r.displayname;
-    
-    if (_id && _id2) {
+
+    if (_id2) {
       if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return true;
+    } else {
+      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return true;
     }
 
   }
