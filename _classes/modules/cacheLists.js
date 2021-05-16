@@ -130,11 +130,13 @@ const remembermap = new Map();
         
         if (keys[i]) {
           if (keys[i]["energia"] && keys[i]["energia"].active){
+            if (!keys[i]["energia"]) return
             const fetched = await API.client.users.fetch(keys[i].memberid)
             const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
             if (!channel) return
             this.loadold("energia", fetched, channel)
           } if (keys[i]["estamina"] && keys[i]["estamina"].active){
+            if (!keys[i]["estamina"]) return
             const fetched = await API.client.users.fetch(keys[i].memberid)
             const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
             if (!channel) return
@@ -152,7 +154,7 @@ const remembermap = new Map();
   }
 
   remember.save = async function(){
-    let keys = Array.from( remembermap.values());
+    let keys = Array.from( remembermap.values() );
     API.setGlobalInfo('remember', keys)
   }
 
