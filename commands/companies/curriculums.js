@@ -80,14 +80,11 @@ module.exports = {
                 return;
             }
 
-            
-
             embed.setColor("#5bff45")
             .setDescription(`Você aceitou o currículo de ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\``)
             await msg.quote(embed)
 
             try {
-
                 
                 embed.setColor("#5bff45")
                 .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!`)
