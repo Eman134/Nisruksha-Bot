@@ -76,7 +76,11 @@ const API = {
     money2: 'cristais',
     money2emoji: '<:estilhas:743176785986060390>',
     money3: 'fichas',
-    money3emoji: '<:ficha:741827151879471115>'
+    money3emoji: '<:ficha:741827151879471115>',
+    tp: {
+        name: 'pontos temporais',
+        emoji: '<:tp:841870541274087455>'
+    }
 };
 
 API.checkAll = async function(msg, req) {

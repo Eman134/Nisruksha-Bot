@@ -29,29 +29,21 @@ module.exports = {
 
         API.setInfo(msg.author, 'players', 'bglink', url)
 
-        /*let filePath = `./_localdata/profiles/${msg.author.id}`;
-        let fileName = 'profile_background'
-        let fileFormat = 'png'
-        try {
-          request.get(url).on('error', (err) => {
-            console.error(`Download File ERROR: Web URL not found...\n`, err)
-          }).pipe(fs.createWriteStream(path.resolve(filePath, `${fileName}.${fileFormat}`)));
-        } catch {
-            
-        }*/
+        const embed = new Discord.MessageEmbed()
+        .setColor('#8adb5e')
+        .setDescription(`Seu background foi definido para:`)
+        .setImage(url);
+        await msg.quote(embed);
 
-          const embed = new Discord.MessageEmbed()
-            .setColor('#8adb5e')
-            .setDescription(`Seu background foi definido para:`)
-            .setImage(url);
-         await msg.quote(embed);
-          const embed2 = new Discord.MessageEmbed()
-            .setColor('#8adb5e')
-            .setDescription(`Background de \`${msg.author.tag} | ${msg.author.id}\``)
-            .setImage(url);
-            try{
-            await API.client.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send(embed2);
-            }catch{}
+        const embed2 = new Discord.MessageEmbed()
+        .setColor('#8adb5e')
+        .setDescription(`Background de \`${msg.author.tag} | ${msg.author.id}\``)
+        .setImage(url);
+        try{
+            await API.client.channels.cache.get('736383144499871765').send(embed2);
+        }catch{
+
+        }
 
 	}
 };

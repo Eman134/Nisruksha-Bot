@@ -53,6 +53,7 @@ module.exports = {
         moment.suppressDeprecationWarnings = true;
 
         API.cacheLists.remember.load()
+        API.shopExtension.load()
 
     }
 

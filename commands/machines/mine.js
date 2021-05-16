@@ -31,6 +31,7 @@ module.exports = {
         let maqid = playerobj.machine;
 
         let maq = API.shopExtension.getProduct(maqid);
+
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
             API.sendError(msg, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
             return;
@@ -47,21 +48,6 @@ module.exports = {
 
         let init = Date.now();
         let profundidade = await API.maqExtension.getDepth(msg.author)
-        let gtotal = calcGTotal(profundidade)
-
-        function calcGTotal(pew2) {
-            
-            let gtotal = 225;
-            gtotal += (pew2*2)/1;
-            gtotal += API.random(1, API.random(2, Math.round((pew2*2)*0.76)))
-            gtotal += (pew2*2)*2
-
-            gtotal -= (pew2*2)/(maq.tier+1)
-
-            gtotal = Math.round(gtotal);
-
-            return gtotal
-        }
 
         let energymax = await API.maqExtension.getEnergyMax(msg.author)
         let progress = API.getProgress(8, '<:energyfull:741675235010674849>', '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(msg.author), energymax);
@@ -98,24 +84,6 @@ module.exports = {
         }
         API.cacheLists.waiting.add(msg.author, embedmsg, 'mining');
 
-        const oreobj = API.maqExtension.ores.getObj().minerios;
-
-        function gen(){
-            let por = maq.tier * 10;
-            let array = [];
-            for (i = 0; i < maq.tier+1; i++) {
-                if (oreobj[i] != undefined) {
-                    let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
-                    t += Math.round(((por/(i+1))/2)*gtotal/100);
-                    t *= 23/100;
-                    t = Math.round((oreobj[i].name == 'pedra' ? t * ((maq.tier+1)*1.9):t)/2);
-                    oreobj[i].size = t;
-                    array.push(oreobj[i])
-                }
-            }
-            return array;
-        }
-
         let totalcoletado = 0;
         let coletadox = new Map();
 
@@ -127,15 +95,18 @@ module.exports = {
 
             try{
 
-                const obj2 = gen();
+                let profundidade = await API.maqExtension.getDepth(msg.author)
+
+                let playerobj = await API.getInfo(msg.member, 'machines');
+                let maqid = playerobj.machine;
+                let maq = API.shopExtension.getProduct(maqid);
+
+                const obj2 = await API.maqExtension.ores.gen(maq, profundidade);
                 let sizeMap = new Map();
                 let round = 0;
                 let xp = API.random(15, 35);
                 xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.removeEnergy(msg.author, 1);
-                let playerobj = await API.getInfo(msg.member, 'machines');
-                let maqid = playerobj.machine;
-                let maq = API.shopExtension.getProduct(maqid);
 				
                 let rd = API.random(1, 16) * (maq.tier+1);
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
@@ -151,7 +122,7 @@ module.exports = {
                     API.setInfo(msg.author, 'machines', 'durability', playerobj.durability-rd)
                 }
                 
-                for await(const r of obj2) {
+                for await (const r of obj2) {
 
 
                     let size = r.size;
@@ -180,12 +151,13 @@ module.exports = {
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");
                 const arsize = await API.maqExtension.storage.getSize(msg.author);
-                let profundidade = await API.maqExtension.getDepth(msg.author)
+                
                 await embed.setDescription(`Minerador: ${msg.author}`);
                 await embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
                 await embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
                 await embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEnergia: ${progress2}`)
                 embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                
                 for await (const r of obj2) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
@@ -238,7 +210,7 @@ module.exports = {
                     } else {edit();}
                 });
             }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
                 console.log(err)
             }
         }

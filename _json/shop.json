@@ -367,11 +367,11 @@
 			"price2": 0
 		}
 	],
-	"convites": [
+	"temporal": [
 		{
 			"id": 700,
 			"buyable": true,
-			"info": "**Utilize o comando \"meucodigo\" para ver seus pontos de convite 🎫**",
+			"info": "**Utilize o comando \"pontostemp\" para ver seus pontos temporais**",
 			"name": "10x Ficha",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,

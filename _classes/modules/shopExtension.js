@@ -37,6 +37,11 @@ shopExtension.loadItens = async function() {
     const customerfish = JSON.parse(jsonStringfish);
     
     list = list.concat(customerfish)
+
+    const jsonStringusaveis = readFileSync('./_json/usaveis.json', 'utf8')
+    const customerusaveis = JSON.parse(jsonStringusaveis);
+    
+    list = list.concat(customerusaveis)
     
     bigobj["drops"] = list
       
@@ -50,7 +55,7 @@ shopExtension.loadItens = async function() {
   return bigobj
 }
 
-shopExtension.reload = async function() {
+shopExtension.load = async function() {
 
   const { readFileSync } = require('fs')
     const path = './_json/shop.json'
@@ -74,9 +79,6 @@ shopExtension.reload = async function() {
 
 }
 
-shopExtension.reload();
-
-
 shopExtension.getShopObj = function() {
     return shopExtension.obj;
 }
@@ -93,7 +95,7 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
       
 
       embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, `
-      Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' pontos de convite` ' + '🎫' : ''}\nUtilize ${API.prefix}comprar ${p.id}${p['token'] ? '\nQuantia: ' + p['token'] + ' fichas':''}${p['tier'] ? `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`:''}${p['profundidade'] ? '\nProfundidade: ' + p['profundidade'] + 'm':''}${p['durability'] ? '\nDurabilidade: ' + p['durability'] + 'u':''}${p['level'] ? '\n**Requer Nível ' + p['level'] + '**':''}${p['info'] ? '\n' + p['info']:''}
+      Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' ' + API.tp.name + '` ' + API.tp.emoji : ''}\nUtilize ${API.prefix}comprar ${p.id}${p['token'] ? '\nQuantia: ' + p['token'] + ' fichas':''}${p['tier'] ? `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`:''}${p['profundidade'] ? '\nProfundidade: ' + p['profundidade'] + 'm':''}${p['durability'] ? '\nDurabilidade: ' + p['durability'] + 'u':''}${p['level'] ? '\n**Requer Nível ' + p['level'] + '**':''}${p['info'] ? '\n' + p['info']:''}
       `, false)
   }
   if (product.length == 0) embed.addField('❌ Oops, um problema inesperado ocorreu', 'Esta categoria não possui produtos ainda!');
@@ -232,7 +234,7 @@ shopExtension.execute = async function(msg, p) {
   let maq = API.shopExtension.getProduct(maqid);
   if (p.type == 4){torp=price;price = Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1))}
 
-  const formatprice = `${price > 0 ? API.format(price)  +  ' ' + API.money + ' ' + API.moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${API.money2} ${API.money2emoji}`:''}${p.price3 > 0 ? `${p.price3} pontos de convite 🎫`:''}`
+  const formatprice = `${price > 0 ? API.format(price)  +  ' ' + API.money + ' ' + API.moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${API.money2} ${API.money2emoji}`:''}${p.price3 > 0 ? `${p.price3} ${API.tp.name} ${API.tp.emoji}`:''}`
 
   embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
   Você deseja comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**?`)
@@ -262,7 +264,7 @@ shopExtension.execute = async function(msg, p) {
           const points = await API.eco.points.get(msg.author);
           const obj2 = await API.getInfo(msg.author, "machines")
 
-          const convites = await getInviteJson(msg.author)
+          const convites = await API.eco.tp.get(msg.author)
 
           if (!(money >= price)) {
             buyed = true;
@@ -290,7 +292,7 @@ shopExtension.execute = async function(msg, p) {
               collector.stop();
               embed.fields = [];
               embed.setColor('#a60000');
-              embed.addField('❌ Falha na compra', `Você não possui pontos de convite o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus pontos de convites atuais: **${API.format(convites.points)}/${API.format(p.price3)} pontos de convite 🎫**`)
+              embed.addField('❌ Falha na compra', `Você não possui ${API.tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${API.tp.name} atuais: **${API.format(convites.points)}/${API.format(p.price3)} ${API.tp.name} ${API.tp.emoji}**`)
               msgconfirm.edit(embed);
               msgconfirm.reactions.removeAll();
               return;
@@ -405,7 +407,7 @@ shopExtension.execute = async function(msg, p) {
           msgconfirm.reactions.removeAll();
           await API.eco.money.remove(msg.author, price);
           API.eco.points.remove(msg.author, p.price2);
-          if (p.price3 > 0) updateInviteJson(msg.author, p.price3)
+          if (p.price3 > 0) API.eco.tp.remove(msg.author, p.price3)
           if (cashback > 0) {
             await API.eco.money.add(msg.author, cashback);
             await API.eco.addToHistory(msg.member, `Cashback | + ${API.format(cashback)} ${API.moneyemoji}`)
@@ -452,89 +454,6 @@ shopExtension.execute = async function(msg, p) {
     msgconfirm.edit(embed);
     return;
   });
-
-}
-
-async function getInviteJson(member) {
-
-  const utilsobj = await API.getInfo(member, 'players_utils')
-
-  let invitejson = {
-      code: String,
-      qnt: Number,
-      points: Number,
-      usedinvite: Boolean
-  }
-
-  if (utilsobj.invite == null) {
-
-      function randomString(length) {
-          var result = '';
-          var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
-          var charactersLength = characters.length;
-          for ( var i = 0; i < length; i++ ) {
-              result += characters.charAt(Math.floor(Math.random() * charactersLength));
-          }
-          return result;
-      }
-
-      let tempcode = randomString(6)
-      if (await checkExists(tempcode)) {
-          tempcode = randomString(6)
-      }
-
-      invitejson.code = tempcode
-      invitejson.qnt = 0
-      invitejson.points = 0
-      invitejson.usedinvite = false
-
-      API.setInfo(member, 'players_utils', 'invite', invitejson)
-
-  } else invitejson = utilsobj.invite
-
-  return invitejson
-}
-
-async function updateInviteJson(member, price) {
-
-  const invitejson1 = await getInviteJson(member)
-
-  invitejson1.points -= price
-
-  API.setInfo(member, 'players_utils', 'invite', invitejson1)
-
-}
-
-async function checkExists(code) {
-
-  const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
-  let array = Array
-  try {
-      let res = await API.db.pool.query(text);
-      array = res.rows
-  } catch (err) {
-      API.client.emit('error', err)
-  }
-
-  let exists = false
-
-  let owner
-  
-  if (array.length <= 0) return exists
-  
-  for (i = 0; i < array.length; i++) {
-
-      if (array[i].invite.code.toLowerCase() == code.toLowerCase()) {
-          exists = true
-          owner = array[i].user_id
-          break;
-      }
-  }
-
-  return {
-      exists,
-      owner
-  }
 
 }
 

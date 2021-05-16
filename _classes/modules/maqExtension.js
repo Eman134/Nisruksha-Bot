@@ -34,9 +34,13 @@ stamina.subset = async function(member, valor) {
 }
 
 stamina.remove = async function(member, valor) {
-  let r = 1;
-  let f = Date.now()-((await API.maqExtension.stamina.get(member)-r-valor)*30000);
-  await API.maqExtension.stamina.set(member, f);
+  const get = await stamina.get(member)
+  stamina.subset(member, get-valor)
+}
+
+stamina.add = async function(member, valor) {
+  const get = await stamina.get(member)
+  stamina.subset(member, get+valor)
 }
 
 const ores = {
@@ -44,6 +48,43 @@ const ores = {
   obj: {}
 
 };
+
+ores.gen = async function(maq, profundidade) {
+
+    const oreobj = API.maqExtension.ores.getObj().minerios;
+
+    let gtotal = calcGTotal(profundidade)
+
+    function calcGTotal(pew2) {
+        
+        let gtotal = 225;
+        gtotal += (pew2*2)/1;
+        gtotal += API.random(1, API.random(2, Math.round((pew2*2)*0.76)))
+        gtotal += (pew2*2)*2
+
+        gtotal -= (pew2*2)/(maq.tier+1)
+
+        gtotal = Math.round(gtotal);
+
+        return gtotal
+    }
+
+    let por = maq.tier * 10;
+    let array = [];
+    for (i = 0; i < maq.tier+1; i++) {
+        if (oreobj[i] != undefined) {
+            let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
+            t += Math.round(((por/(i+1))/2)*gtotal/100);
+            t *= 23/100;
+            t = Math.round((oreobj[i].name == 'pedra' ? t * ((maq.tier+1)*1.9):t)/2);
+            oreobj[i].size = t;
+            array.push(oreobj[i])
+        }
+    }
+
+    return array;
+
+}
 
 ores.getObj = function() {
   return ores.obj;
@@ -56,7 +97,9 @@ ores.checkExists = function(args, k) {
   else key = k
   for (const r of obj[key]) {
     let _id = r.name;
-    if (id.replace(/"/g, '') == _id.replace(/"/g, '')) return true;
+    let _id2 = r.displayname;
+
+    if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return true;
   }
   return false;
 }
@@ -66,18 +109,22 @@ ores.getDrop = function(args, k) {
   let id = args
   if (!k) key = "drops"
   else key = k
- // for (const key in obj) {
-      for (const r of obj[key]) {
-        let _id = r.name;
-        if (id.replace(/"/g, '') == _id.replace(/"/g, '')) return r;
-      }
- // }
+
+  for (const r of obj[key]) {
+    let _id = r.name;
+    let _id2 = r.displayname;
+
+    if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) {
+      return r
+    }
+  }
+
   return undefined;
 }
 
 const storage = {
 
-  sizeperlevel: 1200
+  sizeperlevel: 1000
 
 };
 

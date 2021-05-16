@@ -350,91 +350,103 @@ module.exports = {
 
             async function go() {
             
-            let eq = reactequips[reaction.emoji.id];
+                let eq = reactequips[reaction.emoji.id];
 
-            if (autohunt) {
-                Object.keys(reactequips)
-                eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
-            }
-            
-            if (!eq) return
-
-            let lost = {
-                player: 0,
-                monster: 0
-            }
-            let crit = 0;
-            let roll = API.random(0, 100)
-            if (roll < eq.chance) {
-                let reroll = API.random(0, 50)
-                lost.player = Math.round(eq.dmg/API.random(3, 4))
-                if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                else if(API.random(0, 50) < 10) lost.player = 0
-                let roll3 = API.random(0, 100)
-                if (roll3 <= eq.crit) {
-                    crit = Math.round(eq.dmg)
+                if (autohunt) {
+                    Object.keys(reactequips)
+                    eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
                 }
-                lost.monster = Math.round(eq.dmg)+crit
-            } else {
-                lost.player = monster.level+Math.round(80*eq.dmg/100)
-            }
-            
-            if (API.debug) console.log(`${eq.name}`.yellow)
-            
-            const embed = new Discord.MessageEmbed()
-            embed.setTitle(`Caçada`)
-            .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                 
-                for (const r of equips) {
-                embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
-            }
-			
-			let buildlost = await build(lost)
-            
-            await embed.setImage(buildlost.url)
-            
-            let currmsg = ""
-            {
-            if (lost.player == 0) {
-                currmsg += `\n⚡ ${msg.author.username} desviou do ataque de ${monster.name}`
-            }
-            if (lost.player > 0) {
-                currmsg += `\n🔸 ${msg.author.username} sofreu ${lost.player} de dano`
-            }
-            if (lost.monster == 0) {
-                currmsg += `\n⚡ ${monster.name} desviou do ataque de ${msg.author.username}`
-            }
-            if (lost.monster > 0) {
-                currmsg += `\n🔸 ${monster.name} sofreu ${crit > 0 ? '💥':''}${lost.monster} de dano por ${eq.name}`
-            }
-            if (buildlost.plost) {
-                currmsg = `\n🎗 ${msg.author.username} perdeu o combate!`
-                await playerlost(msg.author, embed)
-            } else if (monster.csta <= 0) {
-                currmsg = `\n🎗 ${monster.name} perdeu o combate!`
-                await monsterlost(monster, embed)
-            }
-            }
-            
-            await embed.setFooter(`Informações do ataque atual\n${currmsg}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
+                if (!eq) return
 
-            await embedmsg.edit(embed);
-            lastreacttime = Date.now()
-            fixedembed = embed
+                let lost = {
+                    player: 0,
+                    monster: 0
+                }
+                let crit = 0;
+                let roll = API.random(0, 100)
+                if (roll < eq.chance) {
+                    let reroll = API.random(0, 50)
+                    lost.player = Math.round(eq.dmg/API.random(3, 4))
+                    if (reroll < 13) lost.player = Math.round(1.5*lost.player)
+                    else if(API.random(0, 50) < 10) lost.player = 0
+                    let roll3 = API.random(0, 100)
+                    if (roll3 <= eq.crit) {
+                        crit = Math.round(eq.dmg)
+                    }
+                    lost.monster = Math.round(eq.dmg)+crit
+                } else {
+                    lost.player = monster.level+Math.round(80*eq.dmg/100)
+                }
+                
+                if (API.debug) console.log(`${eq.name}`.yellow)
+                
+                const embed = new Discord.MessageEmbed()
+                embed.setTitle(`Caçada`)
+                .setColor('#5bff45')
+                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
+                    
+                    for (const r of equips) {
+                    embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
+                }
+                
+                let buildlost = await build(lost)
+                
+                await embed.setImage(buildlost.url)
+                
+                let currmsg = ""
+                {
+                if (lost.player == 0) {
+                    currmsg += `\n⚡ ${msg.author.username} desviou do ataque de ${monster.name}`
+                }
+                if (lost.player > 0) {
+                    currmsg += `\n🔸 ${msg.author.username} sofreu ${lost.player} de dano`
+                }
+                if (lost.monster == 0) {
+                    currmsg += `\n⚡ ${monster.name} desviou do ataque de ${msg.author.username}`
+                }
+                if (lost.monster > 0) {
+                    currmsg += `\n🔸 ${monster.name} sofreu ${crit > 0 ? '💥':''}${lost.monster} de dano por ${eq.name}`
+                }
+                if (buildlost.plost) {
+                    currmsg = `\n🎗 ${msg.author.username} perdeu o combate!`
+                    await playerlost(msg.author, embed)
+                } else if (monster.csta <= 0) {
+                    currmsg = `\n🎗 ${monster.name} perdeu o combate!`
+                    await monsterlost(monster, embed)
+                }
+                }
+                
+                await embed.setFooter(`Informações do ataque atual\n${currmsg}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
 
-            if (dead) {
-                API.cacheLists.waiting.remove(msg.author, 'hunting')
-                collector.stop();
-                autohunt = false
-            }
+                try {
+                    await embedmsg.edit(embed);
+                } catch {
+                    setTimeout(async function(){
+                        try {
+                            await embedmsg.edit(embed)
+                        } catch {
+                            API.cacheLists.waiting.remove(msg.author, 'hunting')
+                            collector.stop();
+                            autohunt = false
+                        }
+                    }, 1000)
+                }
+                lastreacttime = Date.now()
+                fixedembed = embed
 
-            if (autohunt && !dead) {
-                setTimeout(async function(){ 
-                    collector.resetTimer();
-                    await go() 
-                }, 16000)
-            }
+                if (dead) {
+                    API.cacheLists.waiting.remove(msg.author, 'hunting')
+                    collector.stop();
+                    autohunt = false
+                }
+
+                if (autohunt && !dead) {
+                    setTimeout(async function(){ 
+                        collector.resetTimer();
+                        await go() 
+                    }, 16000)
+                }
 
             }
 

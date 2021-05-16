@@ -32,7 +32,7 @@ const stars = {};
         
         obj.last = Date.now()
         
-        obj.score = parseFloat(obj.score)
+        obj.score = parseFloat(obj.score).toFixed(2)
         obj.rend = Math.round(parseInt(obj.rend))
         
         API.setInfo(member, 'players', 'companyact', obj)
@@ -310,16 +310,9 @@ const jobs = {
     jobs.explore.searchMob = function(level) {
 
         let mobs = jobs.explore.mobs.get();
-        let num = 0;
-        let filteredmobs = [];
-        for (const r of mobs) {
-              
-            if (level+1 >= r.level) {
-                filteredmobs.push(r);
-            }
 
-            num++;
-        }
+
+        let filteredmobs = mobs.filter((mob) => level+1 >= mob.level)
 
         if (filteredmobs.length == 0) {
 			API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)

@@ -47,7 +47,7 @@ module.exports = {
 
         let mapitens = arrayitens.sort(function(a, b){
             return b.size - a.size;
-        }).map(i => `**${i.size}x ${i.icon} ${i.displayname}**`).join('\n')
+        }).map((i, index) => `**${i.size}x ${i.icon} ${i.displayname}**${i.usavel ? ` 💫` : ''}`).join('\n')
 
         const map = array2.map(crate => `**${crate.split(';')[1]}x** ${API.crateExtension.obj[crate.split(';')[0]].icon} ${API.crateExtension.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
         const pieces = await API.maqExtension.getPieces(member);
@@ -56,9 +56,9 @@ module.exports = {
         .setColor('#a85a32')
         .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .addField(`<:chip:833521401951944734> Chipes de Aprimoramento`, `\nPara equipar um chipe utilize \`${API.prefix}equipar <ID DO CHIPE>\`\n` + (pieces.length <= 0 ? '**Não possui chipes de aprimoramento**' : `${piecesmap}`))
-        .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa use \`${API.prefix}abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`${API.prefix}recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
-        .addField(`🦴 Itens [${arrayitens.length}/10]`, `Para vender itens use \`${API.prefix}venderitem\`\n` + (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
-     await msg.quote(embed);
+        .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa utilize \`${API.prefix}abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`${API.prefix}recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
+        .addField(`🦴 Itens [${arrayitens.length}/10]`, `Para vender itens utilize \`${API.prefix}venderitem\`${mapitens.includes('💫') ? `\nPara usar itens utilize \`${API.prefix}usaritem\`\n` : '\n'}` + (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
+        await msg.quote(embed);
 
 	}
 };

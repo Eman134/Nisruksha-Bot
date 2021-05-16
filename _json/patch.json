@@ -108,10 +108,10 @@
         "alc": []
     },
 	"2.1.5": {
-        "add": ["Visualização de quando será a próxima modificação da cotação", "Nova opção no n.empresaedit para modificar o nome da empresa", "Novo site para votos"],
+        "add": ["Itens com efeitos que podem ser usados", "Comando n.usaritem", "Reações de confirmação para alterar o nome da empresa", "Nova opção n.desequipar tudo", "Visualização de quando será a próxima modificação da cotação", "Nova opção no n.empresaedit para modificar o nome da empresa", "Novo site para votos"],
         "rem": ["Site zuraaa de votos"],
-        "chn": [],
+        "chn": ["Loja de convites -> loja temporal", "Máximo de fichas do flip [1000 -> 5000]", "Agora o flip vai ser somente contra membros", "Tamanho por nível de armazém [1200 -> 1000]", "Pontos de convite -> pontos temporais"],
         "fix": [],
-        "alc": []
+        "alc": ["Adicionado money -> pontostemp", "Removido money -> conta"]
     }
 }

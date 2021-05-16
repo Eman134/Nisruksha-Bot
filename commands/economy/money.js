@@ -1,6 +1,6 @@
 module.exports = {
     name: 'saldo',
-    aliases: ['dinheiro', 'conta', 'money', 'points', 'coins', 'coin', 'fichas', 'bal', 'balance', 'moedas'],
+    aliases: ['dinheiro', 'money', 'points', 'coins', 'coin', 'fichas', 'bal', 'balance', 'moedas', 'pontostemp'],
     category: 'Economia',
     description: 'Veja as informações na sua conta',
     async execute(API, msg) {
@@ -34,6 +34,7 @@ module.exports = {
         const moneybank = await API.eco.bank.get(member);
         const points = await API.eco.points.get(member);
         const token = await API.eco.token.get(member);
+        const tp = await API.eco.tp.get(member);
         const obj = await API.getInfo(member, 'players');
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``);
         const embed = new Discord.MessageEmbed()
@@ -43,7 +44,7 @@ module.exports = {
         .addField(`🏦 Saldo Bancário`, code('js', `${API.format(moneybank)} ${API.money}`), true)
         .addField(`${API.money3emoji} Fichas`, code('js', `${API.format(token)} ${API.money3}`), true)
         .addField(`${API.money2emoji} Cristais`, code('js', `${API.format(points)} ${API.money2}`), true)
-        .addField(`🎫 Convites`, code('js', `${API.prefix + 'meuconvite'}`), true)
+        .addField(`${API.tp.emoji} Pontos temporais`, code('js', `${API.format(tp.points)} ${API.tp.name}`), true)
         .addField('📃 Extrato [5 ações]', `${API.eco.getHistory(member)}`, false)
         .addField(`📤 Saques`, code('autohotkey', obj.saq), true)
         .addField(`📥 Depósitos`, code('autohotkey', obj.dep), true)

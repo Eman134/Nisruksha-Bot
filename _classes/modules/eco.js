@@ -1,5 +1,107 @@
 const API = require("../api.js");
 
+const tp = {};
+
+tp.get = async function (member) {
+    
+    const utilsobj = await API.getInfo(member, 'players_utils')
+    
+    let invitejson = {
+        code: String,
+        qnt: Number,
+        points: Number,
+        usedinvite: Boolean
+    }
+    
+    if (utilsobj.invite == null) {
+    
+        function randomString(length) {
+            var result = '';
+            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
+            var charactersLength = characters.length;
+            for ( var i = 0; i < length; i++ ) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+    
+        let tempcode = randomString(6)
+        if (await tp.check(tempcode)) {
+            tempcode = randomString(6)
+        }
+    
+        invitejson.code = tempcode
+        invitejson.qnt = 0
+        invitejson.points = 0
+        invitejson.usedinvite = false
+    
+        API.setInfo(member, 'players_utils', 'invite', invitejson)
+    
+    } else invitejson = utilsobj.invite
+    
+    return invitejson
+
+}
+
+tp.check = async function (code) {
+
+    const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
+    let array = Array
+    try {
+        let res = await API.db.pool.query(text);
+        array = res.rows
+    } catch (err) {
+        API.client.emit('error', err)
+    }
+
+    let exists = false
+
+    let owner
+    
+    if (array.length <= 0) return exists
+    
+    for (i = 0; i < array.length; i++) {
+
+        if (array[i].invite.code.toLowerCase() == code.toLowerCase()) {
+            exists = true
+            owner = array[i].user_id
+            break;
+        }
+    }
+
+    return {
+        exists,
+        owner
+    }
+
+}
+
+tp.add = async function (member, po) {
+
+  const invitejson1 = await tp.getn(member)
+
+  invitejson1.points += po
+
+  API.setInfo(member, 'players_utils', 'invite', invitejson1)
+
+}
+
+tp.remove = async function (member, po) {
+  const invitejson1 = await tp.get(member)
+
+  invitejson1.points -= po
+
+  API.setInfo(member, 'players_utils', 'invite', invitejson1)
+}
+
+tp.set = async function (member, po) {
+    const invitejson1 = await tp.get(member)
+
+    invitejson1.points = po
+  
+    API.setInfo(member, 'players_utils', 'invite', invitejson1)
+}
+
 const bank = {};
 
 bank.get = async function (member) {
@@ -100,15 +202,14 @@ token.set = async function (member, token) {
 }
 
 const eco = {
-    money: money,
-    points: points,
-    token: token,
-    bank: bank
+    money,
+    points,
+    token,
+    bank,
+    tp
 };
 
 eco.getHistory = function (member, n) {
-
-    const fs = require('fs')
 
     const { readFileSync } = require('fs')
     let fpath = `./_localdata/profiles/${member.id}/history.yml`;

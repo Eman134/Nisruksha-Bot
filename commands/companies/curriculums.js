@@ -63,7 +63,10 @@ module.exports = {
             let xx = await API.company.check.isWorker(usr)
             let vac = await API.company.check.hasVacancies(company.company_id)
 
+            array.splice(index, 1)
+
             if (xy || xx) {
+                await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
                 embed.setColor('#a60000');
                 embed.addField('❌ Houve uma falha no contrato', `Este membro já possui uma empresa ou trabalha em uma!`)
                 await msg.quote(embed)
@@ -77,7 +80,7 @@ module.exports = {
                 return;
             }
 
-            array.splice(index, 1)
+            
 
             embed.setColor("#5bff45")
             .setDescription(`Você aceitou o currículo de ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\``)

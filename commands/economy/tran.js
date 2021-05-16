@@ -11,13 +11,13 @@ module.exports = {
         const args = API.args(msg);
 
         if (msg.mentions.users.size < 1) {
-            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @player <quantia | tudo>`)
+            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @membro <quantia | tudo>`)
             return;
         }
         const member = msg.mentions.users.first();
         
         if (args.length < 2) {
-            API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @player <quantia | tudo>`)
+            API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @membro <quantia | tudo>`)
 			return;
         }
         const money = await API.eco.bank.get(msg.author)
@@ -25,7 +25,7 @@ module.exports = {
         if (args[1] != 'tudo') {
 
             if (!API.isInt(args[1])) {
-                API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @player <quantia | tudo>`)
+                API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
                 return;
             }
 

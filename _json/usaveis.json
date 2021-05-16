@@ -1,0 +1,23 @@
+[
+    {
+        "name": "\"dinamite1\"",
+        "displayname": "Dinamite Pequena",
+        "desc": "Faz uma explosão na base de mineração e realiza a coleta dos minérios",
+        "usavel": true,
+        "type": 1,
+        "tier": 1,
+        "icon": "🧨",
+        "price": 25000
+    },
+    {
+        "name": "\"cafe\"",
+        "displayname": "Café",
+        "desc": "Recupera instantaneamente 35 de estamina",
+        "usavel": true,
+        "type": 2,
+        "tier": 1,
+        "value": 35,
+        "icon": "☕",
+        "price": 25000
+    }
+]

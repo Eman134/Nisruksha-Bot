@@ -19,7 +19,7 @@ module.exports = {
             return
         }
 
-        const check = await checkExists(args[0])
+        const check = await API.eco.tp.check(args[0])
 
         if (!check.exists) {
             API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
@@ -31,7 +31,7 @@ module.exports = {
             return
         }
 
-        const invitejson = await getInviteJson(msg.author)
+        const invitejson = await API.eco.tp.get(msg.author)
 
         if (invitejson.usedinvite) {
             API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
@@ -44,7 +44,7 @@ module.exports = {
 
         .setTitle('💚 Código de convite utilizado com sucesso!')
         .setColor('#5bff45')
-        .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 🎫 5 pontos de convite, enquanto seu amigo recebeu 🎫 1 ponto de convite')
+        .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + API.tp.name + ' ' + API.tp.emoji + ', enquanto seu amigo recebeu 1 ' + API.tp.name + ' ' + API.tp.emoji)
         .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize ' + API.prefix + 'convite para mais informações')
         msg.channel.send(embed)
 
@@ -63,87 +63,14 @@ module.exports = {
 	}
 };
 
-async function checkExists(code) {
-
-    const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
-    let array = Array
-    try {
-        let res = await API.db.pool.query(text);
-        array = res.rows
-    } catch (err) {
-        API.client.emit('error', err)
-    }
-
-    let exists = false
-
-    let owner
-    
-    if (array.length <= 0) return exists
-    
-    for (i = 0; i < array.length; i++) {
-
-        if (array[i].invite.code.toLowerCase() == code.toLowerCase()) {
-            exists = true
-            owner = array[i].user_id
-            break;
-        }
-    }
-
-    return {
-        exists,
-        owner
-    }
-
-}
-
-async function getInviteJson(member) {
-
-    const utilsobj = await API.getInfo(member, 'players_utils')
-
-    let invitejson = {
-        code: String,
-        qnt: Number,
-        points: Number,
-        usedinvite: Boolean
-    }
-
-    if (utilsobj.invite == null) {
-
-        function randomString(length) {
-            var result = '';
-            var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789';
-            var charactersLength = characters.length;
-            for ( var i = 0; i < length; i++ ) {
-                result += characters.charAt(Math.floor(Math.random() * charactersLength));
-            }
-            return result;
-        }
-
-        let tempcode = randomString(6)
-        if (await checkExists(tempcode)) {
-            tempcode = randomString(6)
-        }
-
-        invitejson.code = tempcode
-        invitejson.qnt = 0
-        invitejson.points = 0
-        invitejson.usedinvite = false
-
-        API.setInfo(member, 'players_utils', 'invite', invitejson)
-
-    } else invitejson = utilsobj.invite
-
-    return invitejson
-}
-
 async function updateInviteJson(member, owner) {
 
-    const invitejson1 = await getInviteJson(member)
+    const invitejson1 = await API.eco.tp.get(member)
     
     invitejson1.points += 5
     invitejson1.usedinvite = true
 
-    const invitejson2 = await getInviteJson(owner)
+    const invitejson2 = await API.eco.tp.get(owner)
 
     invitejson2.points += 1
     invitejson2.qnt += 1

@@ -43,7 +43,6 @@ module.exports = {
         let total2 = total;
         let taxa = await API.townExtension.getTownTax(msg.author);
         total = total2 - (Math.round(taxa*total2/100));
-
         
 		const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
@@ -60,7 +59,6 @@ module.exports = {
         const filter = (reaction, user) => {
             return user.id === msg.author.id;
         };
-        
 
         const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
         let reacted = false;

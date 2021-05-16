@@ -56,7 +56,7 @@ module.exports = {
 
         if (arg0 == 'tudo' && args.length >= 2) {
 
-            if (obj2[id] <= 0) {
+            if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                 return;
             }
@@ -70,12 +70,12 @@ module.exports = {
                 API.sendError(msg, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
                 return;
             }
-            if (obj2[id] <= 0) {
+            if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                 return;
             }
 
-            if (parseInt(arg0) > obj2[id]) {
+            if (parseInt(arg0) > obj2[drop.name.replace(/"/g, '')]) {
                 API.sendError(msg, `Você não possui **${arg0}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                 return;
             }
@@ -104,24 +104,13 @@ module.exports = {
                 //}
                 break;
             case 1:
-                //for (const key in obj) {
-                    for (const r of obj.drops) {
-                        let _id = r.name.replace(/"/g, '');
-                        if (id == _id) caseprice = r.price;
-                    }
-                //}
-                total += obj2[id]*caseprice;
-                totalsize = obj2[id];
+                total += obj2[drop.name.replace(/"/g, '')]*drop.price;
+                totalsize = obj2[drop.name.replace(/"/g, '')];
                 break;
             case 2:
-                //for (const key in obj) {
-                    for (const r of obj.drops) {
-                        let _id = r.name.replace(/"/g, '');
-                        if (id == _id) caseprice = r.price;
-                    }
-                //}
+
                 totalsize = parseInt(arg0);
-                total += parseInt(arg0)*caseprice;
+                total += parseInt(arg0)*drop.price;
                 break;
         }
         total = Math.round(total);
@@ -196,7 +185,7 @@ module.exports = {
                     break;
                 case 1:
 
-                    if (obj3[id] <= 0) {
+                    if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                         msgembed.edit(embed)
                         return;
@@ -206,19 +195,19 @@ module.exports = {
                     break;
                 case 2:
 
-                    if (obj3[id] <= 0) {
+                    if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                         msgembed.edit(embed)
                         return;
                     }
 
-                    if (parseInt(arg0) > obj3[id]) {
+                    if (parseInt(arg0) > obj3[drop.name.replace(/"/g, '')]) {
                         embed.addField('❌ Venda cancelada', `Você não possui **${arg0}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
                         msgembed.edit(embed)
                         return;
                     }
 
-                    API.maqExtension.storage.setOre(msg.author, realname, obj2[id]-parseInt(arg0))
+                    API.maqExtension.storage.setOre(msg.author, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(arg0))
                     break;
             }
 

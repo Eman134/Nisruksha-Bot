@@ -93,9 +93,7 @@ module.exports = {
         
         if (!(await API.company.check.hasCompany(msg.author))) return
         
-        let res2 = await API.company.get.company(msg.author)
-        
-        const maxWorkers = await API.company.get.maxWorkers(res2.company_id)
+        const maxWorkers = await API.company.get.maxWorkers(company.company_id)
 
         if (maxWorkers >= 8) return
 
@@ -114,9 +112,9 @@ module.exports = {
             collector.stop();
             embed.fields = [];
 
-            if ((res2.score < price)) {
+            if ((company.score < price)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(res2.score.toFixed(2))}/${API.format(price)} ⭐**`)
+                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(company.score.toFixed(2))}/${API.format(price)} ⭐**`)
                 embedmsg.edit(embed);
                 return;
             }
