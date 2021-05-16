@@ -26,7 +26,7 @@ module.exports = {
 
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-        if (args.length >= 2 && (API.maqExtension.ores.checkExists(args[1]) == false)) {
+        if (args.length >= 2 && (!API.maqExtension.ores.checkExists(args[1]))) {
             API.sendError(msg, `Você precisa identificar um produto EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
             return;
         }
