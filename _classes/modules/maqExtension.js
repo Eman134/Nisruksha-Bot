@@ -72,13 +72,15 @@ ores.gen = async function(maq, profundidade) {
     let por = maq.tier * 10;
     let array = [];
     for (i = 0; i < maq.tier+1; i++) {
-        if (oreobj[i] != undefined) {
+        if (oreobj[i]) {
             let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
             t += Math.round(((por/(i+1))/2)*gtotal/100);
             t *= 23/100;
             t = Math.round((oreobj[i].name == 'pedra' ? t * ((maq.tier+1)*1.9):t)/2);
             oreobj[i].size = t;
             array.push(oreobj[i])
+        } else {
+          break;
         }
     }
 

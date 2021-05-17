@@ -92,8 +92,6 @@ module.exports = {
 
             let obj3 = await API.getInfo(msg.author, 'storage')
 
-            API.maqExtension.storage.setOre(msg.author, drop.name, obj3[drop.name.replace(/"/g, '')]-quantia)
-
             function sucessEmbed() {
                 embed.setColor('#5bff45');
                 embed.addField('✅ Item usado', `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\``)
@@ -102,6 +100,15 @@ module.exports = {
 
             switch (drop.type) {
                 case 1:
+
+                    const isFull = await API.maqExtension.storage.isFull(msg.author);
+
+                    if (isFull) {
+                        embed.setColor('#a60000');
+                        embed.addField('❌ Uso cancelado', `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+                        embedmsg.edit(embed);
+                        return
+                    }
 
                     embedmsg.delete()
 
@@ -183,16 +190,17 @@ module.exports = {
 
                     await edit()
 
-                    break;
                 case 2:
                     await API.maqExtension.stamina.add(msg.author, drop.value);
                     sucessEmbed()
-                    break;
+
                 default:
                     embedmsg.delete()
                     msg.quote('Ocorreu um erro ao utilizar o item, contate algum moderador do bot.')
-                    break;
+
             }
+
+            API.maqExtension.storage.setOre(msg.author, drop.name, obj3[drop.name.replace(/"/g, '')]-quantia)
 
         });
         
