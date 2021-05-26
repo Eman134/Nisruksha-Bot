@@ -53,7 +53,13 @@ ores.gen = async function(maq, profundidade, chip) {
 
     let oreobj = API.maqExtension.ores.getObj().minerios;
 
-    if (!chip) oreobj = oreobj.filter((ore) => !ore.nomine )
+    let oreobj2nomine = 1
+
+    if (!chip) {
+      oreobj = oreobj.filter((ore) => !ore.nomine )
+    } else {
+      oreobj2nomine = 2
+    }
 
     let gtotal = calcGTotal(profundidade)
 
@@ -73,7 +79,7 @@ ores.gen = async function(maq, profundidade, chip) {
 
     let por = maq.tier * 10;
     let array = [];
-    for (i = 0; i < maq.tier+1; i++) {
+    for (i = 0; i < maq.tier+oreobj2nomine; i++) {
         if (oreobj[i]) {
             if (chip && oreobj[i].name.includes('fragmento')) {
               oreobj[i].size = API.random(5, 30);
