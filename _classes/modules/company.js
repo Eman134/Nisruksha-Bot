@@ -234,7 +234,7 @@ const jobs = {
             y.sz = y.size
         }
 
-        const utilsobj = await API.getInfo(member, 'players_utils')
+        const utilsobj = await API.getInfo(msg.author, 'players_utils')
 
         let backpackid = utilsobj.backpack;
         let backpack = API.shopExtension.getProduct(backpackid);
