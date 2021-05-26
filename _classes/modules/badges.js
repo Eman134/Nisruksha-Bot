@@ -9,11 +9,11 @@ badges.add = async function (member, id) {
     badges.load()
     const obj = await API.getInfo(member, "players")
     const temphas = await badges.has(member, id)
-    if (temphas) return "Has"
+    if (temphas) return "Já possui " + id
     let tempbadges = (obj.badges == null ? [] : obj.badges)
-    tempbadges.push(parseInt(id))
+    tempbadges.push(id + '')
     API.setInfo(member, "players", "badges", tempbadges)
-    return "Added"
+    return "Added " + id
 }
 
 badges.remove = async function (member, id) {
@@ -22,12 +22,12 @@ badges.remove = async function (member, id) {
     const temphas = await badges.has(member, id)
     if (!temphas) return "Don't have"
     let tempbadges = (obj.badges == null ? [] : obj.badges)
-    const index = tempbadges.indexOf(parseInt(id));
+    const index = tempbadges.indexOf(id  + '');
     if (index > -1) {
         tempbadges.splice(index, 1);
     }
     API.setInfo(member, "players", "badges", tempbadges)
-    return "Removed"
+    return "Removed " + id
 }
 
 badges.has = async function (member, id) {
@@ -35,7 +35,7 @@ badges.has = async function (member, id) {
     const obj = await API.getInfo(member, "players")
     let has = false
     if (obj.badges != null) {
-        if (obj.badges.includes(id) || obj.badges.includes(id.toString())) has = true
+        if (obj.badges.includes(id) || obj.badges.includes(id + '')) has = true
     }
     return has
 }

@@ -26,6 +26,7 @@ module.exports = {
 \`8.\` Colher todas as plantações de um terreno de uma vez na agricultura
 \`9.\` Aumenta em 10% a chance de pegar peixes na pescaria
 \`10.\` Opção de subir anzol na pescaria
+\`11.\` Molduras para perfil na ativação
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 

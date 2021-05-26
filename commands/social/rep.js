@@ -32,7 +32,7 @@ module.exports = {
         let cmaq = await API.maqExtension.get(msg.author)
 
         if (cmaq < 102) {
-            return API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
+            return API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
         }
 
         let { reps } = await API.getInfo(member, "players")
@@ -41,7 +41,7 @@ module.exports = {
 
         API.setInfo(member, "players", "reps", parseInt(reps)+1)
 
-     await msg.quote('Você deu **+1 REP** para **' + member.tag + '**!')
+        await msg.quote('Você deu **+1 REP** para **' + member.tag + '**!')
 
     },
 };

@@ -264,7 +264,7 @@ async function loadIntervals() {
     
     setInterval(async () => {
 
-        const event = API.random(0, Object.keys(events).length)
+        const event = API.random(0, 2)
 
         switch (event) {
             case 0:
@@ -280,6 +280,8 @@ async function loadIntervals() {
                 break;
 
             default:
+
+                events.forceTreasure()
 
                 break;
         }

@@ -1,11 +1,11 @@
 {
   "name": "nisruksha",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "description": "",
   "main": "bot.js",
   "scripts": {},
   "keywords": [],
-  "author": "Kess",
+  "author": "Eman134",
   "license": "ISC",
   "dependencies": {
     "@top-gg/sdk": "^3.1.1",

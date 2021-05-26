@@ -158,7 +158,10 @@ module.exports = {
             }
         }
         
-        embed.setDescription(`A cada 6 níveis você adquire +1 slot para equipar chipes!\nPara manusear chipes use \`${API.prefix}equipar\` e \`${API.prefix}desequipar\``)
+        const pieces = await API.maqExtension.getPieces(member);
+        const piecesmap = pieces.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
+        embed.setDescription(`A cada **6 níveis** você adquire **+1 slot** para equipar chipes!`)
+        .addField(`<:chip:833521401951944734> Inventário de Chipes`, `\nPara equipar um chipe utilize \`${API.prefix}equipar <ID DO CHIPE>\`\nPara desequipar um chipe utilize \`${API.prefix}desequipar <SLOT>\`\n\n` + (pieces.length <= 0 ? '**Não possui chipes de aprimoramento**' : piecesmap))
         embed.setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         embed.setColor('#7e6eb5')
         const attachment = await API.img.getAttachment(background, 'maq.png')

@@ -320,6 +320,7 @@
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833804901930893372/chip2.png",
 			"type": 5,
 			"size": 5,
+			"level": 6,
 			"typeeffect": 1,
 			"info": "Este chipe adiciona +5 na energia máxima da sua máquina",
 			"price": 15000,
@@ -333,6 +334,7 @@
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833804900093526106/chip.png",
 			"type": 5,
 			"size": 20,
+			"level": 6,
 			"typeeffect": 2,
 			"info": "Este chipe adiciona +20 na profundidade da sua máquina",
 			"price": 15000,
@@ -344,7 +346,7 @@
 			"name": "Chipe de Antidesgaste (-10%)",
 			"icon": "<:chip5:833809980779397171>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833809957908250705/chip5.png",
-			"level": 10,
+			"level": 6,
 			"type": 5,
 			"size": 10,
 			"typeeffect": 3,
@@ -364,6 +366,20 @@
 			"typeeffect": 4,
 			"info": "Este chipe faz com que sua máquina demore 1 segundo a menos para minerar",
 			"price": 150000,
+			"price2": 0
+		},
+		{
+			"id": 404,
+			"buyable": true,
+			"name": "Chipe de Fragmento",
+			"icon": "<:chip7:844385824728678430>",
+			"img": "https://cdn.discordapp.com/emojis/844385824728678430.png?v=1",
+			"level": 20,
+			"type": 5,
+			"size": 1,
+			"typeeffect": 5,
+			"info": "Este chipe faz com que sua máquina passe a coletar os fragmentos que antes eram descartados",
+			"price": 5000,
 			"price2": 0
 		}
 	],
@@ -408,6 +424,36 @@
 		{
 			"id": 703,
 			"buyable": true,
+			"name": "Mochila Atemporal",
+			"icon": "<:bp9:846480723044073543>",
+			"customitem": {
+				"typesmax": 10,
+				"itensmax": 50
+			},
+			"type": 3,
+			"level": 6,
+			"price": 0,
+			"price2": 0,
+			"price3": 20
+		},
+		{
+			"id": 704,
+			"buyable": true,
+			"name": "Mochila Cronos",
+			"icon": "<:bp10:846480723124289546>",
+			"customitem": {
+				"typesmax": 12,
+				"itensmax": 40
+			},
+			"type": 3,
+			"level": 12,
+			"price": 0,
+			"price2": 0,
+			"price3": 25
+		},
+		{
+			"id": 705,
+			"buyable": true,
 			"name": "Chipe de Energia Máxima (+8)",
 			"icon": "<:chip4:833805243733114900>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833805222161678407/chip4.png",
@@ -420,7 +466,8 @@
 			"price3": 35
 		},
 		{
-			"id": 704,
+			"id": 706,
+			"buyable": true,
 			"name": "Cor RGB no perfil (#1)",
 			"icon": "🎨",
 			"pcolorid": 1,
@@ -428,7 +475,173 @@
 			"size": 10,
 			"price": 0,
 			"price2": 0,
+			"price3": 40
+		},
+		{
+			"id": 707,
+			"buyable": true,
+			"name": "Moldura Quadrada RGB",
+			"icon": "🖼",
+			"type": 6,
+			"frameid": 7,
+			"size": 10,
+			"price": 0,
+			"price2": 0,
 			"price3": 50
+		},
+		{
+			"id": 708,
+			"buyable": true,
+			"name": "Moldura Redonda RGB",
+			"icon": "🖼",
+			"type": 6,
+			"frameid": 8,
+			"size": 10,
+			"price": 0,
+			"price2": 0,
+			"price3": 50
+		}
+	],
+	"mochilas": [
+		{
+			"id": 800,
+			"buyable": false,
+			"name": "Mochila Inicial",
+			"info": "**ESTA MOCHILA NÃO É COMPRÁVEL POIS JÁ SE INICIA COM ELA**",
+			"icon": "🎒",
+			"customitem": {
+				"typesmax": 5,
+				"itensmax": 10
+			},
+			"type": 3,
+			"price": 300,
+			"price2": 0
+		},
+		{
+			"id": 801,
+			"buyable": true,
+			"name": "Mochila de Couro",
+			"icon": "<:bp0:846474491823783976>",
+			"customitem": {
+				"typesmax": 5,
+				"itensmax": 15
+			},
+			"type": 3,
+			"level": 5,
+			"price": 3000,
+			"price2": 0
+		},
+		{
+			"id": 802,
+			"buyable": true,
+			"name": "Mochila Reforçada",
+			"icon": "<:bp1:846476751219064873>",
+			"customitem": {
+				"typesmax": 7,
+				"itensmax": 20
+			},
+			"type": 3,
+			"level": 10,
+			"price": 35000,
+			"price2": 0
+		},
+		{
+			"id": 803,
+			"buyable": true,
+			"name": "Mochila de Pedra Azul",
+			"icon": "<:bp2:846477397615181867>",
+			"customitem": {
+				"typesmax": 8,
+				"itensmax": 22
+			},
+			"type": 3,
+			"level": 12,
+			"price": 100000,
+			"price2": 0
+		},
+		{
+			"id": 804,
+			"buyable": true,
+			"name": "Mochila de Fibra de Carbono",
+			"icon": "<:bp3:846477582303232011>",
+			"customitem": {
+				"typesmax": 10,
+				"itensmax": 25
+			},
+			"type": 3,
+			"level": 15,
+			"price": 300000,
+			"price2": 0
+		},
+		{
+			"id": 805,
+			"buyable": true,
+			"name": "Mochila de Rosaris",
+			"icon": "<:bp4:846478634298507295>",
+			"customitem": {
+				"typesmax": 15,
+				"itensmax": 25
+			},
+			"type": 3,
+			"level": 15,
+			"price": 300000,
+			"price2": 20
+		},
+		{
+			"id": 806,
+			"buyable": true,
+			"name": "Mochila Encantada",
+			"icon": "<:bp5:846479638284468294>",
+			"customitem": {
+				"typesmax": 15,
+				"itensmax": 35
+			},
+			"type": 3,
+			"level": 18,
+			"price": 1000000,
+			"price2": 5
+		},
+		{
+			"id": 807,
+			"buyable": true,
+			"name": "Mochila do Grande Viajante",
+			"icon": "<:bp6:846480008780054549>",
+			"customitem": {
+				"typesmax": 15,
+				"itensmax": 40
+			},
+			"type": 3,
+			"level": 20,
+			"price": 5000000,
+			"price2": 5
+		},
+		{
+			"id": 808,
+			"buyable": true,
+			"name": "Mochila Xenon",
+			"icon": "<:bp7:846480108713541662>",
+			"customitem": {
+				"typesmax": 20,
+				"itensmax": 50
+			},
+			"type": 3,
+			"level": 24,
+			"price": 10000000,
+			"price2": 30
+		},
+		{
+			"id": 809,
+			"buyable": true,
+			"name": "Mochila de Fibra de Cristal",
+			"icon": "<:bp8:846480387374448640>",
+			"customitem": {
+				"typesmax": 25,
+				"itensmax": 60
+			},
+			"type": 3,
+			"level": 30,
+			"price": 50000000,
+			"price2": 100
 		}
 	]
 }

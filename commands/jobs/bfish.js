@@ -191,7 +191,7 @@ module.exports = {
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 
-                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/2.5).toFixed(2)
+                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/3).toFixed(2)
 
                                 ca = coletados.get(capturado.icon)
 
@@ -280,7 +280,7 @@ module.exports = {
 
             try{
 
-                let gastosta = 0
+                let gastosta = 1
 
                 if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
 
@@ -299,7 +299,7 @@ module.exports = {
                 const obj6 = await API.getInfo(msg.author, "machines");
                 let sta2 = await API.maqExtension.stamina.get(msg.author);
                 embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
-                embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
+                embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``)
                 embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px).join(inv))

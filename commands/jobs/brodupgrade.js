@@ -94,7 +94,7 @@ module.exports = {
                 list.push(0)
             }
 
-            if (pobj2.rod.sta > 4) {
+            if (pobj2.rod.sta > 6) {
                 list.push(1)
             }
             

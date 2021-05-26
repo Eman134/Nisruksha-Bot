@@ -1,5 +1,18 @@
 [
     {
+        "name": "fragmento",
+        "displayname": "Fragmento",
+        "icon": "<:fragmento:843674514260623371>",
+        "nomine": true,
+        "price": {
+            "min": 0.25,
+            "atual": 0.35,
+            "max": 0.75,
+            "ultimoupdate": ""
+        },
+        "por": 15
+    },
+    {
         "name": "pedra",
         "icon": "<:pedra:737381947197620289>",
         "price": {
@@ -19,7 +32,7 @@
             "max": 3.63,
             "ultimoupdate": ""
         },
-        "por": 70
+        "por": 75
     },
     {
         "name": "ferro",
@@ -30,7 +43,7 @@
             "max": 7.46,
             "ultimoupdate": ""
         },
-        "por": 59
+        "por": 63
     },
     {
         "name": "bauxita",
@@ -41,7 +54,7 @@
             "max": 16,
             "ultimoupdate": ""
         },
-        "por": 56
+        "por": 60
     },
     {
         "name": "manganes",
@@ -52,7 +65,7 @@
             "max": 30,
             "ultimoupdate": ""
         },
-        "por": 53
+        "por": 56
     },
     {
         "name": "niobio",
@@ -63,7 +76,7 @@
             "max": 39,
             "ultimoupdate": ""
         },
-        "por": 40
+        "por": 46
     },
     {
         "name": "ouro",
@@ -74,7 +87,7 @@
             "max": 70,
             "ultimoupdate": ""
         },
-        "por": 20
+        "por": 30
     },
     {
         "name": "rubi",
@@ -85,7 +98,7 @@
             "max": 317,
             "ultimoupdate": ""
         },
-        "por": 7
+        "por": 28
     },
     {
         "name": "ametista",
@@ -96,7 +109,7 @@
             "max": 507,
             "ultimoupdate": ""
         },
-        "por": 5
+        "por": 8
     },
     {
         "name": "diamante",
@@ -107,7 +120,7 @@
             "max": 1800,
             "ultimoupdate": ""
         },
-        "por": 2
+        "por": 5
     },
     {
         "name": "jade",
@@ -118,6 +131,6 @@
             "max": 4100,
             "ultimoupdate": ""
         },
-        "por": 1
+        "por": 3
     }
 ]

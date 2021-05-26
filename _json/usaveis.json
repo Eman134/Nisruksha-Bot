@@ -2,22 +2,33 @@
     {
         "name": "\"dinamite1\"",
         "displayname": "Dinamite Pequena",
+        "icon": "🧨",
         "desc": "Faz uma explosão na base de mineração e realiza a coleta dos minérios",
         "usavel": true,
         "type": 1,
         "tier": 1,
-        "icon": "🧨",
         "price": 25000
     },
     {
         "name": "\"cafe\"",
         "displayname": "Café",
+        "icon": "☕",
         "desc": "Recupera instantaneamente 35 de estamina",
         "usavel": true,
         "type": 2,
         "tier": 1,
         "value": 35,
-        "icon": "☕",
+        "price": 25000
+    },
+    {
+        "name": "\"frasco de exp pequeno\"",
+        "displayname": "Frasco de EXP Pequeno",
+        "icon": "<:frasco:846496717251018752>",
+        "desc": "Ganha 500 de EXP por frasco",
+        "usavel": true,
+        "type": 3,
+        "tier": 1,
+        "value": 500,
         "price": 25000
     }
 ]

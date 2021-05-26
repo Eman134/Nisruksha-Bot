@@ -16,6 +16,7 @@ module.exports = {
             return;
         }
 
+        const streakmax = 100
         
         const obj = await API.getInfo(msg.member, "players");
         let streak = obj['streak'];
@@ -32,7 +33,7 @@ module.exports = {
             }
             
         }
-        if (streak == 100) streak = 0
+        if (streak == streakmax) streak = 0
         streak++
         
         const colors = {
@@ -50,12 +51,20 @@ module.exports = {
         
         reward = (streak) * 350;
         
+        let r = (streak)-((streak)%5);
+
+        let cristal = 0
+        if (r > 0 && streak == r) {
+            cristal = 1
+        }
+        
 		const embed = new Discord.MessageEmbed()
         .setColor(colors[streak] || colors["10"])
-        .setDescription(`Você recebeu \`${reward}\` ${API.moneyemoji}${obj.perm >= 3 ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}/50**`)
+        .setDescription(`Você recebeu \`${reward}\` ${API.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${API.money2}\` ${API.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}/${streakmax}**`)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         await msg.quote(embed);
         API.eco.money.add(msg.member, reward)
+        API.eco.money.add(msg.member, cristal)
         API.setInfo(msg.member, "players", "streak", streak)
         API.eco.addToHistory(msg.member, `Recompensa diária | + ${API.format(reward)} ${API.moneyemoji}`)
         API.playerUtils.cooldown.set(msg.author, "daily", 86400);

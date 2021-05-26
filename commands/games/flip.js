@@ -28,6 +28,10 @@ module.exports = {
         }
         const member = msg.mentions.users.first();
 
+        if (member.id == msg.author.id) {
+            return API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'flip @membro <quantia | tudo>')
+        }
+
         const townauthor = await API.townExtension.getTownName(msg.author)
         const townmember = await API.townExtension.getTownName(member)
 

@@ -101,7 +101,16 @@ module.exports = {
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 
-                const obj2 = await API.maqExtension.ores.gen(maq, profundidade);
+                let chipe = false
+                const array00 = playerobj.slots == null ? [] : playerobj.slots
+                for (const i of array00){
+                    if (API.shopExtension.getProduct(i).typeeffect == 5) {
+                        chipe = true
+                        break;
+                    };
+                }
+
+                const obj2 = await API.maqExtension.ores.gen(maq, profundidade, chipe);
                 let sizeMap = new Map();
                 let round = 0;
                 let xp = API.random(15, 35);

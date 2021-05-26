@@ -92,7 +92,7 @@ module.exports = class MenuClient extends Client {
 
                 try {
 
-                    let command = require(`${file.replace('.js', '')}`)
+                    let command = require(file.replace('.js', ''))
                     
                     if (!file.includes('!')) {
                     
@@ -167,6 +167,11 @@ module.exports = class MenuClient extends Client {
                 }))
 
                 API.dbl = new Topgg.Api(options.dbl.token)
+
+                const AutoPoster = require('topgg-autoposter')
+
+                const ap = AutoPoster(options.dbl.token, API.client)
+
             } catch (err) {
                 API.client.emit('error', err)
             }

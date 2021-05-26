@@ -103,7 +103,7 @@ module.exports = {
                     let total = 0;
                     for (const r of obj['minerios']) {
                         if (obj2[r.name] > 0) {
-                            embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} | ${Math.round(obj2[r.name]*r.price.atual)} ${API.moneyemoji}`, `\`\`\`autohotkey\n${obj2[r.name] > 1000 ? (obj2[r.name]/1000).toFixed(1) + 'kg' : obj2[r.name] + 'g'}\`\`\``, true)
+                            embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} | ${API.format(Math.round(obj2[r.name]*r.price.atual))} ${API.moneyemoji}`, `\`\`\`autohotkey\n${obj2[r.name] > 1000 ? (obj2[r.name]/1000).toFixed(1) + 'kg' : obj2[r.name] + 'g'}\`\`\``, true)
                             total += obj2[r.name]*r.price.atual;
                         }
                     }

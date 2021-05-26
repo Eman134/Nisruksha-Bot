@@ -9,10 +9,39 @@ frames.add = async function (member, id) {
     frames.load()
     const obj = await API.getInfo(member, "players")
     const temphas = await frames.has(member, id)
-    if (temphas) return
+    if (temphas) return "Já possui " + id
     let tempframes = (obj.frames == null ? [] : obj.frames)
-    tempframes.push(id)
+    tempframes.unshift(id)
     API.setInfo(member, "players", "frames", tempframes)
+
+    return "Added " + id
+}
+
+frames.reforge = async function (member, id) {
+    
+    frames.load()
+
+    const obj = await API.getInfo(member, "players")
+
+    let tempframes = (obj.frames == null ? [] : obj.frames)
+
+    if (tempframes.includes('0')) {
+        const index = tempframes.indexOf(0 + '');
+        if (index > -1) {
+            tempframes.splice(index, 1);
+        }
+    } if (tempframes.includes(id + '')) {
+        const index = tempframes.indexOf(id + '');
+        if (index > -1) {
+            tempframes.splice(index, 1);
+        }
+    }
+
+    tempframes.unshift(id)
+
+    API.setInfo(member, "players", "frames", tempframes)
+
+    return "Reforged " + id
 }
 
 frames.remove = async function (member, id) {
@@ -21,19 +50,21 @@ frames.remove = async function (member, id) {
     const temphas = await frames.has(member, id)
     if (!temphas) return
     let tempframes = (obj.frames == null ? [] : obj.frames)
-    const index = tempframes.indexOf(id);
+    const index = tempframes.indexOf(id + '');
     if (index > -1) {
         tempframes.splice(index, 1);
     }
     API.setInfo(member, "players", "frames", tempframes)
+
+    return "Removed " + id
 }
 
 frames.has = async function (member, id) {
     frames.load()
     const obj = await API.getInfo(member, "players")
     let has = false
-    if (obj.frames != null) {
-        if (obj.frames.includes(id)) has = true
+    if (obj.frames != null && obj.frames.length > 0) {
+        if (obj.frames.includes(id) || obj.frames.includes(id + '')) has = true
     }
     return has
 }

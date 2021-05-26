@@ -38,6 +38,12 @@ module.exports = {
             return
         }
 
+        let cmaq = await API.maqExtension.get(msg.author)
+
+        if (cmaq < 102) {
+            return API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
+        }
+
         const owner = await API.client.users.fetch(check.owner)
         
         const embed = new Discord.MessageEmbed()

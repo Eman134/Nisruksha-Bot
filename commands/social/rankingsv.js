@@ -62,15 +62,15 @@ module.exports = {
             }
 
             array = await array.filter(async (userobj) => {
-
+                let x1
                 try {
                     const x = await msg.guild.members.fetch(userobj.user_id)
-                    if (x) return true
-                    else return false
+                    if (x) x1 = true
+                    else x1 = false
                 } catch {
-                    return false
+                    x1 = false
                 }
-
+                return x1
             })
 
             array.sort(function(a, b){

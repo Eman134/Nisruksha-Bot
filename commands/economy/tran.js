@@ -16,6 +16,10 @@ module.exports = {
         }
         const member = msg.mentions.users.first();
         
+        if (member.id == msg.author.id) {
+            return API.sendError(msg, 'Você precisa mencionar outra pessoa para transferir', 'transferir @membro <quantia | tudo>')
+        }
+
         if (args.length < 2) {
             API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @membro <quantia | tudo>`)
 			return;
@@ -24,21 +28,21 @@ module.exports = {
         let total = 0;
         if (args[1] != 'tudo') {
 
-            if (!API.isInt(args[1])) {
+            if (!API.isInt(API.toNumber(args[1]))) {
                 API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
                 return;
             }
 
-            if (money < parseInt(args[1])) {
+            if (money < API.toNumber(args[1])) {
                 API.sendError(msg, `Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize \`${API.prefix}depositar\` para depositar dinheiro no banco`)
                 return;
             }
 
-            if (parseInt(args[1]) < 1) {
+            if (API.toNumber(args[1]) < 1) {
                 API.sendError(msg, `Você não pode transferir essa quantia de dinheiro!`)
                 return;
             }
-            total = parseInt(args[1]);
+            total = API.toNumber(args[1])
         } else {
             if (money < 1) {
                 API.sendError(msg, `Você não possui dinheiro __no banco__ para transferir!`)

@@ -90,13 +90,38 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
   for (i = (currentpage-1)*3; i < ((currentpage-1)*3)+3; i++) {
     let p = product[i];
     if (p == undefined) break;
-      let price = p.price;
-      if (p.type == 4){price=Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1));}
-      
+    let price = p.price;
+    if (p.type == 4){price=Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1));}
+        
+    let formated = `Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' ' + API.tp.name + '` ' + API.tp.emoji : ''}`
 
-      embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, `
-      Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' ' + API.tp.name + '` ' + API.tp.emoji : ''}\nUtilize ${API.prefix}comprar ${p.id}${p['token'] ? '\nQuantia: ' + p['token'] + ' fichas':''}${p['tier'] ? `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`:''}${p['profundidade'] ? '\nProfundidade: ' + p['profundidade'] + 'm':''}${p['durability'] ? '\nDurabilidade: ' + p['durability'] + 'u':''}${p['level'] ? '\n**Requer Nível ' + p['level'] + '**':''}${p['info'] ? '\n' + p['info']:''}
-      `, false)
+    if (p.buyable) {
+      formated += `\nUtilize ${API.prefix}comprar ${p.id}`
+    }
+    if (p.token) {
+      formated += '\nQuantia: ' + p.token + ' fichas'
+    }
+    if (p.customitem && p.customitem.typesmax) {
+      formated += `\nMáximo de Tipos: **${p.customitem.typesmax}**\nQuantia máxima por item: **${p.customitem.itensmax}**`
+    }
+    if (p.tier) {
+      formated += `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`
+    }
+    if (p.profundidade) {
+      formated += '\nProfundidade: ' + p.profundidade + 'm'
+    }
+    if (p.durability) {
+      formated += '\nDurabilidade: ' + p.durability + 'u'
+    }
+    if (p.level && playerobj.level < p.level) {
+      formated += '\n**Requer Nível ' + p.level + '**'
+    }
+    if (p.info) {
+      formated += '\n' + p.info
+    }
+
+    embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, formated, false)
+    
   }
   if (product.length == 0) embed.addField('❌ Oops, um problema inesperado ocorreu', 'Esta categoria não possui produtos ainda!');
 
@@ -341,7 +366,15 @@ shopExtension.execute = async function(msg, p) {
                   cashback = Math.round(7*prc/100);
                 }
               }
-              
+
+              let pieces = await API.maqExtension.getEquipedPieces(msg.author);
+
+              for (i = 0; i < pieces.length; i++){
+                  const pic = await API.getInfo(msg.author, 'storage')
+                  await API.setInfo(msg.author, 'storage', `"piece:${pieces[i]}"`, pic[`piece:${pieces[i]}`]+1)
+              }
+
+              API.setInfo(msg.author, 'machines', `slots`, [])
               API.setInfo(msg.author, 'machines', 'machine', p.id);
               API.setInfo(msg.author, 'machines', 'durability', p.durability)
 			        API.setInfo(msg.author, 'machines', 'energy', 0)
@@ -351,7 +384,7 @@ shopExtension.execute = async function(msg, p) {
               API.eco.token.add(msg.author, p.token)
               break;
             case 3:
-
+              API.setInfo(msg.author, 'players_utils', 'backpack', p.id)
               break;
             case 4:
 
@@ -384,7 +417,7 @@ shopExtension.execute = async function(msg, p) {
 
               break;
             case 6:
-
+              API.frames.add(msg.author, p.frameid)
               break;
             case 7:
               API.eco.points.add(msg.author, p.size)

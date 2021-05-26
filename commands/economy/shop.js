@@ -32,7 +32,8 @@ module.exports = {
             API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
 			return;
         }
-        let product = obj[categoria]
+        let product = obj[categoria];
+        product = product.filter((item) => item.buyable)
         let array2 = Object.keys(product);
         const embed = new Discord.MessageEmbed();
         let totalpages = array2.length % 3;
@@ -40,16 +41,19 @@ module.exports = {
         else totalpages = ((array2.length-totalpages)/3)+1;
 
         let currentpage = 1;
+
+        if (totalpages == 0) currentpage = 0
+
         embed.setTitle(`${categoria.toUpperCase()} ${currentpage}/${totalpages}`);
         embed.setColor('#bf772a');
         embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         embed.setDescription(`Utilize \`${API.prefix}comprar <id>\` para realizar uma compra`);
         await API.shopExtension.formatPages(embed, currentpage, product, msg.author);
         let msgembed = await msg.quote(embed);
-        if (currentpage == totalpages)return
+        if (currentpage == totalpages || totalpages == 0) return
         msgembed.react('⏪');
         msgembed.react('⏩');
-        API.shopExtension.editPage(`${categoria.toUpperCase()}`, msg, msgembed, product, embed, currentpage, totalpages);
+        API.shopExtension.editPage(categoria.toUpperCase(), msg, msgembed, product, embed, currentpage, totalpages);
 
 	}
 };

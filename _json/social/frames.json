@@ -1,6 +1,75 @@
-{
-    "1": {
+[
+    {
+        "id": 1,
         "type": 0,
-        "name": "Simples"
+        "name": "Quadrado Roxo",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846506875692122122/moldura1.png"
+    },
+    {
+        "id": 2,
+        "type": 1,
+        "name": "Redonda Roxo",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846508414741512202/moldura.png"
+    },
+    {
+        "id": 3,
+        "type": 0,
+        "name": "Quadrado Verde",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846544111037448232/moldura.png"
+    },
+    {
+        "id": 4,
+        "type": 1,
+        "name": "Redonda Verde",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846544188459843594/moldura.png"
+    },
+    {
+        "id": 5,
+        "type": 0,
+        "name": "Quadrado Laranja",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846527673634258964/moldura.png"
+    },
+    {
+        "id": 6,
+        "type": 1,
+        "name": "Redonda Laranja",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846527703683039232/moldura.png"
+    },
+    {
+        "id": 7,
+        "type": 0,
+        "name": "Quadrado RGB",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846555099857944576/moldura.png"
+    },
+    {
+        "id": 8,
+        "type": 1,
+        "name": "Redonda RGB",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846554449542381578/moldura.png"
+    },
+    {
+        "id": 9,
+        "type": 1,
+        "name": "Redonda Rosa",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846542087020740699/moldura.png"
+    },
+    {
+        "id": 10,
+        "type": 1,
+        "name": "Redonda Dourado",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846542325182103552/moldura.png"
+    },
+    {
+        "id": 11,
+        "type": 1,
+        "name": "Redonda Roxo",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846542686030528552/moldura.png"
+    },
+    {
+        "id": 12,
+        "type": 1,
+        "name": "Redonda Verde",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/846542804402569216/moldura.png"
     }
-}
+
+]

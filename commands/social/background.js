@@ -17,8 +17,8 @@ module.exports = {
 
         let url = attachment[0].url;
 
-        if (!attachment[0].name.match(/.(jpg|jpeg|png|gif)$/i)){
-          API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png, gif. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+        if (!attachment[0].name.match(/.(jpg|jpeg|png)$/i)){
+          API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
           return;
         }
 

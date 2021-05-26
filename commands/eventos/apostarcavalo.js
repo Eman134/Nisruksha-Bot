@@ -30,21 +30,21 @@ module.exports = {
             
             if (args[0] != 'tudo') {
 
-                if (!API.isInt(args[0])) {
+                if (!API.isInt(API.toNumber(args[0]))) {
                     API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `apostarcavalo <quantia | tudo>`)
                     return true
                 }
 
-                if (money < parseInt(args[0])) {
+                if (money < API.toNumber(args[0])) {
                     API.sendError(msg, `Você não possui essa quantia de dinheiro para apostar!`)
                     return true
                 }
 
-                if (parseInt(args[0]) < 1) {
+                if (API.toNumber(args[0]) < 1) {
                     API.sendError(msg, `Você não pode apostar essa quantia de dinheiro!`)
                     return true
                 }
-                total = parseInt(args[0]);
+                total = API.toNumber(args[0]);
             } else {
                 if (money < 1) {
                     API.sendError(msg, `Você não possui dinheiro para apostar!`)

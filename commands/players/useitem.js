@@ -190,9 +190,17 @@ module.exports = {
 
                     await edit()
 
+                    break;
+
                 case 2:
                     await API.maqExtension.stamina.add(msg.author, drop.value);
                     sucessEmbed()
+                    break;
+
+                case 3:
+                    API.playerUtils.execExp(msg, drop.value);
+                    sucessEmbed()
+                    break;
 
                 default:
                     embedmsg.delete()

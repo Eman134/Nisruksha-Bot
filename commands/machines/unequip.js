@@ -65,7 +65,7 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed();
         embed.setColor('#5bff45');
-        embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${desequipado}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes\nUtilize \`${API.prefix}mochila\` para ver seu chipe na mochila`)
+        embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${desequipado}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
         await msg.quote(embed);
         
 	}

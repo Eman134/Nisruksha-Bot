@@ -369,9 +369,9 @@ API.checkAll = async function(msg, req) {
 	} else if (API.client.user.id != '726943606761324645' && API.dbl) {
         API.dbl.hasVoted(msg.author.id).then(async voted => {
             if (voted) return
-            const check44 = await API.playerUtils.cooldown.check(msg.author, "votealertdelay");
+            const check44 = await API.playerUtils.cooldown.check(msg.author, "alertdelay");
             if (check44) return true;
-            API.playerUtils.cooldown.set(msg.author, "votealertdelay", 520);
+            API.playerUtils.cooldown.set(msg.author, "alertdelay", 820);
             const voteembed = new API.Discord.MessageEmbed()
             voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
             
@@ -705,8 +705,12 @@ API.setPlayer = async function (member, table) {
         await db.pool.query(`INSERT INTO ${table}(user_id) VALUES(${member.id}) ON CONFLICT DO NOTHING`)
     }catch (err){
         console.log(err)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
+}
+
+API.toNumber = function(x) {
+    return parseInt(x.replace(/k/g, '000').replace(/m/g, '000000').replace(/b/g, '000000000'))
 }
 
 API.getFormatedDate = function() {

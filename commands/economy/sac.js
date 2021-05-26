@@ -18,21 +18,21 @@ module.exports = {
         let total = 0;
         if (args[0] != 'tudo') {
 
-            if (!API.isInt(args[0])) {
+            if (!API.isInt(API.toNumber(args[0]))) {
                 API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
                 return;
             }
 
-            if (money < parseInt(args[0])) {
+            if (money < API.toNumber(args[0])) {
                 API.sendError(msg, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
                 return;
             }
 
-            if (parseInt(args[0]) < 1) {
+            if (API.toNumber(args[0]) < 1) {
                 API.sendError(msg, `Você não pode sacar essa quantia de dinheiro!`)
                 return;
             }
-            total = parseInt(args[0]);
+            total = API.toNumber(args[0]);
         } else {
             if (money < 1) {
                 API.sendError(msg, `Você não possui dinheiro __no banco__ para sacar!`)

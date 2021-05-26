@@ -110,8 +110,15 @@
 	"2.1.5": {
         "add": ["Itens com efeitos que podem ser usados", "Comando n.usaritem", "Reações de confirmação para alterar o nome da empresa", "Nova opção n.desequipar tudo", "Visualização de quando será a próxima modificação da cotação", "Nova opção no n.empresaedit para modificar o nome da empresa", "Novo site para votos"],
         "rem": ["Site zuraaa de votos"],
-        "chn": ["Loja de convites -> loja temporal", "Máximo de fichas do flip [1000 -> 5000]", "Agora o flip vai ser somente contra membros", "Tamanho por nível de armazém [1200 -> 1000]", "Pontos de convite -> pontos temporais"],
+        "chn": ["Delay update da pescaria [5 -> 8]", "Delay update da coleta [8 -> 15]", "Loja de convites -> loja temporal", "Máximo de fichas do flip [1000 -> 5000]", "Agora o flip vai ser somente contra membros", "Tamanho por nível de armazém [1200 -> 1000]", "Pontos de convite -> pontos temporais"],
         "fix": [],
         "alc": ["Adicionado money -> pontostemp", "Removido money -> conta"]
+    },
+    "2.1.6": {
+        "add": ["Conversão de dinheiro [Ex: 500k -> 500000]", "A cada 5 daily agora você ganha +1 cristal", "Comando n.molduras", "Loja de mochilas", "Quando comprar outra máquina os chipes dela vão ser desequipados", "Novo tipo de chipe"],
+        "rem": [],
+        "chn": ["Sistema de mochila adaptado para a nova loja", "Inventário de chipes movido para o n.maquina"],
+        "fix": ["Transferir para o próprio autor do comando", "Mencionar você mesmo no flip"],
+        "alc": ["botinfo -> bi"]
     }
 }

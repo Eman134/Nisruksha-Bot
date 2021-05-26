@@ -48,10 +48,12 @@ module.exports = {
 
         let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações do perfil`)
 
+        const playerobj = await API.getInfo(member, 'machines')
+        const obj = await API.getInfo(member, "players")
+
         let background = bg
         
         // Draw bio
-        const obj = await API.getInfo(member, "players")
         let bio = '';
         let perm = 0;
         // Color bord
@@ -76,16 +78,32 @@ module.exports = {
             }catch(err){API.setInfo(member, 'players', 'bglink', null);API.sendErrorM(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)}
         }
 
-        // Draw username
+        // user
         background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 117,3)
         background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 181,3)
-        // Draw circle avatar
+        
+        // avatar e moldura
+
         let avatar = await API.img.loadImage(member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         avatar = await API.img.resize(avatar, 180, 180);
-        avatar = await API.img.editBorder(avatar, 90, true)
-        background = await API.img.drawImage(background, avatar, 85, 59)
 
-        // Badges
+        if (obj.frames != null && obj.frames[0] != 0) {
+            
+            const frame = API.frames.get(obj.frames[0])
+
+            if (frame.type == 1) avatar = await API.img.editBorder(avatar, 90, true)
+
+            let tempframe = await API.img.loadImage(frame.url);
+            background = await API.img.drawImage(background, avatar, 85, 59)
+            background = await API.img.drawImage(background, tempframe, 50, 24)
+            
+        } else {
+            background = await API.img.drawImage(background, avatar, 85, 59)
+        }
+        
+
+        // badges
+
         let tempx = 0
         let tempy = 605
         if (perm > 1) {
@@ -94,8 +112,6 @@ module.exports = {
             background = await API.img.drawImage(background, tempbadge, tempx, tempy)
             tempx += 45
         }
-
-        const playerobj = await API.getInfo(member, 'machines')
 
         let maqid = playerobj.machine;
         let maq = API.shopExtension.getProduct(maqid);

@@ -1,6 +1,6 @@
 module.exports = {
     name: 'botinfo',
-    aliases: ['infobot', 'boti'],
+    aliases: ['infobot', 'boti', 'bi'],
     category: 'Outros',
     description: 'Visualize meus links próprios para votar, me convidar ou meu servidor',
 	async execute(API, msg) {

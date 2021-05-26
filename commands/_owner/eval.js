@@ -41,7 +41,6 @@ module.exports = {
                 embed
                 .addField('Erro', code('js', error), true)
                 .setColor('RED')
-                API.client.emit('error', error)
             } finally {
 
                 const content = '**Executado em ' + (Date.now()-tempo)+" ms**"

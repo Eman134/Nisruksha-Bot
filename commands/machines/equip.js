@@ -2,7 +2,7 @@ module.exports = {
     name: 'equipar',
     aliases: ['equip'],
     category: 'Maquinas',
-    description: 'Equipa alguma placa da sua mochila',
+    description: 'Equipa alguma placa que está no inventário da sua máquina',
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -22,7 +22,7 @@ module.exports = {
         }
 
         if (args.length < 1) {
-            API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`, `equipar <id>`);
+            API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`, `equipar <id>`);
             return;
         }
         let contains = false;
@@ -34,7 +34,7 @@ module.exports = {
         }
 
         if (contains == false) {
-            API.sendError(msg, `Você não possui este chipe na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`);
+            API.sendError(msg, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`);
             return;
         }
 
@@ -85,7 +85,7 @@ module.exports = {
 
             if (!contains1) {
                 embed.setColor('#a60000')
-                .addField('❌ Falha ao equipar', `Você não possui este chipe na sua mochila para equipar!\nUtilize \`${API.prefix}mochila\` para visualizar seus chipes`)
+                .addField('❌ Falha ao equipar', `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`)
                 embedmsg.edit(embed);
                 return;
             }

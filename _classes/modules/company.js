@@ -208,7 +208,7 @@ const jobs = {
         },
     },
     fish: {
-        update: 5,
+        update: 8,
         rods: {
             obj: {}
         },
@@ -217,7 +217,7 @@ const jobs = {
         }
     },
     agriculture: {
-        update: 8
+        update: 15
     }
 };
 
@@ -233,6 +233,15 @@ const jobs = {
             if (!y.size) y.size = 1
             y.sz = y.size
         }
+
+        const utilsobj = await API.getInfo(member, 'players_utils')
+
+        let backpackid = utilsobj.backpack;
+        let backpack = API.shopExtension.getProduct(backpackid);
+
+        const maxitens = backpack.customitem.itensmax
+        const maxtypes = backpack.customitem.typesmax
+
         
         for (const y of dp) {
             
@@ -242,8 +251,6 @@ const jobs = {
             let csize = await API.getInfo(msg.author, 'storage')
             csize2 = csize[y.name.replace(/"/g, '')]
             let s = parseInt(csize2) + parseInt(y.sz)
-
-            let maxitens = jobs.maxitens
 
             if (s >= maxitens) {
                 if (s == maxitens) {
@@ -260,7 +267,7 @@ const jobs = {
                 }
             }
 
-            if ((arrayitens >= 10 && rsize == 0 || csize2 >= maxitens && rsize == 0 || s > maxitens && rsize ==  0) || s == 0) {
+            if ((arrayitens >= maxtypes && rsize == 0 || csize2 >= maxitens && rsize == 0 || s > maxitens && rsize ==  0) || s == 0) {
                 
                 descartados.push(y)
                 
@@ -311,13 +318,29 @@ const jobs = {
 
         let mobs = jobs.explore.mobs.get();
 
-
         let filteredmobs = mobs.filter((mob) => level+1 >= mob.level)
 
         if (filteredmobs.length == 0) {
-			API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
-			console.log('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
-			return undefined
+
+            filteredmobs = mobs.slice((level-5 < 0 ? 0 : level-5), level+1)
+
+            if (filteredmobs.length == 0) {
+
+                API.company.jobs.explore.mobs.obj = []
+
+                mobs = jobs.explore.mobs.get();
+
+                filteredmobs = mobs.filter((mob) => level+1 >= mob.level)
+
+                if (filteredmobs.length == 0) {
+
+                    API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
+                    console.log('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
+                    return undefined
+
+                }
+
+            }
 		}
 
         filteredmobs.sort(function(a, b){
@@ -721,7 +744,7 @@ company.create = async function(member, ob) {
                     embed.setTitle(`Nova empresa!`) 
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.tipo.charAt(0).toUpperCase() + ob.tipo.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
-                    API.client.guilds.cache.get('693150851396796446').channels.cache.get('747490313765126336').send(embed);
+                    API.client.channels.cache.get('747490313765126336').send(embed);
                     await API.db.pool.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
                     await API.setCompanieInfo(member, code, 'company_id', code)
                     await API.setCompanieInfo(member, code, 'type', ob.type)
@@ -737,7 +760,7 @@ company.create = async function(member, ob) {
                 try{
                     embed.setDescription(`Failed on generating company ${ob.type}:${ob.name} with code ${code}; Try by ${member}`)
                     embed.setColor('#eb4828')
-                    API.client.guilds.cache.get('693150851396796446').channels.cache.get('747490313765126336').send(embed);
+                    API.client.channels.cache.get('747490313765126336').send(embed);
                 }catch (err){
                     client.emit('error', err)
                     console.log(err)
