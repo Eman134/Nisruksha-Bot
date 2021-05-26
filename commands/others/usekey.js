@@ -112,8 +112,8 @@ module.exports = {
             switch (item.form.type) {
                 case 0:
                     API.badges.add(msg.author, 1)
-                    API.frames.add(msg.author, 3)
-                    API.frames.add(msg.author, 4)
+                    await API.frames.add(msg.author, 3)
+                    await API.frames.add(msg.author, 4)
                     API.setInfo(msg.author, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
                     if (await API.getPerm(msg.author) == 1) API.setPerm(msg.author, 3)
                     break;
