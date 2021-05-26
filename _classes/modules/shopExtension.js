@@ -87,6 +87,7 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
   let playerobj = await API.getInfo(member, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
+  const minerios = API.maqExtension.ores.getObj().minerios
   for (i = (currentpage-1)*3; i < ((currentpage-1)*3)+3; i++) {
     let p = product[i];
     if (p == undefined) break;
@@ -105,7 +106,9 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
       formated += `\nMáximo de Tipos: **${p.customitem.typesmax}**\nQuantia máxima por item: **${p.customitem.itensmax}**`
     }
     if (p.tier) {
-      formated += `\nTier: ${p.tier} (${API.maqExtension.ores.getObj().minerios[p.tier].name} ${API.maqExtension.ores.getObj().minerios[p.tier].icon})`
+      var oreobj = API.maqExtension.ores.getObj().minerios;
+      oreobj = oreobj.filter((ore) => !ore.nomine)
+      formated += `\nTier: ${p.tier} (${oreobj[p.tier].name} ${oreobj[p.tier].icon})`
     }
     if (p.profundidade) {
       formated += '\nProfundidade: ' + p.profundidade + 'm'

@@ -32,7 +32,7 @@ module.exports = {
             API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
 			return;
         }
-        let product = obj[categoria];
+        var product = obj[categoria];
         product = product.filter((item) => item.buyable)
         let array2 = Object.keys(product);
         const embed = new Discord.MessageEmbed();
