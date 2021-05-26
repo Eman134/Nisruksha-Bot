@@ -28,7 +28,7 @@ module.exports = {
         let owner = await API.client.users.fetch(guild.ownerID)
 
         const embed = new Discord.MessageEmbed();
-        embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})`)//\n🧑🏽 ${guild.members.cache.filter(m => m.user.bot == false).size} | 🤖 ${guild.members.cache.filter(m => m.user.bot == true).size}`)
+        embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)
         .setColor('#55eb34')
         client.channels.cache.get('746735962196803584').send(embed);
 
