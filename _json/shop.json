@@ -378,7 +378,7 @@
 			"type": 5,
 			"size": 1,
 			"typeeffect": 5,
-			"info": "Este chipe faz com que sua máquina passe a coletar os fragmentos que antes eram descartados",
+			"info": "Este chipe faz com que sua máquina passe a coletar os fragmentos que antes eram descartados\nOBS: O valor não é multiplicado pela quantidade de chipes, apenas 1 deste já basta.",
 			"price": 5000,
 			"price2": 0
 		}
