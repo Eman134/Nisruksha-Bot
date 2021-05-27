@@ -20,7 +20,7 @@ module.exports = {
         try {
             var resultado = happycalculator.calculate(args.join(' ').split('÷').join('/'));
             if (resultado.toString().includes(API.token)) {
-                return msg.reply('**Token do bot**: OdIcBaAzD2NzYxMSADb2TOa4vca.Xvko_Q.A6F3EHwD3abV-Xabc_as9FEMm6eXD?');
+                return msg.quote('**Token do bot**: OdIcBaAzD2NzYxMSADb2TOa4vca.Xvko_Q.A6F3EHwD3abV-Xabc_as9FEMm6eXD?');
             }
             const embed = new Discord.MessageEmbed()
             if (resultado === Infinity || resultado == NaN || resultado == undefined || resultado == null || resultado.toString() == 'NaN') {

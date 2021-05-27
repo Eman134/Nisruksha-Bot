@@ -115,6 +115,7 @@ helpExtension.addCommand = async function(command, x) {
           helpExtension.cmds.push([name])
           helpExtension.desc.push([command.description])
           helpExtension.aliases.push([aliases])
+
       } else {
         let result
         let loop = 0

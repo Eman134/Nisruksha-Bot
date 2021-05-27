@@ -27,7 +27,7 @@ module.exports = {
         }
 
         if (!v)  {
-            return msg.reply('id undefined')
+            return msg.quote('id undefined')
         }
 
 		const embed = new Discord.MessageEmbed()

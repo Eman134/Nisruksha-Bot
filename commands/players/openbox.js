@@ -148,7 +148,7 @@ module.exports = {
                     console.log(array[5])
                     console.log(`\n${err}`)
                     client.emit('error', err)
-                    msg.reply('Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.')
+                    msg.quote('Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.')
                 }
 
                 if (descartou && currnum >= rewards.length) {

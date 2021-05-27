@@ -1,49 +1,35 @@
 const { APIMessage, Message } = require("discord.js");
 
-Message.prototype.quote = async function (content, options) {
-  const reference = {
-    message_id: (
-      !!content && !options
-        ? typeof content === 'object' && content.messageID
-        : options && options.messageID
-    ) || this.id,
-    message_channel: this.channel.id
-  }
+Message.prototype.quote = async function (c, o) {
 
-  let arr = { "replied_user": false }
-
-  if (typeof content === 'object' && content.mention) {
-    arr.replied_user = true
-  }
+  const content = c
+  const options = o
 
   const { data: parsed, files } = await APIMessage
     .create(this, content, options)
     .resolveData()
     .resolveFiles()
 
-  let msg
+  let x = { data: { ...parsed } }.data
 
-  try {
-    msg = await this.client.api.channels[this.channel.id].messages.post({
-      data: { ...parsed, message_reference: reference, allowed_mentions: arr, allowedMentions: arr },
-      files
-    })
-  } catch {
-    try {
-      msg = await this.client.api.channels[this.channel.id].messages.post({
-        data: { ...parsed },
-        files
-      })
-    } catch {
+  x.allowedMentions = { repliedUser: false}
 
+  if (!options) {
+    if (typeof content === 'object') {
+      x = { ...x, ...content }
+      if (content.mention) {
+        x.allowedMentions = { repliedUser: true}
+      }
+    }
+  } else {
+    x = { ...x, ...options }
+    if (options.mention) {
+      x.allowedMentions = { repliedUser: true}
     }
   }
+  
+  x.reply = { messageReference: this.id }
 
-  if (!msg) return
+  return await this.channel.send({ ...x });
 
-  await this.channel.messages.fetch(msg.id)
-    .then(message => msg = message)
-    .catch();
-
-  return msg
 }

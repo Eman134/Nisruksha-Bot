@@ -2,24 +2,13 @@ const Discord = require('discord.js');
 const fs = require('fs');
 const API = require("./api.js");
 
-
 module.exports = class NisrukshaClient extends Discord.Client {
 
     constructor(options = {}) {
         super({
-            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'],
-            cacheGuilds: true,
-            cacheChannels: true,
-            cacheOverwrites: true,
-            cacheRoles: true,
-            cacheEmojis: true,
-            cachePresences: true,
-
-            allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
-
-            ws: {
-                properties: { $browser: 'Discord Android' },
-            }
+            allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, 
+            properties: { $browser: 'Discord Android' }, 
+            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
         })
 
         console.log(' ');
@@ -47,7 +36,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
     loadModules() {
 
         API.client = this;
-        //require('./packages/quote.js')
+        require('./packages/quote.js')
 
         fs.readdir("./_classes/modules/", (err, files) => {
             if (err) return console.error(err);
@@ -102,6 +91,8 @@ module.exports = class NisrukshaClient extends Discord.Client {
                         }
 
                         API.helpExtension.addCommand(command, command.name);
+
+                        API.client.application?.commands.create({ name: command.name, description: command.category + ' | ' + command.description })
 
                     };
 

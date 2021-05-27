@@ -6,8 +6,7 @@ module.exports = {
         const votosBest = require('../_classes/packages/votosBest.js');
         votosBest.votos(msg)
 
-
-        msg.quote = msg.reply
+        console.log(msg)
 
         const prefix = API.prefix;
         const client = API.client;

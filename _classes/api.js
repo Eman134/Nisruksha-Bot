@@ -292,16 +292,22 @@ API.checkAll = async function(msg, req) {
     if (!chan) await API.client.channels.fetch(msg.channel.id, { cache: true, force: true})
 
     chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
+
+    const { Permissions } = require('discord.js')
+
+    const p = new Permissions(chan.permissionsFor(me));
         
-    chan.permissionsFor(me).has("EMBED_LINKS", false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
-    chan.permissionsFor(me).has("ATTACH_FILES", false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-    chan.permissionsFor(me).has("MANAGE_MESSAGES", false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
-    chan.permissionsFor(me).has("USE_EXTERNAL_EMOJIS", false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
-    chan.permissionsFor(me).has("ADD_REACTIONS", false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
-    chan.permissionsFor(me).has("READ_MESSAGE_HISTORY", false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
+    p.has(Permissions.FLAGS.EMBED_LINKS, false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
+    p.has(Permissions.FLAGS.ATTACH_FILES, false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
+    p.has(Permissions.FLAGS.MANAGE_MESSAGES, false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
+    p.has(Permissions.FLAGS.USE_EXTERNAL_EMOJIS, false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
+    p.has(Permissions.FLAGS.ADD_REACTIONS, false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
+    p.has(Permissions.FLAGS.READ_MESSAGE_HISTORY, false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
 
     let result = "";
     result = list.join('\n').toString();
+
+    //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
 
     if (result.includes('❌') && perm < 4) {
      await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://dsc.gg/svnisru').catch()
@@ -549,45 +555,6 @@ API.isOdd = function(n) {
    return Math.abs(n % 2) == 1;
 }
 
-/*API.updateBotInfo = async function() {
-    try{
-    let msg
-    if (API.client.user.id == '726943606761324645') {
-        let ch = API.client.channels.cache.get('705868510105960528');
-        try{
-            await ch.messages.fetch("737019907006267485")
-            .then(message => msg = message)
-            .catch((err) => {
-                console.log(err.stack)
-                client.emit('error', err)
-            });
-        }catch{
-            return;
-        }
-    } else {
-        let ch = API.client.channels.cache.get('705867597249380414');
-        try{
-            await ch.messages.fetch("769645046349430785")
-            .then(message => msg = message)
-            .catch((err) => {
-                console.log(err.stack)
-                client.emit('error', err)
-            });
-        }catch {
-            return
-        }
-    }
-    
-	const embed = await API.getBotInfoProperties()
-	
-    if (msg)msg.edit(embed)
-
-    }catch (err){
-        console.log(err.stack)
-        client.emit('error', err)
-    }
-}*/
-
 API.getBotInfoProperties = async function() {
 
     function formatBytes(bytes) {
@@ -734,6 +701,21 @@ API.getMultipleArgs = function(msg, index) {
         source = msg.content.substring(source.length);
     }
     return source;
+}
+
+API.createButton = function(id, style, label, emoji, disabled) {
+
+    const { MessageButton } = require('discord-buttons')
+
+    let button = new MessageButton()
+    .setStyle(style)
+    .setLabel(label)
+    if (emoji) button.emoji = ''
+    if (style == 'url') button.setURL(id) 
+    else button.setID(id)
+    if (disabled) button.setDisabled();
+
+    return button
 }
 
 module.exports = API;

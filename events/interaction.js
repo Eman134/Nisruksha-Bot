@@ -35,5 +35,9 @@ module.exports = {
 
         client.emit("message", interaction)
 
+        console.log(interaction)
+
+        //await interaction.defer(true);
+
     }
 }

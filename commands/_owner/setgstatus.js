@@ -40,7 +40,7 @@ module.exports = {
             2: "Manutenção ligada"
         }
 
-        msg.reply(`O status global do bot foi modificado para: \`${sl}\` ${ob[sl]}`)
+        msg.quote(`O status global do bot foi modificado para: \`${sl}\` ${ob[sl]}`)
 
         API.setGlobalInfo('status', sl)
         API.setGlobalInfo('man', m)

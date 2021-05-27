@@ -36,7 +36,7 @@ module.exports = {
             2: "Servidor banido"
         }
 
-        msg.reply(`O status do servidor foi modificado para: \`${sl}\` ${ob[sl]}`)
+        msg.quote(`O status do servidor foi modificado para: \`${sl}\` ${ob[sl]}`)
 
         API.serverdb.setServerInfo(args[0], 'status', sl)
         API.serverdb.setServerInfo(args[0], 'banreason', m)

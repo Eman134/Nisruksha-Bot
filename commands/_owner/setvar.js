@@ -29,7 +29,7 @@ module.exports = {
         }
 
         if (!v) {
-            msg.reply(`id undefined`)
+            msg.quote(`id undefined`)
             return;
         }
 

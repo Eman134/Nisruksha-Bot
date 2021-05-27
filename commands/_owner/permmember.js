@@ -53,7 +53,7 @@ module.exports = {
             4: "Mod"
         }
 
-        msg.reply(`A permissão do membro foi alterada para: \`${selected}\` ${ob[selected]}`)
+        msg.quote(`A permissão do membro foi alterada para: \`${selected}\` ${ob[selected]}`)
 
         await API.setPerm(member, selected)
         await API.setInfo(member, 'players', 'banreason', m)
