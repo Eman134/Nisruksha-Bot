@@ -12,3 +12,4 @@ const client = new NisrukshaClient(config)
 require('discord-buttons')(client)
 
 client.login()
+

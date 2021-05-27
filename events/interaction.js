@@ -14,12 +14,26 @@ module.exports = {
 
         interaction.slash = true
 
+        const channel = client.channels.cache.get(interaction.channel.id)
+
+        interaction.channel = channel
+
         let response = false
 
         interaction.quote = async (c, o) => {
             if (!response) {
                 response = true
-                return interaction.editReply(c, o)
+
+                const x = { ...c, ...o }
+
+                if (Object.keys(x).includes('embed')) x.embeds = [{ ...x.embed }]
+
+                if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons')) {
+                    const ie = await interaction.editReply('\u200B')
+                    return ie.edit(x)
+                } else {
+                    return interaction.editReply(x)
+                }
             } else {
                 return client.channels.cache.get(interaction.channel.id).send(c, o)
             }
@@ -27,14 +41,21 @@ module.exports = {
         interaction.edit = async (c, o) => {
             if (!response) {
                 response = true;
-                return interaction.editReply(c, o)
+                interaction.defer(true)
+                return await interaction.editReply(c, o)
             } else {
                 return client.channels.cache.get(interaction.channel.id).send(c, o)
             }
         }
-        
-        interaction.defer(true)
+        interaction.delete = async function() {
+			return await client.api
+				.webhooks(client.user.id, interaction.token)
+				.messages['@original'].delete();
+		};
+
         client.emit("message", interaction)
+
+        interaction.defer(true)
 
     }
 }

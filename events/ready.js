@@ -5,8 +5,6 @@ module.exports = {
         
         const client = API.client;
 
-        console.log(`\n         Bot iniciado.\n`.green);
-
         async function u(){
             try{
 
@@ -25,6 +23,8 @@ module.exports = {
 
         API.cacheLists.remember.load()
         API.shopExtension.load()
+
+        console.log(`\n         Bot iniciado.\n`.green);
 
     }
 

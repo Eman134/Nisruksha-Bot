@@ -110,6 +110,53 @@ module.exports = class NisrukshaClient extends Discord.Client {
         console.log(`[COMANDOS] Carregados`.green)
     }
 
+    async loadSlash(log) {
+        const x = new Discord.Collection(undefined, undefined);
+
+        const glob = require('glob');
+
+        let slashc = 0
+
+        glob(__dirname + '/../commands/*/*.js', async function (er, files) {
+
+            if (!this.application?.owner) await this.application?.fetch();
+
+            if (er) {
+                console.log(er)
+                API.client.emit('error', er)
+            }
+           files.forEach(file => {
+
+                try {
+
+                    let commandfile = require(file.replace('.js', ''))
+
+                    if (!file.includes('!')) {
+
+                        // .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+                        if (commandfile.category != 'none') {
+                            let options = []
+                            if (commandfile.options) options.push(commandfile.options)
+                            API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
+                            slashc++
+                        }
+
+                    };
+
+                } catch (err) {
+                    console.log('Houve um erro ao carregar o comando slash ' + file)
+                    console.log(err.stack)
+                }
+
+            })
+
+        })
+
+        this.commands = x
+
+    }
+
     loadExpressServer(options) {
 
         const port = options.port

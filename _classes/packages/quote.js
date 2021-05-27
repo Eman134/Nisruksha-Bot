@@ -1,7 +1,6 @@
 const { APIMessage, Message } = require("discord.js");
 
 Message.prototype.quote = async function (c, o) {
-
   const content = c
   const options = o
 
@@ -31,5 +30,6 @@ Message.prototype.quote = async function (c, o) {
   x.reply = { messageReference: this.id }
 
   return await this.channel.send({ ...x });
-
 }
+
+//module.exports = replyQuote

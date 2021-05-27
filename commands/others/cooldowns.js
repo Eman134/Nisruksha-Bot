@@ -6,7 +6,7 @@ module.exports = {
     options: {
         name: 'membro',
         type: 'USER',
-        description: 'Veja seus cooldowns ou de outro membro que estão ativos',
+        description: 'Veja os cooldowns ativos de um membro',
         required: false,
     },
 	async execute(API, msg) {

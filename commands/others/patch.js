@@ -39,8 +39,6 @@ module.exports = {
             patch = API.version
         }
 
-        console.log(patch)
-
         let getPatch = patchobj[patch] || API.version
 
         const Discord = API.Discord;
@@ -61,7 +59,9 @@ module.exports = {
             return;
         } else {
             
-            let embedmsg = await msg.channel.send(embed);
+            let embedmsg
+            if (!msg.slash) embedmsg = await msg.channel.send(embed);
+            else embedmsg = await msg.quote(embed)
 
             try {
 

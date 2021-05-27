@@ -17,14 +17,6 @@ module.exports = {
 
         let commandfile = client.commands.get(command);
 
-        // .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-
-        if (commandfile.category != 'none') {
-            let options = []
-            if (commandfile.options) options.push(commandfile.options)
-            client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => console.log(cmd))
-        }
-
         if (commandfile) {
 
             try {
