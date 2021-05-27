@@ -70,7 +70,9 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
         const glob = require('glob');
 
-        glob(__dirname + '/../commands/*/*.js', function (er, files) {
+        glob(__dirname + '/../commands/*/*.js', async function (er, files) {
+
+            if (!this.application?.owner) await this.application?.fetch();
 
             if (er) {
                 console.log(er)
@@ -91,8 +93,6 @@ module.exports = class NisrukshaClient extends Discord.Client {
                         }
 
                         API.helpExtension.addCommand(command, command.name);
-
-                        API.client.application?.commands.create({ name: command.name, description: command.category + ' | ' + command.description })
 
                     };
 

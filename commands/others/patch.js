@@ -9,7 +9,7 @@ module.exports = {
         if (boolean) return;
         const args = API.args(msg);
 
-        let patch
+        let patch = ''
         let patchobj
 
         const { readFileSync } = require('fs')
@@ -33,12 +33,15 @@ module.exports = {
             patch = API.version
         } else {
             patch = args[0]
-            if (!Object.keys(patchobj).includes(patch)) {
-                patch = API.version
-            }
         }
 
-        let getPatch = patchobj[patch]
+        if (!Object.keys(patchobj).includes(patch)) {
+            patch = API.version
+        }
+
+        console.log(patch)
+
+        let getPatch = patchobj[patch] || API.version
 
         const Discord = API.Discord;
     
@@ -59,7 +62,14 @@ module.exports = {
         } else {
             
             let embedmsg = await msg.channel.send(embed);
-            msg.delete()
+
+            try {
+
+                await msg.delete()
+                
+            } catch {
+                
+            }
             embedmsg.react('762018420370833488');
             embedmsg.react('👍🏽');
             embedmsg.react('👎🏽');

@@ -32,12 +32,9 @@ module.exports = {
                 return client.channels.cache.get(interaction.channel.id).send(c, o)
             }
         }
-
+        
+        interaction.defer(true)
         client.emit("message", interaction)
-
-        console.log(interaction)
-
-        //await interaction.defer(true);
 
     }
 }

@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['calc', 'calculate'],
     category: 'Outros',
     description: 'Facilite suas contas utilizando este comando',
+    options: {
+        name: 'expressão',
+        type: 'STRING',
+        description: 'Coloque uma expressão de matemática para calcular',
+        required: true,
+    },
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

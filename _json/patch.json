@@ -120,5 +120,12 @@
         "chn": ["Sistema de mochila adaptado para a nova loja", "Inventário de chipes movido para o n.maquina"],
         "fix": ["Transferir para o próprio autor do comando", "Mencionar você mesmo no flip"],
         "alc": ["botinfo -> bi"]
+    },
+    "2.1.7": {
+        "add": ["Adicionado comandos slash"],
+        "rem": [],
+        "chn": [],
+        "fix": [],
+        "alc": []
     }
 }

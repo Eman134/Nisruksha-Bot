@@ -496,19 +496,23 @@ API.format = function(num) {
 
 API.sendError = async function (msg, s, usage) {
     const Discord = API.Discord;
-    const embed = new Discord.MessageEmbed()
+    const embedError = new Discord.MessageEmbed()
         .setColor('#b8312c')
         .setDescription('<:error:736274027756388353> ' + s)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
     if (usage) {
-        embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
+        embedError.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
 
     let messageembed
 
-    try {
-        messageembed = await msg.quote(embed).catch();
-    } catch {}
+    if (msg.slash) {
+        return embedError
+    } else {
+        try {
+            messageembed = await msg.quote(embedError).catch();
+        } catch {}
+    }
 
     return messageembed
     

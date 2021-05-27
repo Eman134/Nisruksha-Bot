@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['evaluate', 'ev'],
     category: 'none',
     description: 'Executa um código em javascript',
+    options: {
+        name: 'expressão',
+        type: 'STRING',
+        description: 'Coloque uma expressão javascript para executar',
+        required: true,
+    },
 	async execute(API, msg) {
         const Discord = API.Discord;
 
@@ -12,16 +18,15 @@ module.exports = {
         const { inspect } = require('util')
 
         const embed = new Discord.MessageEmbed().setFooter(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-
-        let msgembed = await msg.quote("Executando código...")
+        
         const tempo = Date.now();
         const args = API.args(msg);
         const query = args.join(' ');
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(API.token, '*').replace(API.ip, '*')
 
-        if (!query) {
-            msgembed.delete();
-            API.sendError(msg, 'Argumento inexistente')
+        if (args.length == 0) {
+            const embed2 = await API.sendError(msg, 'Argumento inexistente')
+            return await msg.quote(embed)
         } else {
             try {
                 
@@ -44,7 +49,7 @@ module.exports = {
             } finally {
 
                 const content = '**Executado em ' + (Date.now()-tempo)+" ms**"
-                msgembed.edit({ content, embed, allowedMentions: {"replied_user": false}}).catch(error => {
+                const msgembed = await msg.quote({ content, embed}).catch(error => {
                 msg.quote(`Ocorreu um erro ao dar eval! ${error.message}`)
                 })
 

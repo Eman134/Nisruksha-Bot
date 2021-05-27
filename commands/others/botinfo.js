@@ -7,8 +7,6 @@ module.exports = {
 
 		const boolean = await API.checkAll(msg);
         if (boolean) return;
-
-        const Discord = API.Discord;
         
 		const embed = await API.getBotInfoProperties()
 		msg.quote(embed);
