@@ -1,7 +1,7 @@
 module.exports = {
 
     name: "error",
-    execute: async(API, err) => {
+    execute: async (API, err) => {
 
         const Discord = API.Discord;
         let channel = API.client.channels.cache.get('769757806835531827')

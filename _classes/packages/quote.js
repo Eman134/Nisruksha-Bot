@@ -10,7 +10,7 @@ Message.prototype.quote = async function (content, options) {
     message_channel: this.channel.id
   }
 
-  let arr = {"replied_user": false}
+  let arr = { "replied_user": false }
 
   if (typeof content === 'object' && content.mention) {
     arr.replied_user = true
@@ -21,29 +21,29 @@ Message.prototype.quote = async function (content, options) {
     .resolveData()
     .resolveFiles()
 
-  let msg 
-  
+  let msg
+
   try {
     msg = await this.client.api.channels[this.channel.id].messages.post({
       data: { ...parsed, message_reference: reference, allowed_mentions: arr, allowedMentions: arr },
       files
     })
-  } catch { 
+  } catch {
     try {
-    msg = await this.client.api.channels[this.channel.id].messages.post({
-      data: { ...parsed},
-      files
-    })
+      msg = await this.client.api.channels[this.channel.id].messages.post({
+        data: { ...parsed },
+        files
+      })
     } catch {
-      
+
     }
   }
 
   if (!msg) return
 
   await this.channel.messages.fetch(msg.id)
-            .then(message => msg = message)
-            .catch();
+    .then(message => msg = message)
+    .catch();
 
   return msg
 }

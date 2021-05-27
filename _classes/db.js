@@ -1,9 +1,9 @@
 const { Pool, client } = require('pg');
 const admin = client;
 
-const dbconfig = require('../_classes/config').db
+const { db } = require('../_classes/config')
 
-const pool = new Pool(dbconfig)
+const pool = new Pool(db)
 
 module.exports = {
   pool,

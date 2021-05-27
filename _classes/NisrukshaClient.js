@@ -1,26 +1,25 @@
-const { Client } = require('discord.js');
 const Discord = require('discord.js');
 const fs = require('fs');
 const API = require("./api.js");
 
 
-module.exports = class MenuClient extends Client {
+module.exports = class NisrukshaClient extends Discord.Client {
 
     constructor(options = {}) {
         super({
+            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'],
             cacheGuilds: true,
             cacheChannels: true,
             cacheOverwrites: true,
             cacheRoles: true,
             cacheEmojis: true,
             cachePresences: true,
-        
-            allowedMentions: { parse: ['users', 'roles'], repliedUser: true }, 
 
-            ws: { 
-                    properties: { $browser: 'Discord Android' }, 
-                    intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
-                }
+            allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
+
+            ws: {
+                properties: { $browser: 'Discord Android' },
+            }
         })
 
         console.log(' ');
@@ -48,7 +47,7 @@ module.exports = class MenuClient extends Client {
     loadModules() {
 
         API.client = this;
-        require('./packages/quote.js')
+        //require('./packages/quote.js')
 
         fs.readdir("./_classes/modules/", (err, files) => {
             if (err) return console.error(err);
@@ -62,7 +61,7 @@ module.exports = class MenuClient extends Client {
         API.Discord = Discord;
         API.client = this;
 
-        console.log(`[MÓDULOS] Carregados`.green )
+        console.log(`[MÓDULOS] Carregados`.green)
 
     }
 
@@ -74,35 +73,35 @@ module.exports = class MenuClient extends Client {
                 this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
             });
         });
-        console.log(`[EVENTOS] Carregados`.green )
+        console.log(`[EVENTOS] Carregados`.green)
     }
 
     loadCommands() {
         const x = new Discord.Collection(undefined, undefined);
-        
+
         const glob = require('glob');
 
-        glob(__dirname+'/../commands/*/*.js', function (er, files) {
-            
-            if(er) {
-            console.log(er)
-            API.client.emit('error', er)
+        glob(__dirname + '/../commands/*/*.js', function (er, files) {
+
+            if (er) {
+                console.log(er)
+                API.client.emit('error', er)
             }
-            files.forEach(file=>{
+            files.forEach(file => {
 
                 try {
 
                     let command = require(file.replace('.js', ''))
-                    
+
                     if (!file.includes('!')) {
-                    
-                    x.set(command.name, command)
-                    if (command.aliases == undefined) command.aliases = [] 
-                    for (const r of command.aliases){
-                        x.set(r, command)
-                    }
-                    
-                    API.helpExtension.addCommand(command, command.name);
+
+                        x.set(command.name, command)
+                        if (command.aliases == undefined) command.aliases = []
+                        for (const r of command.aliases) {
+                            x.set(r, command)
+                        }
+
+                        API.helpExtension.addCommand(command, command.name);
 
                     };
 
@@ -111,20 +110,19 @@ module.exports = class MenuClient extends Client {
                     console.log(err.stack)
                 }
 
-                
             })
 
         })
 
         this.commands = x
 
-        console.log(`[COMANDOS] Carregados`.green )
+        console.log(`[COMANDOS] Carregados`.green)
     }
 
     loadExpressServer(options) {
 
         const port = options.port
-        
+
         let express = require('express')
 
         const app = express()
@@ -138,7 +136,7 @@ module.exports = class MenuClient extends Client {
             app.listen(port);
         }
 
-        
+
         // Upvotes
         function dblCheck(app) {
             try {
@@ -148,15 +146,15 @@ module.exports = class MenuClient extends Client {
                 const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
 
                 app.post("/dblwebhook", webhook.listener(vote => {
-                    
+
                     API.client.users.fetch(vote.user).then((user) => {
 
                         let size = 1
 
                         const embed = new Discord.MessageEmbed()
-                        .setColor('RANDOM')
-                        .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
-                        .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
+                            .setColor('RANDOM')
+                            .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
+                            .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
                         API.client.channels.cache.get(options.dbl.voteLogs_channel).send(embed)
                         API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
@@ -175,13 +173,13 @@ module.exports = class MenuClient extends Client {
             } catch (err) {
                 API.client.emit('error', err)
             }
-        } 
+        }
     }
 
     async login(token = this.token) {
         super.login(token)
         API.client = this
-        
+
         process.on("uncaughtException", (err) => {
             API.client.emit('error', err)
             console.log(err)

@@ -31,7 +31,7 @@ module.exports = {
             embed.setImage('https://media.tenor.com/images/c2f392370c8b20cc99d04148c7b6bebc/tenor.gif')
             .setDescription(`Resultado: \`${resultado}\``)
             return msg.quote(embed);
-        } catch{
+        } catch {
             return API.sendError(msg, `Houve um erro ao realizar o seu calculo! Tente novamente`);
         };
 

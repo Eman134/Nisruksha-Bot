@@ -1,6 +1,6 @@
 {
   "name": "nisruksha",
-  "version": "2.1.6",
+  "version": "2.1.7",
   "description": "",
   "main": "bot.js",
   "scripts": {},
@@ -16,7 +16,7 @@
     "cookies": "^0.8.0",
     "disco-oauth": "^4.2.7",
     "discord-buttons": "^1.0.3-beta",
-    "discord.js": "^12.5.3",
+    "discord.js": "github:discordjs/discord.js",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
