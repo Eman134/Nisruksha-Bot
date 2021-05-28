@@ -65,8 +65,8 @@ module.exports = {
                 //API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
                 if (commandfile.category != 'none') {
                     let options = []
-                    let log = true
-                    if (commandfile.options) options.push(commandfile.options)
+                    let log = false
+                    if (commandfile.options) options = commandfile.options
                     API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
                 }
                 embed.setColor('#32a893');

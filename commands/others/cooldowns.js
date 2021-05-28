@@ -3,12 +3,12 @@ module.exports = {
     aliases: ['cd'],
     category: 'Outros',
     description: 'Visualize todos os cooldowns ativos',
-    options: {
+    options: [{
         name: 'membro',
         type: 'USER',
         description: 'Veja os cooldowns ativos de um membro',
         required: false,
-    },
+    }],
 	async execute(API, msg) {
         const boolean = await API.checkAll(msg);
         if (boolean) return;

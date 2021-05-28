@@ -1,10 +1,20 @@
-const { json } = require("body-parser");
-
 module.exports = {
     name: 'girar',
     aliases: ['flip'],
     category: 'Jogos',
     description: 'Aposte em cara ou coroa e duplique suas fichas',
+    options: [{
+        name: 'membro',
+        type: 'USER',
+        description: 'Selecione um membro para realizar a aposta',
+        required: true,
+    },
+    {
+        name: 'fichas',
+        type: 'INTEGER',
+        description: 'Selecione uma quantia de fichas para aposta',
+        required: true,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -22,16 +32,25 @@ module.exports = {
             return;
         }
 
-        if (msg.mentions.users.size < 1) {
-            const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `flip @membro <quantia | tudo>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
-            return;
-        }
-        const member = msg.mentions.users.first();
+        let member 
+        if (msg.slash) {
+            member = msg.options[0].user
+        } else {
 
+            member = msg.mentions.users.first();
+
+            if (msg.mentions.users.size < 1) {
+                const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `girar @membro <quantia | tudo>`)
+                await msg.quote(embedtemp)
+                return;
+            }
+
+            
+        }
+        
         if (member.id == msg.author.id) {
-            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'flip @membro <quantia | tudo>')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')
+            await msg.quote(embedtemp)
             return
         }
 
@@ -40,37 +59,47 @@ module.exports = {
 
         if (!(API.townExtension.games[townauthor].includes('flip'))) {
             const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${API.townExtension.games[townauthor].join(', ')}.**`)
-			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+			await msg.quote(embedtemp)
             return;
         }
         if (!(API.townExtension.games[townmember].includes('flip'))) {
             const embedtemp = await API.sendError(msg, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${API.townExtension.games[townmember].join(', ')}.**`)
-			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+			await msg.quote(embedtemp)
             return;
         }
 
-        if (args.length < 2) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar o membro e a quantia da aposta!`, `girar @membro <aposta>`)
-			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
-            return;
+        let aposta = 0
+
+        if (!msg.slash) {
+
+            if (args.length < 2) {
+                const embedtemp = await API.sendError(msg, `Você precisa especificar o membro e a quantia da aposta!`, `girar @membro <aposta>`)
+                await msg.quote(embedtemp)
+                return;
+            }
+
+            if (!API.isInt(args[1])) {
+                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `girar @membro <aposta>`)
+                await msg.quote(embedtemp)
+                return;
+            }
+
+            aposta = parseInt(args[1]);
+
+        } else {
+            aposta = msg.options[1].value
         }
 
-        if (!API.isInt(args[1])) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `girar @membro <aposta>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
-            return;
-        }
-
-        let aposta = parseInt(args[1]);
+        
 
         if (aposta < 1) {
             const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (aposta > 5000) {
             const embedtemp = await API.sendError(msg, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -78,14 +107,14 @@ module.exports = {
 
         if (token < aposta) {
             const embedtemp = await API.sendError(msg, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         const tokenmember = await API.eco.token.get(member)
 
         if (tokenmember < aposta) {
             const embedtemp = await API.sendError(msg, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

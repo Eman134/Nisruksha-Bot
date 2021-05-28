@@ -3,12 +3,12 @@ module.exports = {
     aliases: ['dinheiro', 'money', 'points', 'coins', 'coin', 'fichas', 'bal', 'balance', 'moedas', 'pontostemp'],
     category: 'Economia',
     description: 'Veja as informações na sua conta',
-    options: {
+    options: [{
         name: 'membro',
         type: 'USER',
         description: 'Veja as moedas e o histórico de transação de algum membro',
         required: false,
-    },
+    }],
     async execute(API, msg) {
         const boolean = await API.checkAll(msg);
         if (boolean) return;
