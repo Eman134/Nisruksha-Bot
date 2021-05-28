@@ -75,7 +75,11 @@ module.exports = {
                 background2 = await API.img.loadImage(obj.bglink)
                 res = await API.img.resize(background2, 1200, 750)
                 background = await API.img.drawImage(res, background, 0, 0)
-            }catch(err){API.setInfo(member, 'players', 'bglink', null);API.sendErrorM(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)}
+            }catch(err){
+                API.setInfo(member, 'players', 'bglink', null);
+                const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            }
         }
 
         // user

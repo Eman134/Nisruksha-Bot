@@ -21,8 +21,9 @@ module.exports = {
         }
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa especificar um id de caixa para abrir!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de caixa para abrir!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
 
         const obj = await API.getInfo(msg.author, 'storage');
@@ -30,12 +31,14 @@ module.exports = {
         
         
         if (!API.isInt(args[0]) || obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
-            API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
         
         if (args.length == 2 && API.isInt(args[1]) && obj[`crate:${id}`] < parseInt(args[1])) {
-            API.sendError(msg, `Você não possui essa quantia de caixas [${obj[`crate:${id}`]}/${parseInt(args[1])}]!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
+            const embedtemp = await API.sendError(msg, `Você não possui essa quantia de caixas [${obj[`crate:${id}`]}/${parseInt(args[1])}]!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -46,7 +49,8 @@ module.exports = {
         if (!API.isInt(args[1])) boxl = 1
         
         if (boxl > 10) {
-            API.sendError(msg, `Você não pode abrir mais do que 10 caixas simultaneamente!`)
+            const embedtemp = await API.sendError(msg, `Você não pode abrir mais do que 10 caixas simultaneamente!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         

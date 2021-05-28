@@ -12,7 +12,8 @@ module.exports = {
         const client = API.client;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-            API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         let company;
@@ -21,13 +22,15 @@ module.exports = {
         if (await API.company.check.isWorker(msg.author)) {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 1) {
-                API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 1) {
-                API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
 
             }
@@ -74,7 +77,8 @@ module.exports = {
 
             const price = 100000
 
-            const embedmsg = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
+            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
+            const embedmsg = await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
         
             await embedmsg.react('765944910179336202')
     

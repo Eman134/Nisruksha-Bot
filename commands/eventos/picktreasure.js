@@ -13,12 +13,14 @@ module.exports = {
         let townnum = await API.townExtension.getTownNum(msg.author);
 
         if (parseInt(API.events.treasure.loc) != parseInt(townnum) || API.events.treasure.picked) {
-            API.sendError(msg, `Não possui nenhum tesouro não explorado na sua vila atual!\nUtilize \`${API.prefix}mapa\` para achar algum tesouro em outras vilas\nOBS: Os alertas de novos tesouros são feitos no servidor oficial do Nisruksha (\`${API.prefix}convidar\`)`)
+            const embedtemp = await API.sendError(msg, `Não possui nenhum tesouro não explorado na sua vila atual!\nUtilize \`${API.prefix}mapa\` para achar algum tesouro em outras vilas\nOBS: Os alertas de novos tesouros são feitos no servidor oficial do Nisruksha (\`${API.prefix}convidar\`)`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
-            API.sendError(msg, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
+            const embedtemp = await API.sendError(msg, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
@@ -109,10 +111,11 @@ module.exports = {
                     }
                 });
 
-                collector.on('end', collected => {
+                collector.on('end', async collected => {
                     if (reacted) {
                         embedmsg.reactions.removeAll();
-                        API.sendError(msg, `Você parou a escavação!`)
+                        const embedtemp = await API.sendError(msg, `Você parou a escavação!`)
+                        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                         API.cacheLists.waiting.remove(msg.author, 'digging');
                     } else {edit();}
                 });

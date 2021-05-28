@@ -13,7 +13,8 @@ module.exports = {
 
         
         if (args.length < 2) {
-            API.sendError(msg, `Você precisa digitar um nome e setor para a sua empresa!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
+            const embedtemp = await API.sendError(msg, `Você precisa digitar um nome e setor para a sua empresa!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
+           	await msg.quote(embedtemp)
             return;
         }
 
@@ -21,22 +22,26 @@ module.exports = {
         let e = API.company.e;
         
         if (!(Object.keys(e).includes(tipo))) {
-            API.sendError(msg, `Você precisa digitar um setor de empresa existente!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
+            const embedtemp = await API.sendError(msg, `Você precisa digitar um setor de empresa existente!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
+           	await msg.quote(embedtemp)
             return;
         }
         
         if (API.getMultipleArgs(msg, 2).length > 30) {
-            API.sendError(msg, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
+            const embedtemp = await API.sendError(msg, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
+           	await msg.quote(embedtemp)
             return;
         }
         
         if (await API.company.check.hasCompany(msg.author)) {
-            API.sendError(msg, `Você não pode abrir mais de uma empresa!`)
+            const embedtemp = await API.sendError(msg, `Você não pode abrir mais de uma empresa!`)
+           	await msg.quote(embedtemp)
             return;
         }
 
         if (await API.company.check.isWorker(msg.author)) {
-            API.sendError(msg, `Você precisa sair da sua empresa atual para abrir outra!`)
+            const embedtemp = await API.sendError(msg, `Você precisa sair da sua empresa atual para abrir outra!`)
+           	await msg.quote(embedtemp)
             return;
         }
 

@@ -13,17 +13,20 @@ module.exports = {
         const hasMachine = await API.maqExtension.has(msg.author);
 
         if (!(hasMachine)) {
-            API.sendError(msg, `Você ainda não possui uma máquina!\nAcesse \`${API.prefix}loja maquinas\` para visualizar as maquinas disponíveis`)
+            const embedtemp = await API.sendError(msg, `Você ainda não possui uma máquina!\nAcesse \`${API.prefix}loja maquinas\` para visualizar as maquinas disponíveis`)
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+            const embedtemp = await API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+            await msg.quote(embedtemp)
             return;
         }
 
 		if (isFull) {
-            API.sendError(msg, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+            const embedtemp = await API.sendError(msg, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -33,7 +36,8 @@ module.exports = {
         let maq = API.shopExtension.getProduct(maqid);
 
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
-            API.sendError(msg, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
+            const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -42,7 +46,8 @@ module.exports = {
         const engmax = await API.maqExtension.getEnergyMax(msg.author);
 
         if (eng < Math.round(15*engmax/100)) {
-            API.sendError(msg, `Sua máquina precisa de no mínimo ${Math.round(15*engmax/100)} de energia para ligar\nVisualize a energia utilizando \`${API.prefix}energia\``)
+            const embedtemp = await API.sendError(msg, `Sua máquina precisa de no mínimo ${Math.round(15*engmax/100)} de energia para ligar\nVisualize a energia utilizando \`${API.prefix}energia\``)
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -66,18 +71,19 @@ module.exports = {
             };
         }
 
+        let btn = API.createButton('stopBtn', 'red', 'Parar mineração')
+
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`${maq.icon} ${maq.name}`).setColor("#36393f")
         embed.setDescription(`Minerador: ${msg.author}`);
         embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${armazematual}/${armazemmax}]g\nTotal coletado: 0g\nColetado neste update: 0g`)
         embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
         embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEnergia: ${progress}`)
-        embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
         let embedmsg
         try {
-            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems);
-            await embedmsg.react('🔴')
+            embedmsg = await msg.quote(embed, { button: btn })
         } catch {
             API.cacheLists.waiting.remove(msg.author, 'mining');
             return
@@ -87,9 +93,7 @@ module.exports = {
         let totalcoletado = 0;
         let coletadox = new Map();
 
-        const filter = (reaction, user) => {
-            return reaction.emoji.name === '🔴' && user.id === msg.author.id;
-        };
+        const filter = (button) => button.clicker.user.id === msg.author.id;
 
         async function edit() {
 
@@ -165,7 +169,7 @@ module.exports = {
                 await embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
                 await embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
                 await embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEnergia: ${progress2}`)
-                embed.setFooter(`Reaja com 🔴 para parar a máquina\nTempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 
                 for await (const r of obj2) {
                     let qnt = sizeMap.get(r.name);
@@ -174,47 +178,61 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({embed, allowedMentions: {"replied_user": false}}).catch()
+                    await embedmsg.edit({embed, button: btn }).catch()
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return
                 }
                 playerobj = await API.getInfo(msg.member, 'machines');
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
-                    API.sendErrorM(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
+                    const embedtemp = await API.sendErrorM(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
+                    await msg.quote(embedtemp)
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
+                    btn.disabled = true
+                    await embedmsg.edit({embed, button: btn }).catch()
                     return;
                 }
 
                 if (await API.maqExtension.storage.getSize(msg.author) >= armazemmax2) {
-                    API.sendErrorM(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+                    const embedtemp = await API.sendErrorM(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+                    await msg.quote(embedtemp)
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
+                    btn.disabled = true
+                    await embedmsg.edit({embed, button: btn }).catch()
                     return;
                 }
                 if (e+1 < 1) {
-                    API.sendErrorM(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
+                    const embedtemp = await API.sendErrorM(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
+                    
+                    await msg.quote(embedtemp)
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
+                    btn.disabled = true
+                    await embedmsg.edit({embed, button: btn }).catch()
                     return;
                 }
 
-                let reacted = false
+                let stopped = false
 
-                const collector = embedmsg.createReactionCollector(filter, { time: timeupdate });
+                const collector = embedmsg.createButtonCollector(filter, { time: timeupdate });
 
-                collector.on('collect', (reaction, user) => {
-                    if (reaction.emoji.name == '🔴') {
-                        reacted = true;
+                collector.on('collect', (b) => {
+                    if (b.id == 'stopBtn') {
+                        b.defer()
+                        stopped = true;
                         collector.stop();
                     }
                 });
 
-                collector.on('end', collected => {
-                    if (reacted) {
+                collector.on('end', async collected => {
+                    if (stopped) {
                         embedmsg.reactions.removeAll();
-                        API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
+                        btn.disabled = true
+                        await embedmsg.edit({embed, button: btn }).catch()
+                        const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
+                        await msg.quote({ embed: embedtemp, refer: embedmsg.id })
                         API.cacheLists.waiting.remove(msg.author, 'mining')
                     } else {edit();}
                 });

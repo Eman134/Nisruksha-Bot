@@ -11,19 +11,22 @@ module.exports = {
         const Discord = API.Discord;
 
         if (!(await API.company.check.hasCompany(msg.author))) {
-            API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+            const embedtemp = await API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+            await msg.quote(embedtemp)
             return;
         }
 
         let args = API.args(msg)
 
         if (args.length == 0) {
-            API.sendError(msg, `Você deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+            const embedtemp = await API.sendError(msg, `Você deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+            await msg.quote(embedtemp)
             return;
         }
 
         if (args.length == 1) {
-            API.sendError(msg, `Você deve especificar um motivo para a demissão`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+            const embedtemp = await API.sendError(msg, `Você deve especificar um motivo para a demissão`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -32,7 +35,8 @@ module.exports = {
             try{
                 member = await API.client.users.fetch(`${args[0]}`)
             }catch{
-                API.sendError(msg, `Este funcionário não foi encontrado!\nVocê deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+                const embedtemp = await API.sendError(msg, `Este funcionário não foi encontrado!\nVocê deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
+                await msg.quote(embedtemp)
                 return;
             }
         } else {
@@ -42,7 +46,8 @@ module.exports = {
         let pobj2 = await API.company.get.company(msg.author)
 
         if (pobj2.workers == null || !(pobj2.workers.includes(member.id))) {
-            API.sendError(msg, `Este funcionário não trabalha em sua empresa!\nVeja seus funcionários usando \`${API.prefix}func\``)
+            const embedtemp = await API.sendError(msg, `Este funcionário não trabalha em sua empresa!\nVeja seus funcionários usando \`${API.prefix}func\``)
+            await msg.quote(embedtemp)
             return;
         }
 

@@ -12,19 +12,22 @@ module.exports = {
         let obj = API.shopExtension.getShopObj();
         let array = Object.keys(obj);
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa especificar um id de item para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
 
         if (!API.isInt(args[0])) {
-            API.sendError(msg, `Você precisa especificar um id de item (número)!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item (número)!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let id = parseInt(args[0]);
 
         if (!API.shopExtension.checkIdExists(id)) {
-            API.sendError(msg, `Você precisa especificar um id de item existente para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item existente para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         

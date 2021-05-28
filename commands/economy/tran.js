@@ -11,17 +11,21 @@ module.exports = {
         const args = API.args(msg);
 
         if (msg.mentions.users.size < 1) {
-            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @membro <quantia | tudo>`)
+            const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @membro <quantia | tudo>`)
+            await msg.quote(embedtemp)
             return;
         }
         const member = msg.mentions.users.first();
         
         if (member.id == msg.author.id) {
-            return API.sendError(msg, 'Você precisa mencionar outra pessoa para transferir', 'transferir @membro <quantia | tudo>')
+            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para transferir', 'transferir @membro <quantia | tudo>')
+            await msg.quote(embedtemp)
+            return
         }
 
         if (args.length < 2) {
-            API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @membro <quantia | tudo>`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @membro <quantia | tudo>`)
+            await msg.quote(embedtemp)
 			return;
         }
         const money = await API.eco.bank.get(msg.author)
@@ -29,23 +33,27 @@ module.exports = {
         if (args[1] != 'tudo') {
 
             if (!API.isInt(API.toNumber(args[1]))) {
-                API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
+                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (money < API.toNumber(args[1])) {
-                API.sendError(msg, `Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize \`${API.prefix}depositar\` para depositar dinheiro no banco`)
+                const embedtemp = await API.sendError(msg, `Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize \`${API.prefix}depositar\` para depositar dinheiro no banco`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (API.toNumber(args[1]) < 1) {
-                API.sendError(msg, `Você não pode transferir essa quantia de dinheiro!`)
+                const embedtemp = await API.sendError(msg, `Você não pode transferir essa quantia de dinheiro!`)
+                await msg.quote(embedtemp)
                 return;
             }
             total = API.toNumber(args[1])
         } else {
             if (money < 1) {
-                API.sendError(msg, `Você não possui dinheiro __no banco__ para transferir!`)
+                const embedtemp = await API.sendError(msg, `Você não possui dinheiro __no banco__ para transferir!`)
+                await msg.quote(embedtemp)
                 return;
             }
             total = money;
@@ -80,7 +88,8 @@ module.exports = {
         let mat = Math.round(Math.pow(nivel, 2) * 500);
         
         if (total > mat) {
-            API.sendError(msg, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
+            const embedtemp = await API.sendError(msg, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
+            await msg.quote(embedtemp)
             return;
         }
 

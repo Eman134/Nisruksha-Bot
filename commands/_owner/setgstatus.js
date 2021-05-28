@@ -13,14 +13,14 @@ module.exports = {
         let args = API.args(msg)
 
         if (!args) {
-            API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            //API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
+            const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
         if (!API.isInt(args[0])) {
-            API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            //API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
+            const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -28,7 +28,8 @@ module.exports = {
         let m = ""
         if (sl == 2) {
             if (args.length == 1) {
-                API.sendError(msg, `Você precisa especificar um motivo para a manutenção!`, "setgs 2 <motivo>")
+                const embedtemp = await API.sendError(msg, `Você precisa especificar um motivo para a manutenção!`, "setgs 2 <motivo>")
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             m = API.getMultipleArgs(msg, 2)

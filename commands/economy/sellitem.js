@@ -13,31 +13,36 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let armsize = await API.company.jobs.itens.get(msg.author, true, true);
 
         if (armsize <= 0) {
-            API.sendError(msg, `Você não possui itens na sua mochila para vender!`)
+            const embedtemp = await API.sendError(msg, `Você não possui itens na sua mochila para vender!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
         if (args.length >= 2 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 2), 'drops') == false)) {
-            API.sendError(msg, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
-            API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.isInt(arg0) && args.length == 1) {
-            API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -57,7 +62,8 @@ module.exports = {
         if (arg0 == 'tudo' && args.length >= 2) {
 
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-                API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
@@ -67,16 +73,19 @@ module.exports = {
         if (API.isInt(arg0) && args.length >= 2) {
             type = 2;
             if (parseInt(arg0) <= 0) {
-                API.sendError(msg, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
+                const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-                API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
             if (parseInt(arg0) > obj2[drop.name.replace(/"/g, '')]) {
-                API.sendError(msg, `Você não possui **${arg0}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui **${arg0}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
         }

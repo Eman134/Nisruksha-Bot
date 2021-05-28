@@ -13,38 +13,44 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa especificar uma quantia de fichas para troca!`, `trocarfichas <quantia | tudo>`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas para troca!`, `trocarfichas <quantia | tudo>`)
+			await msg.quote(embedtemp)
+            return;
         }
         const token = await API.eco.token.get(msg.author)
         let fichas = 0;
         if (args[0] != 'tudo') {
 
             if (!API.isInt(args[0])) {
-                API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para troca!`, `trocarfichas <quantia | tudo>`)
+                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para troca!`, `trocarfichas <quantia | tudo>`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (token < parseInt(args[0])) {
-                API.sendError(msg, `Você não possui essa quantia de fichas para trocar!`)
+                const embedtemp = await API.sendError(msg, `Você não possui essa quantia de fichas para trocar!`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (parseInt(args[0]) < 1) {
-                API.sendError(msg, `Você não pode trocar essa quantia de fichas!`)
+                const embedtemp = await API.sendError(msg, `Você não pode trocar essa quantia de fichas!`)
+                await msg.quote(embedtemp)
                 return;
             }
             fichas = parseInt(args[0]);
         } else {
             if (token < 1) {
-                API.sendError(msg, `Você não possui fichas para trocar!`)
+                const embedtemp = await API.sendError(msg, `Você não possui fichas para trocar!`)
+                await msg.quote(embedtemp)
                 return;
             }
             fichas = token;
         }
 
         if (fichas < 20) {
-            API.sendError(msg, `A quantia mínima de fichas para troca é 20 fichas!`)
+            const embedtemp = await API.sendError(msg, `A quantia mínima de fichas para troca é 20 fichas!`)
+            await msg.quote(embedtemp)
             return;
         }
 

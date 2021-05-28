@@ -14,7 +14,8 @@ module.exports = {
         const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
         
         if (!(await API.company.check.hasCompany(msg.author))) {
-            API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+            const embedtemp = await API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
@@ -28,7 +29,8 @@ module.exports = {
 
         
         if (largs0.includes(args[0]) == false) {
-            API.sendError(msg, `Parece que você digitou um argumento inválido, os disponíveis são <aceitar/negar/lista> e você digitou ${args[0]}`)
+            const embedtemp = await API.sendError(msg, `Parece que você digitou um argumento inválido, os disponíveis são <aceitar/negar/lista> e você digitou ${args[0]}`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
@@ -42,17 +44,20 @@ module.exports = {
         if (args[0] == 'aceitar') {
             
             if (args.length < 2) {
-                API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             
             if (API.isInt(args[1]) == false) {
-                API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             
             if (array[parseInt(args[1])-1] == undefined || array[parseInt(args[1])-1] == null) {
-                API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
@@ -106,17 +111,20 @@ module.exports = {
         } else if (args[0] == 'negar') {
             
             if (args.length < 2) {
-                API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             
             if (API.isInt(args[1]) == false) {
-                API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             
             if (array[parseInt(args[1])-1] == undefined || array[parseInt(args[1])-1] == null) {
-                API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                const embedtemp = await API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             

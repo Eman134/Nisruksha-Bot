@@ -14,7 +14,8 @@ module.exports = {
           const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
         
           if (!(await API.company.check.hasCompany(msg.author))) {
-              API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+              const embedtemp = await API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
           }
         
@@ -41,19 +42,22 @@ module.exports = {
 
             const attachment = msg.attachments.array()
               if (attachment.length < 1) {
-              API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 700x450')
-              return;
-            }
+                const embedtemp = await API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 700x450')
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                return;
+              }
     
             let url = attachment[0].url;
     
             if (!attachment[0].name.match(/.(jpg|jpeg|png|gif)$/i)){
-              API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+              const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
             }
     
             if(attachment[0].size > 1050000) {
-              API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+              const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
             }
     
@@ -79,20 +83,22 @@ module.exports = {
 
               const attachment = msg.attachments.array()
               if (attachment.length < 1) {
-                API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 150x150')
+                const embedtemp = await API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 150x150')
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
-
               }
       
               let url = attachment[0].url;
       
               if (!attachment[0].name.match(/.(jpg|jpeg|png|gif)$/i)){
-                API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+                const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
               }
               
               if(attachment[0].size > 1050000) {
-                API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+                const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
               }
               
@@ -117,14 +123,16 @@ module.exports = {
         } else if (ch.startsWith('desc')) {
 
             if (args.length == 1) {
-              API.sendError(msg, 'Você precisa definir um texto para setar como descrição', 'empresaedit desc <texto>')
+              const embedtemp = await API.sendError(msg, 'Você precisa definir um texto para setar como descrição', 'empresaedit desc <texto>')
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
             }
             
             if (API.getMultipleArgs(msg, 2).length > 50) {
-              API.sendError(msg, 'Você não pode colocar uma descrição com mais de 50 caracteres\nQuantia de caracteres da descrição: ' + API.getMultipleArgs(msg, 1).length + '/50', 'empresaedit desc <texto>')
-                return;
-              }
+              const embedtemp = await API.sendError(msg, 'Você não pode colocar uma descrição com mais de 50 caracteres\nQuantia de caracteres da descrição: ' + API.getMultipleArgs(msg, 1).length + '/50', 'empresaedit desc <texto>')
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+              return;
+            }
             API.setCompanieInfo(msg.member, companyid, "descr", API.getMultipleArgs(msg, 2))
 
             embed
@@ -137,14 +145,16 @@ module.exports = {
 
         } else if (ch.startsWith('vaga')) {
           if (args.length == 1) {
-            API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+            const embedtemp = await API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
           }
 
           let boo = false;
 
           if (args[1] != 'on' && args[1] != 'off') {
-              API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+              const embedtemp = await API.sendError(msg, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `empresaedit vagas off`)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
           }
 
@@ -160,19 +170,22 @@ module.exports = {
         } else if (ch.startsWith('taxa')) {
 
           if (args.length == 1) {
-            API.sendError(msg, `Você deve digitar o valor da taxa para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+            const embedtemp = await API.sendError(msg, `Você deve digitar o valor da taxa para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
           }
 
           let taxa = args[1].replace(/%/g, '')
 
           if (!API.isInt(taxa)) {
-              API.sendError(msg, `Você deve digitar o valor da taxa __EM NÚMERO__ para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+              const embedtemp = await API.sendError(msg, `Você deve digitar o valor da taxa __EM NÚMERO__ para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
           }
           taxa = parseInt(taxa)
           if (taxa < 1 || taxa > 50) {
-              API.sendError(msg, `Você deve digitar o valor da taxa entre 1% e 50%! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+              const embedtemp = await API.sendError(msg, `Você deve digitar o valor da taxa entre 1% e 50%! **[1%-50%]**\nA taxa padrão é de **25%**`, `empresaedit taxa 25%`)
+           	  await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
               return;
           }
 
@@ -191,7 +204,8 @@ module.exports = {
           const company = await API.company.get.company(msg.author)
 
           if (args.length == 1) {
-            API.sendError(msg, `Você deve digitar o novo nome para a sua empresa`, `empresaedit nome <nome>`)
+            const embedtemp = await API.sendError(msg, `Você deve digitar o novo nome para a sua empresa`, `empresaedit nome <nome>`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
           }
 

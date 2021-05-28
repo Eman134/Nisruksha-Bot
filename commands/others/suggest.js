@@ -11,7 +11,8 @@ module.exports = {
         const Discord = API.Discord;
 
         if (args.length == 0) {
-            API.sendError(msg, 'Você precisa definir um texto explicando a sugestão', 'sugerir <texto>')
+            const embedtemp = await API.sendError(msg, 'Você precisa definir um texto explicando a sugestão', 'sugerir <texto>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
   

@@ -10,17 +10,20 @@ module.exports = {
 
         let args = API.args(msg)
 		if (!args){
-            API.sendError(msg, "Digite um número de mensagens para dar purge", `limpar 10`)
+            const embedtemp = await API.sendError(msg, "Digite um número de mensagens para dar purge", `limpar 10`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (!API.isInt(args[0])) {
-            API.sendError(msg, "Você precisa digitar um NÚMERO!", `limpar 10`)
+            const embedtemp = await API.sendError(msg, "Você precisa digitar um NÚMERO!", `limpar 10`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         let arg = parseInt(args[0])
         if (arg < 1 || arg > 100) {
-            API.sendError(msg, "Você precisa digitar um número maior do que 0 e menor ou igual á 100!", `limpar 10`)
+            const embedtemp = await API.sendError(msg, "Você precisa digitar um número maior do que 0 e menor ou igual á 100!", `limpar 10`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

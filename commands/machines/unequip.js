@@ -14,12 +14,14 @@ module.exports = {
         var args = API.args(msg);
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            const embedtemp = await API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (args.length < 1 || (!API.isInt(args[0]) && args[0] != "tudo")) {
-            API.sendError(msg, `Você precisa escrever um ID de slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`, `desequipar <slot | tudo>`);
+            const embedtemp = await API.sendError(msg, `Você precisa escrever um ID de slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`, `desequipar <slot | tudo>`);
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -33,7 +35,8 @@ module.exports = {
             desequipado = "tudo"
 
             if (!pieces[0]) {
-                API.sendError(msg, `Você não possui chipes equipados no momento!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+                const embedtemp = await API.sendError(msg, `Você não possui chipes equipados no momento!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
@@ -47,7 +50,8 @@ module.exports = {
         } else {
 
             if (!API.isInt(args[0]) || parseInt(args[0]) < 0 || !pieces[slot] || pieces[slot] == 0) {
-                API.sendError(msg, `Você não possui chipes neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+                const embedtemp = await API.sendError(msg, `Você não possui chipes neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             } 
 

@@ -29,7 +29,8 @@ module.exports = {
         let obj = API.shopExtension.getShopObj();
         let array = Object.keys(obj);
         if (!API.shopExtension.categoryExists(categoria)){
-            API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
+            const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
 			return;
         }
         var product = obj[categoria];

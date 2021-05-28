@@ -11,12 +11,14 @@ module.exports = {
         let args = API.args(msg)
 
         if (!args) {
-            API.sendError(msg, `Digite um status para aplicar no servidor!\n \n**Informações de server status:**\n\`0\` Liberado o uso de comandos\n\`1\` Não permitido o uso de comandos\n\`2\` Banido`, "permsv <id> 2 <motivo>")
+            const embedtemp = await API.sendError(msg, `Digite um status para aplicar no servidor!\n \n**Informações de server status:**\n\`0\` Liberado o uso de comandos\n\`1\` Não permitido o uso de comandos\n\`2\` Banido`, "permsv <id> 2 <motivo>")
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
         if (!API.isInt(args[1])) {
-            API.sendError(msg, `Digite um status para aplicar no servidor!\n \n**Informações de server status:**\n\`0\` Liberado o uso de comandos\n\`1\` Não permitido o uso de comandos\n\`2\` Banido`, "permsv <id> 2 <motivo>")
+            const embedtemp = await API.sendError(msg, `Digite um status para aplicar no servidor!\n \n**Informações de server status:**\n\`0\` Liberado o uso de comandos\n\`1\` Não permitido o uso de comandos\n\`2\` Banido`, "permsv <id> 2 <motivo>")
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -24,7 +26,8 @@ module.exports = {
         let m = ""
         if (sl == 2) {
             if (args.length == 2) {
-                API.sendError(msg, `Você precisa especificar um motivo para o banimento!`, "permsv <id> 2 <motivo>")
+                const embedtemp = await API.sendError(msg, `Você precisa especificar um motivo para o banimento!`, "permsv <id> 2 <motivo>")
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             m = API.getMultipleArgs(msg, 3)

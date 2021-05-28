@@ -11,7 +11,8 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para saque!`, `sacar <quantia | tudo>`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para saque!`, `sacar <quantia | tudo>`)
+            await msg.quote(embedtemp)
 			return;
         }
         const money = await API.eco.bank.get(msg.author)
@@ -19,23 +20,27 @@ module.exports = {
         if (args[0] != 'tudo') {
 
             if (!API.isInt(API.toNumber(args[0]))) {
-                API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
+                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (money < API.toNumber(args[0])) {
-                API.sendError(msg, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
+                const embedtemp = await API.sendError(msg, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (API.toNumber(args[0]) < 1) {
-                API.sendError(msg, `Você não pode sacar essa quantia de dinheiro!`)
+                const embedtemp = await API.sendError(msg, `Você não pode sacar essa quantia de dinheiro!`)
+                await msg.quote(embedtemp)
                 return;
             }
             total = API.toNumber(args[0]);
         } else {
             if (money < 1) {
-                API.sendError(msg, `Você não possui dinheiro __no banco__ para sacar!`)
+                const embedtemp = await API.sendError(msg, `Você não possui dinheiro __no banco__ para sacar!`)
+                await msg.quote(embedtemp)
                 return;
             }
             total = money;

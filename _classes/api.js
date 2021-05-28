@@ -109,7 +109,8 @@ API.checkAll = async function(msg, req) {
     let arg = API.args(msg);
 
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
-        API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
+        const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
+        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
         return true
     }
     
@@ -225,9 +226,9 @@ API.checkAll = async function(msg, req) {
     }
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
-    function limitedpatrao() {
-        API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
-        
+    async function limitedpatrao() {
+        const embedtemp = await API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
+        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -247,11 +248,11 @@ API.checkAll = async function(msg, req) {
             const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true, cache: true })
 
             if (!x) {
-                if (limitedpatrao()) return true
+                if (await limitedpatrao()) return true
             }
 
         } catch {
-            if (limitedpatrao()) return true
+            if (await limitedpatrao()) return true
         }
         
     }
@@ -259,8 +260,8 @@ API.checkAll = async function(msg, req) {
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
-        API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
-
+        const embedtemp = await API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
+        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -282,7 +283,8 @@ API.checkAll = async function(msg, req) {
             const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
             if (check2) return true;
             API.playerUtils.cooldown.set(msg.author, "antispam", 3);
-            API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
+            const embedtemp = await API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return true;
         }
     }
@@ -504,17 +506,7 @@ API.sendError = async function (msg, s, usage) {
         embedError.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
 
-    let messageembed
-
-    if (msg.slash) {
-        return embedError
-    } else {
-        try {
-            messageembed = await msg.quote(embedError).catch();
-        } catch {}
-    }
-
-    return messageembed
+    return embedError
     
 }
 
@@ -527,7 +519,8 @@ API.sendErrorM = async function (msg, s, usage) {
     if (usage) {
         embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
     }
-    await msg.quote({ content: msg.author, embed, mention: true });
+
+    return { embed, mention: true }
     
 }
 

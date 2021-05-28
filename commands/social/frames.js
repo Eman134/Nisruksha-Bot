@@ -16,7 +16,8 @@ module.exports = {
         let frames = obj.frames
 
         if (frames == null || frames.length == 0) {
-            API.sendError(msg, 'Você não possui molduras disponíveis para serem apresentadas.')
+            const embedtemp = await API.sendError(msg, 'Você não possui molduras disponíveis para serem apresentadas.')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

@@ -25,7 +25,7 @@ module.exports = {
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(API.token, '*').replace(API.ip, '*')
 
         if (args.length == 0) {
-            const embed2 = await API.sendError(msg, 'Argumento inexistente')
+            const embed = await API.sendError(msg, 'Argumento inexistente')
             return await msg.quote(embed)
         } else {
             try {

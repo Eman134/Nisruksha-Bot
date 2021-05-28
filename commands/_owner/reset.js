@@ -10,7 +10,8 @@ module.exports = {
         var args = API.args(msg);
 
         if (args.length < 1) {
-            API.sendError(msg, "Você precisa digitar um parâmetro.", `reset all\n${API.prefix}reset cooldowns`);
+            const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `reset all\n${API.prefix}reset cooldowns`);
+            await msg.quote(embedtemp)
             return;
         }
 

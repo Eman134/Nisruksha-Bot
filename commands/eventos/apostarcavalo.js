@@ -16,14 +16,16 @@ module.exports = {
         async function checkAll() {
 
             if(!API.events.race.rodando) {
-                API.sendError(msg, 'Não possui nenhuma **Corrida de Cavalos** ativa no momento!\nEm nosso servidor oficial você pode ser notificado quando há eventos! (`'+ API.prefix + 'convite`)')
+                const embedtemp = await API.sendError(msg, 'Não possui nenhuma **Corrida de Cavalos** ativa no momento!\nEm nosso servidor oficial você pode ser notificado quando há eventos! (`'+ API.prefix + 'convite`)')
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return true
             }
 
             const args = API.args(msg);
 
             if (args.length == 0) {
-                API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para aposta!`, `apostarcavalo <quantia | tudo>`)
+                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para aposta!`, `apostarcavalo <quantia | tudo>`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return true
             }
             const money = await API.eco.money.get(msg.author)
@@ -31,34 +33,40 @@ module.exports = {
             if (args[0] != 'tudo') {
 
                 if (!API.isInt(API.toNumber(args[0]))) {
-                    API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `apostarcavalo <quantia | tudo>`)
+                    const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `apostarcavalo <quantia | tudo>`)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     return true
                 }
 
                 if (money < API.toNumber(args[0])) {
-                    API.sendError(msg, `Você não possui essa quantia de dinheiro para apostar!`)
+                    const embedtemp = await API.sendError(msg, `Você não possui essa quantia de dinheiro para apostar!`)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     return true
                 }
 
                 if (API.toNumber(args[0]) < 1) {
-                    API.sendError(msg, `Você não pode apostar essa quantia de dinheiro!`)
+                    const embedtemp = await API.sendError(msg, `Você não pode apostar essa quantia de dinheiro!`)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     return true
                 }
                 total = API.toNumber(args[0]);
             } else {
                 if (money < 1) {
-                    API.sendError(msg, `Você não possui dinheiro para apostar!`)
+                    const embedtemp = await API.sendError(msg, `Você não possui dinheiro para apostar!`)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     return true
                 }
                 total = money;
             }
 
             if (total < 1000) {
-                API.sendError(msg, `O mínimo para apostar em cavalos é de \`1000 ${API.money}\` ${API.moneyemoji}`)
+                const embedtemp = await API.sendError(msg, `O mínimo para apostar em cavalos é de \`1000 ${API.money}\` ${API.moneyemoji}`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return true
             }
             if (total > 2000000) {
-                API.sendError(msg, `O máximo para apostar em cavalos é de \`${API.format(2000000)} ${API.money}\` ${API.moneyemoji}`)
+                const embedtemp = await API.sendError(msg, `O máximo para apostar em cavalos é de \`${API.format(2000000)} ${API.money}\` ${API.moneyemoji}`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return true
             }
 

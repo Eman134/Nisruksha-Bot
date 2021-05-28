@@ -12,7 +12,8 @@ module.exports = {
         const Discord = API.Discord;
 
         if (!(await API.company.check.hasCompany(msg.author))) {
-            API.sendError(msg, `Você não possui uma empresa aberta para fecha-la!`)
+            const embedtemp = await API.sendError(msg, `Você não possui uma empresa aberta para fecha-la!`)
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -23,12 +24,14 @@ module.exports = {
         let townname = await API.townExtension.getTownName(msg.author);
         
         if (locname != townname) {
-            API.sendError(msg, `Você precisa estar na mesma vila da empresa para fechar a empresa!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
+            const embedtemp = await API.sendError(msg, `Você precisa estar na mesma vila da empresa para fechar a empresa!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
+            await msg.quote(embedtemp)
             return;
         }
 
         if (company.workers != null && company.workers.length > 0) {
-            API.sendError(msg, `Você não pode fechar uma empresa antes de demitir os funcionários!\nUtilize \`${API.prefix}demitir\` para demitir seus funcionários`)
+            const embedtemp = await API.sendError(msg, `Você não pode fechar uma empresa antes de demitir os funcionários!\nUtilize \`${API.prefix}demitir\` para demitir seus funcionários`)
+            await msg.quote(embedtemp)
             return;
         }
 

@@ -23,58 +23,69 @@ module.exports = {
         }
 
         if (msg.mentions.users.size < 1) {
-            API.sendError(msg, `Você precisa mencionar um player para transferência!`, `flip @membro <quantia | tudo>`)
+            const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `flip @membro <quantia | tudo>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         const member = msg.mentions.users.first();
 
         if (member.id == msg.author.id) {
-            return API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'flip @membro <quantia | tudo>')
+            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'flip @membro <quantia | tudo>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
         const townauthor = await API.townExtension.getTownName(msg.author)
         const townmember = await API.townExtension.getTownName(member)
 
         if (!(API.townExtension.games[townauthor].includes('flip'))) {
-            API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${API.townExtension.games[townauthor].join(', ')}.**`)
-			return;
+            const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${API.townExtension.games[townauthor].join(', ')}.**`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
         if (!(API.townExtension.games[townmember].includes('flip'))) {
-            API.sendError(msg, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${API.townExtension.games[townmember].join(', ')}.**`)
-			return;
+            const embedtemp = await API.sendError(msg, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${API.townExtension.games[townmember].join(', ')}.**`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
 
         if (args.length < 2) {
-            API.sendError(msg, `Você precisa especificar o membro e a quantia da aposta!`, `girar @membro <aposta>`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você precisa especificar o membro e a quantia da aposta!`, `girar @membro <aposta>`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return;
         }
 
         if (!API.isInt(args[1])) {
-            API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `girar @membro <aposta>`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `girar @membro <aposta>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let aposta = parseInt(args[1]);
 
         if (aposta < 1) {
-            API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
+            const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (aposta > 5000) {
-            API.sendError(msg, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
+            const embedtemp = await API.sendError(msg, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         const token = await API.eco.token.get(msg.author)
 
         if (token < aposta) {
-            API.sendError(msg, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
+            const embedtemp = await API.sendError(msg, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         const tokenmember = await API.eco.token.get(member)
 
         if (tokenmember < aposta) {
-            API.sendError(msg, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
+            const embedtemp = await API.sendError(msg, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

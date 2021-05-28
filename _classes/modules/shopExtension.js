@@ -247,7 +247,8 @@ shopExtension.execute = async function(msg, p) {
   if (p.buyable == false) {
     let obj = API.shopExtension.getShopObj();
     let array = Object.keys(obj);
-    API.sendError(msg, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+    const embedtemp = await API.sendError(msg, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
     return;
   }
   

@@ -12,7 +12,8 @@ module.exports = {
         const client = API.client;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-            API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de pescaria para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de pescaria para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         let company;
@@ -21,29 +22,35 @@ module.exports = {
         if (await API.company.check.isWorker(msg.author)) {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 6) {
-                API.sendError(msg, `A empresa onde você trabalha não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 6) {
-                API.sendError(msg, `A sua empresa não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A sua empresa não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
 
             }
         }
 
         if (!pobj.rod) {
-            return API.sendError(msg, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
+            const embedtemp = await API.sendError(msg, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
         if (pobj2.level < 3) {
-            API.sendError(msg, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
+            const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
-            API.sendError(msg, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
+            const embedtemp = await API.sendError(msg, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -53,7 +60,8 @@ module.exports = {
 
         if (stamina < cost) {
             
-            API.sendError(msg, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
+            const embedtemp = await API.sendError(msg, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
             
         }
@@ -313,14 +321,16 @@ module.exports = {
                 }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
-                    API.sendErrorM(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
+                    const embedtemp = await API.sendErrorM(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     embedmsg.reactions.removeAll();
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
-                    API.sendErrorM(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
+                    const embedtemp = await API.sendErrorM(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
+                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     embedmsg.reactions.removeAll();
                     return;
@@ -362,10 +372,11 @@ module.exports = {
                     }
                 });
 
-                collector.on('end', collected => {
+                collector.on('end', async collected => {
                     if (reacted) {
                         embedmsg.reactions.removeAll();
-                        API.sendError(msg, `Você parou a pesca!`)
+                        const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
+                        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                     } else {edit(msg, company);}
                 });

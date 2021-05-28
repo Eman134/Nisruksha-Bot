@@ -17,12 +17,14 @@ module.exports = {
         var args = API.args(msg);
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            const embedtemp = await API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
+            await msg.quote(embedtemp)
             return;
         }
 
         if (args.length < 1) {
-            API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`, `equipar <id>`);
+            const embedtemp = await API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`, `equipar <id>`);
+            await msg.quote(embedtemp)
             return;
         }
         let contains = false;
@@ -34,14 +36,16 @@ module.exports = {
         }
 
         if (contains == false) {
-            API.sendError(msg, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`);
+            const embedtemp = await API.sendError(msg, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`);
+            await msg.quote(embedtemp)
             return;
         }
 
         const mvp = (pobj.mvp == null ? false : true)
 
         if (playerobj.slots != null && playerobj.slots.length >= API.maqExtension.getSlotMax(playerobj.level, mvp)) {
-            API.sendError(msg, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+            const embedtemp = await API.sendError(msg, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
+            await msg.quote(embedtemp)
             return;
         }
         

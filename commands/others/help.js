@@ -44,7 +44,8 @@ ${API.helpExtension.getCategoryList()}`)
 
 			
 		if (!(API.helpExtension.categoryExists(categoria))) {
-			API.sendError(msg, `Você selecionou uma categoria inexistente!`, `ajuda <${API.helpExtension.category.join(' | ')}>`)
+			const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `ajuda <${API.helpExtension.category.join(' | ')}>`)
+			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
 			return;
 		}
 

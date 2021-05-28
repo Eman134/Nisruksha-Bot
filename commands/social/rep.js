@@ -12,13 +12,17 @@ module.exports = {
         let member;
         let args = API.args(msg)
         if (msg.mentions.users.size < 1) {
-            return API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
+            const embedtemp = await API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         } else {
             member = msg.mentions.users.first();
         }
 
         if (member.id == msg.author.id) {
-            return API.sendError(msg, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
+            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
         const check = await API.playerUtils.cooldown.check(msg.author, "rep");
@@ -32,7 +36,9 @@ module.exports = {
         let cmaq = await API.maqExtension.get(msg.author)
 
         if (cmaq < 102) {
-            return API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
+            const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
         let { reps } = await API.getInfo(member, "players")

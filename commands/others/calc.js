@@ -20,7 +20,8 @@ module.exports = {
         var happycalculator = require('happycalculator');
         
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa inserir uma operação matemática!`, `calc 1+1*5`)
+            const embedtemp = await API.sendError(msg, `Você precisa inserir uma operação matemática!`, `calc 1+1*5`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         try {
@@ -38,7 +39,9 @@ module.exports = {
             .setDescription(`Resultado: \`${resultado}\``)
             return msg.quote(embed);
         } catch {
-            return API.sendError(msg, `Houve um erro ao realizar o seu calculo! Tente novamente`);
+            const embedtemp = await API.sendError(msg, `Houve um erro ao realizar o seu calculo! Tente novamente`);
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         };
 
 	}

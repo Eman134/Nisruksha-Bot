@@ -13,7 +13,8 @@ module.exports = {
         const args = API.args(msg)
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-            API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         let company;
@@ -22,13 +23,15 @@ module.exports = {
         if (await API.company.check.isWorker(msg.author)) {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 1) {
-                API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 1) {
-                API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
 
             }
@@ -60,17 +63,20 @@ module.exports = {
 
         
         if (!contains) {
-            API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}loja terrenos\``)
+            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}loja terrenos\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
         if (plot.plants && plot.plants.length == 5) {
-            API.sendError(msg, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
+            const embedtemp = await API.sendError(msg, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (args.length < 3) {
-            API.sendError(msg, `Você precisa digitar __todas__ as informações para a plantação!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await API.sendError(msg, `Você precisa digitar __todas__ as informações para a plantação!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -80,27 +86,32 @@ module.exports = {
 
         if (!API.isInt(area) || parseInt(area) < 5) {
 
-            API.sendError(msg, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await API.sendError(msg, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (!API.isInt(quantidade)) {
-            API.sendError(msg, `A __quantidade__ precisa ser um número !\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser um número !\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (parseInt(quantidade) < 5) {
-            API.sendError(msg, `A __quantidade__ precisa ser no __mínimo 5__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser no __mínimo 5__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (parseInt(quantidade) > 20) {
-            API.sendError(msg, `A __quantidade__ precisa ser no __máximo 20__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser no __máximo 20__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (area > plot.area-plot.areaplant) {
-            API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
+            const embedtemp = await API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -130,7 +141,8 @@ module.exports = {
         }
 
         if (!contains2) {
-            API.sendError(msg, `Você não possui **${quantidade}x ${seed ? seed.icon + ' ' + seed.displayname : API.getMultipleArgs(msg, 3)}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`${API.prefix}mochila\``)
+            const embedtemp = await API.sendError(msg, `Você não possui **${quantidade}x ${seed ? seed.icon + ' ' + seed.displayname : API.getMultipleArgs(msg, 3)}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`${API.prefix}mochila\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

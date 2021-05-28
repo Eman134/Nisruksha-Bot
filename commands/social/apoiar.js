@@ -15,33 +15,39 @@ module.exports = {
         const args = API.args(msg)
         
         if (args.length == 0) {
-            API.sendError(msg, 'Você precisa pedir ao seu amigo o código de convite dele!', 'usarcodigo <codigo>')
+            const embedtemp = await API.sendError(msg, 'Você precisa pedir ao seu amigo o código de convite dele!', 'usarcodigo <codigo>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return
         }
 
         const check = await API.eco.tp.check(args[0])
 
         if (!check.exists) {
-            API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
+            const embedtemp = await API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return
         }
 
         if (check.owner == msg.author.id) {
-            API.sendError(msg, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
+            const embedtemp = await API.sendError(msg, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return
         }
 
         const invitejson = await API.eco.tp.get(msg.author)
 
         if (invitejson.usedinvite) {
-            API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
+            const embedtemp = await API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return
         }
 
         let cmaq = await API.maqExtension.get(msg.author)
 
         if (cmaq < 102) {
-            return API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
+            const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
         const owner = await API.client.users.fetch(check.owner)

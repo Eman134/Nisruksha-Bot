@@ -13,11 +13,13 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, 'Você não definiu um texto sobre você', 'sobremim <texto>')
+            const embedtemp = await API.sendError(msg, 'Você não definiu um texto sobre você', 'sobremim <texto>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (API.getMultipleArgs(msg, 1).length > 50) {
-            API.sendError(msg, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50', 'sobremim <texto>')
+            const embedtemp = await API.sendError(msg, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50', 'sobremim <texto>')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         API.setInfo(msg.member, "players", "bio", API.getMultipleArgs(msg, 1))

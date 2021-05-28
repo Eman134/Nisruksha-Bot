@@ -13,17 +13,20 @@ module.exports = {
         const args = API.args(msg)
 
         if (await API.company.check.hasCompany(msg.author)) {
-            API.sendError(msg, `Você não pode enviar currículo para alguma empresa pois você já possui uma`)
+            const embedtemp = await API.sendError(msg, `Você não pode enviar currículo para alguma empresa pois você já possui uma`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (await API.company.check.isWorker(msg.author)) {
-            API.sendError(msg, `Você não pode enviar currículo para outra empresa pois você já trabalha em uma`)
+            const embedtemp = await API.sendError(msg, `Você não pode enviar currículo para outra empresa pois você já trabalha em uma`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa digitar um código de empresa para enviar um currículo!\nPesquise empresas utilizando \`${API.prefix}empresas\``, 'enviarc 000Z10')
+            const embedtemp = await API.sendError(msg, `Você precisa digitar um código de empresa para enviar um currículo!\nPesquise empresas utilizando \`${API.prefix}empresas\``, 'enviarc 000Z10')
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -34,14 +37,16 @@ module.exports = {
             const owner = await API.company.get.ownerById(args[0])
 			
 			if (owner == null) {
-				API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
 			}
 			
             const res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2`, [args[0], owner.id]);
 
             if (res.rows[0] == undefined || res.rows[0] == null) {
-                API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+                const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+           	    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             } else {
                 company = res.rows[0]
@@ -56,25 +61,29 @@ module.exports = {
         let townname = await API.townExtension.getTownName(msg.author);
         
         if (locname != townname) {
-            API.sendError(msg, `Você precisa estar na mesma vila da empresa para enviar o currículo!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
+            const embedtemp = await API.sendError(msg, `Você precisa estar na mesma vila da empresa para enviar o currículo!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         const pobjmaq = await API.getInfo(msg.author, 'machines')
 
         if (pobjmaq.level < 3) {
-            API.sendError(msg, `Você não possui nível o suficiente para enviar currículo!\nSeu nível atual: **${pobjmaq.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
+            const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para enviar currículo!\nSeu nível atual: **${pobjmaq.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (!(await API.company.check.hasVacancies(args[0]))) {
-            API.sendError(msg, `Esta empresa não possui vagas ou estão fechadas, tente novamente quando houver vagas!`)
+            const embedtemp = await API.sendError(msg, `Esta empresa não possui vagas ou estão fechadas, tente novamente quando houver vagas!`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
 
         if (company.curriculum != null && company.curriculum.length >= 10) {
-            API.sendError(msg, `Esta empresa já possui o máximo de currículos pendentes **10/10**.`)
+            const embedtemp = await API.sendError(msg, `Esta empresa já possui o máximo de currículos pendentes **10/10**.`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         let clist0 = []
@@ -87,7 +96,8 @@ module.exports = {
         }
 
         if (currincl == true) {
-            API.sendError(msg, `Você já enviou um currículo para esta empresa! Aguarde uma resposta.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`)
+            const embedtemp = await API.sendError(msg, `Você já enviou um currículo para esta empresa! Aguarde uma resposta.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`)
+           	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
@@ -128,7 +138,8 @@ module.exports = {
                     const res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2`, [args[0], owner.id]);
                     
                     if (res.rows[0] == undefined || res.rows[0] == null) {
-                        API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+                        const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
+           	            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                         return;
                     } else {
                         companyobj = res.rows[0]

@@ -21,31 +21,36 @@ module.exports = {
         }
 
         if (!(API.townExtension.games[await API.townExtension.getTownName(msg.author)].includes('roleta'))) {
-            API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}.**`)
-			return;
+            const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}.**`)
+			await msg.quote(embedtemp)
+            return;
         }
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa especificar uma quantia de fichas para aposta!`, `roleta 5`)
-			return;
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas para aposta!`, `roleta 5`)
+			await msg.quote(embedtemp)
+            return;
         }
 
         if (!API.isInt(args[0])) {
-            API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `roleta 5`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `roleta 5`)
+            await msg.quote(embedtemp)
             return;
         }
 
         let aposta = parseInt(args[0]);
 
         if (aposta < 5) {
-            API.sendError(msg, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
+            const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
+            await msg.quote(embedtemp)
             return;
         }
 
         const token = await API.eco.token.get(msg.author)
 
         if (token < aposta) {
-            API.sendError(msg, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
+            const embedtemp = await API.sendError(msg, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
+            await msg.quote(embedtemp)
             return;
         }
         

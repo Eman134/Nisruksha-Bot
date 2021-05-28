@@ -13,31 +13,36 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let armsize = await API.maqExtension.storage.getSize(msg.author);
 
         if (armsize <= 0) {
-            API.sendError(msg, `Você não possui recursos no seu armazém para vender!`)
+            const embedtemp = await API.sendError(msg, `Você não possui recursos no seu armazém para vender!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
         if (args.length >= 2 && (!API.maqExtension.ores.checkExists(args[1]))) {
-            API.sendError(msg, `Você precisa identificar um produto EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
-            API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.isInt(arg0) && args.length == 1) {
-            API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -55,7 +60,8 @@ module.exports = {
         if (arg0 == 'tudo' && args.length >= 2) {
 
             if (obj2[id] <= 0) {
-                API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
@@ -65,16 +71,19 @@ module.exports = {
         if (API.isInt(arg0) && args.length >= 2) {
             type = 2;
             if (parseInt(arg0) <= 0) {
-                API.sendError(msg, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
+                const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
             if (obj2[id] <= 0) {
-                API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
 
             if (parseInt(arg0) > obj2[id]) {
-                API.sendError(msg, `Você não possui **${arg0}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await API.sendError(msg, `Você não possui **${arg0}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
                 return;
             }
         }

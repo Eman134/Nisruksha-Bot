@@ -15,7 +15,8 @@ module.exports = {
         let objgkeys = await API.getGlobalInfo('keys') || [];
 
         if (args.length == 0) {
-            API.sendError(msg, 'Você precisa digitar um código de chave para a ativação', `usarkey 000-000-000-000-N`)
+            const embedtemp = await API.sendError(msg, 'Você precisa digitar um código de chave para a ativação', `usarkey 000-000-000-000-N`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -33,7 +34,8 @@ module.exports = {
         }
 
         if (!exists) {
-            API.sendError(msg, 'Essa chave de ativação é inexistente!')
+            const embedtemp = await API.sendError(msg, 'Essa chave de ativação é inexistente!')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

@@ -10,7 +10,8 @@ module.exports = {
         var args = API.args(msg);
 
         if (args.length < 1) {
-            API.sendError(msg, "Você precisa digitar um parâmetro.", `query <m parameters>\n${API.prefix}query DELETE FROM players WHERE user_id=422002630106152970`);
+            const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `query <m parameters>\n${API.prefix}query DELETE FROM players WHERE user_id=422002630106152970`);
+            await msg.quote(embedtemp)
             return;
         }
 

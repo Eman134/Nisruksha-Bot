@@ -10,8 +10,9 @@ module.exports = {
         var args = API.args(msg);
 
         if (args.length < 2) {
-            API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela>");
-            return;
+            const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela>");
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            return
         }
 
 		const Discord = API.Discord;

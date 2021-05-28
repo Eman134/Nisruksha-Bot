@@ -13,12 +13,14 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa identificar um item para uso!`, `usaritem <nome do item>`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para uso!`, `usaritem <nome do item>`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (args.length >= 1 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
-            API.sendError(msg, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -27,13 +29,15 @@ module.exports = {
 
         
         if (!drop.usavel) {
-            API.sendError(msg, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
+            const embedtemp = await API.sendError(msg, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         
         const obj2 = await API.getInfo(msg.author, 'storage')
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-            API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
+            const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 

@@ -11,19 +11,22 @@ module.exports = {
         const Discord = API.Discord;
         const attachment = msg.attachments.array()
 		    if (attachment.length < 1) {
-            API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 1200x750')
+            const embedtemp = await API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 1200x750')
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         let url = attachment[0].url;
 
         if (!attachment[0].name.match(/.(jpg|jpeg|png)$/i)){
-          API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+          const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+          await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
           return;
         }
 
         if(attachment[0].size > 1050000) {
-          API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+          const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+          await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
           return;
         }
 

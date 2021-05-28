@@ -64,7 +64,7 @@ module.exports = {
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         await msg.quote(embed);
         API.eco.money.add(msg.member, reward)
-        API.eco.money.add(msg.member, cristal)
+        API.eco.points.add(msg.member, cristal)
         API.setInfo(msg.member, "players", "streak", streak)
         API.eco.addToHistory(msg.member, `Recompensa diária | + ${API.format(reward)} ${API.moneyemoji}`)
         API.playerUtils.cooldown.set(msg.author, "daily", 86400);

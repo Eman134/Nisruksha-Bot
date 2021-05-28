@@ -12,33 +12,40 @@ module.exports = {
 
         let args = API.args(msg);
         if (args.length == 0) {
-            API.sendError(msg, `Você precisa digitar o nome de alguma vila para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
+            const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.townExtension.getTownNumByName(args[0]) == 0) {
-            API.sendError(msg, `Você precisa digitar o nome de alguma vila EXISTENTE para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
+            const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila EXISTENTE para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            API.sendError(msg, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+            const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
-            API.sendError(msg, `Você não pode se mover enquanto pesca! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
+            const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto pesca! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'hunting')) {
-            API.sendError(msg, `Você não pode se mover enquanto caça! [[VER CAÇA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
+            const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto caça! [[VER CAÇA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
-            API.sendError(msg, `Você não pode se mover enquanto coleta! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
+            const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto coleta! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
-            API.sendError(msg, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
+            const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -47,7 +54,8 @@ module.exports = {
         let prox = API.townExtension.getTownNumByName(args[0]);
 
         if (atual == prox) {
-            API.sendError(msg, `Você já se encontra nesta vila!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`)
+            const embedtemp = await API.sendError(msg, `Você já se encontra nesta vila!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
         }
 
@@ -56,7 +64,8 @@ module.exports = {
 
         if (stamina < 150) {
             
-            API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
+            const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
+            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
             return;
 
         }
