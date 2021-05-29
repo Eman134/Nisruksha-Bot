@@ -83,7 +83,7 @@ module.exports = {
         
         let embedmsg
         try {
-            embedmsg = await msg.quote(embed, { button: btn })
+            embedmsg = await msg.quote(embed)
         } catch {
             API.cacheLists.waiting.remove(msg.author, 'mining');
             return
@@ -190,7 +190,7 @@ module.exports = {
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
                     btn.disabled = true
-                    await embedmsg.edit({embed, button: btn }).catch()
+                    await embedmsg.edit({embed, button: btn, mention: true }).catch()
                     return;
                 }
 
@@ -200,7 +200,7 @@ module.exports = {
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
                     btn.disabled = true
-                    await embedmsg.edit({embed, button: btn }).catch()
+                    await embedmsg.edit({embed, button: btn, mention: true }).catch()
                     return;
                 }
                 if (e+1 < 1) {
@@ -210,7 +210,7 @@ module.exports = {
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     embedmsg.reactions.removeAll();
                     btn.disabled = true
-                    await embedmsg.edit({embed, button: btn }).catch()
+                    await embedmsg.edit({ embed, button: btn, mention: true }).catch()
                     return;
                 }
 

@@ -46,9 +46,9 @@ module.exports = {
 
             if (!options) {
                 if (typeof content === 'object') {
-                if (content.mention) {
-                    x.allowedMentions = { repliedUser: true}
-                }
+                    if (content.mention) {
+                        x.allowedMentions = { repliedUser: true}
+                    }
                 }
             } else {
                 if (options.mention) {
@@ -83,10 +83,34 @@ module.exports = {
         }
 
         interaction.edit = async (c, o) => {
+            
             if (!response) {
                 response = true;
                 interaction.defer(true)
-                return await interaction.editReply(c, o)
+
+                let x 
+            
+                if (c.type == 'rich') {
+                    x = { embed: c, ...o }
+                } else {
+                    x = { ...c, ...o }
+                }
+
+                x.allowedMentions = { repliedUser: false}
+
+                if (!o) {
+                    if (typeof c === 'object') {
+                        if (c.mention) {
+                            x.allowedMentions = { repliedUser: true}
+                        }
+                    }
+                } else {
+                    if (o.mention) {
+                        x.allowedMentions = { repliedUser: true}
+                    }
+                }
+
+                return await interaction.editReply(x)
             } else {
                 return interaction.quote2(c, o)
             }
