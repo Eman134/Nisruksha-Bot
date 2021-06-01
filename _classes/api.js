@@ -110,7 +110,7 @@ API.checkAll = async function(msg, req) {
 
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
         const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
-        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+        await msg.quote(embedtemp)
         return true
     }
     
@@ -228,7 +228,7 @@ API.checkAll = async function(msg, req) {
 
     async function limitedpatrao() {
         const embedtemp = await API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
-        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+        await msg.quote(embedtemp)
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -261,7 +261,7 @@ API.checkAll = async function(msg, req) {
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
         const embedtemp = await API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
-        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+        await msg.quote(embedtemp)
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -284,7 +284,7 @@ API.checkAll = async function(msg, req) {
             if (check2) return true;
             API.playerUtils.cooldown.set(msg.author, "antispam", 3);
             const embedtemp = await API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return true;
         }
     }
@@ -642,7 +642,7 @@ API.getInfo = async function (member, table) {
         return res.rows[0];
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
     return res;
 
@@ -707,7 +707,7 @@ API.createButton = function(id, style, label, emoji, disabled) {
     let button = new MessageButton()
     .setStyle(style)
     .setLabel(label)
-    if (emoji) button.emoji = ''
+    if (emoji) button.setEmoji(emoji)
     if (style == 'url') button.setURL(id) 
     else button.setID(id)
     if (disabled) button.setDisabled();
