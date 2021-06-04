@@ -131,7 +131,7 @@ module.exports = {
             }
             
             current = b.id
-            
+
             reworkButtons(rankingtype, b.id)
             
             const text =  `SELECT * FROM ${vare[b.id].db.table};`
@@ -181,7 +181,7 @@ module.exports = {
 
             const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.id].db.column]} ${vare[b.id].formated}`).join('\n')
 
-            const obj = array.find((u) => u.id == msg.author.id )
+            const obj = array.find((u) => u.user_id == msg.author.id )
             const pos = array.indexOf(obj)+1
 
             embed
