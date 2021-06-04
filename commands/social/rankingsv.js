@@ -58,20 +58,24 @@ module.exports = {
                 array = res.rows;
             } catch (err) {
                 console.log(err.stack)
-                client.emit('error', err)
+                API.client.emit('error', err)
             }
 
-            array = await array.filter(async (userobj) => {
+            const arr2check = []
+
+            for (i = 0; i < array.length; i++) {
                 let x1
                 try {
-                    const x = await msg.guild.members.fetch(userobj.user_id)
+                    const x = await msg.guild.members.fetch(array[i].user_id)
                     if (x) x1 = true
                     else x1 = false
                 } catch {
                     x1 = false
                 }
-                return x1
-            })
+                if (x1) arr2check.push(array[i])
+            }
+
+            array = arr2check
 
             array.sort(function(a, b){
                 return b[vare[reaction.emoji.id].split(';')[1]] - a[vare[reaction.emoji.id].split(';')[1]];
@@ -97,11 +101,13 @@ module.exports = {
                 'level': 'níveis'
             }
 
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`).join('\n')
+
             const embed2 = new Discord.MessageEmbed()
             .setTitle('Ranking local')
             .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
             .setColor('#32a893')
-            .setDescription(array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`))
+            .setDescription(maparray)
             embedmsg.edit(embed2)
         });
         
