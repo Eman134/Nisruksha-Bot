@@ -122,10 +122,10 @@
         "alc": ["botinfo -> bi"]
     },
     "2.1.7": {
-        "add": ["Adicionado comandos slash"],
+        "add": ["Adicionado comandos slash", "Algumas reações de comandos foram migradas para botões"],
         "rem": [],
         "chn": [],
-        "fix": [],
+        "fix": ["Top local"],
         "alc": []
     }
 }

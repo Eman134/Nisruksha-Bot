@@ -1,5 +1,3 @@
-
-
 module.exports = {
 
     name: "message",
@@ -7,8 +5,6 @@ module.exports = {
     
         const client = API.client;
         const Discord = API.Discord;
-        const prefix = API.prefix;
-        const args = API.args(msg)
         
         const mentionRegex = new RegExp(`^<@!?${client.user.id}>$`);
         if (msg.content.match(mentionRegex)) {

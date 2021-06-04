@@ -85,10 +85,12 @@ module.exports = {
                 'level': 'níveis'
             }
 
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`).join('\n')
+
             const embed2 = new Discord.MessageEmbed()
             .setTitle('Ranking global')
             .setColor('#32a893')
-            .setDescription(array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`))
+            .setDescription(maparray)
             embedmsg.edit(embed2)
         });
         

@@ -36,7 +36,6 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "molduras", 30);
 
-        let btn0 = API.createButton('00', 'gray', '\u200B', '', true)
         let btn1 = API.createButton('sBtn', 'gray', 'Equipar', '✅')
         let btn2 = API.createButton('nBtn', 'gray', 'Desequipar', '❌')
         let btn3 = API.createButton('b1Btn', 'blurple', '', '⏪')
