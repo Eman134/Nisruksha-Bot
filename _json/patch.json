@@ -122,8 +122,8 @@
         "alc": ["botinfo -> bi"]
     },
     "2.1.7": {
-        "add": ["Adicionado comandos slash", "Algumas reações de comandos foram migradas para botões"],
-        "rem": [],
+        "add": ["Sistema de pontos de maestria", "Integrado rankingsv ao n.ranking", "Adicionado comandos slash", "Algumas reações de comandos foram migradas para botões"],
+        "rem": ["Comando rankingsv"],
         "chn": [],
         "fix": ["Top local"],
         "alc": []

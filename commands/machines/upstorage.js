@@ -14,18 +14,18 @@ module.exports = {
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de níveis (NÚMERO) para upar!`, `uparm <níveis>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (parseInt(args[0]) < 1) {
             const embedtemp = await API.sendError(msg, `Você não pode upar essa quantia de níveis!`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (parseInt(args[0]) > 25) {
             const embedtemp = await API.sendError(msg, `Você só pode upar até 25 níveis de armazém por vez!`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

@@ -72,8 +72,6 @@ module.exports = {
         const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
 
         collector.on('collect', async (b) => {
-            
-            b.defer()
 
             collector.resetTimer();
 
@@ -124,6 +122,8 @@ module.exports = {
                 embed.setImage(API.frames.get(frames[0]).url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
+                b.defer()
+
                 return collector.stop();
 
             } else if (b.id == 'sBtn'){
@@ -134,6 +134,8 @@ module.exports = {
                 embed.setDescription('✅ Moldura equipada')
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
+
+                b.defer()
                 
                 return collector.stop();
 
@@ -142,7 +144,11 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
+                b.defer()
+
             }
+
+            
 
         });
         

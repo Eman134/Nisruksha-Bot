@@ -123,24 +123,18 @@ module.exports = {
         let reactequiplist = ['fight', 'run', 'autofight'];
         let fixedembed = embed
         let lastmsg
-        let lastreacttime = Date.now()-4000;
         let autohunt = false
         const equipsBtn = []
         collector.on('collect', async (b) => {
             
-            if (Date.now()-lastreacttime < 1900 || !reactequiplist.includes(b.id)) return;
-            lastreacttime = Date.now()
+            if (!reactequiplist.includes(b.id)) return;
 
             reacted = true;
-            collector.resetTimer();
-
-            b.defer()
 
             if (b.id == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
                 return;
-
             }
 
             //collector.stop();
@@ -460,6 +454,10 @@ module.exports = {
             }
 
             await go()
+
+            collector.resetTimer();
+
+            b.defer()
 
         });
         

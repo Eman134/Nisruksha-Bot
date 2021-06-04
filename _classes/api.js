@@ -718,8 +718,8 @@ API.rowButton = function(arr) {
 
     let btnRow = new MessageActionRow()
 
-    for (i = 0; i < arr.length; i++) {
-        btnRow.addComponent(arr[i])
+    for (rowButtonVar = 0; rowButtonVar < arr.length; rowButtonVar++) {
+        btnRow.addComponent(arr[rowButtonVar])
     }
 
     return btnRow

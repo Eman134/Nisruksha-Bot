@@ -14,13 +14,13 @@ module.exports = {
 
         if (parseInt(API.events.treasure.loc) != parseInt(townnum) || API.events.treasure.picked) {
             const embedtemp = await API.sendError(msg, `Não possui nenhum tesouro não explorado na sua vila atual!\nUtilize \`${API.prefix}mapa\` para achar algum tesouro em outras vilas\nOBS: Os alertas de novos tesouros são feitos no servidor oficial do Nisruksha (\`${API.prefix}convidar\`)`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         
@@ -115,7 +115,7 @@ module.exports = {
                     if (reacted) {
                         embedmsg.reactions.removeAll();
                         const embedtemp = await API.sendError(msg, `Você parou a escavação!`)
-                        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                        await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'digging');
                     } else {edit();}
                 });

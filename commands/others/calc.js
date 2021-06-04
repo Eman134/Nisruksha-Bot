@@ -3,12 +3,12 @@ module.exports = {
     aliases: ['calc', 'calculate'],
     category: 'Outros',
     description: 'Facilite suas contas utilizando este comando',
-    options: {
+    options: [{
         name: 'expressão',
         type: 'STRING',
         description: 'Coloque uma expressão de matemática para calcular',
         required: true,
-    },
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -21,7 +21,7 @@ module.exports = {
         
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa inserir uma operação matemática!`, `calc 1+1*5`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         try {
@@ -40,7 +40,7 @@ module.exports = {
             return msg.quote(embed);
         } catch {
             const embedtemp = await API.sendError(msg, `Houve um erro ao realizar o seu calculo! Tente novamente`);
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         };
 

@@ -11,58 +11,160 @@ module.exports = {
         const Discord = API.Discord;
         const client = API.client;
 
+        let vare = {
+            '736290479406317649': {
+                db: {
+                    table: 'players',
+                    column: 'money'
+                },
+                name: API.money,
+                formated: API.money + ' ' + API.moneyemoji
+            },
+            '741827151879471115': {
+                db: {
+                    table: 'players',
+                    column: 'points'
+                },
+                name: API.money2,
+                formated: API.money2 + ' ' + API.money2emoji
+            },
+            '741827151879471115': {
+                db: {
+                    table: 'players',
+                    column: 'token'
+                },
+                name: API.money3,
+                formated: API.money3 + ' ' + API.money3emoji
+            },
+            '👍🏽': {
+                db: {
+                    table: 'players',
+                    column: 'reps'
+                },
+                name: 'reputação',
+                formated: 'reps 👍🏽'
+            },
+            '833363716615307324': {
+                db: {
+                    table: 'machines',
+                    column: 'level'
+                },
+                name: 'níveis',
+                formated: 'níveis'
+            },
+            '💥': {
+                db: {
+                    table: 'players',
+                    column: 'streak'
+                },
+                name: 'streak',
+                formated: 'streak'
+            },
+            '🔰': {
+                db: {
+                    table: 'players',
+                    column: 'mastery'
+                },
+                name: 'maestria',
+                formated: 'pontos de maestria 🔰'
+            }
+        }
+
+        let rankingtype = 0
+        let current = ''
+
 		const embed = new Discord.MessageEmbed()
         .setColor('#32a893')
-        .setTitle('TOP 10 - GLOBAL')
-        .addField(`RANKING DE DINHEIRO`, `Reaja com ${API.client.emojis.cache.get('736290479406317649')}`)
-        .addField(`RANKING DE FICHAS`, `Reaja com ${API.client.emojis.cache.get('741827151879471115')}`)
-        .addField(`RANKING DE CRISTAIS`, `Reaja com ${API.client.emojis.cache.get('743176785986060390')}`)
-        .addField(`RANKING DE NÍVEIS`, `Reaja com ${API.client.emojis.cache.get('833363716615307324')}`)
-        .addField(`RANKING DE REPUTAÇÃO`, `Reaja com 👍🏽`)
-        let embedmsg = await msg.quote(embed);
+        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
 
-        try {
-            embedmsg.react('736290479406317649');
-            embedmsg.react('741827151879471115');
-            embedmsg.react('743176785986060390');
-            embedmsg.react('833363716615307324');
-            embedmsg.react('👍🏽');
-        }catch{}
+        .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!API.client.emojis.cache.get(key) ? key : API.client.emojis.cache.get(key)}`).join('\n'))
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-      
-        const vare = {
-            '736290479406317649': 'players;money',
-            '741827151879471115': 'players;token',
-            '743176785986060390': 'players;points',
-            '👍🏽': 'players;reps',
-            '833363716615307324': 'machines;level'
+        let components = []
+
+        reworkButtons(0)
+        
+        function reworkButtons(type, disabled) {
+
+            let butnList = []
+
+            components = []
+
+            butnList.push(API.createButton('change', (type == 0 ? 'green' : 'blurple'), (type == 0 ? 'Global' : 'Local'), '🔁'))
+
+            for (i = 0; i < Object.keys(vare).length; i++) {
+                butnList.push(API.createButton(Object.keys(vare)[i], 'grey', '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
+            }
+
+            let totalcomponents = butnList.length % 5;
+            if (totalcomponents == 0) totalcomponents = (butnList.length)/5;
+            else totalcomponents = ((butnList.length-totalcomponents)/5);
+
+            totalcomponents += 1
+
+            for (x = 0; x < totalcomponents; x++) {
+                const var1 = (x+1)*5-5
+                const var2 = ((x+1)*5)
+                const rowBtn = API.rowButton(butnList.slice(var1, var2))
+                components.push(rowBtn)
+
+            }
+
         }
+
+        let embedmsg = await msg.quote({ embed, components });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         
-        collector.on('collect', async (reaction, user) => {
-            reaction.users.remove(user.id).catch();
-            if (!(Object.keys(vare).includes(reaction.emoji.id)) && !(Object.keys(vare).includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
 
-            if (Object.keys(vare).includes(reaction.emoji.name)) reaction.emoji.id = reaction.emoji.name
-
-            collector.stop();
-
-            const text =  `SELECT * FROM ${vare[reaction.emoji.id].split(';')[0]};`
+            if (b.id == 'change') {
+                rankingtype = (rankingtype == 0 ? 1 : 0)
+                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+                if (current == 'change' || current == '') {
+                    reworkButtons(rankingtype)
+                    b.defer()
+                    return await embedmsg.edit({embed, components})
+                } 
+                b.id = current
+            }
+            
+            current = b.id
+            
+            reworkButtons(rankingtype, b.id)
+            
+            const text =  `SELECT * FROM ${vare[b.id].db.table};`
             let array = [];
             try {
                 let res = await API.db.pool.query(text);
                 array = res.rows;
             } catch (err) {
                 console.log(err.stack)
-                client.emit('error', err)
+                API.client.emit('error', err)
             }
 
-            array.sort(function(a, b){
-                return b[vare[reaction.emoji.id].split(';')[1]] - a[vare[reaction.emoji.id].split(';')[1]];
+            if (rankingtype == 1) {
+                
+                const arr2check = []
+
+                for (i = 0; i < array.length; i++) {
+                    let x1
+                    try {
+                        const x = await msg.guild.members.fetch(array[i].user_id)
+                        if (x) x1 = true
+                        else x1 = false
+                    } catch {
+                        x1 = false
+                    }
+                    if (x1) arr2check.push(array[i])
+                }
+
+                array = arr2check
+            }
+
+            array.sort(function(c, d){
+                return d[vare[b.id].db.column] - c[vare[b.id].db.column];
             });
 
             array = array.slice(0, 10)
@@ -77,25 +179,26 @@ module.exports = {
                 rank++;
             }
 
-            let translate = {
-                'token': API.money3 + ' ' + API.money3emoji,
-                'points': API.money2 + ' ' + API.money2emoji,
-                'money': API.money + ' ' + API.moneyemoji,
-                'reps': 'reps 👍🏽',
-                'level': 'níveis'
-            }
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.id].db.column]} ${vare[b.id].formated}`).join('\n')
 
-            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[reaction.emoji.id].split(';')[1]]} ${translate[vare[reaction.emoji.id].split(';')[1]]}`).join('\n')
+            const obj = array.find((u) => u.id == msg.author.id )
+            const pos = array.indexOf(obj)+1
 
-            const embed2 = new Discord.MessageEmbed()
-            .setTitle('Ranking global')
+            embed
+            .setTitle('🥇 Sua posição: ' + pos + 'º')
+            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.id].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
             .setColor('#32a893')
             .setDescription(maparray)
-            embedmsg.edit(embed2)
+
+            collector.resetTimer()
+
+            await embedmsg.edit({embed, components})
+            b.defer()
+            
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll().catch();
+            embedmsg.edit(embed)
         });
 
 	}
