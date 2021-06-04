@@ -23,7 +23,7 @@ module.exports = {
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de exploração para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         let company;
@@ -33,14 +33,14 @@ module.exports = {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 2) {
                 const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de exploração!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 2) {
                 const embedtemp = await API.sendError(msg, `A sua empresa não é de exploração!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
 
             }
@@ -48,13 +48,13 @@ module.exports = {
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'hunting')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se caçando no momento! [[VER BATALHA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -66,6 +66,7 @@ module.exports = {
         if (stamina < cost) {
             
             const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
+            await msg.quote(embedtemp)
             return;
 
         }
@@ -92,55 +93,50 @@ module.exports = {
          await msg.quote(embed);
             return;
         }
-		
-        const perm = await API.getPerm(msg.author)
         
         embed
-        .addField(`Você deseja iniciar uma nova caçada?`, `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\nCaso deseja iniciar o combate reaja com ⚔.${perm >= 3 ? '\nCaso deseja iniciar o combate automático reaja com 🤖': ''}\nCaso deseja fugir do monstro reaja com 🏃🏾‍♂️.`)
+        .addField(`Você deseja iniciar uma nova caçada?`, `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual.`)
         .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
-        const embedmsg = await msg.quote(embed);
-		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
-        
-        await embedmsg.react('⚔')
-        if (pobj.mvp != null) await embedmsg.react('🤖')
-        embedmsg.react('🏃🏾‍♂️')
 
-        const filter = (reaction, user) => {
-            return user.id === user.id;
-        };
+        const btn0 = API.createButton('fight', 'green', 'Lutar', '⚔')
+        const btn1 = API.createButton('run', 'red', 'Fugir', '🏃🏾‍♂️')
+        const btn2 = API.createButton('autofight', 'grey', 'Luta Automática', '🤖')
+
+        const rb0 = [ btn0, btn1 ]
+
+        if (pobj.mvp != null) rb0.push(btn2)
+
+        const rowButton0 = API.rowButton(rb0)
+
+        const embedmsg = await msg.quote( { embed, components: [ rowButton0 ] } );
+		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 45000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 45000 });
         let reacted = false;
         let inbattle = false;
         let dead = false;
         let equips = API.company.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
-        let reactequiplist = ['⚔', '🏃🏾‍♂️', '🤖'];
+        let reactequiplist = ['fight', 'run', 'autofight'];
         let fixedembed = embed
         let lastmsg
         let lastreacttime = Date.now()-4000;
         let autohunt = false
-        collector.on('collect', async (reaction, user) => {
+        const equipsBtn = []
+        collector.on('collect', async (b) => {
             
-            if (user.id != client.user.id) await reaction.users.remove(user.id);
-            if (user.id != msg.author.id || user.bot == true) return;
-            if (Date.now()-lastreacttime < 1900) return;
+            if (Date.now()-lastreacttime < 1900 || !reactequiplist.includes(b.id)) return;
             lastreacttime = Date.now()
-            if (reaction.emoji.name == '❌' && API.debug && (await API.getPerm(msg.author) > 4)) {
-                const tbuild = await build({player: 0, monster: monster.sta})
-                await fixedembed.setImage(tbuild.url)
-                await monsterlost(monster, fixedembed)
-                await embedmsg.edit(fixedembed);
-                dead = true;
-                collector.stop()
-                return;
-            }
-            if (!(reactequiplist.includes(reaction.emoji.name)) && !(reactequiplist.includes(reaction.emoji.id))) return;
+
             reacted = true;
             collector.resetTimer();
 
-            if (reaction.emoji.name == '🏃🏾‍♂️' && inbattle == false) {
+            b.defer()
+
+            if (b.id == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
                 return;
@@ -309,26 +305,28 @@ module.exports = {
 
             }
             
-            if (reaction.emoji.name == '⚔' || reaction.emoji.name == '🤖' && inbattle == false) {
+            if ((b.id == 'fight' || b.id == 'autofight') && inbattle == false) {
                 
-                if (perm >= 3 && reaction.emoji.name == '🤖') {
+                
+                if (pobj.mvp && b.id == 'autofight') {
                     autohunt = true
                 }
 
                 API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
+
                 inbattle = true
                 
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
-                
-                embedmsg.reactions.removeAll();
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
-                    if (!autohunt) embedmsg.react(id);
+                    if (!autohunt) {
+                        equipsBtn.push(API.createButton(id, 'grey', r.name, id))
+                    }
                     reactequips[id] = r;
                     reactequiplist.push(id)
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
@@ -337,7 +335,7 @@ module.exports = {
 				let firstbuild = await build()
 				
                 await embed.setImage(firstbuild.url)
-                embedmsg.edit(embed);
+                await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]});
                 fixedembed = embed
 
                 if (autohunt) {
@@ -355,7 +353,7 @@ module.exports = {
 
             async function go() {
             
-                let eq = reactequips[reaction.emoji.id];
+                let eq = reactequips[b.id];
 
                 if (autohunt) {
                     Object.keys(reactequips)
@@ -368,13 +366,17 @@ module.exports = {
                     player: 0,
                     monster: 0
                 }
+
                 let crit = 0;
                 let roll = API.random(0, 100)
                 if (roll < eq.chance) {
                     let reroll = API.random(0, 50)
                     lost.player = Math.round(eq.dmg/API.random(3, 4))
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                    else if(API.random(0, 50) < 10) lost.player = 0
+                    else if(API.random(0, 50) < 10) {
+                        lost.player = 0
+                        crit = Math.round(eq.dmg)
+                    }
                     let roll3 = API.random(0, 100)
                     if (roll3 <= eq.crit) {
                         crit = Math.round(eq.dmg)
@@ -389,7 +391,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\nOBS2: Não floode de reactions, pois temos um sistema contra isso e ela não será contada.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
+                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                     
                     for (const r of equips) {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
@@ -425,11 +427,13 @@ module.exports = {
                 await embed.setFooter(`Informações do ataque atual\n${currmsg}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
 
                 try {
-                    await embedmsg.edit(embed);
+                    if (dead) await embedmsg.edit({embed})
+                    else await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]})
                 } catch {
                     setTimeout(async function(){
                         try {
-                            await embedmsg.edit(embed)
+                            if (dead) await embedmsg.edit({embed})
+                            else await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]})
                         } catch {
                             API.cacheLists.waiting.remove(msg.author, 'hunting')
                             collector.stop();
@@ -460,7 +464,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             API.cacheLists.waiting.remove(msg.author, 'hunting')
             if (dead) return
             if (reacted) {

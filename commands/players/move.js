@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['move'],
     category: 'Players',
     description: 'Mova-se para uma outra vila específica',
+    options: [{
+        name: 'vila',
+        type: 'STRING',
+        description: 'Selecione a vila para a qual deseja se mover',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -13,39 +19,39 @@ module.exports = {
         let args = API.args(msg);
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.townExtension.getTownNumByName(args[0]) == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila EXISTENTE para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto pesca! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'hunting')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto caça! [[VER CAÇA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto coleta! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -55,7 +61,7 @@ module.exports = {
 
         if (atual == prox) {
             const embedtemp = await API.sendError(msg, `Você já se encontra nesta vila!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -65,7 +71,7 @@ module.exports = {
         if (stamina < 150) {
             
             const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
 
         }

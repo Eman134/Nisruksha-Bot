@@ -31,7 +31,7 @@ module.exports = {
 			
 			if ( (!(await API.company.check.hasCompany(msg.author))) && (!(await API.company.check.isWorker(msg.author) ))) {
 				const embedtemp = await API.sendError(msg, `Você não possui uma empresa e nem trabalha em uma para visualizar informações dela!\nPesquise empresas utilizando \`${API.prefix}empresas\`\nOu utilize \`${API.prefix}verempresa @donodeumaempresa\``)
-            	await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            	await msg.quote(embedtemp)
 				return;
 			}
 			if (await API.company.check.isWorker(msg.author)) {
@@ -58,7 +58,7 @@ module.exports = {
 
 				if (!member) {
 					const embedtemp = await API.sendError(msg, `O membro ${msg.mentions.users.first()} não é funcionário e nem dono de uma empresa!\nPesquise empresas utilizando \`${API.prefix}empresas\`\nOu utilize \`${API.prefix}verempresa @donodeumaempresa\``)
-            		await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            		await msg.quote(embedtemp)
 					return;
 				}
 
@@ -68,7 +68,7 @@ module.exports = {
 
 					if (res.rows[0] == undefined || res.rows[0] == null) {
 						const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\`\nOu utilize \`${API.prefix}verempresa @donodeumaempresa\``)
-            			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            			await msg.quote(embedtemp)
 						return;
 					} else {
 						member = await API.client.users.fetch(res.rows[0].user_id)
@@ -96,7 +96,7 @@ module.exports = {
 		
 		if (!res2){
 			const embedtemp = await API.sendError('Houve um erro ao tentar carregarr informações da empresa desse membro!')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return
 		}
 		let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações da empresa`)
@@ -123,7 +123,7 @@ module.exports = {
 				client.emit('error', err)
 				API.setCompanieInfo(member, res2.company_id, 'bglink', null);
 				const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar o background personalizado dessa empresa!`)
-           		await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+           		await msg.quote(embedtemp)
 			}
 		}
 		
@@ -138,7 +138,7 @@ module.exports = {
 				client.emit('error', err)
 				API.setCompanieInfo(member, res2.company_id, 'logo', null);
 				const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar a logo personalizada dessa empresa!`)
-           		await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+           		await msg.quote(embedtemp)
 
 			}
 		}

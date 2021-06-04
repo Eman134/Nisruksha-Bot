@@ -125,7 +125,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                 console.log(er)
                 API.client.emit('error', er)
             }
-           files.forEach(file => {
+           files.forEach(async file => {
 
                 try {
 
@@ -137,8 +137,14 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                         if (commandfile.category != 'none') {
                             let options = []
-                            if (commandfile.options) options.push(commandfile.options)
-                            API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
+                            if (commandfile.options) options = commandfile.options
+                            let log = true
+                            try {
+                                await API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log('reloaded slash ' + cmd.name)})
+                            } catch (error) {
+                                console.log(error)
+                                console.log('Um erro ocorreu ao carregar o comando ' + commandfile.name)
+                            }
                             slashc++
                         }
 

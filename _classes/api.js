@@ -2,6 +2,7 @@ const { prefix, owner, token, ip, app } = require("../_classes/config");
 const db = require('./db.js');
 const serverdb = {};
 const version = require('../package.json').version
+const { MessageActionRow, MessageButton } = require('discord-buttons')
 
 serverdb.getServerInfo = async function (id) {
     
@@ -15,7 +16,7 @@ serverdb.getServerInfo = async function (id) {
         return res.rows[0];
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
     return res;
 
@@ -32,7 +33,7 @@ serverdb.setServerInfo = async function (id, string, value) {
         await db.pool.query(text, values);
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
 }
@@ -44,7 +45,7 @@ serverdb.setServer = async function (id) {
         await db.pool.query(text2, values2);
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
     
 }
@@ -227,7 +228,7 @@ API.checkAll = async function(msg, req) {
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
     async function limitedpatrao() {
-        const embedtemp = await API.sendErrorM(msg, `Você foi limitado inicialmente a 100 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
+        const embedtemp = await API.sendErrorM(msg, `Você foi limitado inicialmente a 200 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
         await msg.quote(embedtemp)
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -243,7 +244,7 @@ API.checkAll = async function(msg, req) {
         }
     }
 
-    if (totalcmdplayer.cmdsexec >= 100 || globalstatus == 0) {
+    if (totalcmdplayer.cmdsexec >= 200 || globalstatus == 0) {
         try {
             const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true, cache: true })
 
@@ -702,8 +703,6 @@ API.getMultipleArgs = function(msg, index) {
 
 API.createButton = function(id, style, label, emoji, disabled) {
 
-    const { MessageButton } = require('discord-buttons')
-
     let button = new MessageButton()
     .setStyle(style)
     .setLabel(label)
@@ -713,6 +712,17 @@ API.createButton = function(id, style, label, emoji, disabled) {
     if (disabled) button.setDisabled();
 
     return button
+}
+
+API.rowButton = function(arr) {
+
+    let btnRow = new MessageActionRow()
+
+    for (i = 0; i < arr.length; i++) {
+        btnRow.addComponent(arr[i])
+    }
+
+    return btnRow
 }
 
 module.exports = API;

@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['openbox'],
     category: 'Players',
     description: 'Abre uma caixa misteriosa da sua mochila',
+    options: [{
+        name: 'id da caixa',
+        type: 'STRING',
+        description: 'Escreva o id da caixa da sua mochila para abrir',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

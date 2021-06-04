@@ -3,12 +3,19 @@ module.exports = {
 	aliases: ['help', 'comandos', 'commands'],
     category: 'Outros',
     description: 'Visualiza os comandos disponíveis do bot',
+	options: [{
+        name: 'categoria',
+        type: 'STRING',
+        description: 'Digite o nome da categoria para obter a lista de comandos, descrição e alcunhas.',
+        required: false,
+    }],
 	async execute(API, msg) {
 		const boolean = await API.checkAll(msg);
 		if (boolean) return;
 		
 		let args = API.args(msg);
 		const Discord = API.Discord;
+
 		if (args.length == 0) {
 			const embed = new Discord.MessageEmbed()
 			.setColor('#32a893')
@@ -28,7 +35,7 @@ Caso não tenha o código, peça para a pessoa utilizar \`${API.prefix}meucodigo
 <:list:736274028179750922> **Categorias** | ex: \`${API.prefix}ajuda economia\`
 ${API.helpExtension.getCategoryList()}`)
 
-			msg.quote(embed);
+			await msg.quote(embed);
 			return;
 		}
 		let categoria = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -45,7 +52,7 @@ ${API.helpExtension.getCategoryList()}`)
 			
 		if (!(API.helpExtension.categoryExists(categoria))) {
 			const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `ajuda <${API.helpExtension.category.join(' | ')}>`)
-			await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+			await msg.quote(embedtemp)
 			return;
 		}
 

@@ -13,6 +13,12 @@ module.exports = {
     aliases: ['p', 'profile', 'level'],
     category: 'Social',
     description: 'Veja suas informações como nível e tenha um perfil bonito',
+    options: [{
+        name: 'membro',
+        type: 'USER',
+        description: 'Veja o perfil de algum membro',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -20,20 +26,31 @@ module.exports = {
         
         let member;
         let args = API.args(msg)
-        if (msg.mentions.users.size < 1) {
-            if (args.length == 0) {
-                member = msg.author;
-            } else {
-                let fetched
-                try {
-                    fetched = await API.client.users.fetch(args[0])
-                    member = fetched
-                } catch {
-                    member = msg.author
+        if (!msg.slash) {
+            if (msg.mentions.users.size < 1) {
+                if (args.length == 0) {
+                    member = msg.author;
+                } else {
+                    try {
+                    let member2 = await client.users.fetch(args[0])
+                    if (!member2) {
+                        member = msg.author
+                    } else {
+                        member = member2
+                    }
+                    } catch {
+                        member = msg.author
+                    }
                 }
+            } else {
+                member = msg.mentions.users.first();
             }
         } else {
-            member = msg.mentions.users.first();
+            if (msg.options.length > 0) {
+                member = msg.options[0].user
+            } else {
+                member = msg.author
+            }
         }
 
         const check = await API.playerUtils.cooldown.check(msg.author, "profile");
@@ -78,7 +95,7 @@ module.exports = {
             }catch(err){
                 API.setInfo(member, 'players', 'bglink', null);
                 const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
             }
         }
 
@@ -168,8 +185,8 @@ module.exports = {
         }
 
         try {
-        await API.img.sendImage(msg.channel, background);
-        todel.delete().catch();
+            await API.img.sendImage(msg.channel, background);
+            todel.delete().catch();
         }catch{}
 
 	}

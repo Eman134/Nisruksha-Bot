@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['useitem', 'uitem', 'usari'],
     category: 'Players',
     description: 'Faz o uso de um item usável da sua mochila',
+    options: [{
+        name: 'nome do item',
+        type: 'STRING',
+        description: 'Escreva o nome do item que você deseja usar',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -14,13 +20,13 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item para uso!`, `usaritem <nome do item>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (args.length >= 1 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -30,14 +36,14 @@ module.exports = {
         
         if (!drop.usavel) {
             const embedtemp = await API.sendError(msg, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         
         const obj2 = await API.getInfo(msg.author, 'storage')
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
             const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

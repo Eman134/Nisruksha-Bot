@@ -3,20 +3,32 @@ module.exports = {
     aliases: ['addrep'],
     category: 'Social',
     description: 'Dê uma reputação a um amigo',
+    options: [{
+        name: 'membro',
+        type: 'USER',
+        description: 'Mencione o membro que deseja dar a reputação',
+        required: true,
+    }],
     async execute(API, msg) {
         const boolean = await API.checkAll(msg);
         if (boolean) return;
-        const Discord = API.Discord;
-        const client = API.client;
         
         let member;
         let args = API.args(msg)
-        if (msg.mentions.users.size < 1) {
-            const embedtemp = await API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
-            await msg.quote(embedtemp)
-            return
+        if (!msg.slash) {
+            if (msg.mentions.users.size < 1) {
+                const embedtemp = await API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
+                await msg.quote(embedtemp)
+                return
+            } else {
+                member = msg.mentions.users.first();
+            }
         } else {
-            member = msg.mentions.users.first();
+            if (msg.options.length == 0) {
+                member = msg.author
+            } else {
+                member = msg.options[0].user
+            }
         }
 
         if (member.id == msg.author.id) {

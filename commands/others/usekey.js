@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['ativarchave', 'usarkey', 'usekey'],
     category: 'Outros',
     description: 'Resgata um produto de uma chave de ativação',
+    options: [{
+        name: 'chave',
+        type: 'STRING',
+        description: 'Coloque a chave para resgatar a recompensa da mesma',
+        required: true,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -16,11 +22,11 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa digitar um código de chave para a ativação', `usarkey 000-000-000-000-N`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
-
         let key = args[0]
+        console.log(key)
         let exists = false;
         let item;
         for (const r of objgkeys) {
@@ -35,7 +41,7 @@ module.exports = {
 
         if (!exists) {
             const embedtemp = await API.sendError(msg, 'Essa chave de ativação é inexistente!')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

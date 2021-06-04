@@ -5,6 +5,12 @@ module.exports = {
     aliases: ['usereferral', 'usarref'],
     category: 'Social',
     description: 'Utiliza um código de referência para apoiar seu amigo',
+    options: [{
+        name: 'código',
+        type: 'STRING',
+        description: 'Escreva um código de apoiador',
+        required: true,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -16,7 +22,7 @@ module.exports = {
         
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa pedir ao seu amigo o código de convite dele!', 'usarcodigo <codigo>')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 
@@ -24,13 +30,13 @@ module.exports = {
 
         if (!check.exists) {
             const embedtemp = await API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 
         if (check.owner == msg.author.id) {
             const embedtemp = await API.sendError(msg, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 
@@ -38,7 +44,7 @@ module.exports = {
 
         if (invitejson.usedinvite) {
             const embedtemp = await API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 
@@ -46,7 +52,7 @@ module.exports = {
 
         if (cmaq < 102) {
             const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 

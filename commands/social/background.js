@@ -9,10 +9,17 @@ module.exports = {
         if (boolean) return;
 
         const Discord = API.Discord;
+        if (msg.slash) {
+          const embedtemp = await API.sendError(msg, 'Para este comando você precisa digitar em sua forma original', 'fundo')
+          await msg.quote(embedtemp)
+          return 
+        }
+        
         const attachment = msg.attachments.array()
+
 		    if (attachment.length < 1) {
             const embedtemp = await API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 1200x750')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -20,13 +27,13 @@ module.exports = {
 
         if (!attachment[0].name.match(/.(jpg|jpeg|png)$/i)){
           const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
-          await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+          await msg.quote(embedtemp)
           return;
         }
 
         if(attachment[0].size > 1050000) {
           const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
-          await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+          await msg.quote(embedtemp)
           return;
         }
 

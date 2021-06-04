@@ -17,7 +17,7 @@ module.exports = {
 
         if (frames == null || frames.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você não possui molduras disponíveis para serem apresentadas.')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -35,85 +35,119 @@ module.exports = {
         }
 
         API.playerUtils.cooldown.set(msg.author, "molduras", 30);
+
+        let btn0 = API.createButton('00', 'gray', '\u200B', '', true)
+        let btn1 = API.createButton('sBtn', 'gray', 'Equipar', '✅')
+        let btn2 = API.createButton('nBtn', 'gray', 'Desequipar', '❌')
+        let btn3 = API.createButton('b1Btn', 'blurple', '', '⏪')
+        let btn4 = API.createButton('b0Btn', 'gray', '', '◀')
+        let btn5 = API.createButton('f0Btn', 'gray', '', '▶')
+        let btn6 = API.createButton('f1Btn', 'blurple', '', '⏩')
+
+        if (total < 2) {
+            btn3.setDisabled()
+            btn4.setDisabled()
+            btn5.setDisabled()
+            btn6.setDisabled()
+        }
+
+        if (current == 1 && total > 1) {
+            btn3.setDisabled()
+            btn4.setDisabled()
+            btn5.setDisabled(false)
+            btn6.setDisabled(false)
+        }
+
+        btnRow0 = API.rowButton([btn1, btn2])
+        btnRow1 = API.rowButton([btn3, btn4, btn5, btn6])
         
 		const embed = new Discord.MessageEmbed()
         .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + API.frames.get(frames[0]).name)
         .setImage(API.frames.get(frames[0]).url)
         .setColor('#60ced6')
-		.setDescription(`Reaja com ✅ para selecionar alguma moldura\nReaja com ❌ para retirar a moldura atual\nReaja com ⏪, ⏩, ◀ ou ▶ para visualizar outras molduras`)
-        const embedmsg = await msg.quote(embed);
         
-        await embedmsg.react('✅')
-        await embedmsg.react('❌')
-        if (total > 1) {
-            embedmsg.react('⏪');
-            embedmsg.react('◀');
-            embedmsg.react('▶');
-            embedmsg.react('⏩');
-        }
+        const embedmsg = await msg.quote({ embed, components: [ btnRow0, btnRow1] });
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-
-        const emojis = ['✅', '❌', '⏪', '⏩', '◀', '▶']
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
 
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(emojis.includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
+            
+            b.defer()
 
             collector.resetTimer();
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 30);
 
-            if (reaction.emoji.name == '▶'){
+            if (b.id == 'f0Btn'){
                 if (current < total) current += 1;
-            } if (reaction.emoji.name == '◀'){
+            } if (b.id == 'b0Btn'){
                 if (current > 1) current -= 1;
             }
 
-            if (reaction.emoji.name == '⏩'){
+            if (b.id == 'f1Btn'){
                 current = total;
-            } if (reaction.emoji.name == '⏪'){
+            } if (b.id == 'b1Btn'){
                 current = 1;
             }
+
+            if (current == 1) {
+                btn3.setDisabled()
+                btn4.setDisabled()
+                btn5.setDisabled(false)
+                btn6.setDisabled(false)
+            } else if (current == total) {
+                btn3.setDisabled(false)
+                btn4.setDisabled(false)
+                btn5.setDisabled()
+                btn6.setDisabled()
+            } else {
+                btn3.setDisabled(false)
+                btn4.setDisabled(false)
+                btn5.setDisabled(false)
+                btn6.setDisabled(false)
+            }
+
+            btnRow0 = API.rowButton([btn1, btn2])
+            btnRow1 = API.rowButton([btn3, btn4, btn5, btn6])
 
             const frame = API.frames.get(frames[current-1])
 
             embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
-            if (reaction.emoji.name == '❌') {
+            if (b.id == 'nBtn') {
                 
                 API.frames.reforge(msg.author, 0)
 
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
                 embed.setImage(API.frames.get(frames[0]).url)
-                embedmsg.edit(embed);
+                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
                 return collector.stop();
 
-            } else if (reaction.emoji.name == '✅'){
+            } else if (b.id == 'sBtn'){
+
                 API.frames.reforge(msg.author, frame.id)
 
                 embed.setColor('#5bff45');
                 embed.setDescription('✅ Moldura equipada')
                 embed.setImage(frame.url)
-                embedmsg.edit(embed);
+                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
                 
                 return collector.stop();
+
             } else {
                 
                 embed.setImage(frame.url)
-                embedmsg.edit(embed);
+                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
+
             }
 
         });
         
-        collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
+        collector.on('end', b => {
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 0);
 

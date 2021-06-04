@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['recomcaixa', 'boxrewards', 'recc'],
     category: 'Players',
     description: 'Visualiza as recompensas de uma caixa misteriosa da sua mochila',
+    options: [{
+        name: 'id da caixa',
+        type: 'STRING',
+        description: 'Escreva o id da caixa da sua mochila para visualizar as recompensas da mesma',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -14,13 +20,13 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de caixa para visualizar as recompensas!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return;
         }
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return;
         }
 
@@ -29,7 +35,7 @@ module.exports = {
 
         if (obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return;
         }
 

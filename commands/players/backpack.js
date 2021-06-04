@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['backpack', 'bag', 'inv'],
     category: 'Players',
     description: 'Visualiza os itens que estão na sua mochila',
+    options: [{
+        name: 'membro',
+        type: 'USER',
+        description: 'Veja a mochila de algum membro',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -12,26 +18,31 @@ module.exports = {
 
         let member;
         let args = API.args(msg)
-        if (msg.mentions.users.size < 1) {
-            if (args.length == 0) {
-                member = msg.author;
-            } else {
-                try {
-                    
-                    let member2 = await API.client.users.fetch(args[0])
+        if (!msg.slash) {
+            if (msg.mentions.users.size < 1) {
+                if (args.length == 0) {
+                    member = msg.author;
+                } else {
+                    try {
+                    let member2 = await client.users.fetch(args[0])
                     if (!member2) {
                         member = msg.author
                     } else {
                         member = member2
                     }
-
-                } catch {
-                    member = msg.author
+                    } catch {
+                        member = msg.author
+                    }
                 }
-                
+            } else {
+                member = msg.mentions.users.first();
             }
         } else {
-            member = msg.mentions.users.first();
+            if (msg.options.length == 0) {
+                member = msg.author
+            } else {
+                member = msg.options[0].user
+            }
         }
 
         let arraycrates = await API.crateExtension.getCrates(member);

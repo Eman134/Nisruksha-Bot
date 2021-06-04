@@ -3,12 +3,12 @@ module.exports = {
     aliases: ['armazem', 'ar', 'estoque', 'recursos', 'storage'],
     category: 'Maquinas',
     description: 'Visualiza seu estoque de recursos completo',
-    options: {
+    options: [{
         name: 'membro',
         type: 'USER',
         description: 'Veja o armazém de algum membro',
         required: false,
-    },
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -59,12 +59,12 @@ module.exports = {
         , 'Aprimorar o armazém [<:upgrade:738434840457642054>]\nVisualizar recursos da sua máquina [<:recursos:738429524416528554>]')
         let msgembed = await msg.quote(embed);
         if (member != msg.author)return;
-        let money = await API.eco.money.get(msg.author);
+
         try {
-            msgembed.react('738434840457642054');
-            msgembed.react('738429524416528554');
+            await msgembed.react('738434840457642054');
+            await msgembed.react('738429524416528554');
         }catch (err){
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
 
         const filter = (reaction, user) => {

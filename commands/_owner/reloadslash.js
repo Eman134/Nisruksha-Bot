@@ -65,9 +65,14 @@ module.exports = {
                 //API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
                 if (commandfile.category != 'none') {
                     let options = []
-                    let log = false
+                    let log = true
                     if (commandfile.options) options = commandfile.options
-                    API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log(cmd)})
+                    try {
+                        await API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log('reloaded slash ' + cmd.name)})
+                    } catch (error) {
+                        console.log(error)
+                        console.log('Um erro ocorreu ao carregar o comando ' + commandfile.name)
+                    }
                 }
                 embed.setColor('#32a893');
                 embed.setDescription('✅ Reload aplicado', `

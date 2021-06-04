@@ -3,7 +3,13 @@ module.exports = {
     aliases: ['sugestao', 'sugestão', 'sugest', 'sug'],
     category: 'Outros',
     description: 'Faça uma sugestão de sistemas ou ideias para o bot',
-      async execute(API, msg) {
+    options: [{
+      name: 'sugestão',
+      type: 'STRING',
+      description: 'Escreva uma sugestão para o bot',
+      required: true,
+    }],
+    async execute(API, msg) {
   
         const boolean = await API.checkAll(msg);
         if (boolean) return;
@@ -12,7 +18,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa definir um texto explicando a sugestão', 'sugerir <texto>')
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
   
@@ -21,7 +27,8 @@ module.exports = {
         .setAuthor(`${msg.author.tag} | ${msg.author.id}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setDescription(`Sugestão enviada com sucesso!
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
-     await msg.quote(embed);
+        
+        await msg.quote(embed);
 
         const embed2 = new Discord.MessageEmbed()
         .setColor('RANDOM')
@@ -29,9 +36,9 @@ module.exports = {
         .setDescription(`🔴 Negada | 🟠 Em análise | 🟢 Aceita | 🟣 Existente/planejada | ⚫ Ignorada
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
         try{
-            let msg2 = await API.client.guilds.cache.get('693150851396796446').channels.cache.get('693910939111653436').send(embed2);
-            msg2.react(`👍🏾`)
-            msg2.react(`👎🏾`)
+            let msg2 = await API.client.channels.cache.get('693910939111653436').send(embed2);
+            await msg2.react(`👍🏾`)
+            await msg2.react(`👎🏾`)
         }catch{}
   
       }

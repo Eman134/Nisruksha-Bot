@@ -10,14 +10,11 @@ module.exports = {
 
         interaction.author = interaction.user
 
-        interaction.content = `${API.prefix}${interaction.commandName} ${interaction.options?.length > 0 ? interaction.options.map(i => i.value) : ''}`.trim()
+        interaction.content = `${API.prefix}${interaction.commandName} ${interaction.options.size > 0 ? interaction.options.map(i => i.value).join(' ') : ''}`.trim()
 
         interaction.slash = true
 
-        
         const channel = client.channels.cache.get(interaction.channel.id)
-        
-        const msg = new API.Discord.Message(client, interaction, channel);
 
         interaction.channel = channel
 
@@ -25,14 +22,9 @@ module.exports = {
 
         interaction.quote2 = async function (c, o) {
 
-            const { APIMessage, Message } = require("discord.js");
+            const { APIMessage } = require("discord.js");
             const content = c
             const options = o
-          
-            const { data: parsed, files } = await APIMessage
-              .create(this, content, options)
-              .resolveData()
-              .resolveFiles()
           
             let x 
             
@@ -63,15 +55,18 @@ module.exports = {
 
         interaction.quote = async (c, o) => {
             if (!response) {
+
                 response = true
 
                 const x = { ...c, ...o }
 
                 if (c.type == 'rich') return interaction.editReply(c)
 
+                if (typeof c === 'string') x.content = c
+
                 if (Object.keys(x).includes('embed')) x.embeds = [{ ...x.embed }]
 
-                if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons')) {
+                if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
                     const ie = await interaction.editReply('\u200B')
                     return ie.edit(x)
                 } else {
@@ -85,6 +80,7 @@ module.exports = {
         interaction.edit = async (c, o) => {
             
             if (!response) {
+
                 response = true;
                 interaction.defer(true)
 
@@ -111,6 +107,7 @@ module.exports = {
                 }
 
                 return await interaction.editReply(x)
+
             } else {
                 return interaction.quote2(c, o)
             }
@@ -122,7 +119,7 @@ module.exports = {
 				.messages['@original'].delete();
 		};
 
-        client.emit("message", interaction)
+        API.client.emit("message", interaction)
         interaction.defer(true)
 
 

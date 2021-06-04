@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['versao', 'patch', 'att'],
     category: 'Outros',
     description: 'Visualize o último patch de atualizações do bot',
+    options: [{
+        name: 'versão',
+        type: 'STRING',
+        description: 'Digite uma versão para visualizar as modificações que ocorreram nela',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
