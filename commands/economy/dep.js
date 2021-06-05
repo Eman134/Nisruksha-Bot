@@ -13,9 +13,6 @@ module.exports = {
         mastery: 20,
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
         const args = API.args(msg);
 
         if (args.length == 0) {

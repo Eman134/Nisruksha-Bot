@@ -7,7 +7,7 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Veja as moedas e o histórico de transação de algum membro',
-        required: false,
+        required: false
     }],
     async execute(API, msg) {
         const boolean = await API.checkAll(msg);
@@ -37,7 +37,7 @@ module.exports = {
                 member = msg.mentions.users.first();
             }
         } else {
-            if (msg.options.length == 0) {
+            if (msg.options.size == 0) {
                 member = msg.author
             } else {
                 member = msg.options.get('membro').user

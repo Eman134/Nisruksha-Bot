@@ -19,9 +19,6 @@ module.exports = {
     mastery: 50,
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
         const Discord = API.Discord;
         const client = API.client;
         const args = API.args(msg);

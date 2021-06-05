@@ -4,8 +4,7 @@ module.exports = {
     category: 'Economia',
     description: 'Receba uma recompensa diária e aumente seu streak',
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg);
-        if (boolean) return;
+
         const Discord = API.Discord;
 
         const check = await API.playerUtils.cooldown.check(msg.author, "daily");
