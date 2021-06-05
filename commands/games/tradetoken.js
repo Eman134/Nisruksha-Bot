@@ -5,7 +5,7 @@ module.exports = {
     description: 'Troca as suas fichas por uma quantia de dinheiro',
     options: [
         {
-            name: 'quantia de fichas',
+            name: 'quantia',
             type: 'STRING',
             description: 'Digite a quantia de fichas que deseja trocar',
             required: false

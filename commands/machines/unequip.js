@@ -4,7 +4,7 @@ module.exports = {
     category: 'Maquinas',
     description: 'Desquipa algum chipe da sua máquina',
     options: [{
-        name: 'id de slot',
+        name: 'slot',
         type: 'STRING',
         description: 'Selecione o id do slot para desequipar',
         required: false

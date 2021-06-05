@@ -4,7 +4,7 @@ module.exports = {
     category: 'Empresas',
     description: 'Envia um currículo de trabalho para alguma empresa',
     options: [{
-        name: 'código da empresa',
+        name: 'código-empresa',
         type: 'STRING',
         description: 'Digite o código da empresa que deseja enviar o currículo',
         required: false

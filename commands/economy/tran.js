@@ -3,6 +3,19 @@ module.exports = {
     aliases: ['tn', 'pay'],
     category: 'Economia',
     description: 'Transfere uma quantia de dinheiro para outro jogador',
+    options: [{
+        name: 'membro',
+        type: 'USER',
+        description: 'Selecione um membro para realizar a transferência',
+        required: true
+    },
+    {
+        name: 'quantia',
+        type: 'INTEGER',
+        description: 'Selecione uma quantia de dinheiro para transferência',
+        required: true
+    }],
+    mastery: 50,
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

@@ -3,6 +3,14 @@ module.exports = {
     aliases: ['dep'],
     category: 'Economia',
     description: 'Deposita uma quantia de dinheiro no banco central',
+    options: [
+        {
+            name: 'quantia',
+            type: 'STRING',
+            description: 'Selecione uma quantia de dinheiro para depósito',
+            required: true
+        }],
+        mastery: 20,
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -12,7 +20,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para depósito!`, `depositar <quantia | tudo>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return;
         }
         const money = await API.eco.money.get(msg.author)
@@ -21,26 +29,26 @@ module.exports = {
 
             if (!API.isInt(API.toNumber(args[0]))) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `depositar <quantia | tudo>`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (money < API.toNumber(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você não possui essa quantia de dinheiro para depositar!`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
 
             if (API.toNumber(args[0]) < 1) {
                 const embedtemp = await API.sendError(msg, `Você não pode depositar essa quantia de dinheiro!`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
             total = API.toNumber(args[0]);
         } else {
             if (money < 1) {
                 const embedtemp = await API.sendError(msg, `Você não possui dinheiro para depositar!`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
             total = money;

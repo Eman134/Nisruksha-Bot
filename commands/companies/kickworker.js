@@ -4,7 +4,7 @@ module.exports = {
     category: 'Empresas',
     description: 'Demite um funcionário da sua empresa',
     options: [{
-        name: 'id do membro',
+        name: 'id-membro',
         type: 'STRING',
         description: 'Digite o id do membro que deseja demotar',
         required: false

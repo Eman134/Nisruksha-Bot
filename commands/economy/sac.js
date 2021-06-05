@@ -3,6 +3,14 @@ module.exports = {
     aliases: ['sac'],
     category: 'Economia',
     description: 'Saca uma quantia de dinheiro do banco central',
+    options: [
+    {
+        name: 'quantia',
+        type: 'STRING',
+        description: 'Selecione uma quantia de dinheiro para saque',
+        required: true
+    }],
+    mastery: 20,
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

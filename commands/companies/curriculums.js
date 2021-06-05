@@ -24,7 +24,7 @@ module.exports = {
         ]
     },
     {
-        name: 'id do currículo',
+        name: 'id-currículo',
         type: 'INTEGER',
         description: 'Digite o id do currículo para aceitar ou negar',
         required: false

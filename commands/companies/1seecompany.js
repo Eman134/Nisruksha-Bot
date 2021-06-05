@@ -17,7 +17,7 @@ module.exports = {
     category: 'Empresas',
     description: 'Visualiza as informações da empresa onde você presta serviço ou de alguma existente',
 	options: [{
-        name: 'código da empresa',
+        name: 'empresa',
         type: 'STRING',
         description: 'Digite o código da empresa para ver as informações dela',
         required: false

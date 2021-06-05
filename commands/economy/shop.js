@@ -3,6 +3,13 @@ module.exports = {
     aliases: ['shop', 'l'],
     category: 'Economia',
     description: 'Veja os produtos disponíveis para venda',
+    options: [{
+        name: 'categoria',
+        type: 'STRING',
+        description: 'Digite uma categoria de loja para visualizar os produtos',
+        required: false
+    }],
+    mastery: 10,
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -30,7 +37,7 @@ module.exports = {
         let array = Object.keys(obj);
         if (!API.shopExtension.categoryExists(categoria)){
             const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
 			return;
         }
         var product = obj[categoria];

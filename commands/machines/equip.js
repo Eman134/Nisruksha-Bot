@@ -4,7 +4,7 @@ module.exports = {
     category: 'Maquinas',
     description: 'Equipa alguma placa que está no inventário da sua máquina',
     options: [{
-        name: 'id de chipe',
+        name: 'chipe',
         type: 'STRING',
         description: 'Selecione um chipe para equipar na sua máquina',
         required: false
