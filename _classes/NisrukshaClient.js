@@ -201,6 +201,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                         API.client.channels.cache.get(options.dbl.voteLogs_channel).send(embed)
                         API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
                         API.eco.points.add(user, size)
+                        API.playerUtils.cooldown.set(msg.author, "votetopgg", 43200);
 
                     })
 

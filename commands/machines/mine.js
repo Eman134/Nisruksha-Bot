@@ -53,7 +53,7 @@ module.exports = {
         let profundidade = await API.maqExtension.getDepth(msg.author)
 
         let energymax = await API.maqExtension.getEnergyMax(msg.author)
-        let progress = API.getProgress(8, '<:energyfull:741675235010674849>', '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(msg.author), energymax);
+        let progress = API.getProgress(8, { 75: '<:energyfull:741675235010674849>', 40: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(msg.author), energymax);
 
         let ep = await API.maqExtension.getEquipedPieces(msg.author);
         let armazematual = await API.maqExtension.storage.getSize(msg.author);
@@ -158,7 +158,7 @@ module.exports = {
                 ep = await API.maqExtension.getEquipedPieces(msg.author);
                 let energymax = await API.maqExtension.getEnergyMax(msg.author)
                 const e = await API.maqExtension.getEnergy(msg.author);
-                let progress2 = API.getProgress(8, '<:energyfull:741675235010674849>', '<:energyempty:741675234796503041>', e+1, energymax);
+                let progress2 = API.getProgress(8, { 75: '<:energyfull:741675235010674849>', 40: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', e+1, energymax);
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");
                 const arsize = await API.maqExtension.storage.getSize(msg.author);

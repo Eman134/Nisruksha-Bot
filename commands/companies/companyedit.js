@@ -32,9 +32,9 @@ module.exports = {
       ],
     },
     {
-        name: "id-currículo",
-        type: 'INTEGER',
-        description: 'Digite o id do currículo para aceitar ou negar',
+        name: "valor",
+        type: 'STRING',
+        description: 'Digite o valor que a edição necessita',
         required: false
     }
     ],

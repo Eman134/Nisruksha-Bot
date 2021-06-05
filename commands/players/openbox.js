@@ -4,7 +4,7 @@ module.exports = {
     category: 'Players',
     description: 'Abre uma caixa misteriosa da sua mochila',
     options: [{
-        name: 'id da caixa',
+        name: 'id-caixa',
         type: 'STRING',
         description: 'Escreva o id da caixa da sua mochila para abrir',
         required: false

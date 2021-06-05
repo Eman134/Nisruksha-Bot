@@ -485,6 +485,16 @@ API.getProgress = function(maxticks, tickchar, seekpos, atual, max, percento) {
     const percentage = atual / max;
     const progress = Math.round((maxticks * percentage));
     const emptyProgress = maxticks - progress;
+
+    if (typeof tickchar == 'object') {
+        for (xii = 0; xii < Object.keys(tickchar).length; xii++) {
+            if ( percentage*100 > parseInt(Object.keys(tickchar).reverse()[xii])){
+                tickchar = tickchar[Object.keys(tickchar).reverse()[xii]]
+                break;
+            }
+        }
+    }
+
     const progressText = tickchar.repeat(progress);
     const emptyProgressText = seekpos.repeat(emptyProgress);
 

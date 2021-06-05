@@ -4,7 +4,7 @@ module.exports = {
     category: 'Players',
     description: 'Faz o uso de um item usável da sua mochila',
     options: [{
-        name: 'nome do item',
+        name: 'item',
         type: 'STRING',
         description: 'Escreva o nome do item que você deseja usar',
         required: false
