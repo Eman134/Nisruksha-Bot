@@ -3,16 +3,15 @@ module.exports = {
     aliases: ['col', 'collect'],
     category: 'Trabalhos',
     description: '<:icon1:745663998854430731> Coleta diferente sementes e flores para plantação',
+    options: [],
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         let company;
@@ -22,14 +21,14 @@ module.exports = {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 1) {
                 const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 1) {
                 const embedtemp = await API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
 
             }
@@ -37,13 +36,13 @@ module.exports = {
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se coletando no momento! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -51,7 +50,7 @@ module.exports = {
 
         if (sta <= 40) {
             const embedtemp = await API.sendError(msg, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -169,7 +168,7 @@ module.exports = {
 
                 if (descartados.length == seedobj.length) {
                     const embedtemp = await API.sendErrorM(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     embedmsg.reactions.removeAll();
                     return;
@@ -177,7 +176,7 @@ module.exports = {
 
                 if (sta2 < 30) {
                     const embedtemp = await API.sendErrorM(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     embedmsg.reactions.removeAll();
                     return;
@@ -197,7 +196,7 @@ module.exports = {
                     if (reacted) {
                         embedmsg.reactions.removeAll();
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
-                        await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                        await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                     } else {edit();}
                 });

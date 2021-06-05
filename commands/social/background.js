@@ -3,10 +3,8 @@ module.exports = {
   aliases: ['background', 'bg', 'wallpaper'],
   category: 'Social',
   description: 'Muda a imagem de fundo no seu perfil',
+  mastery: 7,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         if (msg.slash) {

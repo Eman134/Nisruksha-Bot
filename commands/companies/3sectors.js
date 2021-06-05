@@ -3,12 +3,10 @@ module.exports = {
     aliases: ['sectors'],
     category: 'Empresas',
     description: 'Visualiza os setores de empresas disponíveis',
+    options: [],
+    mastery: 30,
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
-        let args = API.args(msg);
 		const Discord = API.Discord;
 
         const embed = new Discord.MessageEmbed()

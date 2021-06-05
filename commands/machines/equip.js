@@ -7,12 +7,10 @@ module.exports = {
         name: 'id de chipe',
         type: 'STRING',
         description: 'Selecione um chipe para equipar na sua máquina',
-        required: false,
+        required: false
     }],
+    mastery: 25,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

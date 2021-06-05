@@ -13,6 +13,7 @@ module.exports = {
     aliases: ['p', 'profile', 'level'],
     category: 'Social',
     description: 'Veja suas informações como nível e tenha um perfil bonito',
+    mastery: 6,
     options: [{
         name: 'membro',
         type: 'USER',
@@ -20,9 +21,6 @@ module.exports = {
         required: false,
     }],
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
         
         let member;
         let args = API.args(msg)
@@ -46,10 +44,10 @@ module.exports = {
                 member = msg.mentions.users.first();
             }
         } else {
-            if (msg.options.length > 0) {
-                member = msg.options[0].user
-            } else {
+            if (msg.options.length == 0) {
                 member = msg.author
+            } else {
+                member = msg.options.get('membro').user
             }
         }
 
@@ -102,7 +100,9 @@ module.exports = {
         // user
         background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 117,3)
         background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 181,3)
-        
+        // Mastery
+        const mastery = await API.playerUtils.getMastery(member)
+        background = await API.img.drawText(background, mastery, 24, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 1150, 670,5)
         // avatar e moldura
 
         let avatar = await API.img.loadImage(member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));

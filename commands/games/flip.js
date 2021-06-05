@@ -15,10 +15,8 @@ module.exports = {
         description: 'Selecione uma quantia de fichas para aposta',
         required: true,
     }],
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
@@ -34,7 +32,7 @@ module.exports = {
 
         let member 
         if (msg.slash) {
-            member = msg.options[0].user
+            member = msg.options.get('membro').user
         } else {
 
             member = msg.mentions.users.first();

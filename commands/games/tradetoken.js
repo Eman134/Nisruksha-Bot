@@ -3,13 +3,18 @@ module.exports = {
     aliases: ['tfichas', 'tf'],
     category: 'Jogos',
     description: 'Troca as suas fichas por uma quantia de dinheiro',
+    options: [
+        {
+            name: 'quantia de fichas',
+            type: 'STRING',
+            description: 'Digite a quantia de fichas que deseja trocar',
+            required: false
+        }
+    ],
+    mastery: 20,
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
         const Discord = API.Discord;
-        const client = API.client;
         const args = API.args(msg);
 
         if (args.length == 0) {

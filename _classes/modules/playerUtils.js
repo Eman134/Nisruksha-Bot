@@ -107,4 +107,16 @@ playerUtils.cooldown.message = async function(msg, vare, text) {
   return embedmsg;
 }
 
+playerUtils.addMastery = async function(member, value) {
+  let obj = await API.getInfo(member, "players");
+  API.setInfo(member, "players", "mastery", parseInt(obj.mastery) + parseInt(value));
+}
+
+playerUtils.getMastery = async function (member) {
+  let result
+  let obj = await API.getInfo(member, "players");
+  result = obj["mastery"];
+  return result;
+}
+
 module.exports = playerUtils

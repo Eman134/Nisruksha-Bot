@@ -3,10 +3,9 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'none',
+    options: [],
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
@@ -17,7 +16,7 @@ module.exports = {
 
             if(!API.events.race.rodando) {
                 const embedtemp = await API.sendError(msg, 'Não possui nenhuma **Corrida de Cavalos** ativa no momento!\nEm nosso servidor oficial você pode ser notificado quando há eventos! (`'+ API.prefix + 'convite`)')
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return true
             }
 
@@ -25,7 +24,7 @@ module.exports = {
 
             if (args.length == 0) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para aposta!`, `apostarcavalo <quantia | tudo>`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return true
             }
             const money = await API.eco.money.get(msg.author)
@@ -34,26 +33,26 @@ module.exports = {
 
                 if (!API.isInt(API.toNumber(args[0]))) {
                     const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `apostarcavalo <quantia | tudo>`)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     return true
                 }
 
                 if (money < API.toNumber(args[0])) {
                     const embedtemp = await API.sendError(msg, `Você não possui essa quantia de dinheiro para apostar!`)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     return true
                 }
 
                 if (API.toNumber(args[0]) < 1) {
                     const embedtemp = await API.sendError(msg, `Você não pode apostar essa quantia de dinheiro!`)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     return true
                 }
                 total = API.toNumber(args[0]);
             } else {
                 if (money < 1) {
                     const embedtemp = await API.sendError(msg, `Você não possui dinheiro para apostar!`)
-                    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                    await msg.quote(embedtemp)
                     return true
                 }
                 total = money;
@@ -61,12 +60,12 @@ module.exports = {
 
             if (total < 1000) {
                 const embedtemp = await API.sendError(msg, `O mínimo para apostar em cavalos é de \`1000 ${API.money}\` ${API.moneyemoji}`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return true
             }
             if (total > 2000000) {
                 const embedtemp = await API.sendError(msg, `O máximo para apostar em cavalos é de \`${API.format(2000000)} ${API.money}\` ${API.moneyemoji}`)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return true
             }
 

@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['m', 'mine'],
     category: 'Maquinas',
     description: 'Inicia sua máquina e cava as profundezas encontrando minérios sob a energia solar',
+    mastery: 25,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const isFull = await API.maqExtension.storage.isFull(msg.author);

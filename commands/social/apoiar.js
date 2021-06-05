@@ -11,10 +11,8 @@ module.exports = {
         description: 'Escreva um código de apoiador',
         required: true,
     }],
+    mastery: 20,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         

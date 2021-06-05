@@ -3,17 +3,11 @@ module.exports = {
     aliases: ['evaluate', 'ev'],
     category: 'none',
     description: 'Executa um código em javascript',
-    options: {
-        name: 'expressão',
-        type: 'STRING',
-        description: 'Coloque uma expressão javascript para executar',
-        required: true,
-    },
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
+        
         const Discord = API.Discord;
-
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         const { inspect } = require('util')
 

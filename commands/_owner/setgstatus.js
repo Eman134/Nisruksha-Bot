@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['setargstatus', 'gstatus', 'setgs'],
     category: 'none',
     description: 'Modifica o status global do bot',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
@@ -14,13 +13,13 @@ module.exports = {
 
         if (!args) {
             const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -29,7 +28,7 @@ module.exports = {
         if (sl == 2) {
             if (args.length == 1) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar um motivo para a manutenção!`, "setgs 2 <motivo>")
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
             m = API.getMultipleArgs(msg, 2)

@@ -3,11 +3,8 @@ module.exports = {
     aliases: ['energy', 'e'],
     category: 'Maquinas',
     description: 'Visualiza a energia da sua máquina',
+    mastery: 8,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
         const Discord = API.Discord;
 
         let time = await API.maqExtension.getEnergyTime(msg.author)

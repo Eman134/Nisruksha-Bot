@@ -50,10 +50,14 @@ module.exports = {
     aliases: ['companies'],
     category: 'Empresas',
     description: 'Visualiza as empresas existentes',
+    options: [{
+        name: 'página',
+        type: 'INTEGER',
+        description: 'Digite o número da página para pesquisar empresas',
+        required: false,
+    }],
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         let args = API.args(msg);
 		const Discord = API.Discord;

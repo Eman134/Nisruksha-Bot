@@ -3,9 +3,8 @@ module.exports = {
     aliases: ['loadslash', 'reloadsl'],
     category: 'none',
     description: 'Dá reload nos comandos de slash',
+    options: [],
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 

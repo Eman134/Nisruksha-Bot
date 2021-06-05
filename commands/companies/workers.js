@@ -3,17 +3,16 @@ module.exports = {
     aliases: ['func', 'funcionarios', 'workers'],
     category: 'Empresas',
     description: 'Visualiza a lista de funcionários e atividade',
+    options: [],
+    mastery: 20,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -52,7 +51,7 @@ module.exports = {
                 usrlist.splice(i, 1)
                 API.setCompanieInfo(owner, company.company_id, 'workers', usrlist)
                 const embedtemp = await API.sendError(msg, 'Houve um erro ao carregar a lista de funcionários! Tente novamente.')
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return
             }
 

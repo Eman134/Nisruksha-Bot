@@ -13,10 +13,9 @@ module.exports = {
     aliases: ['hunt'],
     category: 'Trabalhos',
     description: '<:icon2:745663998938316951> Inicia uma caçada á monstros ao redor da sua localização',
+    options: [],
+    mastery: 18,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['permserver', 'setsvstatus', 'setss'],
     category: 'none',
     description: 'Permite um servidor a executar comandos ou bane',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         let args = API.args(msg)
 

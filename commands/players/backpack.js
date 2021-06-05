@@ -9,10 +9,8 @@ module.exports = {
         description: 'Veja a mochila de algum membro',
         required: false,
     }],
+    mastery: 7,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 
@@ -41,7 +39,7 @@ module.exports = {
             if (msg.options.length == 0) {
                 member = msg.author
             } else {
-                member = msg.options[0].user
+                member = msg.options.get('membro').user
             }
         }
 

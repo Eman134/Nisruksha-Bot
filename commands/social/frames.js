@@ -3,10 +3,8 @@ module.exports = {
     aliases: ["frames"],
     category: 'Social',
     description: 'Faça a escolha da moldura que será apresentada em seu perfil',
+    mastery: 2,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

@@ -2,10 +2,8 @@ module.exports = {
     name: 'ping',
     category: 'Outros',
     description: 'Veja a latência atual do bot',
+    mastery: 5,
 	async execute(API, msg) {
-        
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
         
         const Discord = API.Discord;
         const client = API.client;

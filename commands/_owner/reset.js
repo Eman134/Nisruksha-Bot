@@ -3,9 +3,9 @@ module.exports = {
     aliases: ['resetar', 'runquery'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 

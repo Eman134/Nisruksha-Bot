@@ -9,10 +9,8 @@ module.exports = {
         description: 'Escreva o id da caixa da sua mochila para abrir',
         required: false,
     }],
+    mastery: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

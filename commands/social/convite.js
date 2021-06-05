@@ -5,10 +5,8 @@ module.exports = {
     aliases: ['meucodigo', 'meuconvite','referral', 'ref'],
     category: 'Social',
     description: 'Visualiza os status de convite de jogadores',
+    mastery: 3,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

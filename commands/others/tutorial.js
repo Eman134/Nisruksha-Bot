@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['site', 'wiki'],
     category: 'Outros',
     description: 'Saiba todas as informações de cada comando e como usar o bot!',
+    mastery: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         

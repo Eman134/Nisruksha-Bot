@@ -3,33 +3,32 @@ module.exports = {
     aliases: ['limpar', 'purge'],
     category: 'none',
     description: 'none',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         let args = API.args(msg)
 		if (!args){
             const embedtemp = await API.sendError(msg, "Digite um número de mensagens para dar purge", `limpar 10`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, "Você precisa digitar um NÚMERO!", `limpar 10`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         let arg = parseInt(args[0])
         if (arg < 1 || arg > 100) {
             const embedtemp = await API.sendError(msg, "Você precisa digitar um número maior do que 0 e menor ou igual á 100!", `limpar 10`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         try {
             await msg.channel.bulkDelete(arg).catch()
-            await msg.quote(`Você limpou **${arg}** mensagens deste canal!`).then(ms => ms.delete({ timeout: 5000, reason: 'Limpo por um moderador.' })).catch()
+            await msg.quote(`Você limpou **${arg}** mensagens deste canal!`).then(ms => setTimeout(() => ms.delete()), 5000).catch()
         } catch{
         }
 

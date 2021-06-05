@@ -16,15 +16,17 @@ module.exports = {
 	aliases: ['seecompany', 'veremp', 'seecomp'],
     category: 'Empresas',
     description: 'Visualiza as informações da empresa onde você presta serviço ou de alguma existente',
+	options: [{
+        name: 'código da empresa',
+        type: 'STRING',
+        description: 'Digite o código da empresa para ver as informações dela',
+        required: false
+    }],
+    mastery: 60,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-		if (boolean) return;
 		
 		let member;
 		let args = API.args(msg);
-		const Discord = API.Discord;
-		
 
 		if (args.length == 0) {
 			member = msg.author;

@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['vote', 'upvote'],
     category: 'Outros',
     description: 'Vote para ajudar no crescimento do bot e resgate recompensas',
+    mastery: 10,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         

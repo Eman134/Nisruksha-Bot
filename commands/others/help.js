@@ -9,9 +9,8 @@ module.exports = {
         description: 'Digite o nome da categoria para obter a lista de comandos, descrição e alcunhas.',
         required: false,
     }],
+	mastery: 4,
 	async execute(API, msg) {
-		const boolean = await API.checkAll(msg);
-		if (boolean) return;
 		
 		let args = API.args(msg);
 		const Discord = API.Discord;

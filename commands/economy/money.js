@@ -40,7 +40,7 @@ module.exports = {
             if (msg.options.length == 0) {
                 member = msg.author
             } else {
-                member = msg.options[0].user
+                member = msg.options.get('membro').user
             }
         }
         

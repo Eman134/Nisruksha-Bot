@@ -3,10 +3,10 @@ module.exports = {
     aliases: ['leaveserver'],
     category: 'none',
     description: 'Faz com que o bot saia de algum servidor',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
 
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
         let args = API.args(msg);
 
         if (args.length == 0) {

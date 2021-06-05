@@ -9,10 +9,9 @@ module.exports = {
       description: 'Escreva uma sugestão para o bot',
       required: true,
     }],
+    mastery: 20,
     async execute(API, msg) {
-  
-        const boolean = await API.checkAll(msg);
-        if (boolean) return;
+
         let args = API.args(msg)
         const Discord = API.Discord;
 

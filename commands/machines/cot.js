@@ -9,10 +9,8 @@ module.exports = {
         description: 'Veja a cotação de um minério específico',
         required: false,
     }],
+    mastery: 15,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 
@@ -29,7 +27,7 @@ module.exports = {
             footer += ('Última atualização em ' + API.maqExtension.lastcot)
             }
             if (API.maqExtension.proxcot !== 0) {
-                footer += ('\nPróxima atualização em ' + API.ms2(API.maqExtension.proxcot-Date.now()+(60000*20)))
+                footer += ('\nPróxima atualização em ' + API.ms2(API.maqExtension.proxcot-Date.now()+(60000*API.events.getConfig().cotacao)))
             }
             if (footer != "") embed.setFooter(footer)
 

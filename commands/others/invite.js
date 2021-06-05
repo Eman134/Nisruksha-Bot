@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['invite', 'convidar', 'suporte'],
     category: 'Outros',
     description: 'Visualize meus links próprios para votar, me convidar ou meu servidor',
+    mastery: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         

@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['gerarchave', 'gchave', 'gkey', 'genkey'],
     category: 'none',
     description: 'Gera uma chave de ativação com um produto de recompensa',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
@@ -14,7 +13,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar um tipo de chave e sua duração', `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -52,18 +51,18 @@ module.exports = {
         let choose = args[0].toUpperCase();
         if (Object.keys(types).includes(choose) == false) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (types[choose].requiret == true && args.length < 2) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar um tempo de duração para a o produto', `gerarchave ${types[choose].name} 1mo 30d 10h 30m 30s`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (types[choose].requiresize == true && args.length < 2) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         let time = 0;
@@ -95,7 +94,7 @@ module.exports = {
         let size = 0;
         if (types[choose].requiresize == true && !API.isInt(args[1])) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         if (types[choose].requiresize == true){

@@ -3,10 +3,9 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'none',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         await msg.quote(`Debug foi setado para ${!API.debug}`)
         

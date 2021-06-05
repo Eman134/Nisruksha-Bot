@@ -7,12 +7,10 @@ module.exports = {
         name: 'id de slot',
         type: 'STRING',
         description: 'Selecione o id do slot para desequipar',
-        required: false,
+        required: false
     }],
+    mastery: 15,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

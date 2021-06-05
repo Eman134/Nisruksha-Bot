@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['top', 'rank', 'rankglobal'],
     category: 'Social',
     description: 'Visualiza o ranking GLOBAL de alguma categoria',
+    mastery: 3,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
@@ -65,8 +63,8 @@ module.exports = {
                     table: 'players',
                     column: 'mastery'
                 },
-                name: 'maestria',
-                formated: 'pontos de maestria 🔰'
+                name: API.mastery.name,
+                formated: API.mastery.name + ' ' + API.mastery.emoji
             }
         }
 

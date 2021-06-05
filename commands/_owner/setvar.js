@@ -3,15 +3,15 @@ module.exports = {
     aliases: ['svar'],
     category: 'none',
     description: 'Seta uma variável e um valor no banco de dados',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 
         if (args.length < 4) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela> <coluna> <valor>");
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

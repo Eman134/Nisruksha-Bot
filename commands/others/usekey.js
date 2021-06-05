@@ -9,10 +9,8 @@ module.exports = {
         description: 'Coloque a chave para resgatar a recompensa da mesma',
         required: true,
     }],
+    mastery: 15,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

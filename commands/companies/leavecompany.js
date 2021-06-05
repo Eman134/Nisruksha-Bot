@@ -3,17 +3,16 @@ module.exports = {
     aliases: ['sairempresa', 'medemitir'],
     category: 'Empresas',
     description: 'Se demite da empresa que você trabalha atualmente',
+    options: [],
+    mastery: 50,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
 
         if (!(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você não trabalha em nenhuma empresa para se demitir${ await API.company.check.hasCompany(msg.author) ?`\nCaso deseja fechar sua empresa utilize \`${API.prefix}fecharempresa\``:''}`)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

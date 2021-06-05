@@ -20,6 +20,8 @@ module.exports = {
         if (commandfile) {
 
             try {
+                const boolean = await API.checkAll(msg, commandfile.perm ? commandfile.perm : 1, commandfile.mastery ? commandfile.mastery : 0);
+                if (boolean) return;
                 commandfile.execute(API, msg, ...args);
             } catch (error) {
                 console.error(error);

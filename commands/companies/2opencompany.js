@@ -3,10 +3,20 @@ module.exports = {
     aliases: ['criarempresa', 'opencompany', 'abrire'],
     category: 'Empresas',
     description: 'Abra uma empresa de algum setor em seu nome e customize-a',
+    options: [{
+        name: 'setor',
+        type: 'STRING',
+        description: 'Digite o nome do setor para abrir',
+        required: false,
+    },
+    {
+        name: 'nome',
+        type: 'STRING',
+        description: 'Digite o nome da empresa',
+        required: false,
+    }],
+    mastery: 60,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         let args = API.args(msg);
         const Discord = API.Discord;

@@ -9,10 +9,8 @@ module.exports = {
         description: 'Coloque uma expressão de matemática para calcular',
         required: true,
     }],
+    mastery: 10,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const args = msg.content.split(' ').slice(1);

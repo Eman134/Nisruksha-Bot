@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['picktreasure'],
     category: 'none',
     description: 'Faça uma escavação na sua vila atual e tente encontrar tesouros',
+    options: [],
+    mastery: 40,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

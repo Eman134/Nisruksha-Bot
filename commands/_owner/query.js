@@ -3,9 +3,9 @@ module.exports = {
     aliases: ['run', 'runquery'],
     category: 'none',
     description: 'Executa uma query no banco de dados',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 

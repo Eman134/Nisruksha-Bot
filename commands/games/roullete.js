@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['roullete'],
     category: 'Jogos',
     description: 'Aposte em frutas e multiplique sua aposta',
+    options: [],
+    mastery: 20,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

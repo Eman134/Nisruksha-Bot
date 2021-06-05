@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['donate'],
     category: 'Outros',
     description: 'Veja as informações necessárias para realizar uma doação',
+    mastery: 20,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-                if (boolean) return;
 
                 const Discord = API.Discord;
                 const client = API.client;

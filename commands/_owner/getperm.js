@@ -3,6 +3,7 @@ module.exports = {
     aliases: ['getperm'],
     category: 'none',
     description: 'none',
+    options: [],
 	async execute(API, msg) {
 
         if (API.owner.includes(msg.author.id)) {

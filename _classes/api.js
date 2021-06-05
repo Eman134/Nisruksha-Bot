@@ -81,10 +81,14 @@ const API = {
     tp: {
         name: 'pontos temporais',
         emoji: '<:tp:841870541274087455>'
+    },
+    mastery: {
+        name: 'pontos de maestria',
+        emoji: '🔰'
     }
 };
 
-API.checkAll = async function(msg, req) {
+API.checkAll = async function(msg, req, maestria = 0) {
 
     API.client.users.fetch(msg.author.id)
     
@@ -349,7 +353,7 @@ API.checkAll = async function(msg, req) {
         if (check2) return true;
 
         const spamcheckmsg = await API.playerUtils.cooldown.message(msg, 'global', 'digitar outro comando')
-        spamcheckmsg.delete({ timeout: 5000 })
+        setTimeout(() => spamcheckmsg.delete(), 5000)
 
         API.playerUtils.cooldown.set(msg.author, "antispam", 3);
         return true;
@@ -360,6 +364,9 @@ API.checkAll = async function(msg, req) {
 
     const totalcmd = await API.getGlobalInfo('totalcmd');
     API.setGlobalInfo('totalcmd', parseInt(totalcmd)+1)
+
+    API.playerUtils.addMastery(msg.author, maestria + 1)
+
     API.setInfo(msg.author, 'players', 'cmdsexec', parseInt(totalcmdplayer.cmdsexec)+1)
     
     const totalcmdserver = await API.serverdb.getServerInfo(msg.guild.id);

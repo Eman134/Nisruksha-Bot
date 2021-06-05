@@ -9,10 +9,8 @@ module.exports = {
         description: 'Selecione uma quantia para upar o armazém',
         required: true,
     }],
+    mastery: 20,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

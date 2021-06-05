@@ -9,9 +9,8 @@ module.exports = {
         description: 'Veja os cooldowns ativos de um membro',
         required: false,
     }],
+    mastery: 25,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg);
-        if (boolean) return;
         
         let args = API.args(msg)
 

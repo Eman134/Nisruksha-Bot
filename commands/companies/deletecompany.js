@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['closecompany'],
     category: 'Empresas',
     description: 'Feche a sua empresa atual',
+    options: [],
+    mastery: 50,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         let args = API.args(msg);
         const Discord = API.Discord;

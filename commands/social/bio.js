@@ -9,11 +9,8 @@ module.exports = {
         description: 'Escreva uma pequena biografia sobre você',
         required: true,
     }],
+    mastery: 5,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
-
         const Discord = API.Discord;
 
         const args = API.args(msg);

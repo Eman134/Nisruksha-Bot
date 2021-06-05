@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['stamina', 'est', 'st'],
     category: 'Players',
     description: 'Visualiza as informações da sua estamina',
+    mastery: 10,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 

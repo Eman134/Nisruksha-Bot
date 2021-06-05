@@ -9,10 +9,8 @@ module.exports = {
         description: 'Escreva o nome do item que você deseja usar',
         required: false,
     }],
+    mastery: 10,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;

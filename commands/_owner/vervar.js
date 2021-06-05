@@ -3,15 +3,15 @@ module.exports = {
     aliases: ['seevar', 'verobj', 'seeobj', 'getobj'],
     category: 'none',
     description: 'Veja uma variável e um valor do banco de dados',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 
         if (args.length < 2) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela>");
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return
         }
 

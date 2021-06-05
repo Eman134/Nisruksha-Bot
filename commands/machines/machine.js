@@ -20,10 +20,8 @@ module.exports = {
         description: 'Veja a máquina de algum membro',
         required: false,
     }],
+    mastery: 35,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         let member;
         let args = API.args(msg)
@@ -50,7 +48,7 @@ module.exports = {
             if (msg.options.length == 0) {
                 member = msg.author
             } else {
-                member = msg.options[0].user
+                member = msg.options.get('membro').user
             }
         }
 

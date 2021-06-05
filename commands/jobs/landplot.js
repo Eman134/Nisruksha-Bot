@@ -3,17 +3,16 @@ module.exports = {
     aliases: ['landplot', 'terrain', 'lote', 'plot'],
     category: 'Trabalhos',
     description: '<:icon1:745663998854430731> Visualiza as informações da plantação e terreno',
+    options: [],
+    mastery: 18,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
         const client = API.client;
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de agricultura para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
         let company;
@@ -23,14 +22,14 @@ module.exports = {
             company = await API.company.get.companyById(pobj.company);
             if (company.type != 1) {
                 const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != 1) {
                 const embedtemp = await API.sendError(msg, `A sua empresa não é de agricultura!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
 
             }
@@ -78,7 +77,7 @@ module.exports = {
             const price = 100000
 
             const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
-            const embedmsg = await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            const embedmsg = await msg.quote(embedtemp)
         
             await embedmsg.react('765944910179336202')
     

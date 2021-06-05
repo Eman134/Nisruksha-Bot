@@ -3,10 +3,8 @@ module.exports = {
     aliases: ['vip'],
     category: 'Outros',
     description: 'Veja as vantagens e caso você tenha um MVP veja o tempo restante',
+    mastery: 15,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-                if (boolean) return;
 
                 const Discord = API.Discord;
                 const client = API.client;

@@ -3,15 +3,15 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'Adicione um valor á uma variável no banco de dados',
+    options: [],
+    perm: 5,
 	async execute(API, msg) {
-        const boolean = await API.checkAll(msg, 5);
-        if (boolean) return;
 
         var args = API.args(msg);
 
         if (args.length < 4) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "addvar <id> <tabela> <coluna> <valor>");
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 

@@ -13,10 +13,8 @@ module.exports = {
     aliases: ['map', 'local', 'loc', 'vilas'],
     category: 'Players',
     description: 'Visualiza o mapa do mundo, suas vilas e sua localização atual',
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const check = await API.playerUtils.cooldown.check(msg.author, "map");
         if (check) {

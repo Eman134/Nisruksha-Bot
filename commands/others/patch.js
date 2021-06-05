@@ -9,10 +9,9 @@ module.exports = {
         description: 'Digite uma versão para visualizar as modificações que ocorreram nela',
         required: false,
     }],
+    mastery: 20,
 	async execute(API, msg) {
 
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
         const args = API.args(msg);
 
         let patch = ''

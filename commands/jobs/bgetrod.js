@@ -3,10 +3,9 @@ module.exports = {
     aliases: ['getrod', 'trocarvara', 'comprarvara'],
     category: 'Trabalhos',
     description: '<:icon6:830966666082910228> Compre ou troque uma vara de pesca',
+    options: [],
+    mastery: 30,
 	async execute(API, msg) {
-
-		const boolean = await API.checkAll(msg);
-        if (boolean) return;
 
         const Discord = API.Discord;
 
