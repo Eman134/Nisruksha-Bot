@@ -7,7 +7,7 @@ module.exports = {
         name: 'quantia',
         type: 'INTEGER',
         description: 'Selecione uma quantia para upar o armazém',
-        required: true,
+        required: true
     }],
     mastery: 20,
 	async execute(API, msg) {

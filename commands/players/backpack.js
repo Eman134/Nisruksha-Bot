@@ -7,7 +7,7 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Veja a mochila de algum membro',
-        required: false,
+        required: false
     }],
     mastery: 7,
 	async execute(API, msg) {

@@ -7,7 +7,7 @@ module.exports = {
       name: 'sugestão',
       type: 'STRING',
       description: 'Escreva uma sugestão para o bot',
-      required: true,
+      required: true
     }],
     mastery: 20,
     async execute(API, msg) {

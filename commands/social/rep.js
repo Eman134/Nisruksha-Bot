@@ -7,7 +7,7 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Mencione o membro que deseja dar a reputação',
-        required: true,
+        required: true
     }],
     mastery: 5,
     async execute(API, msg) {

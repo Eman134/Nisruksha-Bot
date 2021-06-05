@@ -7,7 +7,7 @@ module.exports = {
         name: 'versão',
         type: 'STRING',
         description: 'Digite uma versão para visualizar as modificações que ocorreram nela',
-        required: false,
+        required: false
     }],
     mastery: 20,
 	async execute(API, msg) {

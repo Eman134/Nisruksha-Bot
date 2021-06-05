@@ -18,7 +18,7 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Veja o perfil de algum membro',
-        required: false,
+        required: false
     }],
 	async execute(API, msg) {
         

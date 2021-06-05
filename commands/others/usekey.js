@@ -7,7 +7,7 @@ module.exports = {
         name: 'chave',
         type: 'STRING',
         description: 'Coloque a chave para resgatar a recompensa da mesma',
-        required: true,
+        required: true
     }],
     mastery: 15,
 	async execute(API, msg) {

@@ -7,13 +7,13 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Selecione um membro para realizar a aposta',
-        required: true,
+        required: true
     },
     {
         name: 'fichas',
         type: 'INTEGER',
         description: 'Selecione uma quantia de fichas para aposta',
-        required: true,
+        required: true
     }],
     mastery: 30,
 	async execute(API, msg) {

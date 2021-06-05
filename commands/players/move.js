@@ -7,7 +7,7 @@ module.exports = {
         name: 'vila',
         type: 'STRING',
         description: 'Selecione a vila para a qual deseja se mover',
-        required: false,
+        required: false
     }],
     mastery: 25,
 	async execute(API, msg) {

@@ -7,7 +7,7 @@ module.exports = {
         name: 'expressão',
         type: 'STRING',
         description: 'Coloque uma expressão de matemática para calcular',
-        required: true,
+        required: true
     }],
     mastery: 10,
 	async execute(API, msg) {

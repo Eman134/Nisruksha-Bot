@@ -9,7 +9,7 @@ module.exports = {
         name: 'código',
         type: 'STRING',
         description: 'Escreva um código de apoiador',
-        required: true,
+        required: true
     }],
     mastery: 20,
 	async execute(API, msg) {

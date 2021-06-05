@@ -7,7 +7,7 @@ module.exports = {
         name: 'id da caixa',
         type: 'STRING',
         description: 'Escreva o id da caixa da sua mochila para abrir',
-        required: false,
+        required: false
     }],
     mastery: 5,
 	async execute(API, msg) {

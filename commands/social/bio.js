@@ -7,7 +7,7 @@ module.exports = {
         name: 'texto',
         type: 'STRING',
         description: 'Escreva uma pequena biografia sobre você',
-        required: true,
+        required: true
     }],
     mastery: 5,
 	async execute(API, msg) {

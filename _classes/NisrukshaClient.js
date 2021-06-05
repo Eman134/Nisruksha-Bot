@@ -133,8 +133,6 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                     if (!file.includes('!')) {
 
-                        // .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-
                         if (commandfile.category != 'none') {
                             let options = []
                             if (commandfile.options) options = commandfile.options

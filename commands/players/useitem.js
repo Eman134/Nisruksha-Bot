@@ -7,7 +7,7 @@ module.exports = {
         name: 'nome do item',
         type: 'STRING',
         description: 'Escreva o nome do item que você deseja usar',
-        required: false,
+        required: false
     }],
     mastery: 10,
 	async execute(API, msg) {
