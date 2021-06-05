@@ -124,8 +124,8 @@ module.exports = {
             }catch(err){
 				client.emit('error', err)
 				API.setCompanieInfo(member, res2.company_id, 'bglink', null);
-				const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar o background personalizado dessa empresa!`)
-           		await msg.quote(embedtemp)
+				const embedtemp = await API.sendError(msg, `Houve um erro ao carregar o background personalizado dessa empresa!`)
+				await msg.quote({ embed: embedtemp, mention: true } )
 			}
 		}
 		
@@ -139,8 +139,8 @@ module.exports = {
 			}catch (err){
 				client.emit('error', err)
 				API.setCompanieInfo(member, res2.company_id, 'logo', null);
-				const embedtemp = await API.sendErrorM(msg, `Houve um erro ao carregar a logo personalizada dessa empresa!`)
-           		await msg.quote(embedtemp)
+				const embedtemp = await API.sendError(msg, `Houve um erro ao carregar a logo personalizada dessa empresa!`)
+				await msg.quote({ embed: embedtemp, mention: true } )
 
 			}
 		}

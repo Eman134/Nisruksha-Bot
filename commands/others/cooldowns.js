@@ -7,32 +7,38 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Veja os cooldowns ativos de um membro',
-        required: false,
+        required: false
     }],
     mastery: 25,
 	async execute(API, msg) {
-        
-        let args = API.args(msg)
 
         let member;
-
-        if (msg.mentions.users.size < 1) {
-            if (args.length == 0) {
-                member = msg.author;
-            } else {
-                try {
-                let member2 = await client.users.fetch(args[0])
-                if (!member2) {
-                    member = msg.author
+        let args = API.args(msg)
+        if (!msg.slash) {
+            if (msg.mentions.users.size < 1) {
+                if (args.length == 0) {
+                    member = msg.author;
                 } else {
-                    member = member2
+                    try {
+                    let member2 = await client.users.fetch(args[0])
+                    if (!member2) {
+                        member = msg.author
+                    } else {
+                        member = member2
+                    }
+                    } catch {
+                        member = msg.author
+                    }
                 }
-                } catch {
-                    member = msg.author
-                }
+            } else {
+                member = msg.mentions.users.first();
             }
         } else {
-            member = msg.mentions.users.first();
+            if (msg.options.size == 0) {
+                member = msg.author
+            } else {
+                member = msg.options.get('membro').user
+            }
         }
 
         let filtered = []

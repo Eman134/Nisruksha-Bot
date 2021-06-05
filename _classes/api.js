@@ -232,8 +232,8 @@ API.checkAll = async function(msg, req, maestria = 0) {
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
     async function limitedpatrao() {
-        const embedtemp = await API.sendErrorM(msg, `Você foi limitado inicialmente a 200 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
-        await msg.quote(embedtemp)
+        const embedtemp = await API.sendError(msg, `Você foi limitado inicialmente a 200 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://dsc.gg/svnisru)`)
+        await msg.quote({ embed: embedtemp, mention: true } )
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -265,8 +265,8 @@ API.checkAll = async function(msg, req, maestria = 0) {
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
-        const embedtemp = await API.sendErrorM(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
-        await msg.quote(embedtemp)
+        const embedtemp = await API.sendError(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://dsc.gg/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
+        await msg.quote({ embed: embedtemp, mention: true } )
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -488,7 +488,7 @@ API.getProgress = function(maxticks, tickchar, seekpos, atual, max, percento) {
 
     if (typeof tickchar == 'object') {
         for (xii = 0; xii < Object.keys(tickchar).length; xii++) {
-            if ( percentage*100 > parseInt(Object.keys(tickchar).reverse()[xii])){
+            if ( Math.round(percentage*100) >= parseInt(Object.keys(tickchar).reverse()[xii])){
                 tickchar = tickchar[Object.keys(tickchar).reverse()[xii]]
                 break;
             }
@@ -525,20 +525,6 @@ API.sendError = async function (msg, s, usage) {
     }
 
     return embedError
-    
-}
-
-API.sendErrorM = async function (msg, s, usage) {
-    const Discord = API.Discord;
-    const embed = new Discord.MessageEmbed()
-        .setColor('#b8312c')
-        .setDescription('<:error:736274027756388353> ' + s)
-        .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-    if (usage) {
-        embed.addField('Exemplo de uso', "\n`" + API.prefix + usage + "`")
-    }
-
-    return { embed, mention: true }
     
 }
 

@@ -60,6 +60,20 @@ module.exports = {
 
                 const x = { ...c, ...o }
 
+                x.allowedMentions = { repliedUser: false}
+
+                if (!o) {
+                    if (typeof c === 'object') {
+                        if (c.mention) {
+                            x.allowedMentions = { repliedUser: true}
+                        }
+                    }
+                } else {
+                    if (o.mention) {
+                        x.allowedMentions = { repliedUser: true}
+                    }
+                }
+
                 if (c.type == 'rich') return interaction.editReply(c)
 
                 if (typeof c === 'string') x.content = c

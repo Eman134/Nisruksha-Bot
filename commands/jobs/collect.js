@@ -167,16 +167,16 @@ module.exports = {
                     }
 
                 if (descartados.length == seedobj.length) {
-                    const embedtemp = await API.sendErrorM(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote(embedtemp)
+                    const embedtemp = await API.sendError(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
+                    await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     embedmsg.reactions.removeAll();
                     return;
                 }
 
                 if (sta2 < 30) {
-                    const embedtemp = await API.sendErrorM(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote(embedtemp)
+                    const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
+                    await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     embedmsg.reactions.removeAll();
                     return;
