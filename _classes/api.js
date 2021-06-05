@@ -678,13 +678,14 @@ API.toNumber = function(x) {
     return parseInt(x.replace(/k/g, '000').replace(/m/g, '000000').replace(/b/g, '000000000'))
 }
 
-API.getFormatedDate = function() {
+API.getFormatedDate = function(onlyhour) {
     let result
     const moment = require('moment')
     moment.suppressDeprecationWarnings = true;
     const date = moment(new Date().toLocaleString("en-US", {timeZone: "America/Sao_Paulo"}));
     const buildInput = 'DD/MM/YYYY [|] HH:mm'
-    result = date.format(buildInput)
+    const buildInput2 = 'HH:mm'
+    result = date.format(onlyhour ? buildInput2 : buildInput)
     return result;
 }
 

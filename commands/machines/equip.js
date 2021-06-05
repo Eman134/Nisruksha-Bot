@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['equip'],
     category: 'Maquinas',
     description: 'Equipa alguma placa que está no inventário da sua máquina',
+    options: [{
+        name: 'id de chipe',
+        type: 'STRING',
+        description: 'Selecione um chipe para equipar na sua máquina',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

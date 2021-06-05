@@ -136,8 +136,10 @@ ores.getDrop = function(args, k) {
     let _id = r.name;
     let _id2 = r.displayname;
 
-    if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) {
-      return r
+    if (_id2) {
+      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return r;
+    } else {
+      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return r;
     }
   }
 
@@ -314,7 +316,10 @@ maqExtension.forceCot = async function() {
       
       x.update = ((x.price < API.maqExtension.ores.obj.minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
 
+      API.maqExtension.ores.obj.minerios[i].price.updates.unshift({ price: x.price, date: API.getFormatedDate(true) })
+      API.maqExtension.ores.obj.minerios[i].price.updates = API.maqExtension.ores.obj.minerios[i].price.updates.slice(0, 10)
       API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = x.update
+
       API.maqExtension.ores.obj.minerios[i].price.atual = x.price*2/2
     } else {
       API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = ""

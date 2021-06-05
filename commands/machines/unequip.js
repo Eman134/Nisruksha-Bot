@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['unequip'],
     category: 'Maquinas',
     description: 'Desquipa algum chipe da sua máquina',
+    options: [{
+        name: 'id de slot',
+        type: 'STRING',
+        description: 'Selecione o id do slot para desequipar',
+        required: false,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
@@ -15,13 +21,13 @@ module.exports = {
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             const embedtemp = await API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
         if (args.length < 1 || (!API.isInt(args[0]) && args[0] != "tudo")) {
             const embedtemp = await API.sendError(msg, `Você precisa escrever um ID de slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`, `desequipar <slot | tudo>`);
-            await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+            await msg.quote(embedtemp)
             return;
         }
 
@@ -36,7 +42,7 @@ module.exports = {
 
             if (!pieces[0]) {
                 const embedtemp = await API.sendError(msg, `Você não possui chipes equipados no momento!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             }
 
@@ -51,7 +57,7 @@ module.exports = {
 
             if (!API.isInt(args[0]) || parseInt(args[0]) < 0 || !pieces[slot] || pieces[slot] == 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui chipes neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
-                await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+                await msg.quote(embedtemp)
                 return;
             } 
 

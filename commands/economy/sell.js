@@ -29,7 +29,7 @@ module.exports = {
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
         if (args.length >= 2 && (!API.maqExtension.ores.checkExists(args[1]))) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
             await msg.quote(embedtemp)
             return;
         }

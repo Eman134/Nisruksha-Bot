@@ -176,12 +176,11 @@ module.exports = {
 		.chxl(`0:|${rends.length} Último(s) rendimentos`)
 		.chxs('0,FFFFFF,13|1,FFFFFF')
 		.chxt('x,y')
-		//.chxr(`1,${lasti},${firsti}`)
 		.chd(`a:${rend}`)
 		
 		.toURL();
 		
-		let chart = await API.img.loadImage(`${chart_url}`)
+		let chart = await API.img.loadImage(chart_url)
 		chart = await API.img.resize(chart, 465, 190);
 		background = await API.img.drawImage(background, chart, 198, 210)
 		

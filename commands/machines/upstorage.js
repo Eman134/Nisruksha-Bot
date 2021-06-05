@@ -3,6 +3,12 @@ module.exports = {
     aliases: ['upararmazem', 'uparm', 'uparestoque', 'upstorage'],
     category: 'Maquinas',
     description: 'Faz upgrade de espaço do seu armazém',
+    options: [{
+        name: 'quantia',
+        type: 'INTEGER',
+        description: 'Selecione uma quantia para upar o armazém',
+        required: true,
+    }],
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);

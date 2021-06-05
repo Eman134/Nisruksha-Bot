@@ -19,7 +19,6 @@ module.exports = {
 	    .setColor('#e06f0b')
         if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)
         else embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!`)
-        //embed.setFooter(`1 ponto de estamina recupera a cada ${API.maqExtension.recoverstamina[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
         const embedmsg = await msg.quote(embed);
         if (stamina == staminamax) return;
         embedmsg.react('⏰')
@@ -38,12 +37,10 @@ module.exports = {
             const e3 = await API.maqExtension.stamina.time(msg.author);
             embed2.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${e1}/${e2}]**`, `Irá recuperar completamente em: \`${API.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
-            //embed2.setFooter(`1 ponto de estamina recupera a cada ${API.maqExtension.recoverstamina[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             embedmsg.edit(embed2);
             collector.stop();
             if (API.cacheLists.remember.includes(msg.author, "estamina")) return;
             API.cacheLists.remember.add(msg.author, msg.channel.id, "estamina");
-           // API.updateBotInfo();
             async function rem(){
                 if (await API.maqExtension.stamina.get(msg.author) >= 1000) {
                  await msg.quote({ content: `Relatório de estamina: ${await API.maqExtension.stamina.get(msg.author)}/1000`, mention: true})
@@ -64,7 +61,6 @@ module.exports = {
             embed.fields = []
             embed.setColor('#e06f0b')
             embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${st}/${1000}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!`)
-            //embed.setFooter(`1 ponto de estamina recupera a cada ${API.maqExtension.recoverstamina[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             embedmsg.edit(embed);
         });
 
