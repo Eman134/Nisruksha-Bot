@@ -34,21 +34,25 @@ module.exports = {
                 x = { ...c, ...o }
             }
 
-            x.allowedMentions = { repliedUser: false}
+            x.allowedMentions = { users: [], repliedUser: false }
 
             if (!options) {
                 if (typeof content === 'object') {
                     if (content.mention) {
-                        x.allowedMentions = { repliedUser: true}
+                        x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
                     }
                 }
             } else {
                 if (options.mention) {
-                    x.allowedMentions = { repliedUser: true}
+                    x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
                 }
             }
 
-            if (x.refer) x.reply = { messageReference: x.refer }
+            const message = await interaction.fetchReply();
+
+            x.reply = { messageReference: message.id }
+
+            console.log(x)
           
             return await client.channels.cache.get(interaction.channel.id).send(x)
           }
@@ -135,7 +139,6 @@ module.exports = {
 
         API.client.emit("message", interaction)
         interaction.defer(true)
-
 
     }
 }

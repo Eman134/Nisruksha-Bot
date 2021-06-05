@@ -185,7 +185,7 @@ module.exports = {
         }
 
         try {
-            await API.img.sendImage(msg.channel, background);
+            await API.img.sendImage(msg.channel, background, msg.id);
             todel.delete().catch();
         }catch{}
 

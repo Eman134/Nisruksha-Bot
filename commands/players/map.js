@@ -62,7 +62,7 @@ module.exports = {
         }
 
         try {
-            await API.img.sendImage(msg.channel, background, `${msg.author}\nVocê se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nEmpresas: **${res.length}**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}**.`);
+            await API.img.sendImage(msg.channel, background, msg.id, `${msg.author}\nVocê se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nEmpresas: **${res.length}**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}**.`);
             await todel.delete();
         }catch{}
         

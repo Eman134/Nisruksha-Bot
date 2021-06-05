@@ -7,7 +7,7 @@
         "usavel": true,
         "type": 1,
         "tier": 1,
-        "price": 25000
+        "price": 15000
     },
     {
         "name": "\"cafe\"",
@@ -21,6 +21,17 @@
         "price": 25000
     },
     {
+        "name": "\"cogumelo marrom\"",
+        "displayname": "Cogumelo Marrom",
+        "icon": "☕",
+        "desc": "Recupera instantaneamente 40 de estamina",
+        "usavel": true,
+        "type": 2,
+        "tier": 1,
+        "value": 40,
+        "price": 35000
+    },
+    {
         "name": "\"frasco de exp pequeno\"",
         "displayname": "Frasco de EXP Pequeno",
         "icon": "<:frasco:846496717251018752>",
@@ -29,6 +40,6 @@
         "type": 3,
         "tier": 1,
         "value": 500,
-        "price": 25000
+        "price": 10000
     }
 ]

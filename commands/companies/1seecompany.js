@@ -211,7 +211,7 @@ module.exports = {
 
 		try {
 			background = await API.img.resize(background, 950, 650)
-			await API.img.sendImage(msg.channel, background);
+			await API.img.sendImage(msg.channel, background, msg.id);
 			todel.delete();
 		}catch (err){
 			console.log(err)

@@ -231,7 +231,7 @@ module.exports = {
                 background = await API.img.drawText(background, `${monster.name}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 190, 2)
                 background = await API.img.drawText(background, `Nível ${monster.level}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
                 
-                let msg2 = await API.img.sendImage(API.client.channels.cache.get('761582265741475850'), background);
+                let msg2 = await API.img.sendImage(API.client.channels.cache.get('761582265741475850'), background, msg.id);
                 let url = await msg2.attachments.array()[0].url
 
                 monster.csta -= td_.monster

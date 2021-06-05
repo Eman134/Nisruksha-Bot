@@ -43,7 +43,7 @@ img.loadImage = async function (url){
     return result;
 }
 
-img.sendImage = async function (channel, imagedata, text) {
+img.sendImage = async function (channel, imagedata, msgidreference, text) {
     const Discord = API.Discord;
     const Canvas = require("canvas");
 	if(!imagedata) {
@@ -61,12 +61,13 @@ img.sendImage = async function (channel, imagedata, text) {
     const attachment = new Discord.MessageAttachment(buffer, name);
     let msg
 	try {
-    if (text) {
-        msg = await channel.send(text, attachment);
-    }
-    else msg = await channel.send(attachment);
-	} catch {
+        if (text) {
+            msg = await channel.send({ content: text, files: [attachment]})//, reply: { messageReference: msgidreference }});
+        } else msg = await channel.send({ files: [attachment] } );
+	} catch (err) {
 		msg = await channel.send('Um erro ocorreu ao tentar enviar a imagem!')
+        API.client.emit('error', err)
+        console.log(err)
 	}
     return msg
 }

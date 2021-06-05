@@ -184,7 +184,7 @@ module.exports = {
                 playerobj = await API.getInfo(msg.member, 'machines');
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
                     const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
-                    await msg.quote({ embed: embedtemp, mention: true, refer: msg.id })
+                    await msg.quote({ embed: embedtemp, mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
                     await embedmsg.edit({embed, component: API.rowButton([btn]), mention: true }).catch()
@@ -193,7 +193,7 @@ module.exports = {
 
                 if (await API.maqExtension.storage.getSize(msg.author) >= armazemmax2) {
                     const embedtemp = await API.sendError(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
-                    await msg.quote({ embed: embedtemp, mention: true, refer: msg.id })
+                    await msg.quote({ embed: embedtemp, mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
                     await embedmsg.edit({embed, component: API.rowButton([btn]), mention: true }).catch()
@@ -202,7 +202,7 @@ module.exports = {
                 if (e+1 < 1) {
                     const embedtemp = await API.sendError(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
                     
-                    await msg.quote({ embed: embedtemp, mention: true, refer: msg.id })
+                    await msg.quote({ embed: embedtemp, mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
                     await embedmsg.edit({ embed, component: API.rowButton([btn]), mention: true }).catch()
