@@ -62,7 +62,7 @@ module.exports = {
         .setColor('#5bff45')
         .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + API.tp.name + ' ' + API.tp.emoji + ', enquanto seu amigo recebeu 1 ' + API.tp.name + ' ' + API.tp.emoji)
         .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize ' + API.prefix + 'convite para mais informações')
-        msg.channel.send(embed)
+        await msg.quote(embed)
 
         const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')

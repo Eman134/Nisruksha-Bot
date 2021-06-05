@@ -1,3 +1,5 @@
+const { ms } = require('../../_classes/api');
+
 module.exports = {
     name: 'versão',
     aliases: ['versao', 'patch', 'att'],
@@ -70,7 +72,7 @@ module.exports = {
 
             try {
 
-                await msg.delete()
+                if (!msg.slash)await msg.delete()
                 
             } catch {
                 
