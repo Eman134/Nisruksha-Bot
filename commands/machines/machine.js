@@ -18,7 +18,7 @@ module.exports = {
         name: 'membro',
         type: 'USER',
         description: 'Veja a máquina de algum membro',
-        required: false,
+        required: false
     }],
     mastery: 35,
 	async execute(API, msg) {

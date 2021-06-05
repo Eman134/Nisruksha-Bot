@@ -4,7 +4,7 @@ module.exports = {
     category: 'Players',
     description: 'Visualiza as recompensas de uma caixa misteriosa da sua mochila',
     options: [{
-        name: 'id da caixa',
+        name: 'id-caixa',
         type: 'STRING',
         description: 'Escreva o id da caixa da sua mochila para visualizar as recompensas da mesma',
         required: false
@@ -13,7 +13,6 @@ module.exports = {
 	async execute(API, msg) {
 
         const Discord = API.Discord;
-        const client = API.client;
         const args = API.args(msg);
 
         if (args.length == 0) {

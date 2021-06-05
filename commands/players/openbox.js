@@ -33,7 +33,6 @@ module.exports = {
         const obj = await API.getInfo(msg.author, 'storage');
         const id = parseInt(args[0]);
         
-        
         if (!API.isInt(args[0]) || obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
 			await msg.quote(embedtemp)

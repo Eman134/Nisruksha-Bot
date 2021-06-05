@@ -3,6 +3,20 @@ module.exports = {
     aliases: ['sell', 'v', 's'],
     category: 'Economia',
     description: 'Vende todos os recursos ou específicos do seu armazém',
+    options: [
+        {
+            name: 'quantia',
+            type: 'STRING',
+            description: 'Selecione uma quantia de algum minério ou selecione tudo para vender',
+            required: false
+        },
+        {
+            name: 'minério',
+            type: 'STRING',
+            description: 'Selecione um minério para vender',
+            required: false
+        }],
+    mastery: 50,
 	async execute(API, msg) {
 
 		const boolean = await API.checkAll(msg);
