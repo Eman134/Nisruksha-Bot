@@ -93,7 +93,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
 
   for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
     let p = product[i];
-    if (p == undefined) break;
+    if (!p) break;
     let price = p.price;
     if (p.type == 4){price=Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1));}
         
@@ -143,7 +143,8 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       butnList.push(API.createButton('forward', 'blurple', '', '▶', (currentpage == totalpages ? true : false)))
 
       for (i = 0; i < productscurrentpage.length; i++) {
-          butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2].replace('>', '')))
+         if (!productscurrentpage[i]) break
+         butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2] ? productscurrentpage[i].icon.split(':')[2].replace('>', '') : productscurrentpage[i].icon, !productscurrentpage[i].buyable ? true : false))
       }
 
       let totalcomponents = butnList.length % perRow;

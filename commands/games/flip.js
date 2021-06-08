@@ -237,8 +237,6 @@ module.exports = {
                 API.playerUtils.cooldown.set(msg.author, "flip", 0);
                 API.playerUtils.cooldown.set(member, "flip", 0);
             }
-
-            console.log(confirm)
             
             embedmsg.edit({ embed });
 
