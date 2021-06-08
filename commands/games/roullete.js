@@ -3,7 +3,12 @@ module.exports = {
     aliases: ['roullete'],
     category: 'Jogos',
     description: 'Aposte em frutas e multiplique sua aposta',
-    options: [],
+    options: [{
+        name: 'fichas',
+        type: 'INTEGER',
+        description: 'Selecione uma quantia de fichas para aposta',
+        required: true
+    }],
     mastery: 20,
 	async execute(API, msg) {
 
@@ -53,8 +58,6 @@ module.exports = {
             return;
         }
         
-        const emojis = ['🍊', '🍓', '🍐', '🍇', '🔁']
-        const emojisfruits = ['🍊', '🍓', '🍐', '🍇']
         const multiplier = {
             '🍊': 1.2,
             '🍓': 1.5,
@@ -81,6 +84,7 @@ module.exports = {
         const collector = await msgembed.createButtonCollector(filter, { time: 60000 });
         let selected;
         collector.on('collect', async (b) => {
+
             selected = b.id;
             b.defer()
 

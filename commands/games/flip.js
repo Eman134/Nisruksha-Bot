@@ -81,13 +81,8 @@ module.exports = {
                 return;
             }
 
-            aposta = parseInt(args[1]);
-
-        } else {
-            aposta = msg.options[1].value
         }
-
-        
+        aposta = parseInt(args[1]);
 
         if (aposta < 1) {
             const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
@@ -128,37 +123,31 @@ module.exports = {
         .setColor('#42e3d0')
 		.setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
         .addField('<a:loading:736625632808796250> Aguardando confirmações', `${msg.author} ${confirm[msg.author.id]}\n${member} ${confirm[member.id]}`)
-        const embedmsg = await msg.quote({ embed });
         
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const filter = (reaction, user) => {
-            return user.id !== client.user.id;
-        };
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && (button.clicker.user.id == msg.author.id || button.clicker.user.id == member.id)
 
         let reacted = {}
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 60000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 60000 });
 
-        collector.on('collect', async (reaction, user) => {
-
-            if (!([msg.author.id, member.id].includes(user.id))) {
-                reaction.users.remove(user.id)
-                return
-            }
-            
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
 
             collector.resetTimer()
             API.playerUtils.cooldown.set(msg.author, "flip", 60);
             API.playerUtils.cooldown.set(member, "flip", 60);
-            reacted[user.id] = true
-            if (reaction.emoji.name == '❌'){
-                confirm[user.id] = '❌'
+            reacted[b.clicker.user.id] = true
+            if (b.id == 'cancel'){
+                confirm[b.clicker.user.id] = '❌'
             } else {
-                confirm[user.id] = '✅'
+                confirm[b.clicker.user.id] = '✅'
             }
+
+            b.defer()
 
             const embed = new Discord.MessageEmbed()
             .setTitle('Giro')
@@ -166,8 +155,9 @@ module.exports = {
             .setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             if (confirm[msg.author.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
                 embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${msg.author} ${confirm[msg.author.id]}\n${member} ${confirm[member.id]}`)
-                return embedmsg.edit(embed)
+                return embedmsg.edit({ embed, components: [API.rowButton([btn0, btn1])] })
             }
+
             collector.stop()
             if (confirm[msg.author.id] == '❌' && confirm[member.id] == '❌') {
                 embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
@@ -247,13 +237,14 @@ module.exports = {
                 API.playerUtils.cooldown.set(msg.author, "flip", 0);
                 API.playerUtils.cooldown.set(member, "flip", 0);
             }
+
+            console.log(confirm)
             
             embedmsg.edit(embed);
 
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             API.playerUtils.cooldown.set(msg.author, "flip", 0);
             API.playerUtils.cooldown.set(member, "flip", 0);
             if (reacted[msg.author.id] == true && reacted[member.id] == true) return;

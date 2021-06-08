@@ -548,7 +548,7 @@ const jobs = {
 
         let seedPerArea = (Math.round(plant.qnt/plant.area))+2
 
-        ms = (200-adubacao)*seedPerArea*(200000)
+        ms = (200-adubacao)*seedPerArea*(230000)
         ms += (plant.price*500000)+1
 
         return Math.round(ms)

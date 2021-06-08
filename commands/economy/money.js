@@ -10,8 +10,7 @@ module.exports = {
         required: false
     }],
     async execute(API, msg) {
-        const boolean = await API.checkAll(msg);
-        if (boolean) return;
+
         const Discord = API.Discord;
         const client = API.client;
         
@@ -23,12 +22,12 @@ module.exports = {
                     member = msg.author;
                 } else {
                     try {
-                    let member2 = await client.users.fetch(args[0])
-                    if (!member2) {
-                        member = msg.author
-                    } else {
-                        member = member2
-                    }
+                        let member2 = await client.users.fetch(args[0])
+                        if (!member2) {
+                            member = msg.author
+                        } else {
+                            member = member2
+                        }
                     } catch {
                         member = msg.author
                     }
