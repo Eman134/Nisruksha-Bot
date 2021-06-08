@@ -56,33 +56,41 @@ module.exports = {
         for (i = 0; i < disp.length; i++) {
             embed.addField(disp[i].icon + ' ' + disp[i].name, `\`${API.company.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`)
         }
-        let embedmsg
-        await msg.quote(embed).then((emsg) => { 
-            emsg.react('✅')
-            emsg.react('❌')
-            embedmsg = emsg
-        })
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        function reworkBtns(hasrod) {
+
+            const btn0 = API.createButton(hasrod ? 'troca' : 'compra', 'grey', hasrod ? 'Trocar vara' : 'Comprar vara', hasrod ? '🔁' : '✅')
+            const btn1 = API.createButton('cancel', 'grey', 'Cancelar', '❌')
+
+            return [API.rowButton([btn0, btn1])]
+        }
+
+        let pobjcheck = await API.getInfo(msg.author, 'players')
+        if (pobjcheck.rod == null) delete pobjcheck.rod
+
+
+        let embedmsg = await msg.quote({ embed, components: reworkBtns(pobjcheck.rod) });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 60000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 60000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌', '🔁'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
+
             reacted = true;
-            let troca = reaction.emoji.name == '🔁'
+
+            let troca = b.id == 'troca'
 
             let pobj2 = await API.getInfo(msg.author, 'players')
             if (pobj2.rod == null) delete pobj2.rod
             let pobj3 = await API.getInfo(msg.author, 'machines')
 
-            if (reaction.emoji.name == '❌'){
+            b.defer()
+
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField(`❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
 				collector.stop();
                 return;
             }
@@ -92,7 +100,7 @@ module.exports = {
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}`, `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${API.format(pobj2.money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
 				collector.stop();
                 return
             }
@@ -110,22 +118,22 @@ module.exports = {
             embed
             .addField(`✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`${API.prefix}pescar\`!`)
             .setColor('#5bff45')
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed, components: reworkBtns(true) });
             API.setInfo(msg.author, 'players', 'rod', vara)
 
-            if (!troca) embedmsg.reactions.removeAll();
             collector.resetTimer({ time: 30000 });
-            embedmsg.react('🔁').catch()
             
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
-            if (reacted) return;
-            const embed = new API.Discord.MessageEmbed();
+            if (reacted) {
+                return embedmsg.edit({ embed });;
+            }
+            embed.fields = []
+            embed.setDescription('')
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria ${pobj2.rod ? 'trocar sua vara de pesca' : 'comprar uma vara de pesca'}, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embed.addField('❌ Tempo expirado', `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.`)
+            embedmsg.edit({ embed });
             return;
         });
 

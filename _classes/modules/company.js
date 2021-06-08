@@ -71,7 +71,7 @@ check.hasCompany = async function(member){
             }
         }
     }catch (err) { 
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err 
     }
 
@@ -94,7 +94,7 @@ check.hasVacancies = async function(company_id) {
         if (res.rows[0].openvacancie == false) result = false;
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 
@@ -130,7 +130,7 @@ get.companyById = async function(company_id) {
         res = res.rows[0];
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 
@@ -148,7 +148,7 @@ get.ownerById = async function(company_id) {
         res = res.rows[0];
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 
@@ -168,7 +168,7 @@ get.idByOwner = async function(owner) {
         res = res.rows[0];
 
     }catch (err){
-        client.emit('error', err)
+        API.client.emit('error', err)
         throw err
     }
 
@@ -309,7 +309,7 @@ const jobs = {
         } catch (err) {
             console.log('Error parsing JSON string:', err);
             jobs.explore.mobs.obj = '`Error on load mob list`';
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
     
     }
@@ -414,10 +414,6 @@ const jobs = {
                 break;
             }
         }
-
-        /*if (resultmob == null || resultmob == undefined) {
-            resultmob = await jobs.explore.searchMob(member);
-        }*/
         
         resultmob.csta = resultmob.sta
         if (API.random(0, 50) < 25)resultmob.level += API.random(0, 3)
@@ -509,7 +505,7 @@ const jobs = {
         } catch (err) {
             console.log('Error parsing JSON string:', err);
             jobs.explore.equips.obj = '`Error on load equip list`';
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
     }
 
