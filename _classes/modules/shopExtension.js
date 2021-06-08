@@ -511,6 +511,7 @@ shopExtension.execute = async function(msg, p) {
   collector.on('end', collected => {
 
     if (buyed) return
+    embed.fields = []
     embed.setColor('#a60000');
     embed.addField('❌ Tempo expirado', `
     Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!`)
