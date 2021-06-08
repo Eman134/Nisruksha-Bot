@@ -54,11 +54,15 @@ module.exports = {
         embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         embed.setDescription(`Utilize \`${API.prefix}comprar <id>\` para realizar uma compra`);
 
-        const components = await API.shopExtension.formatPages(embed, currentpage, product, msg.author);
+        let stopComponents = false
+
+        if (currentpage == totalpages || totalpages == 0) stopComponents = true
+
+        const components = await API.shopExtension.formatPages(embed, currentpage, product, msg.author, stopComponents);
 
         let embedmsg = await msg.quote({ embed, components });
 
-        if (currentpage == totalpages || totalpages == 0) return
+        if (stopComponents) return
 
         API.shopExtension.editPage(categoria.toUpperCase(), msg, embedmsg, product, embed, currentpage, totalpages);
 

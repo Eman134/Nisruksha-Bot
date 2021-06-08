@@ -1,7 +1,6 @@
 
 require("colors")
 
-
 // Iniciar client
 const NisrukshaClient = require('./_classes/NisrukshaClient')
 
