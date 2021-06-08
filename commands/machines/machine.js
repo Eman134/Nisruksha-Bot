@@ -180,7 +180,7 @@ module.exports = {
         embed.attachFiles([attachment])
         embed.setImage('attachment://maq.png')
 
-        await msg.quote(embed);
+        await msg.channel.send(embed);
 
         try {
             await todel.delete().catch();
