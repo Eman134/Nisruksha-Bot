@@ -2,5 +2,5 @@
 echo Iniciando BOT...
 :main
 node bot.js
-echo Reniciando BOT..
+echo Reiniciando BOT..
 goto main

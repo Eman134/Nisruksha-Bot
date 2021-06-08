@@ -158,27 +158,25 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}?`)
         
-        let msgembed = await msg.quote(embed);
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        msgembed.react('✅')
-        msgembed.react('❌')
-        let emojis = ['✅', '❌']
+        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id && emojis.includes(reaction.emoji.name);
-        };
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        let collector = msgembed.createReactionCollector(filter, { time: 30000 });
+        let collector = msgembed.createButtonCollector(filter, { time: 30000 });
         let selled = false;
-        collector.on('collect', async(reaction, user) => {
+        collector.on('collect', async(b) => {
             selled = true;
             collector.stop();
             embed.fields = [];
-            if (reaction.emoji.name == '❌'){
+            b.defer()
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
-                msgembed.edit(embed);
+                msgembed.edit({ embed });
                 return;
             }
 
@@ -191,7 +189,7 @@ module.exports = {
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui itens na sua mochila para vender!`)
-                        msgembed.edit(embed)
+                        msgembed.edit({ embed })
                         return;
                     }
 
@@ -205,7 +203,7 @@ module.exports = {
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        msgembed.edit(embed)
+                        msgembed.edit({ embed })
                         return;
                     }
 
@@ -215,13 +213,13 @@ module.exports = {
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        msgembed.edit(embed)
+                        msgembed.edit({ embed })
                         return;
                     }
 
                     if (parseInt(arg0) > obj3[drop.name.replace(/"/g, '')]) {
                         embed.addField('❌ Venda cancelada', `Você não possui **${arg0}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        msgembed.edit(embed)
+                        msgembed.edit({ embed })
                         return;
                     }
 
@@ -254,7 +252,7 @@ module.exports = {
             embed.addField('✅ Sucesso na venda', `
             Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(totalantes)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
             if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
-            msgembed.edit(embed);
+            msgembed.edit({ embed });
             API.eco.addToHistory(msg.member, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
             API.eco.money.add(msg.author, total)
@@ -273,14 +271,13 @@ module.exports = {
         });
         
         collector.on('end', collected => {
-            msgembed.reactions.removeAll();
             API.playerUtils.cooldown.set(msg.author, "vendaitem", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!`)
-            msgembed.edit(embed);
+            msgembed.edit({ embed });
             return;
         });
 

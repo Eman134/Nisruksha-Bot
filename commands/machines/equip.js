@@ -56,29 +56,26 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 		.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja equipar **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina?`)
-        const embedmsg = await msg.quote(embed);
-        
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
             embed.fields = []
-
-            if (reaction.emoji.name == '❌'){
+            b.defer()
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Equipar cancelado', `
                 Você cancelou a o equipar de **${placa.icon ? placa.icon+' ':''}${placa.name}**.`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed })
                 return;
             }
 
@@ -94,20 +91,20 @@ module.exports = {
             if (!contains1) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
             if (playerobj.slots != null && playerobj1.slots.length >= API.maqExtension.getSlotMax(playerobj1.level, mvp) || API.maqExtension.getSlotMax(playerobj1.level, mvp) == 0) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed })
                 return;
             }
 
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso ao equipar', `Você equipou **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed })
 
             API.maqExtension.givePiece(msg.author, placa.id);
             API.setInfo(msg.author, 'storage', `"piece:${placa.id}"`, placa.size-1)
@@ -121,7 +118,7 @@ module.exports = {
             embed.setColor('#a60000')
             .addField('❌ Tempo expirado', `
             Você iria equipar **${placa.icon ? placa.icon+' ':''}${placa.name}**, porém o tempo expirou!`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed })
             return;
         });
 

@@ -141,7 +141,7 @@ module.exports = {
                     .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
                     
                 }
-                msgembed.edit(embed2);
+                msgembed.edit({ embed: embed2 });
             }
 
             roll();

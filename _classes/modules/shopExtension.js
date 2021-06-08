@@ -324,9 +324,7 @@ shopExtension.execute = async function(msg, p) {
   const btn0 = API.createButton('confirm', 'grey', '', '✅')
   const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-  const btnConfirms = [btn0, btn1]
-
-  let embedmsg = await msg.quote({ embed, components: [API.rowButton([btnConfirms])] });
+  let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
 
   const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 

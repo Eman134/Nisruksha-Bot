@@ -12,6 +12,8 @@ module.exports = {
         const check1 = await API.playerUtils.cooldown.check(msg.author, "votetopgg");
         if (check1) votedtopgg = true
 
+        const { best } = require("../../_classes/config");
+
         const https = require('https')
         const options = {
             hostname: 'bestlist.online',
@@ -20,7 +22,7 @@ module.exports = {
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'fzp39n4TBbHLlk42Pwjm.best.api.token.8DfqS1mcZBPZWoqDi4nW'
+            'Authorization': best.token
           }
         }
 
