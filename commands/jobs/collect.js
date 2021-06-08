@@ -54,7 +54,7 @@ module.exports = {
             return;
         }
 
-        let btn = API.createButton('stopBtn', 'red', 'Parar escavação')
+        let btn = API.createButton('stopBtn', 'red', 'Parar coleta')
 
         let component = API.rowButton([btn])
 

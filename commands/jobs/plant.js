@@ -10,7 +10,7 @@ module.exports = {
         required: false
     },
     {
-        name: 'quantia-quantia',
+        name: 'quantia',
         type: 'INTEGER',
         description: 'Digite a quantia de sementes que deseja plantar',
         required: false

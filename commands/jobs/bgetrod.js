@@ -73,7 +73,7 @@ module.exports = {
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 60000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -121,7 +121,7 @@ module.exports = {
             embedmsg.edit({ embed, components: reworkBtns(true) });
             API.setInfo(msg.author, 'players', 'rod', vara)
 
-            collector.resetTimer({ time: 30000 });
+            collector.resetTimer();
             
         });
         
@@ -129,8 +129,6 @@ module.exports = {
             if (reacted) {
                 return embedmsg.edit({ embed });;
             }
-            embed.fields = []
-            embed.setDescription('')
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.`)
             embedmsg.edit({ embed });

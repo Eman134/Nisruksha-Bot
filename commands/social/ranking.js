@@ -103,7 +103,7 @@ module.exports = {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = API.rowButton(butnList.slice(var1, var2))
-                components.push(rowBtn)
+                if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
 
