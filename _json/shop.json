@@ -148,11 +148,25 @@
 			"icon": "<:maq10:833363716712038411>",
 			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364568838897736/maq10.png",
 			"type": 1,
-			"level": 80,
-			"durability": 4000000,
+			"level": 76,
+			"durability": 3500000,
 			"profundidade": 70,
 			"tier": 10,
 			"price": 150000000,
+			"price2": 250
+		},
+		{
+			"id": 111,
+			"buyable": true,
+			"name": "Máquina de Safira",
+			"icon": "<:maq11:851946213246763048>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/851946140740223006/maq11.png",
+			"type": 1,
+			"level": 100,
+			"durability": 5000000,
+			"profundidade": 70,
+			"tier": 11,
+			"price": 500000000,
 			"price2": 250
 		}
 	],

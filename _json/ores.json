@@ -155,5 +155,18 @@
             "updates": []
         },
         "por": 3
+    },
+    {
+        "name": "safira",
+        "icon": "<:safira:851945445915230210>",
+        "price": {
+            "min": 6400,
+            "default": 8800,
+            "max": 13100,
+            "atual": 8800,
+            "ultimoupdate": "",
+            "updates": []
+        },
+        "por": 2
     }
 ]

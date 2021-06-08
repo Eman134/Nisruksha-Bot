@@ -218,6 +218,9 @@ const jobs = {
     },
     agriculture: {
         update: 15
+    },
+    process: {
+
     }
 };
 
@@ -692,6 +695,11 @@ const jobs = {
 
 }
 
+// Processamento
+{
+    
+}
+
 const company = {
     check,
     get,
@@ -703,7 +711,8 @@ const company = {
         'tecnologia': {tipo: 3, icon: '<:icon3:745663998871076904>'}, 
         'hackeamento': {tipo: 4, icon: '<:icon4:745663998887854080>'}, 
         'segurança': {tipo: 5, icon: '<:icon5:745663998900568235>'},
-        'pescaria': {tipo:6, icon: '<:icon6:830966666082910228>'}
+        'pescaria': {tipo:6, icon: '<:icon6:830966666082910228>'},
+        'processamento': {tipo:7, icon: '<:icon7:851946616738152478>'}
        },
     types: {
         1: 'agricultura',
@@ -711,7 +720,8 @@ const company = {
         3: 'tecnologia',
         4: 'hackeamento',
         5: 'segurança',
-        6: 'pescaria'
+        6: 'pescaria',
+        7: 'processamento'
     }
 };
 
