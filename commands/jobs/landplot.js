@@ -191,7 +191,7 @@ module.exports = {
 
                 reacted = true;
                 collector.stop();
-                await b.defer()
+                b.defer()
                 embed.fields = [];
 
                 pobj = await API.getInfo(msg.author, 'players')
@@ -265,7 +265,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             reacted = true;
-            await b.defer()
+            b.defer()
 
             collector.resetTimer()
 

@@ -70,7 +70,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
         const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
-            await b.defer()
+            b.defer()
             reacted = true;
             embed.fields = []
             collector.stop();

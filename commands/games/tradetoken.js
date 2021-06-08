@@ -77,7 +77,7 @@ module.exports = {
         let reacted = false;
         
         collector.on('collect', async(b) => {
-            await b.defer()
+            b.defer()
             reacted = true;
             collector.stop();
             if (b.id == 'cancel'){

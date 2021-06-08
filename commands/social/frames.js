@@ -120,7 +120,7 @@ module.exports = {
                 embed.setImage(API.frames.get(frames[0]).url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
-                await b.defer()
+                b.defer()
 
                 return collector.stop();
 
@@ -133,7 +133,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
-                await b.defer()
+                b.defer()
                 
                 return collector.stop();
 
@@ -142,7 +142,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
 
-                await b.defer()
+                b.defer()
 
             }
 

@@ -23,7 +23,7 @@ module.exports = {
             reacted = true;
             collector.stop();
             embed.fields = [];
-            await b.defer()
+            b.defer()
             if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `

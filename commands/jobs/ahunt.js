@@ -456,7 +456,7 @@ module.exports = {
 
             collector.resetTimer();
 
-            await b.defer()
+            b.defer()
 
         });
         

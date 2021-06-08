@@ -116,7 +116,7 @@ module.exports = {
         collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
-            await b.defer()
+            b.defer()
             const embed = new API.Discord.MessageEmbed()
             if (b.id == 'cancel'){
                 embed.setColor('#a60000');

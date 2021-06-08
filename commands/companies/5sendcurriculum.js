@@ -119,7 +119,7 @@ module.exports = {
         const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
-            await b.defer()
+            b.defer()
             reacted = true;
             collector.stop();
             embed.fields = [];
