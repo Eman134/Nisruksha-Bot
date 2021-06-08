@@ -54,6 +54,10 @@ module.exports = {
             return;
         }
 
+        let btn = API.createButton('stopBtn', 'red', 'Parar escavação')
+
+        let component = API.rowButton([btn])
+
         let init = Date.now();
 
         let seedobj = API.maqExtension.ores.getObj().drops.filter(i => i.type == "seed");
@@ -66,9 +70,8 @@ module.exports = {
         embed.setTitle(`Coletando`)
         embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
-        embed.setFooter(`Reaja com 🔴 para parar a coleta\nTempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedmsg = await msg.quote(embed);
-        embedmsg.react('🔴')
         API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
         
         function gen(){
@@ -92,12 +95,7 @@ module.exports = {
             return array;
         }
 
-        let totalcoletado = 0;
         let coletadox = new Map();
-
-        const filter = (reaction, user) => {
-            return reaction.emoji.name === '🔴' && user.id === msg.author.id;
-        };
 
         async function edit() {
 
@@ -117,24 +115,12 @@ module.exports = {
 
                 for (const r of colocados) {
 
-                    
                     let size = r.size;
 
-                    /*let arMax = await API.maqExtension.storage.getMax(msg.author);
-
-                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) {
-                        size -= (await API.maqExtension.storage.getSize(msg.author)+size-arMax)
-                    }*/
-
-
-                    totalcoletado += size;
                     if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
                     else coletadox.set(r.name, size)
                     sizeMap.set(r.name, size)
                     round += size;
-
-                    //if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
-                    
                     
                 }
 
@@ -143,7 +129,7 @@ module.exports = {
                 let sta2 = await API.maqExtension.stamina.get(msg.author);
                 embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
                 await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.maqExtension.stamina.get(msg.author)}/1000 🔸 \`(-30)\``)
-                embed.setFooter(`Reaja com 🔴 para parar a coleta\nTempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 
                 for await (const r of colocados) {
                     let qnt = sizeMap.get(r.name);
@@ -161,7 +147,7 @@ module.exports = {
                 }
 
                     try{
-                        await embedmsg.edit(embed)
+                        await embedmsg.edit({ embed, component })
                     }catch{
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                     }
@@ -170,7 +156,6 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
-                    embedmsg.reactions.removeAll();
                     return;
                 }
 
@@ -178,32 +163,34 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
-                    embedmsg.reactions.removeAll();
                     return;
                 }
 
                 let reacted = false
-                const collector = embedmsg.createReactionCollector(filter, { time: API.company.jobs.agriculture.update*1000 });
+                const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+                const collector = embedmsg.createButtonCollector(filter, { time: API.company.jobs.agriculture.update*1000 });
 
-                collector.on('collect', (reaction, user) => {
-                    if (reaction.emoji.name == '🔴') {
+                collector.on('collect', (b) => {
+                    if (b.id == 'stopBtn') {
                         reacted = true;
                         collector.stop();
+                        b.defer()
                     }
                 });
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        embedmsg.reactions.removeAll();
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
                         await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
-                    } else {edit();}
+                    } else {
+                        edit();
+                    }
                 });
+
             }catch (err){
-                client.emit('error', err)
-                 throw err
-                }
+                API.client.emit('error', err)
+            }
         }
         edit();
 	}

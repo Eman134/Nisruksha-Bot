@@ -58,7 +58,7 @@ module.exports = {
 
         if (currentpage == totalpages || totalpages == 0) stopComponents = true
 
-        const components = await API.shopExtension.formatPages(embed, currentpage, product, msg.author, stopComponents);
+        const components = await API.shopExtension.formatPages(embed, { currentpage, totalpages }, product, msg.author, stopComponents);
 
         let embedmsg = await msg.quote({ embed, components });
 

@@ -88,45 +88,58 @@ module.exports = {
             return embed
         }
 
+        function reworkButtons({ currentpage, totalpages }) {
+
+            const butnList = []
+            const components = []
+      
+            butnList.push(API.createButton('backward', 'blurple', '', '◀', (currentpage == 1 ? true : false)))
+            butnList.push(API.createButton('forward', 'blurple', '', '▶', (currentpage == totalpages ? true : false)))
+
+            components.push(API.rowButton(butnList))
+      
+            return components
+      
+        }
+
         const embed = new Discord.MessageEmbed()
 
         await setInfosEmbed(embed, member)
 
-        const embedmsg = await msg.quote(embed);
+        let components = reworkButtons({ currentpage, totalpages })
 
+        if (currentpage == totalpages || totalpages == 0) components = []
+        
+        const embedmsg = await msg.quote({ embed, components });
+        
         if (currentpage == totalpages || totalpages == 0) return
-        embedmsg.react('⏪');
-        embedmsg.react('⏩');
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-      
-        const emojis = ['⏪', '⏩'];
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        let collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         
-        collector.on('collect', async(reaction, user) => {
-      
-            if (emojis.includes(reaction.emoji.name)) {
-              if (reaction.emoji.name == '⏩'){
+        collector.on('collect', async(b) => {
+            
+            b.defer()
+
+            if (b.id == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;
-              } else {
+            } else if (b.id == 'backward') {
                 if (currentpage > 1) currentpage -= 1;
-              }
             }
+
+            components = reworkButtons({ currentpage, totalpages })
 
             const embed = new Discord.MessageEmbed()
             
             await setInfosEmbed(embed, member)
-
-            embedmsg.edit(embed);
-            await reaction.users.remove(user.id);
+           
+            embedmsg.edit({ embed, components });
             collector.resetTimer();
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll();
+            embedmsg.edit({ embed });
         });
 
 	}

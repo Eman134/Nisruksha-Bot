@@ -34,23 +34,22 @@ module.exports = {
             return API.getProgress(8, '<:escav:807999848196079646>', '<:energyempty:741675234796503041>', prof > prof2 ? prof2 : prof, prof2, true);
         }
         
+        let btn = API.createButton('stopBtn', 'red', 'Parar escavação')
+
+        let component = API.rowButton([btn])
+
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`🔎 Procurando tesouro`);
         embed.setDescription(`Escavador: ${msg.author}`);
         embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-        embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Tempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
         let embedmsg
         try {
             embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems).catch();
-        } catch {}
-        embedmsg.react('🔴')        
+        } catch {}  
 
         API.cacheLists.waiting.add(msg.author, embedmsg, 'digging');
-
-        const filter = (reaction, user) => {
-            return reaction.emoji.name === '🔴' && user.id === msg.author.id;
-        };
 
         async function edit() {
 
@@ -82,44 +81,46 @@ module.exports = {
                     channel.bulkDelete(100).catch()
                 } else if (prof < API.events.treasure.profundidade){
                     embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-                    embed.setFooter(`Reaja com 🔴 para parar a escavação\nTempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                    embed.setFooter(`Tempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 }
-                
 
                 try{
-                    await embedmsg.edit({embed, allowedMentions: {"parse": []}}).catch()
+                    if (stop) component = undefined
+                    await embedmsg.edit({embed, component }).catch()
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'digging');
                     return
                 }
 
                 if (stop) {
-                    console.log('Stopped')
                     API.cacheLists.waiting.remove(msg.author, 'digging');
-                    return embedmsg.reactions.removeAll();
+                    return
                 }
 
                 let reacted = false
-                const collector = embedmsg.createReactionCollector(filter, { time: API.events.treasure.update*1000 });
+                const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+                const collector = embedmsg.createButtonCollector(filter, { time: API.events.treasure.update*1000 });
 
-                collector.on('collect', (reaction, user) => {
-                    if (reaction.emoji.name == '🔴') {
+                collector.on('collect', (b) => {
+                    if (b.id == 'stopBtn') {
                         reacted = true;
                         collector.stop();
+                        b.defer()
                         API.cacheLists.waiting.remove(msg.author,  'digging');
                     }
                 });
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        embedmsg.reactions.removeAll();
                         const embedtemp = await API.sendError(msg, `Você parou a escavação!`)
-                        await msg.quote(embedtemp)
+                        await msg.quote({ embed: embedtemp })
                         API.cacheLists.waiting.remove(msg.author, 'digging');
-                    } else {edit();}
+                    } else {
+                        edit();
+                    }
                 });
             }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
             }
         }
         edit();

@@ -91,8 +91,6 @@ module.exports = {
         let totalcoletado = 0;
         let coletadox = new Map();
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
-
         async function edit() {
 
             try{
@@ -211,6 +209,8 @@ module.exports = {
 
                 let stopped = false
 
+                const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+
                 const collector = embedmsg.createButtonCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (b) => {
@@ -226,7 +226,7 @@ module.exports = {
                         btn.setDisabled()
                         await embedmsg.edit({embed, component: API.rowButton([btn]) }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
-                        await msg.quote({ embed: embedtemp, refer: true })
+                        await msg.quote({ embed: embedtemp })
                         API.cacheLists.waiting.remove(msg.author, 'mining')
                     } else {
                         edit();

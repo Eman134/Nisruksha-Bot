@@ -60,24 +60,21 @@ module.exports = {
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja depositar o valor de ${API.format(total2)} ${API.money} ${API.moneyemoji} na sua conta bancária?\nTaxa de depósito da vila atual (**${await API.townExtension.getTownName(msg.author)}**): ${taxa}% (${Math.round(taxa*total2/100)} ${API.money} ${API.moneyemoji})\nTotal a ser depositado: **${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-        let embedmsg = await msg.quote(embed);
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
+        
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const emojis = ['✅', '❌']
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(emojis.includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
-            if (reaction.emoji.name == '❌'){
+            b.defer()
+            if (b.id == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Depósito cancelado', `
@@ -101,17 +98,16 @@ module.exports = {
                     API.eco.money.globaladd(taxa)
                 }
             }
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll().catch();
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria depositar o valor de **${API.format(total2)} ${API.money} ${API.moneyemoji}** na sua conta bancária, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

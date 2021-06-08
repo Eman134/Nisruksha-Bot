@@ -83,7 +83,7 @@ shopExtension.getShopObj = function() {
     return shopExtension.obj;
 }
 
-shopExtension.formatPages = async function(embed, currentpage, product, member, stopComponents) {
+shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, member, stopComponents) {
   let playerobj = await API.getInfo(member, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
@@ -138,9 +138,9 @@ shopExtension.formatPages = async function(embed, currentpage, product, member, 
       const butnList = []
       const components = []
 
-      butnList.push(API.createButton('backward', 'blurple', '', '◀'))
+      butnList.push(API.createButton('backward', 'blurple', '', '◀', (currentpage == 1 ? true : false)))
       butnList.push(API.createButton('stop', 'grey', '', '🔴'))
-      butnList.push(API.createButton('forward', 'blurple', '', '▶'))
+      butnList.push(API.createButton('forward', 'blurple', '', '▶', (currentpage == totalpages ? true : false)))
 
       for (i = 0; i < productscurrentpage.length; i++) {
           butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2].replace('>', '')))
@@ -198,7 +198,7 @@ shopExtension.categoryExists = function(cat) {
   return array.includes(cat);
 }
 
-shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, page, totalpage) {
+shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, page, totalpages) {
   
   const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 
@@ -215,7 +215,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       let stopComponents = false
 
       if (b.id == 'forward'){
-        if (currentpage < totalpage) currentpage += 1;
+        if (currentpage < totalpages) currentpage += 1;
       } if (b.id == 'backward') {
         if (currentpage > 1) currentpage -= 1;
       } if (b.id == 'stop') {
@@ -225,7 +225,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
         stopComponents = true
       }
 
-      embed.setTitle(`${cat} ${currentpage}/${totalpage}`);
+      embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
 
       if (b.id != 'stop' && b.id != 'forward' && b.id != 'backward') {
         collector.stop()
@@ -234,7 +234,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
         stopComponents = true
       }
 
-      components = await shopExtension.formatPages(embed, currentpage, products, msg.author, stopComponents);
+      components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, msg.author, stopComponents);
 
       await embedmsg.edit({ embed, components });
       collector.resetTimer();

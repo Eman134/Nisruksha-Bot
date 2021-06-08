@@ -68,23 +68,22 @@ module.exports = {
         .setTitle(`⭕ Roleta`)
         .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
         .setFooter(`⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        let msgembed = await msg.quote(embed);
-        await msgembed.react('🍊')
-        await msgembed.react('🍓')
-        await msgembed.react('🍐')
-        msgembed.react('🍇')
-    
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        
+        const btn0 = API.createButton('🍊', 'grey', '', '🍊')
+        const btn1 = API.createButton('🍓', 'grey', '', '🍓')
+        const btn2 = API.createButton('🍐', 'grey', '', '🍐')
+        const btn3 = API.createButton('🍇', 'grey', '', '🍇')
+
+        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1, btn2, btn3])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
             
-        const collector = await msgembed.createReactionCollector(filter, { time: 60000 });
+        const collector = await msgembed.createButtonCollector(filter, { time: 60000 });
         let selected;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(emojis.includes(reaction.emoji.name))) return;
-            if (emojisfruits.includes(reaction.emoji.name)) selected = reaction.emoji.name;
-            else return;
+        collector.on('collect', async (b) => {
+            selected = b.id;
+            b.defer()
+
             let array = [];
             let rolnum = API.random(15, 20)
             let currentnum = 0;
@@ -148,10 +147,7 @@ module.exports = {
 
             collector.stop();
         });
-            
-        collector.on('end', async collected => {
-            msgembed.reactions.removeAll();
-        });
+
         API.playerUtils.cooldown.set(msg.author, "roullete", 60);
     
     }

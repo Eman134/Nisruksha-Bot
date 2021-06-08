@@ -60,25 +60,21 @@ module.exports = {
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária?`)
-        let embedmsg = await msg.quote(embed);
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
 
-        const emojis = ['✅', '❌']
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            reaction.users.remove(user.id).catch();
-            if (!(emojis.includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
-            if (reaction.emoji.name == '❌'){
+            b.defer()
+            if (b.id == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Saque cancelado', `
@@ -101,17 +97,16 @@ module.exports = {
                     API.setInfo(msg.author, "players", "saq", obj.saq + 1);
                 }
             }
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll().catch();
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 
