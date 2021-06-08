@@ -1,39 +1,17 @@
 module.exports = {
     name: 'pescar',
     aliases: ['fish'],
-    category: 'Trabalhos',
+    category: 'none',
     description: '<:icon6:830966666082910228> Inicie uma pesca, pegue os melhores peixes e venda-os',
     options: [],
     mastery: 30,
-	async execute(API, msg) {
+    companytype: 6,
+	async execute(API, msg, company) {
 
         const Discord = API.Discord;
         const client = API.client;
 
-        if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de pescaria para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote(embedtemp)
-            return;
-        }
-        let company;
-        let pobj = await API.getInfo(msg.author, 'players')
         let pobj2 = await API.getInfo(msg.author, 'machines')
-        if (await API.company.check.isWorker(msg.author)) {
-            company = await API.company.get.companyById(pobj.company);
-            if (company.type != 6) {
-                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
-                return;
-            }
-        } else {
-            company = await API.company.get.company(msg.author);
-            if (company.type != 6) {
-                const embedtemp = await API.sendError(msg, `A sua empresa não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
-                return;
-
-            }
-        }
 
         if (!pobj.rod) {
             const embedtemp = await API.sendError(msg, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)

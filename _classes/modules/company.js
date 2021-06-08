@@ -706,14 +706,42 @@ const company = {
     stars,
     jobs,
     e: {
-        'agricultura': {tipo: 1, icon: '<:icon1:745663998854430731>'},
-        'exploração': {tipo: 2, icon: '<:icon2:745663998938316951>'},
-        'tecnologia': {tipo: 3, icon: '<:icon3:745663998871076904>'}, 
-        'hackeamento': {tipo: 4, icon: '<:icon4:745663998887854080>'}, 
-        'segurança': {tipo: 5, icon: '<:icon5:745663998900568235>'},
-        'pescaria': {tipo:6, icon: '<:icon6:830966666082910228>'},
-        'processamento': {tipo:7, icon: '<:icon7:851946616738152478>'}
-       },
+        'agricultura': {
+            tipo: 1, 
+            icon: '<:icon1:745663998854430731>',
+            description: 'Um setor de empresa onde você tem a liberdade de adquirir lotes de terras pelas vilas e fazer suas plantações, assim gerando recursos e vendendo-os.'
+        },
+        'exploração': {
+            tipo: 2, 
+            icon: '<:icon2:745663998938316951>',
+            description: 'O setor de empresa perfeito para você que gosta de muita ação, você irá caçar pelas vilas monstros e abatendo-os, conseguindo recursos muito valiosos!'
+        },
+        'tecnologia': {
+            tipo: 3, 
+            icon: '<:icon3:745663998871076904>',
+            description: ''
+        }, 
+        'hackeamento': {
+            tipo: 4, 
+            icon: '<:icon4:745663998887854080>',
+            description: ''
+        }, 
+        'segurança': {
+            tipo: 5, 
+            icon: '<:icon5:745663998900568235>',
+            description: ''
+        },
+        'pescaria': {
+            tipo: 6, 
+            icon: '<:icon6:830966666082910228>',
+            description: 'Nesse setor você compra varas de pesca e dá upgrade nelas para alcançar maiores profundidades, fique rico vendendo peixes, que vença o melhor pescador!'
+        },
+        'processamento': {
+            tipo: 7, 
+            icon: '<:icon7:851946616738152478>',
+            description: 'Com o setor de processamento você pode preparar, melhorar e escolher dentre algumas ferramentas para poder processar seus fragmentos e minérios coletados, podendo vendê-los a um preço alto.'
+        }
+    },
     types: {
         1: 'agricultura',
         2: 'exploração',

@@ -67,6 +67,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
     loadCommands() {
         const x = new Discord.Collection(undefined, undefined);
+        const x2 = new Discord.Collection(undefined, undefined);
 
         const glob = require('glob');
 
@@ -87,9 +88,9 @@ module.exports = class NisrukshaClient extends Discord.Client {
                     if (!file.includes('!')) {
 
                         x.set(command.name, command)
-                        if (command.aliases == undefined) command.aliases = []
+                        if (!command.aliases) command.aliases = []
                         for (const r of command.aliases) {
-                            x.set(r, command)
+                            x2.set(r, command)
                         }
 
                         API.helpExtension.addCommand(command, command.name);
@@ -104,6 +105,8 @@ module.exports = class NisrukshaClient extends Discord.Client {
             })
 
         })
+
+        this.commandsaliases = x2
 
         this.commands = x
 

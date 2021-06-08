@@ -88,7 +88,7 @@ const API = {
     }
 };
 
-API.checkAll = async function(msg, req, maestria = 0) {
+API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companytype }) {
 
     API.client.users.fetch(msg.author.id)
     
@@ -412,6 +412,32 @@ API.checkAll = async function(msg, req, maestria = 0) {
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 		.setFooter(guild.name + " | " + guild.id, guild.iconURL())
         API.client.channels.cache.get('768465691547271168').send(embedcmd);
+    }
+
+    if (companytype && companytype != 0) {
+        if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
+            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]} para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+            await msg.quote(embedtemp)
+            return true;
+        }
+        let company;
+        let pobj = await API.getInfo(msg.author, 'players')
+        if (await API.company.check.isWorker(msg.author)) {
+            company = await API.company.get.companyById(pobj.company);
+            if (company.type != companytype) {
+                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote(embedtemp)
+                return true;
+            }
+        } else {
+            company = await API.company.get.company(msg.author);
+            if (company.type != companytype) {
+                const embedtemp = await API.sendError(msg, `A sua empresa não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
+                await msg.quote(embedtemp)
+                return true;
+
+            }
+        }
     }
     
     return false;

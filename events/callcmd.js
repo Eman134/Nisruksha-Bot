@@ -15,12 +15,12 @@ module.exports = {
 
         const command = args.shift().toLowerCase();
 
-        let commandfile = client.commands.get(command);
+        let commandfile = client.commands.get(command) || client.commandsaliases.get(command);
 
         if (commandfile) {
 
             try {
-                const boolean = await API.checkAll(msg, commandfile.perm ? commandfile.perm : 1, commandfile.mastery ? commandfile.mastery : 0);
+                const boolean = await API.checkAll(msg, { perm: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
                 if (boolean) return;
                 await commandfile.execute(API, msg, ...args);
             } catch (error) {

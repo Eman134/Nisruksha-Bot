@@ -1,38 +1,16 @@
 module.exports = {
     name: 'pegarvara',
     aliases: ['getrod', 'trocarvara', 'comprarvara'],
-    category: 'Trabalhos',
+    category: 'none',
     description: '<:icon6:830966666082910228> Compre ou troque uma vara de pesca',
     options: [],
     mastery: 30,
-	async execute(API, msg) {
+    companytype: 6,
+	async execute(API, msg, company) {
 
         const Discord = API.Discord;
-
-        if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
-            const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de pescaria para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote(embedtemp)
-            return;
-        }
-        let company;
-        let pobj = await API.getInfo(msg.author, 'players')
+        
         let pobj2 = await API.getInfo(msg.author, 'machines')
-        if (await API.company.check.isWorker(msg.author)) {
-            company = await API.company.get.companyById(pobj.company);
-            if (company.type != 6) {
-                const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
-                return;
-            }
-        } else {
-            company = await API.company.get.company(msg.author);
-            if (company.type != 6) {
-                const embedtemp = await API.sendError(msg, `A sua empresa não é de pescaria!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
-                return;
-
-            }
-        }
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para pegar uma vara de pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)

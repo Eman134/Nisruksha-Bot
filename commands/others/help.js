@@ -7,7 +7,7 @@ module.exports = {
         name: 'categoria',
         type: 'STRING',
         description: 'Digite o nome da categoria para obter a lista de comandos, descrição e alcunhas.',
-        required: false,
+        required: false
     }],
 	mastery: 4,
 	async execute(API, msg) {
@@ -58,7 +58,7 @@ ${API.helpExtension.getCategoryList()}`)
 		const embed = new Discord.MessageEmbed();
 		embed.setTitle(`<:info:736274028515295262> Categoria ${categoria.toUpperCase()}`);
 		embed.setColor("#03d7fc");
-		embed.setDescription(`${API.helpExtension.getCommandList(categoria)}`);
+		embed.setDescription(`${API.client.commands.filter((cmd) => cmd.category == categoria ).map((cmd) => `\`${API.prefix}${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 		msg.quote(embed);
 
 		
