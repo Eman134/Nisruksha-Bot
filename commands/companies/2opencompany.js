@@ -7,13 +7,13 @@ module.exports = {
         name: 'setor',
         type: 'STRING',
         description: 'Digite o nome do setor para abrir',
-        required: false,
+        required: false
     },
     {
         name: 'nome',
         type: 'STRING',
         description: 'Digite o nome da empresa',
-        required: false,
+        required: false
     }],
     mastery: 60,
 	async execute(API, msg) {
@@ -101,7 +101,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura cancelada', `
                 Você cancelou a abertura da empresa **${icon} ${name}**.`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -113,34 +113,34 @@ module.exports = {
             if (playerobj.level < req) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você não possui nível o suficiente para abrir uma empresa!\nSeu nível atual: **${playerobj.level}/${req}**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
             if (playerobj2.money < total) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${API.format(playerobj2.money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
             if (cristais < c1) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${API.format(cristais)}/${API.format(c1)} ${API.money2} ${API.money2emoji}**`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
             if (await API.company.check.isWorker(msg.author)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você precisa sair da sua empresa atual para abrir outra!`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
             if (await API.company.check.hasCompany(msg.author)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você não pode abrir mais de uma empresa!`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -161,7 +161,7 @@ module.exports = {
             if (cont) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Já possui uma empresa com este nome! Pense em outro`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -180,7 +180,7 @@ module.exports = {
             .addField(`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${API.company.e[API.company.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`)
             .setColor('#00e061')
             .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return
 
         });
@@ -191,7 +191,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria abrir a empresa **${API.company.e[API.company.types[type]].icon} ${name}**, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
         

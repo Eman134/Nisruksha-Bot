@@ -40,7 +40,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reset cancelado', `
                 Você cancelou o reset de ` + args[0])
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -65,7 +65,7 @@ module.exports = {
                     embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
                     embed.setColor('#eb4034')
                 } finally {
-                    await embedmsg.edit(embed);
+                    await embedmsg.edit({ embed });
                 }
     
             } else {
@@ -83,7 +83,7 @@ module.exports = {
                     embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
                     embed.setColor('#eb4034')
                 } finally {
-                    await embedmsg.edit(embed);
+                    await embedmsg.edit({ embed });
                 }
             }
 
@@ -95,7 +95,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar ${args[0]}, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

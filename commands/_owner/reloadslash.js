@@ -39,7 +39,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reload cancelado', `
                 Você cancelou o reload de ` + args[0])
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -57,7 +57,7 @@ module.exports = {
                     embed.setColor('#a60000');
                     embed.setDescription('❌ Reload cancelado', `
                     Opção ` + args[0] + ' é inexistente.')
-                    embedmsg.edit(embed);
+                    embedmsg.edit({ embed });
                     return;
                 }
 
@@ -76,7 +76,7 @@ module.exports = {
                 embed.setColor('#32a893');
                 embed.setDescription('✅ Reload aplicado', `
                 Você deu reload em ` + args[0])
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -88,7 +88,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar ${args[0]}, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

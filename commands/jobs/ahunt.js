@@ -476,7 +476,7 @@ module.exports = {
             embed.setTitle(`Oops, o monstro percebeu sua presença!`)
             embed.setColor('#a60000');
             embed.setDescription(`❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

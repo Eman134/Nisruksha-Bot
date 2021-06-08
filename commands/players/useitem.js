@@ -86,7 +86,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso cancelado', `
                 Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -94,7 +94,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso cancelado', `
                 Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -103,7 +103,7 @@ module.exports = {
             function sucessEmbed() {
                 embed.setColor('#5bff45');
                 embed.addField('✅ Item usado', `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\``)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
             }
 
             switch (drop.type) {
@@ -114,7 +114,7 @@ module.exports = {
                     if (isFull) {
                         embed.setColor('#a60000');
                         embed.addField('❌ Uso cancelado', `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
-                        embedmsg.edit(embed);
+                        embedmsg.edit({ embed });
                         return
                     }
 
@@ -228,7 +228,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria usar **${drop.icon} ${drop.displayname}**, porém o tempo expirou!\nDescrição do item: \`${drop.desc}\``)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

@@ -390,7 +390,7 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.edit(embed)
+            embedmsg.edit({ embed })
         });
 
 	}

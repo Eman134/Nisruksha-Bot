@@ -91,14 +91,14 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Troca cancelada', `
                 Você cancelou a troca de ${API.format(fichas)} ${API.money3} ${API.money3emoji} pelo valor de ${API.format(total)} ${API.money} ${API.moneyemoji}.`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             } else {
                 embed.fields = [];
                 embed.setColor('#5bff45');
                 embed.addField('✅ Sucesso na troca', `
                 Você trocou ${API.format(fichas)} ${API.money3} ${API.money3emoji} pelo valor de ${API.format(total)} ${API.money} ${API.moneyemoji}`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 API.eco.token.remove(msg.author, fichas)
                 API.eco.money.add(msg.author, total)
                 API.eco.addToHistory(msg.member, `Troca | - ${API.format(fichas)} ${API.money3emoji} : + ${API.format(total)} ${API.moneyemoji}`)
@@ -112,7 +112,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria trocar ${fichas} ${API.money3} ${API.money3emoji} pelo valor de ${total} ${API.money} ${API.moneyemoji}, porém o tempo expirou!`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

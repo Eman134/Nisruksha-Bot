@@ -117,7 +117,7 @@ module.exports = {
             if ((company.score < price)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(company.score.toFixed(2))}/${API.format(price)} ⭐**`)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 return;
             }
 
@@ -129,7 +129,7 @@ module.exports = {
             embed.addField('✅ Upgrade realizado', `
             Você gastou ${price} ⭐ da empresa subiu um nível dela, agora a empresa possui maior capacidade de funcionários máximo.`)
             embed.setFooter('')
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
 
         });
         

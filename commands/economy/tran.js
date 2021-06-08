@@ -157,7 +157,7 @@ module.exports = {
                 }
             }
             API.playerUtils.cooldown.set(msg.author, "transferir", 0);
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
         });
         
         collector.on('end', collected => {
@@ -168,7 +168,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria transferir o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member}, porém o tempo expirou.`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
             return;
         });
 

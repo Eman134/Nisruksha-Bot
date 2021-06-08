@@ -83,7 +83,7 @@ module.exports = {
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 API.playerUtils.cooldown.set(msg.author, "crate", 0);
                 return;
             } 
@@ -94,7 +94,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#606060');
             embed.setDescription(`<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**`)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
 
             let arraywin = [];
             let currnum = 0;
@@ -162,7 +162,7 @@ module.exports = {
                     embed.addField('❌ Oops, um problema ao abrir as caixas!', `Um ou mais itens ganhados das caixas foram descartados da sua mochila\nIsso ocorre quando a sua mochila está lotada de tipos de itens máximo, ou seja, 10/10.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`${API.prefix}venderitem\``)
                 }
 
-                embedmsg.edit(embed);
+                embedmsg.edit({ embed });
                 
                 if (currnum < rewards.length) {
 
@@ -184,7 +184,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
-            embedmsg.edit(embed);
+            embedmsg.edit({ embed });
         });
 
         API.playerUtils.cooldown.set(msg.author, "crate", 30);

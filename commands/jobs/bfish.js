@@ -313,7 +313,7 @@ module.exports = {
                 embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
-                    await embedmsg.edit(embed)
+                    await embedmsg.edit({ embed })
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     return
@@ -363,7 +363,7 @@ module.exports = {
                         await embed.addField(`➰ Coletados`, ccmap)
                         embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            await embedmsg.edit(embed).catch()
+                            await embedmsg.edit({ embed }).catch()
                         }catch{
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             return
