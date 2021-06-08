@@ -7,7 +7,7 @@ module.exports = {
         name: 'minério',
         type: 'STRING',
         description: 'Veja a cotação de um minério específico',
-        required: false,
+        required: false
     }],
     mastery: 15,
 	async execute(API, msg) {
@@ -70,7 +70,6 @@ module.exports = {
             .toURL();
             
             let cotimg = await API.img.loadImage(chart_url)
-            //chart = await API.img.resize(chart, 465, 190);
             
             hide = await API.img.createImage(79, 13, '#ffffff')
             cotimg = await API.img.drawImage(cotimg, hide, 621, 0)

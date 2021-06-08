@@ -226,7 +226,7 @@ module.exports = {
                         btn.setDisabled()
                         await embedmsg.edit({embed, component: API.rowButton([btn]) }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
-                        await msg.quote({ embed: embedtemp, refer: embedmsg.id })
+                        await msg.quote({ embed: embedtemp, refer: true })
                         API.cacheLists.waiting.remove(msg.author, 'mining')
                     } else {
                         edit();

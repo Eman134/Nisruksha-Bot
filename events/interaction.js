@@ -51,8 +51,6 @@ module.exports = {
             const message = await interaction.fetchReply();
 
             x.reply = { messageReference: message.id }
-
-            console.log(x)
           
             return await client.channels.cache.get(interaction.channel.id).send(x)
           }

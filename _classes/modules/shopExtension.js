@@ -83,12 +83,15 @@ shopExtension.getShopObj = function() {
     return shopExtension.obj;
 }
 
-shopExtension.formatPages = async function(embed, currentpage, product, member) {
+shopExtension.formatPages = async function(embed, currentpage, product, member, stopComponents) {
   let playerobj = await API.getInfo(member, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
-  const minerios = API.maqExtension.ores.getObj().minerios
-  for (i = (currentpage-1)*3; i < ((currentpage-1)*3)+3; i++) {
+  const productscurrentpage = []
+
+  const perRow = 3
+
+  for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
     let p = product[i];
     if (p == undefined) break;
     let price = p.price;
@@ -122,11 +125,46 @@ shopExtension.formatPages = async function(embed, currentpage, product, member) 
     if (p.info) {
       formated += '\n' + p.info
     }
-
-    embed.addField(`${p['icon'] == undefined ? '':p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, formated, false)
-    
+    embed.addField(`${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, formated, false)
+    productscurrentpage.push(p)
   }
+
   if (product.length == 0) embed.addField('❌ Oops, um problema inesperado ocorreu', 'Esta categoria não possui produtos ainda!');
+
+  if (stopComponents) return []
+
+  function reworkButtons() {
+
+      const butnList = []
+      const components = []
+
+      butnList.push(API.createButton('backward', 'blurple', '⬅'))
+      butnList.push(API.createButton('stop', 'red', '🟥'))
+      butnList.push(API.createButton('forward', 'blurple', '➡'))
+
+      for (i = 0; i < productscurrentpage.length; i++) {
+          butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2].replace('>', '')))
+      }
+
+      let totalcomponents = butnList.length % perRow;
+      if (totalcomponents == 0) totalcomponents = (butnList.length)/perRow;
+      else totalcomponents = ((butnList.length-totalcomponents)/perRow);
+
+      totalcomponents += 1
+
+      for (x = 0; x < totalcomponents; x++) {
+          const var1 = (x+1)*perRow-perRow
+          const var2 = ((x+1)*perRow)
+          const rowBtn = API.rowButton(butnList.slice(var1, var2))
+          if (rowBtn.components.length > 0) components.push(rowBtn)
+
+      }
+
+      return components
+
+  }
+
+  return reworkButtons()
 
 }
 
@@ -160,38 +198,54 @@ shopExtension.categoryExists = function(cat) {
   return array.includes(cat);
 }
 
-shopExtension.editPage = async function(cat, msg, msgembed, product, embed, page, totalpage) {
+shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, page, totalpage) {
   
-  const filter = (reaction, user) => {
-      return user.id === msg.author.id;
-  };
+  const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 
   let currentpage = page;
-
-  const emojis = ['⏪', '⏩'];
   
-  let collector = msgembed.createReactionCollector(filter, { time: 30000 });
+  let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
   
-  collector.on('collect', async(reaction, user) => {
-
-      if (emojis.includes(reaction.emoji.name)) {
-        if (reaction.emoji.name == '⏩'){
-          if (currentpage < totalpage) currentpage += 1;
-        } else {
-          if (currentpage > 1) currentpage -= 1;
-        }
-      }
+  collector.on('collect', async(b) => {
       
       embed.fields = [];
-      await shopExtension.formatPages(embed, currentpage, product, msg.author);
+
+      let components = []
+
+      let stopComponents = false
+
+      if (b.id == 'forward'){
+        if (currentpage < totalpage) currentpage += 1;
+      } if (b.id == 'backward') {
+        if (currentpage > 1) currentpage -= 1;
+      } if (b.id == 'stop') {
+        collector.stop()
+        embed.setColor('#a60000')
+        components = []
+        stopComponents = true
+      }
+
       embed.setTitle(`${cat} ${currentpage}/${totalpage}`);
-      msgembed.edit(embed);
-      await reaction.users.remove(user.id);
+
+      if (b.id != 'stop' && b.id != 'forward' && b.id != 'backward') {
+        collector.stop()
+        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.id));
+        components = []
+        stopComponents = true
+      }
+
+      components = await shopExtension.formatPages(embed, currentpage, products, msg.author, stopComponents);
+
+      await embedmsg.edit({ embed, components });
       collector.resetTimer();
+
+      b.defer()
+
+
   });
   
   collector.on('end', collected => {
-      msgembed.reactions.removeAll();
+
   });
 
 }
@@ -248,7 +302,7 @@ shopExtension.execute = async function(msg, p) {
     let obj = API.shopExtension.getShopObj();
     let array = Object.keys(obj);
     const embedtemp = await API.sendError(msg, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-    await msg.quote({ embed: embedtemp, reply: { messageReference: this.id }})
+    await msg.quote(embedtemp)
     return;
   }
   

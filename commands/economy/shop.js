@@ -53,12 +53,14 @@ module.exports = {
         embed.setColor('#bf772a');
         embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         embed.setDescription(`Utilize \`${API.prefix}comprar <id>\` para realizar uma compra`);
-        await API.shopExtension.formatPages(embed, currentpage, product, msg.author);
-        let msgembed = await msg.quote(embed);
+
+        const components = await API.shopExtension.formatPages(embed, currentpage, product, msg.author);
+
+        let embedmsg = await msg.quote({ embed, components });
+
         if (currentpage == totalpages || totalpages == 0) return
-        msgembed.react('⏪');
-        msgembed.react('⏩');
-        API.shopExtension.editPage(categoria.toUpperCase(), msg, msgembed, product, embed, currentpage, totalpages);
+
+        API.shopExtension.editPage(categoria.toUpperCase(), msg, embedmsg, product, embed, currentpage, totalpages);
 
 	}
 };
