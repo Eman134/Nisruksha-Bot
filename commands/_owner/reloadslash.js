@@ -18,24 +18,21 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         embed.setDescription('Reaja para continuar o reload de ' + args[0])
 
-        const embedmsg = await msg.quote(embed);
-        
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
+            await b.defer()
             embed.fields = [];
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reload cancelado', `
                 Você cancelou o reload de ` + args[0])
@@ -83,7 +80,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');

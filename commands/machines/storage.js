@@ -81,7 +81,7 @@ module.exports = {
             collector.stop()
             reacted = true;
             embed.fields = [];
-            b.defer()
+            await b.defer()
                 
             if (b.id == 'upgrade'){
                 if (price > await API.eco.money.get(msg.author)) {
@@ -121,7 +121,7 @@ module.exports = {
                     .setFooter('')
                 } else embed.setFooter('💰 Seus recursos valem ' + API.format(Math.round(total)) + ' ' + API.money)
             }
-            
+
             await msgembed.edit({ embed });
 
             collector.resetTimer();

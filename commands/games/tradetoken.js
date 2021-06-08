@@ -64,28 +64,23 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
         .addField('<a:loading:736625632808796250> Aguardando confirmação', `Você deseja trocar ${API.format(fichas)} ${API.money3} ${API.money3emoji} pelo valor de ${API.format(total)} ${API.money} ${API.moneyemoji}?`)
-        const embedmsg = await msg.quote(embed);
-        embedmsg.react('✅')
-        embedmsg.react('❌')
-
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-      
-        const emojis = ['✅', '❌'];
         
-        let collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        
+        let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
 
         let reacted = false;
         
-        collector.on('collect', async(reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(emojis.includes(reaction.emoji.name))) {
-              return;
-            }
+        collector.on('collect', async(b) => {
+            await b.defer()
             reacted = true;
             collector.stop();
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 collector.stop();
                 embed.fields = [];
                 embed.setColor('#a60000');
@@ -106,7 +101,6 @@ module.exports = {
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');

@@ -86,7 +86,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             selected = b.id;
-            b.defer()
+            await b.defer()
 
             let array = [];
             let rolnum = API.random(15, 20)

@@ -61,25 +61,24 @@ module.exports = {
 	    .setColor('#606060')
         .addField('<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
         .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        const embedmsg = await msg.quote(embed);
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
+        
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
             
-        const collector = await embedmsg.createReactionCollector(filter, { time: 30000 });
+        const collector = await embedmsg.createButtonCollector(filter, { time: 30000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
+        collector.on('collect', async (b) => {
 
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+            await b.defer()
             
             reacted = true;
             collector.stop();
 
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
@@ -168,7 +167,6 @@ module.exports = {
 
                     const ltchance = (rewards[currnum].chance == undefined ? 25 : rewards[currnum].chance)
                     
-
                     let t1 = 1000+(100-ltchance)*30;
                     setTimeout(function(){win(rewards[currnum], rewards)} , t1);
                 } else {
@@ -179,7 +177,6 @@ module.exports = {
         });
 
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             embed.fields = [];
             embed.setColor('#a60000');

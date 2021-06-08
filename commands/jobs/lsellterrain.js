@@ -83,23 +83,23 @@ module.exports = {
 		const embed = new Discord.MessageEmbed().setColor(`#a4e05a`)
         .setTitle(`Venda de terreno`)
         .addField('<a:loading:736625632808796250> Aguardando confirmação', `Você deseja vender seu terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**?`)
-        let embedmsg = await msg.quote(embed);
-        embedmsg.react('✅')
-        embedmsg.react('❌')
-        let emojis = ['✅', '❌']
-
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id && emojis.includes(reaction.emoji.name);
-        };
         
-        let collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        
+        let collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let selled = false;
         API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
-        collector.on('collect', async(reaction, user) => {
+        collector.on('collect', async(b) => {
             selled = true;
             collector.stop();
+            await b.defer()
             embed.fields = [];
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**.`)
@@ -153,7 +153,6 @@ module.exports = {
         });
         
         collector.on('end', collected => {
-            embedmsg.reactions.removeAll();
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');

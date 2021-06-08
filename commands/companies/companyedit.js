@@ -251,20 +251,17 @@ module.exports = {
           embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
           Você deseja gastar ${pricenome} ⭐ e trocar o nome da sua empresa para **${novonome}**?`)
           
-          let embedmsg = await msg.quote(embed);
+          const btn0 = API.createButton('confirm', 'grey', '', '✅')
+          const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-          await embedmsg.react('✅')
-          embedmsg.react('❌')
+          let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
 
-          const filter = (reaction, user) => {
-              return user.id === msg.author.id;
-          };
+          const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
           
-          const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+          const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
           let reacted = false;
-          collector.on('collect', async (reaction, user) => {
-              await reaction.users.remove(user.id);
-              if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+          collector.on('collect', async (b) => {
+              await b.defer()
               reacted = true;
               collector.stop();
               embed.fields = [];
@@ -299,7 +296,6 @@ module.exports = {
           });
           
           collector.on('end', async collected => {
-              embedmsg.reactions.removeAll();
               if (reacted) return;
 
               embed.fields = [];

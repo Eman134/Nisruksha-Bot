@@ -103,24 +103,22 @@ module.exports = {
         
 		const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
-        const embedmsg = await msg.quote(embed);
         
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
+            await b.defer()
             const embed = new API.Discord.MessageEmbed()
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Geração de chave cancelada', `
                 Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
@@ -180,7 +178,6 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');

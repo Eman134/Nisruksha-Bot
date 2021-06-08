@@ -174,7 +174,7 @@ module.exports = {
                     if (b.id == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        b.defer()
+                        await b.defer()
                     }
                 });
 

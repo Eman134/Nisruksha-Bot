@@ -64,22 +64,20 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\``)
         
-        let embedmsg = await msg.quote(embed);
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
 
-        embedmsg.react('✅')
-        embedmsg.react('❌')
-        let emojis = ['✅', '❌']
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id && emojis.includes(reaction.emoji.name);
-        };
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        let collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        let collector = embedmsg.createButtonCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async(reaction, user) => {
+        collector.on('collect', async(b) => {
             reacted = true;
             collector.stop();
             embed.fields = [];
+            await b.defer()
 
             const obj2 = await API.getInfo(msg.author, 'storage')
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
@@ -90,7 +88,7 @@ module.exports = {
                 return;
             }
 
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso cancelado', `
                 Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``)
@@ -221,7 +219,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            try {await embedmsg.reactions.removeAll().catch();} catch {}
             API.playerUtils.cooldown.set(msg.author, "usaritem", 0);
             if (reacted) return
             embed.fields = [];

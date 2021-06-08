@@ -240,7 +240,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       await embedmsg.edit({ embed, components });
       collector.resetTimer();
 
-      b.defer()
+      await b.defer()
 
 
   });
@@ -337,7 +337,7 @@ shopExtension.execute = async function(msg, p) {
     buyed = true;
     collector.stop();
     embed.fields = [];
-    b.defer()
+    await b.defer()
 
     if (b.id == 'confirm'){
 

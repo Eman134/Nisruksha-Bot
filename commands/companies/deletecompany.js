@@ -56,24 +56,22 @@ module.exports = {
         .addField(`🧾 Contratos`, `\`Termos de Compromisso\`\n${API.format(r1)} ${API.money} ${API.moneyemoji}\n\`Compensação de Trabalho\`\n${API.format(r2)} ${API.money} ${API.moneyemoji}\n\`Autorização de Recebimento\`\n${API.format(r3)} ${API.money} ${API.moneyemoji}\n\`Instrumento Particular\`\n${API.format(r4)} ${API.money} ${API.moneyemoji}`)
         .addField(`📑 Requisitos de fechamento`, `Valor final: **${API.format(total)} ${API.money} ${API.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}`)
         .setColor('#00e061')
-		const embedmsg = await msg.quote(embed);
+		
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
-        
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-        
-        const collector = embedmsg.createReactionCollector(filter, { time: 60000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 60000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
+            await b.defer()
             reacted = true;
             collector.stop();
 
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Fechamento cancelado', `
                 Você cancelou o fechamento da empresa **${icon} ${name}**.`)
@@ -111,7 +109,7 @@ module.exports = {
             try {
                 await API.db.pool.query(`DELETE FROM companies WHERE user_id=${msg.author.id};`);
             }catch (err) { 
-                client.emit('error', err)
+                API.client.emit('error', err)
                 throw err 
             }
 
@@ -134,7 +132,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');

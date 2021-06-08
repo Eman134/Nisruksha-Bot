@@ -23,25 +23,23 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
 Você deseja se demitir da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**?`)
-        const embedmsg = await msg.quote(embed);
-        
-        await embedmsg.react('✅')
-        embedmsg.react('❌')
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
+        const btn0 = API.createButton('confirm', 'grey', '', '✅')
+        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+
+        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['✅', '❌'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
+            await b.defer()
             reacted = true;
             embed.fields = []
             collector.stop();
             
-            if (reaction.emoji.name == '❌'){
+            if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
                 Você cancelou a própria demissão na empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
@@ -90,7 +88,6 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             embed.fields = []
             embed.setColor('#a60000');
