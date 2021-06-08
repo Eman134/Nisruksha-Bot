@@ -138,9 +138,9 @@ shopExtension.formatPages = async function(embed, currentpage, product, member, 
       const butnList = []
       const components = []
 
-      butnList.push(API.createButton('backward', 'blurple', '', '⬅'))
-      butnList.push(API.createButton('stop', 'grey', '', '🟥'))
-      butnList.push(API.createButton('forward', 'blurple', '', '➡'))
+      butnList.push(API.createButton('backward', 'blurple', '', '◀'))
+      butnList.push(API.createButton('stop', 'grey', '', '🔴'))
+      butnList.push(API.createButton('forward', 'blurple', '', '▶'))
 
       for (i = 0; i < productscurrentpage.length; i++) {
           butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2].replace('>', '')))
@@ -502,7 +502,7 @@ shopExtension.execute = async function(msg, p) {
     } if (b.id == 'cancel'){
 
           embed.setColor('#a60000');
-          embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}**.`)
+          embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
           await embedmsg.edit({ embed });
           return;
         }
@@ -515,7 +515,7 @@ shopExtension.execute = async function(msg, p) {
     if (buyed) return
     embed.setColor('#a60000');
     embed.addField('❌ Tempo expirado', `
-    Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}**, porém o tempo expirou!`)
+    Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!`)
     embedmsg.edit({ embed });
     return;
 
