@@ -21,8 +21,9 @@ module.exports = {
 
             try {
                 const boolean = await API.checkAll(msg, { perm: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
-                if (boolean) return;
-                await commandfile.execute(API, msg, ...args);
+                if (boolean && !commandfile.companytype) return;
+                if (!commandfile.companytype)await commandfile.execute(API, msg, ...args);
+                else await commandfile.execute(API, msg, boolean, ...args);
             } catch (error) {
                 console.error(error);
                 API.client.emit('error', error)

@@ -21,6 +21,7 @@ module.exports = {
         const Discord = API.Discord;
         const client = API.client;
 
+        let pobj = await API.getInfo(msg.author, 'players')
         let pobj2 = await API.getInfo(msg.author, 'machines')
 
         if (pobj2.level < 3) {
@@ -102,6 +103,7 @@ module.exports = {
         let lastmsg
         let autohunt = false
         const equipsBtn = []
+        let components = []
         collector.on('collect', async (b) => {
             
             if (!reactequiplist.includes(b.id)) return;
@@ -302,11 +304,13 @@ module.exports = {
                     reactequiplist.push(id)
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
+
+                if (!autohunt) components = [ API.rowButton(equipsBtn) ]
                 
 				let firstbuild = await build()
 				
                 await embed.setImage(firstbuild.url)
-                await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]});
+                await embedmsg.edit({embed, components });
                 fixedembed = embed
 
                 if (autohunt) {
@@ -399,12 +403,12 @@ module.exports = {
 
                 try {
                     if (dead) await embedmsg.edit({embed})
-                    else await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]})
+                    else await embedmsg.edit({embed, components })
                 } catch {
                     setTimeout(async function(){
                         try {
                             if (dead) await embedmsg.edit({embed})
-                            else await embedmsg.edit({embed, components: [ API.rowButton(equipsBtn) ]})
+                            else await embedmsg.edit({embed, components })
                         } catch {
                             API.cacheLists.waiting.remove(msg.author, 'hunting')
                             collector.stop();

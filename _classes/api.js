@@ -438,6 +438,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
             }
         }
+
+        if (company) return company
     }
     
     return false;
