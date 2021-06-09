@@ -2,7 +2,7 @@ module.exports = {
     name: 'terrenoatual',
     aliases: ['landplot', 'terrain', 'lote', 'plot'],
     category: 'none',
-    description: '<:icon1:745663998854430731> Visualiza as informações da plantação e terreno',
+    description: 'Visualiza as informações da plantação e terreno',
     options: [],
     mastery: 18,
     companytype: 1,

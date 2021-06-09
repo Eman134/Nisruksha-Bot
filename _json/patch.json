@@ -123,8 +123,8 @@
     },
     "2.1.7": {
         "add": ["Máquina e minério de safira", "Rework no n.terrenoatual", "Gráficos de cotações de minérios n.cotação <minério>", "Sistema de pontos de maestria", "Integrado rankingsv ao n.ranking", "Adicionado comandos slash", "Algumas reações de comandos foram migradas para botões"],
-        "rem": ["Comando colher", "Comando rankingsv"],
-        "chn": [],
+        "rem": ["Categoria trabalhos", "Comando colher", "Comando rankingsv"],
+        "chn": ["Comandos de trabalhos das empresas movido para n.setores"],
         "fix": ["Top local"],
         "alc": []
     }

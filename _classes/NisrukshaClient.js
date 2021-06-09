@@ -93,7 +93,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                             x2.set(r, command)
                         }
 
-                        API.helpExtension.addCommand(command, command.name);
+                        API.helpExtension.addCommand(command);
 
                     };
 

@@ -2,7 +2,7 @@ module.exports = {
     name: 'pescar',
     aliases: ['fish'],
     category: 'none',
-    description: '<:icon6:830966666082910228> Inicie uma pesca, pegue os melhores peixes e venda-os',
+    description: 'Inicie uma pesca, pegue os melhores peixes e venda-os',
     options: [],
     mastery: 30,
     companytype: 6,

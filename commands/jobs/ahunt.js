@@ -12,7 +12,7 @@ module.exports = {
     name: 'caçar',
     aliases: ['hunt'],
     category: 'none',
-    description: '<:icon2:745663998938316951> Inicia uma caçada á monstros ao redor da sua localização',
+    description: 'Inicia uma caçada á monstros ao redor da sua localização',
     options: [],
     mastery: 18,
     companytype: 2,

@@ -2,7 +2,7 @@ module.exports = {
     name: 'venderterreno',
     aliases: ['sellterrain', 'venderlote', 'vendlote', 'sellplot'],
     category: 'none',
-    description: '<:icon1:745663998854430731> Faça a venda do seu terreno atual',
+    description: 'Faça a venda do seu terreno atual',
     options: [],
     mastery: 30,
     companytype: 1,

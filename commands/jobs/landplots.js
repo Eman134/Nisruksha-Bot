@@ -2,7 +2,7 @@ module.exports = {
     name: 'terrenos',
     aliases: ['landplots', 'terrains', 'lotes', 'plots'],
     category: 'none',
-    description: '<:icon1:745663998854430731> Visualiza as informações de todos os seus terrenos',
+    description: 'Visualiza as informações de todos os seus terrenos',
     options: [],
     mastery: 25,
     companytype: 1,

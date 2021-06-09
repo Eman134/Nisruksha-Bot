@@ -2,7 +2,7 @@ module.exports = {
     name: 'plantar',
     aliases: ['plant'],
     category: 'none',
-    description: '<:icon1:745663998854430731> Faça um lote de plantação em seu terreno',
+    description: 'Faça um lote de plantação em seu terreno',
     options: [{
         name: 'área',
         type: 'INTEGER',

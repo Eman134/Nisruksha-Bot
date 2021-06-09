@@ -8,18 +8,12 @@ helpExtension.getCategoryList = function() {
     return '**' + helpExtension.category.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
 }
 
+helpExtension.getCategoryListObj = function() {
+    return helpExtension.category
+}
+
 helpExtension.categoryExists = function(cat) {
-    let loop = 0;
-    let result = false;
-    while (loop < helpExtension.category.length) {
-        if (helpExtension.category[loop] === cat) {
-          result = true
-          break
-        } else {
-          ++loop
-        }
-    }
-    return result;
+    return this.category.includes(cat);
 }
 
 helpExtension.addCommand = async function(command) {

@@ -2,14 +2,14 @@ module.exports = {
     name: 'pegarvara',
     aliases: ['getrod', 'trocarvara', 'comprarvara'],
     category: 'none',
-    description: '<:icon6:830966666082910228> Compre ou troque uma vara de pesca',
+    description: 'Compre ou troque uma vara de pesca',
     options: [],
     mastery: 30,
     companytype: 6,
 	async execute(API, msg, company) {
 
         const Discord = API.Discord;
-        
+
         let pobj2 = await API.getInfo(msg.author, 'machines')
 
         if (pobj2.level < 3) {

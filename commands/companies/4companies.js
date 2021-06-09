@@ -54,7 +54,7 @@ module.exports = {
         name: 'página',
         type: 'INTEGER',
         description: 'Digite o número da página para pesquisar empresas',
-        required: false,
+        required: false
     }],
     mastery: 30,
 	async execute(API, msg) {

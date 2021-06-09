@@ -2,7 +2,7 @@ module.exports = {
     name: 'uparvara',
     aliases: ['rodupgrade', 'varaupgrade', 'rodup', 'varaup', 'uv'],
     category: 'none',
-    description: '<:icon6:830966666082910228> Dê upgrade na vara de pesca para melhorar a pescaria',
+    description: 'Dê upgrade na vara de pesca para melhorar a pescaria',
     options: [],
     mastery: 40,
     companytype: 6,

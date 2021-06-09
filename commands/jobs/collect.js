@@ -2,7 +2,7 @@ module.exports = {
     name: 'coletar',
     aliases: ['col', 'collect'],
     category: 'none',
-    description: '<:icon1:745663998854430731> Coleta diferente sementes e flores para plantação',
+    description: 'Coleta diferente sementes e flores para plantação',
     options: [],
     mastery: 30,
     companytype: 1,
