@@ -266,7 +266,7 @@ module.exports = {
               collector.stop();
               embed.fields = [];
 
-              if (reaction.emoji.name == '❌'){
+              if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Alteração cancelada', `
                 Você cancelou a troca de nome da sua empresa para **${novonome}**.`)

@@ -138,9 +138,9 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       const butnList = []
       const components = []
 
-      butnList.push(API.createButton('backward', 'blurple', '', '◀', (currentpage == 1 ? true : false)))
+      butnList.push(API.createButton('backward', 'blurple', '', '852241487064596540', (currentpage == 1 ? true : false)))
       butnList.push(API.createButton('stop', 'grey', '', '🔴'))
-      butnList.push(API.createButton('forward', 'blurple', '', '▶', (currentpage == totalpages ? true : false)))
+      butnList.push(API.createButton('forward', 'blurple', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
       for (i = 0; i < productscurrentpage.length; i++) {
          if (!productscurrentpage[i]) break

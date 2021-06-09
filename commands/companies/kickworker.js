@@ -121,7 +121,6 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             embed.fields = []
             embed.setColor('#a60000');

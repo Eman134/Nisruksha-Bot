@@ -160,10 +160,10 @@
         "name": "safira",
         "icon": "<:safira:851945445915230210>",
         "price": {
-            "min": 15400,
-            "default": 20800,
-            "max": 28100,
-            "atual": 20800,
+            "min": 9400,
+            "default": 12800,
+            "max": 18100,
+            "atual": 12800,
             "ultimoupdate": "",
             "updates": []
         },

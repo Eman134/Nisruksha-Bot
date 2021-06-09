@@ -37,8 +37,8 @@ module.exports = {
         let btn1 = API.createButton('sBtn', 'gray', 'Equipar', '✅')
         let btn2 = API.createButton('nBtn', 'gray', 'Desequipar', '❌')
         let btn3 = API.createButton('b1Btn', 'blurple', '', '⏪')
-        let btn4 = API.createButton('b0Btn', 'gray', '', '◀')
-        let btn5 = API.createButton('f0Btn', 'gray', '', '▶')
+        let btn4 = API.createButton('b0Btn', 'gray', '', '852241487064596540')
+        let btn5 = API.createButton('f0Btn', 'gray', '', '737370913204600853')
         let btn6 = API.createButton('f1Btn', 'blurple', '', '⏩')
 
         if (total < 2) {

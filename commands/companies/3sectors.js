@@ -2,7 +2,7 @@ module.exports = {
     name: 'setores',
     aliases: ['sectors'],
     category: 'Empresas',
-    description: 'Visualiza os setores de empresas disponíveis',
+    description: 'Visualiza os setores de empresas e os comandos de cada um',
     options: [],
     mastery: 30,
 	async execute(API, msg) {

@@ -11,6 +11,8 @@ module.exports = {
         const Discord = API.Discord;
         const client = API.client;
 
+        let pobj = await API.getInfo(msg.author, 'players')
+
         const check = await API.playerUtils.cooldown.check(msg.author, "landplot");
         if (check) {
 

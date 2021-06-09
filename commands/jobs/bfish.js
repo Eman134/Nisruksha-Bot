@@ -10,7 +10,8 @@ module.exports = {
 
         const Discord = API.Discord;
         const client = API.client;
-
+        
+        let pobj = await API.getInfo(msg.author, 'players')
         let pobj2 = await API.getInfo(msg.author, 'machines')
 
         if (!pobj.rod) {
