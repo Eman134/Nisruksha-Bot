@@ -17,6 +17,10 @@ module.exports = {
 
         const processjson = players_utils.process
 
+        if (processjson == null) {
+
+        }
+
         /*
 
         {
@@ -101,7 +105,7 @@ module.exports = {
         */
 
         function setProcess() {
-            if (processjson.in.length > 0) {
+            if (processjson != null || processjson.in.length > 0) {
                 for (i = 0; i < processjson.in.length; i++) {
                     embed.addField(`⏳ Processo ${processjson.in[i].id}: ${API.ms2(Date.now()-processjson.in[i].started)}`, `Termina em: ${API.ms2(Date.now()-processjson.in[i].end > 0 ? 'Finalizado' : API.ms2(-1*(Date.now()-processjson.in[i].end)))} \nID de Processo: ${processjson.in[i].id}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]`, true)
                 }
