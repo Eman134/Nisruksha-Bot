@@ -105,7 +105,7 @@ module.exports = {
         */
 
         function setProcess() {
-            if (processjson != null || processjson.in.length > 0) {
+            if (processjson != null && processjson.in.length > 0) {
                 for (i = 0; i < processjson.in.length; i++) {
                     embed.addField(`⏳ Processo ${processjson.in[i].id}: ${API.ms2(Date.now()-processjson.in[i].started)}`, `Termina em: ${API.ms2(Date.now()-processjson.in[i].end > 0 ? 'Finalizado' : API.ms2(-1*(Date.now()-processjson.in[i].end)))} \nID de Processo: ${processjson.in[i].id}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]`, true)
                 }
@@ -113,7 +113,7 @@ module.exports = {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
             }
 
-            if (processjson.drops.size > 0) {
+            if (processjson != null && processjson.drops.size > 0) {
                 embed.addField(`Drops`, `<:comum:852302869889155082> Comuns:\n1x Chapéu de Palha   1x Dinamite\n\n<:incomum:852302869888630854> Incomuns:\n1x Frasco de Vidro`, false)
             }
 
