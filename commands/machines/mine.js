@@ -224,7 +224,7 @@ module.exports = {
                 collector.on('end', async collected => {
                     if (stopped) {
                         btn.setDisabled()
-                        await embedmsg.edit({embed, component: API.rowButton([btn]) }).catch()
+                        await embedmsg.edit({ embed }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
                         await msg.quote({ embed: embedtemp })
                         API.cacheLists.waiting.remove(msg.author, 'mining')

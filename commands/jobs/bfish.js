@@ -54,31 +54,38 @@ module.exports = {
         let inv = '<:inv:781993473331036251>'
         let anzol = '<:anzol:830810178440921128>'
 
+        function reworkBtns() {
+
+            let buttons = []
+
+            let btn = API.createButton('stopBtn', 'red', 'Parar pesca')
+            let btn1 = API.createButton('downBtn', 'grey', 'Descer anzol', '⬇')
+            let btn2 = API.createButton('upBtn', 'grey', 'Subir anzol', '⬆')
+
+            buttons.push(btn)
+            buttons.push(btn1)
+            
+            if (pobj.mvp != null) { 
+                buttons.push(btn2) 
+            }
+
+            return [API.rowButton(buttons)]
+        }
+
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Pescando`)
         embed.setDescription(`Pescador: ${msg.author}`);
         embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-        embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote(embed).catch();
-        embedmsg.react('🔴')
-        embedmsg.react('⬇')
-        let arrfilter = ['🔴', '⬇']
-
-        if (pobj.mvp != null) {
-            arrfilter.push('⬆')
-            embedmsg.react('⬆')
-        }
-
+        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        let embedmsg = await msg.quote({ embed, components: reworkBtns() }).catch();
         
         API.cacheLists.waiting.add(msg.author, embedmsg, 'fishing');
 
         let coletados = new Map()
 
-        const filter = (reaction, user) => {
-            return arrfilter.includes(reaction.emoji.name) && user.id === msg.author.id;
-        };
+        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 
         function duplicateElements(array, times) {
 
@@ -95,14 +102,11 @@ module.exports = {
         function shuffle(array) {
             var currentIndex = array.length, temporaryValue, randomIndex;
           
-            // While there remain elements to shuffle...
             while (0 !== currentIndex) {
           
-              // Pick a remaining element...
               randomIndex = Math.floor(Math.random() * currentIndex);
               currentIndex -= 1;
           
-              // And swap it with the current element.
               temporaryValue = array[currentIndex];
               array[currentIndex] = array[randomIndex];
               array[randomIndex] = temporaryValue;
@@ -289,10 +293,10 @@ module.exports = {
                 embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px).join(inv))
-                embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
-                    await embedmsg.edit({ embed })
+                    await embedmsg.edit({ embed, components: reworkBtns() })
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     return
@@ -302,7 +306,6 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
-                    embedmsg.reactions.removeAll();
                     return;
                 }
 
@@ -310,23 +313,23 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
-                    embedmsg.reactions.removeAll();
                     return;
                 }
 
                 let reacted = false
-                const collector = embedmsg.createReactionCollector(filter, { time: API.company.jobs.fish.update*1000 });
+                const collector = embedmsg.createButtonCollector(filter, { time: API.company.jobs.fish.update*1000 });
                 let lastreacttime = Date.now()-10000;
-                collector.on('collect', async (reaction, user) => {
-                    reaction.users.remove(user.id).catch();
-                    if (reaction.emoji.name == '🔴') {
+                collector.on('collect', async (b) => {
+                    if (b.id == 'stopBtn') {
+                        b.defer()
                         reacted = true;
                         collector.stop();
-                    } else if (reaction.emoji.name == '⬇' || reaction.emoji.name == '⬆') {
-                        if (Date.now()-lastreacttime < 4000) return;
+                    } else if (b.id == 'downBtn' || b.id == 'upBtn') {
+                        if (Date.now()-lastreacttime < 2000) return;
+                        b.defer()
                         lastreacttime = Date.now()
-
-                        if (reaction.emoji.name == '⬇') {
+                        
+                        if (b.id == 'downBtn') {
                             header.levels["0"] = (header.levels["0"] == 5 ? 1 : header.levels["0"]+1)
                         } else {
                             header.levels["0"] = (header.levels["0"] == 1 ? 5 : header.levels["0"]-1)
@@ -340,9 +343,9 @@ module.exports = {
                         embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
                         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                         await embed.addField(`➰ Coletados`, ccmap)
-                        embed.setFooter(`Reaja com 🔴 para parar a pesca\nReaja com ⬇ para reposicionar o anzol\nTempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            await embedmsg.edit({ embed }).catch()
+                            await embedmsg.edit({ embed, components: reworkBtns() }).catch()
                         }catch{
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             return
@@ -352,7 +355,7 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        embedmsg.reactions.removeAll();
+                        await embedmsg.edit({ embed }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
                         await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
@@ -360,7 +363,7 @@ module.exports = {
                 });
                 
             }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
             }
         }
 
