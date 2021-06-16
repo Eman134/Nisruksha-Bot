@@ -37,9 +37,9 @@ module.exports = {
         }
 
         let stamina = await API.maqExtension.stamina.get(msg.author)
-        let staminamax = 1000;
+
         let cost = pobj2.level+1 * 2
-        cost > 200 ? cost = 200 : cost = cost;
+        cost > 30 ? cost = 30 : cost = cost;
 
         if (stamina < cost) {
             

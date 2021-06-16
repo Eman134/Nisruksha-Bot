@@ -20,7 +20,7 @@ module.exports.votos = async (msg) => {
             }
 
         } catch (err) {
-            API.console.log(err);
+            console.log(err);
             API.client.emit('error', err)
         }
     }
