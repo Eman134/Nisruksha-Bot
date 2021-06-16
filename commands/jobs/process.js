@@ -14,78 +14,35 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 
         const players_utils = await API.getInfo(msg.author, 'players_utils')
+        const machines = await API.getInfo(msg.author, 'machines')
 
-        const processjson = players_utils.process
+        const level = machines.level
 
-        if (processjson == null) {
+        let processjson = players_utils.process
 
+        if (players_utils.process == null) {
+
+            const defaultjson = {
+                tools: {
+                    0: API.company.jobs.process.tools.search(level, 0),
+                    1: API.company.jobs.process.tools.search(level, 1),
+                },
+    
+                in: []
+
+            }
+
+            processjson = defaultjson
+
+            API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
         }
 
+        
         /*
 
         {
-            tools: {
-                0: {
-                    name: 'Marreta de Rubi',
-                    icon: '🔨',
-                    potency: {
-                        current: 100, // Chance de dar certo a limpeza, 50%
-                        max: 200
-                        name: 'Média potência'
-                    }
-                    durability: {
-                        current: 50,
-                        max: 600
-                    },
-                    level: {
-                        current: 5,
-                        exp: 500,
-                        maxexp: 5000
-                    },
-                    process: {
-                        current: 0,
-                        max: 2
-                    },
-                    drops: {
-                        mythic: 1,
-                        lendary: 3,
-                        epic: 6,
-                        rare: 20,
-                        incomum: 30,
-                        comum: 40
-                    }
-                },
-                1: {
-                    name: 'Ácido Muriático',
-                    icon: '🧪',
-                    potency: {
-                        current: 100, // Chance de dar certo a limpeza, 50%
-                        max: 200
-                        name: 'Média potência'
-                    },
-                    fuel: {
-                        consume: 5000 // 5L por 1000 fragmentos,
-                        tank: 10000 // 10L
-                    },
-                    level: {
-                        current: 5,
-                        exp: 500,
-                        maxexp: 5000
-                    },
-                    process: {
-                        current: 0,
-                        max: 2
-                    },
-                    drops: {
-                        mythic: 1,
-                        lendary: 3,
-                        epic: 6,
-                        rare: 20,
-                        incomum: 30,
-                        comum: 40
-                    }
-                }
-            },
+    
+            tools: {},
 
             in: [
                 {
@@ -105,7 +62,7 @@ module.exports = {
         */
 
         function setProcess() {
-            if (processjson != null && processjson.in.length > 0) {
+            if (processjson.in.length > 0) {
                 for (i = 0; i < processjson.in.length; i++) {
                     embed.addField(`⏳ Processo ${processjson.in[i].id}: ${API.ms2(Date.now()-processjson.in[i].started)}`, `Termina em: ${API.ms2(Date.now()-processjson.in[i].end > 0 ? 'Finalizado' : API.ms2(-1*(Date.now()-processjson.in[i].end)))} \nID de Processo: ${processjson.in[i].id}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]`, true)
                 }
@@ -113,7 +70,7 @@ module.exports = {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
             }
 
-            if (processjson != null && processjson.drops.size > 0) {
+            if (processjson.drops && processjson.drops.size > 0) {
                 embed.addField(`Drops`, `<:comum:852302869889155082> Comuns:\n1x Chapéu de Palha   1x Dinamite\n\n<:incomum:852302869888630854> Incomuns:\n1x Frasco de Vidro`, false)
             }
 
@@ -144,26 +101,28 @@ module.exports = {
             current = b.id
             
             if (b.id == 'ferr') {
-                embed.setDescription(`
-🔨 Marreta de Rubi
-Progresso de Trabalho: Nível 10/50 - 14671/14672 XP - 99.9%
-Máximo de processos simultâneos: 4
-Máximo de Fragmentos por Processo: 300
+                const tool = processjson.tools[0]
+                embed.setDescription(
+`${tool.icon} ${tool.name}
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
+Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
 Tempo de Limpeza: 15-25h
-Durabilidade: 68%
-Potência de Limpeza: 64% (Média-Alta potência)
-<:mitico:852302869746548787>1% <:lendario:852302870144745512>3% <:epico:852302869628715050>6% <:raro:852302870074359838>20% <:incomum:852302869888630854>30% <:comum:852302869889155082>40%`)
+Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
+<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)
             } if (b.id == 'lqd') {
-                embed.setDescription(`
-🧪 Ácido Muriático
-Progresso de Trabalho: Nível 5/50 - 14671/14672 XP - 99.9%
-Máximo de processos simultâneos: 2
-Máximo de Fragmentos por Processo: 500
+                const tool = processjson.tools[1]
+                embed.setDescription(
+`${tool.icon} ${tool.name}
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
+Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
 Tempo de Limpeza: 20-35h
-Potência de Limpeza: 95% (Alta potência)
-Quantidade: 15L
-Consumo: 1L/1000
-<:mitico:852302869746548787>3% <:lendario:852302870144745512>5% <:epico:852302869628715050>6% <:raro:852302870074359838>24% <:incomum:852302869888630854>30% <:comum:852302869889155082>30%`)
+Consumo: ${(tool.fuel.consume/1000).toFixed(2)}L/1000 <:fragmento:843674514260623371>
+Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
+<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)
             } if (b.id == 'processos') {
                 embed.setDescription('')
                 setProcess()
@@ -180,7 +139,7 @@ Consumo: 1L/1000
         });
         
         collector.on('end', async collected => {
-            const components = reworkButtons(current, allDisabled)
+            const components = reworkButtons(current, true)
             embedmsg.edit({ embed, components })
             return;
         });

@@ -1,0 +1,71 @@
+{
+    "0": [
+        {
+            "name": "Marreta Inicial",
+            "icon": "🔨",
+            "level": 3,
+            "potency": {
+                "current": 40,
+                "max": 200,
+                "name": "Baixa potência"
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        }
+    ],
+    "1": [
+        {
+            "name": "Água",
+            "icon": "🧪",
+            "level": 3,
+            "potency": {
+                "current": 60,
+                "max": 200,
+                "name": "Baixa potência"
+            },
+            "fuel": {
+                "consume": 5000,
+                "current": 10000,
+                "max": 10000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 200
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        }
+    ]
+}

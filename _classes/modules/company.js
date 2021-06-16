@@ -220,7 +220,9 @@ const jobs = {
         update: 15
     },
     process: {
-
+        tools: {
+            obj: {}
+        }
     }
 };
 
@@ -405,8 +407,6 @@ const jobs = {
             return a.chance - b.chance;
         });
 
-        //if (API.debug)console.log(filteredmobs)
-
         let resultmob
         let cr = API.random(0, 100)
         let acc = 0;
@@ -431,35 +431,20 @@ const jobs = {
 
         let equipobj = jobs.explore.equips.obj;
         
-        let num = 0;
-        let filteredequips = [];
-        for (const r of equipobj) {
-              
-            
-            if (level+1 >= r.level) {
-                filteredequips.push(r);
-            }
-
-            num++;
-        }
-
-        if (filteredequips.length == 0) return undefined;
-
-        filteredequips.sort(function(a, b){
+        let filteredequips = equipobj.filter((r) => level+1 >= r.level).sort(function(a, b){
             return b.level - a.level;
         });
+
+        if (filteredequips.length == 0) return undefined;
 
         function shuffle(array) {
             var currentIndex = array.length, temporaryValue, randomIndex;
           
-            // While there remain elements to shuffle...
             while (0 !== currentIndex) {
           
-              // Pick a remaining element...
               randomIndex = Math.floor(Math.random() * currentIndex);
               currentIndex -= 1;
           
-              // And swap it with the current element.
               temporaryValue = array[currentIndex];
               array[currentIndex] = array[randomIndex];
               array[randomIndex] = temporaryValue;
@@ -644,29 +629,18 @@ const jobs = {
     }
 
     jobs.fish.list.get = function(profundidademin, profundidademax) {
+
         if (Object.keys(jobs.fish.list.obj).length == 0) jobs.fish.list.load();
 
         let fishobj = jobs.fish.list.obj;
         
-        let num = 0;
-        let filteredfish = [];
-        for (const r of fishobj) {
-              
-            
-            if (r.profundidade >= profundidademin && r.profundidade <= profundidademax) {
-                filteredfish.push(r);
-            }
-
-            num++;
-        }
+        let filteredfish = fishobj.filter((r) => {
+            return r.profundidade >= profundidademin && r.profundidade <= profundidademax
+        }).sort(function(a, b){
+            return b.profundidade - a.profundidade;
+        }).slice(0, 7)
 
         if (filteredfish.length == 0) return undefined;
-
-        filteredfish.sort(function(a, b){
-            return b.profundidade - a.profundidade;
-        });
-
-        filteredfish = filteredfish.slice(0, 7)
 
         return filteredfish;
 
@@ -697,7 +671,43 @@ const jobs = {
 
 // Processamento
 {
+
+    jobs.process.tools.load = function() {
+        const { readFileSync } = require('fs')
+        const path = './_json/companies/process/tools.json'
+        try {
+        if (path) {
+            const jsonString = readFileSync(path, 'utf8')
+            const customer = JSON.parse(jsonString);
+            jobs.process.tools.obj = customer;
+            if (API.debug) console.log(`Tools list loaded`.yellow)
+        } else {
+            console.log('File path is missing from shopExtension!')
+            jobs.process.tools.obj = '`Error on load tools list`';
+        }
+        } catch (err) {
+            console.log('Error parsing JSON string:', err);
+            jobs.process.tools.obj = '`Error on load tools list`';
+            API.client.emit('error', err)
+        }
+
+    }
+
     
+    jobs.process.tools.search = function(level, tooltype) {
+
+        if (Object.keys(jobs.process.tools.obj.length == 0)) jobs.process.tools.load();
+
+        let equipobj = jobs.process.tools.obj[tooltype];
+        
+        let filteredequip = equipobj.filter((r) => level >= r.level).sort(function(a, b){
+            return b.level - a.level;
+        })[0]
+
+        return filteredequip;
+
+    }
+
 }
 
 const company = {
