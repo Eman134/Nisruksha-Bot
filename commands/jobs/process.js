@@ -56,7 +56,7 @@ module.exports = {
                     }
                 }
             ],
-            drops: Map(name) item com quantidade
+            drops: []
         }
 
         */
@@ -70,10 +70,6 @@ module.exports = {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
             }
 
-            if (processjson.drops && processjson.drops.size > 0) {
-                embed.addField(`Drops`, `<:comum:852302869889155082> Comuns:\n1x Chapéu de Palha   1x Dinamite\n\n<:incomum:852302869888630854> Incomuns:\n1x Frasco de Vidro`, false)
-            }
-
         }
 
         let current = "processos"
@@ -82,9 +78,10 @@ module.exports = {
 
         function reworkButtons(current, allDisabled) {
             const btn0 = API.createButton('processos', 'grey', 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            const btn1 = API.createButton('ferr', 'grey', 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
-            const btn2 = API.createButton('lqd', 'grey', 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
-            return [API.rowButton([btn0, btn1, btn2])]
+            const btn1 = API.createButton('inv', 'grey', 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
+            const btn2 = API.createButton('ferr', 'grey', 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
+            const btn3 = API.createButton('lqd', 'grey', 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
+            return [API.rowButton([btn0, btn1, btn2, btn3])]
         }
 
         const components = reworkButtons(current)
@@ -97,8 +94,47 @@ module.exports = {
         collector.on('collect', async (b) => {
             reacted = true;
             embed.fields = [];
-
+            embed.setDescription('')
             current = b.id
+
+            if (b.id == 'inv') {
+                embed.setDescription('Inventário de itens processados')
+                if (processjson.drops && processjson.drops.length > 0) {
+    
+                    function gen(rarity, title) {
+    
+                        let cclist_rar = processjson.drops.filter((item) => item.rarity == rarity);
+
+                        let ccmap_rar = ""
+                        
+                        if (cclist_rar.length > 0) {
+                        
+                            let totalpages_rar = cclist_rar.length % 5;
+                            if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
+                            else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
+
+                            for (i = totalpages_rar; i > 0; i--){
+                                let ic = totalpages_rar+1-i
+                                ccmap_rar += cclist_rar.slice((ic-1)*5, ic*5).map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
+                            }
+
+                            embed.addField(title, ccmap_rar, false)
+
+                        }
+    
+                    }
+    
+                    gen('common', "<:comum:852302869889155082> Comuns:\n")
+                    gen('uncommon', "<:incomum:852302869888630854> Incomuns:\n")
+                    gen('rare', "<:raro:852302870074359838> Raros:\n")
+                    gen('epic', "<:epico:852302869628715050> Épicos:\n")
+                    gen('lendary', "<:lendario:852302870144745512> Lendários:\n")
+                    gen('mythic', "<:mitico:852302869746548787> Míticos:\n")
+    
+                } else {
+                    embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui itens que foram encontrados de processos\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                }
+            }
             
             if (b.id == 'ferr') {
                 const tool = processjson.tools[0]
