@@ -137,6 +137,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                     if (!file.includes('!')) {
 
                         if (commandfile.category != 'none' || commandfile.companytype) {
+                            slashc++
                             let options = []
                             if (commandfile.options) options = commandfile.options
                             let log = true
@@ -146,7 +147,6 @@ module.exports = class NisrukshaClient extends Discord.Client {
                                 console.log(error)
                                 console.log('Um erro ocorreu ao carregar o comando ' + commandfile.name)
                             }
-                            slashc++
                         }
 
                     };

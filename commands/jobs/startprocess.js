@@ -1,10 +1,10 @@
 
 
 module.exports = {
-    name: 'processos',
-    aliases: ['menuprocessos', 'procs', 'processamentos'],
+    name: 'iniciarprocesso',
+    aliases: ['startprocess', 'sproc', 'inproc'],
     category: 'none',
-    description: 'Veja todos os sistemas de processamentos, ferramentas e as limpezas',
+    description: 'Inicia um processo de limpeza de fragmentos para descobrir itens',
     companytype: 7,
     mastery: 30,
 	async execute(API, msg, company) {

@@ -70,7 +70,7 @@ module.exports = {
                     let log = true
                     if (commandfile.options) options = commandfile.options
                     try {
-                        await API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log('reloaded slash ' + cmd.name)})
+                        await API.client.application?.commands.create({ name: commandfile.name, description: (commandfile.category == 'none' ? '' :  ' | ') + commandfile.description, options }).then((cmd) => { if (log) console.log('reloaded slash ' + cmd.name)})
                     } catch (error) {
                         console.log(error)
                         console.log('Um erro ocorreu ao carregar o comando ' + commandfile.name)

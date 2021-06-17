@@ -108,6 +108,12 @@ module.exports = {
             return;
         }
 
+        if (plot.adubacao && plot.adubacao < 10) {
+            const embedtemp = await API.sendError(msg, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`${API.prefix}adubar\` para adubar o terreno atual`)
+            await msg.quote(embedtemp)
+            return;
+        }
+
         area = parseInt(area)
         quantidade = parseInt(quantidade)
         semente = semente.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
