@@ -43,6 +43,12 @@ module.exports = {
             if (args[0].toLowerCase() == 'all') {
             
                 API.client.loadSlash(true)
+
+                embed.setColor('#32a893');
+                embed.setDescription('✅ Reload aplicado', `
+                Você deu reload em ` + args[0])
+                embedmsg.edit({ embed });
+                return
     
             } else {
 
