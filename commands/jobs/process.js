@@ -144,7 +144,7 @@ Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - 
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
-Tempo de Limpeza: 15-25h
+Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)
             } if (b.id == 'lqd') {
@@ -155,7 +155,7 @@ Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - 
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
-Tempo de Limpeza: 20-35h
+Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Consumo: ${(tool.fuel.consume/1000).toFixed(2)}L/1000 <:fragmento:843674514260623371>
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)

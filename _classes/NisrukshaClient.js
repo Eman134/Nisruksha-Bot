@@ -136,7 +136,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                     if (!file.includes('!')) {
 
-                        if (commandfile.category != 'none' && !commandfile.companytype) {
+                        if (commandfile.category != 'none' || commandfile.companytype) {
                             let options = []
                             if (commandfile.options) options = commandfile.options
                             let log = true
