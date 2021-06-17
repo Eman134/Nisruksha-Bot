@@ -26,7 +26,6 @@ module.exports = {
 	async execute(API, msg, company) {
 
         const Discord = API.Discord;
-        const client = API.client;
         const args = API.args(msg)
 
         let pobj = await API.getInfo(msg.author, 'players')
@@ -34,7 +33,6 @@ module.exports = {
         let allplots = pobj.plots
         let plot
         let townnum = await API.townExtension.getTownNum(msg.author);
-        let townname = await API.townExtension.getTownName(msg.author);
         let contains = false
         if (pobj.plots) {
             for (let r of Object.keys(pobj.plots)) {
@@ -58,7 +56,7 @@ module.exports = {
 
         
         if (!contains) {
-            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}loja terrenos\``)
+            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}terrenoatual\``)
             await msg.quote(embedtemp)
             return;
         }
@@ -144,7 +142,10 @@ module.exports = {
         seed.qnt = quantidade
         seed.area = area
 
-        let maxtime = API.company.jobs.agriculture.calculatePlantTime(seed)
+        let adubacao = 100
+        if (plot.adubacao) adubacao = plot.adubacao
+
+        let maxtime = API.company.jobs.agriculture.calculatePlantTime(seed, adubacao)
 
         if (pobj.perm != null || pobj.perm == 5) maxtime = Math.round(90*maxtime/100)
         
@@ -161,6 +162,10 @@ module.exports = {
         plants.push(lote)
 
         plot.plants = plants
+
+        if (!plot.adubacao) plot.adubacao = 100
+
+        if (plot.adubacao > 0) plot.adubacao -= 1
         
         allplots[townnum] = plot
 

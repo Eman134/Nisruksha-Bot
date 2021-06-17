@@ -526,7 +526,7 @@ API.getProgress = function(maxticks, tickchar, seekpos, atual, max, percento) {
     const progressText = tickchar.repeat(progress);
     const emptyProgressText = seekpos.repeat(emptyProgress);
 
-    const bar = '[' + progressText + emptyProgressText + "] "+ (percento ? Math.round((atual/max)*100) + "%" : "(" + atual + "/" + max +")") ;
+    const bar = '[' + progressText + emptyProgressText + "] "+ (percento ? Math.round((percentage)*100) + "%" : "(" + atual + "/" + max +")") ;
     return bar;
 }
 

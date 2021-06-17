@@ -9,7 +9,6 @@ module.exports = {
 	async execute(API, msg, company) {
 
         const Discord = API.Discord;
-        const client = API.client;
 
         let pobj = await API.getInfo(msg.author, 'players')
 
@@ -68,19 +67,20 @@ module.exports = {
         async function makeEmbed(pobj) {
 
             const plot = await getTerrain(pobj.plots)
+            
+            let adubacao = API.getProgress(8, '<:adub:765647640238227510>', '<:energyempty:741675234796503041>', (!plot.adubacao ? 100 : plot.adubacao), 100, true)
 
             embed.fields = []
 
             embed.setColor(`#a4e05a`)
             .setTitle(`<:terreno:765944910179336202> Informações do seu terreno`) // \nConservação do terreno: \`${plot.cons}%\`
-            .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${API.money2}\` ${API.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\``)
+            .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${API.money2}\` ${API.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\`\nAdubação: ${adubacao}`)
 
             const grow = []
 
             if (plot.plants && plot.plants.length > 0){
                 let x = 1;
                 for (const r of plot.plants) {
-                    //let adubacao = API.getProgress(8, '<:adub:765647640238227510>', '<:energyempty:741675234796503041>', r.adubacao, 100)
     
                     let ob = {
                         percent: 100,
@@ -99,7 +99,7 @@ module.exports = {
                     r.percent = ob.percent
 
                     let crescimento = API.getProgress(12, '<:cresc:765647640594481183>', '<:energyempty:741675234796503041>', ob.percent, 100, true)
-                    // \nAdubação do lote: ${adubacao}
+                    
                     embed.addField(`Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':API.ms2(ob.ms)}`)
                     
                     grow.push(r)
@@ -187,7 +187,8 @@ module.exports = {
                 let plot = {
                   loc: townnum,
                   area: 10,
-                  cons: 100
+                  cons: 100,
+                  adubacao: 100
                 }
                 let plots = pobj.plots
                 if (plots) {
@@ -313,7 +314,7 @@ module.exports = {
 
                 await API.setInfo(msg.author, 'players', 'plots', allplots)
 
-                let total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level)
+                let total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level*1.5)
                 
                 if (await API.company.check.isWorker(msg.author)) {
                     company = await API.company.get.companyById(pobj.company);

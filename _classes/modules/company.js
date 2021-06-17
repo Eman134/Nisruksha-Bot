@@ -529,10 +529,9 @@ const jobs = {
 
 // Agricultura
 {
-    jobs.agriculture.calculatePlantTime = function(plant) {
+    jobs.agriculture.calculatePlantTime = function(plant, adubacao) {
 
         let ms = 0;
-        let adubacao = 100;
 
         let seedPerArea = (Math.round(plant.qnt/plant.area))+2
 
@@ -706,6 +705,13 @@ const jobs = {
 
         return filteredequip;
 
+    }
+
+    jobs.process.calculateTime = function(potency, qnt) {
+
+        let ms = Math.round(potency*qnt*3550)
+
+        return Math.round(ms)
     }
 
 }
