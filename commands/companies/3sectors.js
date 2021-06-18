@@ -38,7 +38,7 @@ module.exports = {
 
             for (i = 0; i < Object.keys(API.company.e).length; i++) {
                 const sector = API.company.e[Object.keys(API.company.e)[i]]
-                if (sector.description) butnList.push(API.createButton(sector.tipo+toString(), 'grey', '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
+                if (sector.description) butnList.push(API.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'green': 'grey'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;

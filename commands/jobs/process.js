@@ -80,10 +80,10 @@ module.exports = {
         let tool
 
         function reworkButtons(current, allDisabled) {
-            const btn0 = API.createButton('processos', 'grey', 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            const btn1 = API.createButton('inv', 'grey', 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = API.createButton('ferr', 'grey', 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
-            const btn3 = API.createButton('lqd', 'grey', 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
+            const btn0 = API.createButton('processos', (current == 'processos' ? 'green': 'grey'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
+            const btn1 = API.createButton('inv', (current == 'inv' ? 'green': 'grey'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
+            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'green': 'grey'), 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
+            const btn3 = API.createButton('lqd', (current == 'lqd' ? 'green': 'grey'), 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
             
             if (current == 'ferr' || current == 'lqd') {
                 const btn4 = API.createButton('pot1', 'blurple', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))

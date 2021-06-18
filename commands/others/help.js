@@ -45,7 +45,7 @@ ${API.helpExtension.getCategoryList()}`)
             butnList.push(API.createButton('home', 'blurple', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
             for (i = 0; i < categorylist.length; i++) {
-                butnList.push(API.createButton(categorylist[i], 'grey', categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
+                butnList.push(API.createButton(categorylist[i], (current == categorylist[i] ? 'green': 'grey'), categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;

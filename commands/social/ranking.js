@@ -90,7 +90,7 @@ module.exports = {
             butnList.push(API.createButton('change', (type == 0 ? 'green' : 'blurple'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
             for (i = 0; i < Object.keys(vare).length; i++) {
-                butnList.push(API.createButton(Object.keys(vare)[i], 'grey', '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
+                butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'green': 'grey'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
