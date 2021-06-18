@@ -1,11 +1,16 @@
-
-
 module.exports = {
     name: 'iniciarprocesso',
     aliases: ['startprocess', 'sproc', 'inproc'],
     category: 'none',
     description: 'Inicia um processo de limpeza de fragmentos para descobrir itens',
     companytype: 7,
+    options: [
+        {
+            name: 'quantia',
+            type: 'STRING',
+            description: 'Selecione uma quantia de fragmentos para processar',
+            required: true
+        }],
     mastery: 30,
 	async execute(API, msg, company) {
 
@@ -14,11 +19,13 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 
         const players_utils = await API.getInfo(msg.author, 'players_utils')
-        const machines = await API.getInfo(msg.author, 'machines')
-
-        const level = machines.level
-
         let processjson = players_utils.process
+        const machines = await API.getInfo(msg.author, 'machines')
+        const level = machines.level
+        const storage = await API.getInfo(msg.author, 'storage')
+
+        const args = API.args(msg)
+
 
         if (players_utils.process == null) {
 
@@ -37,6 +44,33 @@ module.exports = {
             API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
         }
 
+        let quantia = 0;
+
+        if (args.length == 0) {
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
+            await msg.quote(embedtemp)
+			return;
+        }
+
+        if (!API.isInt(API.toNumber(args[0]))) {
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
+            await msg.quote(embedtemp)
+            return;
+        }
+
+        if (storage['fragmento'] <= 0) {
+            const embedtemp = await API.sendError(msg, `Você não ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+            await msg.quote(embedtemp)
+            return;
+        }
+
+        if (processjson.tools[0].process.current >= processjson.tools[0].process.max && processjson.tools[1].process.current >= processjson.tools[1].process.max) {
+            const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`${API.prefix}processos\` para visualizar seus processos.`)
+            await msg.quote(embedtemp)
+            return;
+        }
+
+        quantia = API.toNumber(args[0]);
         
         /*
 
@@ -67,7 +101,7 @@ module.exports = {
                     embed.addField(`⏳ Processo ${processjson.in[i].id}: ${API.ms2(Date.now()-processjson.in[i].started)}`, `Termina em: ${API.ms2(Date.now()-processjson.in[i].end > 0 ? 'Finalizado' : API.ms2(-1*(Date.now()-processjson.in[i].end)))} \nID de Processo: ${processjson.in[i].id}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]`, true)
                 }
             } else {
-                embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`, true)
             }
 
         }
@@ -77,11 +111,9 @@ module.exports = {
         setProcess()
 
         function reworkButtons(current, allDisabled) {
-            const btn0 = API.createButton('processos', 'grey', 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            const btn1 = API.createButton('inv', 'grey', 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = API.createButton('ferr', 'grey', 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
-            const btn3 = API.createButton('lqd', 'grey', 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
-            return [API.rowButton([btn0, btn1, btn2, btn3])]
+            const btn2 = API.createButton('ferr', processjson.tools[0].process.current >= processjson.tools[0].process.max ? 'red':'green', processjson.tools[0].name + ' [' + processjson.tools[0].process.current + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.tools[0].process.current >= processjson.tools[0].process.max ? true : false))
+            const btn3 = API.createButton('lqd', processjson.tools[1].process.current >= processjson.tools[1].process.max ? 'red':'green', processjson.tools[1].name + ' [' + processjson.tools[1].process.current + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.tools[1].process.current >= processjson.tools[1].process.max ? true : false))
+            return [API.rowButton([btn2, btn3])]
         }
 
         const components = reworkButtons(current)
@@ -91,90 +123,112 @@ module.exports = {
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
         const collector = embedmsg.createButtonCollector(filter, { time: 35000 });
+
+        let reacted = false
+
         collector.on('collect', async (b) => {
             reacted = true;
             embed.fields = [];
             embed.setDescription('')
             current = b.id
 
-            if (b.id == 'inv') {
-                embed.setDescription('Inventário de itens processados')
-                if (processjson.drops && processjson.drops.length > 0) {
-    
-                    function gen(rarity, title) {
-    
-                        let cclist_rar = processjson.drops.filter((item) => item.rarity == rarity);
+            b.defer()
 
-                        let ccmap_rar = ""
-                        
-                        if (cclist_rar.length > 0) {
-                        
-                            let totalpages_rar = cclist_rar.length % 5;
-                            if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
-                            else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
+            collector.stop()
+            const storage = await API.getInfo(msg.author, 'storage')
+            const players_utils = await API.getInfo(msg.author, 'players_utils')
+            let processjson = players_utils.process
 
-                            for (i = totalpages_rar; i > 0; i--){
-                                let ic = totalpages_rar+1-i
-                                ccmap_rar += cclist_rar.slice((ic-1)*5, ic*5).map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
-                            }
+            const tool = (b.id == 'ferr' ? processjson.tools[0] : processjson.tools[1])
 
-                            embed.addField(title, ccmap_rar, false)
-
-                        }
-    
-                    }
-    
-                    gen('common', "<:comum:852302869889155082> Comuns:\n")
-                    gen('uncommon', "<:incomum:852302869888630854> Incomuns:\n")
-                    gen('rare', "<:raro:852302870074359838> Raros:\n")
-                    gen('epic', "<:epico:852302869628715050> Épicos:\n")
-                    gen('lendary', "<:lendario:852302870144745512> Lendários:\n")
-                    gen('mythic', "<:mitico:852302869746548787> Míticos:\n")
-    
-                } else {
-                    embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui itens que foram encontrados de processos\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
-                }
+            if (API.toNumber(args[0]) < Math.round(tool.process.maxfragments*0.15)) {
+                const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
+                await embedmsg.edit({ embed: embedtemp })
+                return;
             }
-            
+            if (API.toNumber(args[0]) > tool.process.maxfragments) {
+                const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
+                await embedmsg.edit({ embed: embedtemp })
+                return;
+            }
+
+            if (tool.process.current >= tool.process.max) {
+                const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
+                await embedmsg.edit({ embed: embedtemp })
+                return;
+            }
+
             if (b.id == 'ferr') {
-                const tool = processjson.tools[0]
+        
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
 Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
-<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)
+<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
+
+**Você iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
+**Visualize seus processos utilizando \`${API.prefix}processos\`.**
+`)
             } if (b.id == 'lqd') {
-                const tool = processjson.tools[1]
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Potência de Limpeza: ${tool.potency.current}/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
 Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Consumo: ${(tool.fuel.consume/1000).toFixed(2)}L por 1000 <:fragmento:843674514260623371>
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
-<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%`)
-            } if (b.id == 'processos') {
-                embed.setDescription('')
-                setProcess()
+<:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
+
+**Você iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
+**Visualize seus processos utilizando \`${API.prefix}processos\`.**
+`)
             }
 
-            b.defer()
+            let id = 1
+            for (i = 1; processjson.in.length+processjson.in.length; i++) {
+                if (processjson.in.filter((pi) => pi.id == i).length < 1) {
+                    id = i
+                    break;
+                }
+            }
 
-            collector.resetTimer()
+            const defaultjsonprocess = {
+                id,
+                tool: (b.id == 'ferr' ? 0 : 1),
+                started: Date.now(),
+                end: Date.now()+API.company.jobs.process.calculateTime(tool.potency.current, quantia),
+                fragments: {
+                    current: quantia,
+                    total: quantia
+                },
+                xp: 0,
+                score: 0
+            }
 
-            const components = reworkButtons(current)
+            processjson.tools[(b.id == 'ferr' ? 0 : 1)].process.current += 1
+
+            processjson.in.push(defaultjsonprocess)
+
+            API.maqExtension.storage.setOre(msg.author, 'fragmento', storage['fragmento']-quantia)
+
+            API.setInfo(msg.author, 'players_utils', 'process', processjson)
+
+            const components = reworkButtons(current, true)
 
             await embedmsg.edit({ embed, components })
+
+            await add(API, msg.author)
 
         });
         
         collector.on('end', async collected => {
+            if (reacted) return
             const components = reworkButtons(current, true)
             embedmsg.edit({ embed, components })
             return;
@@ -182,3 +236,44 @@ Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)
 
 	}
 };
+
+
+async function get(API) {
+
+    const processinglist = await API.getGlobalInfo('processing')
+    
+    if (processinglist == null) return []
+
+    return processinglist
+
+}
+
+async function includes(API, member){
+
+    const list = await get(API)
+
+    return list.includes(member.id)
+}
+
+async function remove(API, member){
+
+  const list = await get(API)
+
+  const index = list.indexOf(member.id);
+  if (index > -1) {
+    list.splice(index, 1);
+    await API.setGlobalInfo('processing', list)
+  }
+
+}
+
+async function add(API, member) {
+
+  const list = await get(API)
+
+  if (!(list.includes(member.id))) {
+    list.push(member.id)
+    await API.setGlobalInfo('processing', list)
+  }
+
+}

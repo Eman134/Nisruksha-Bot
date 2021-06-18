@@ -4,10 +4,10 @@
         "icon": "<:fragmento:843674514260623371>",
         "nomine": true,
         "price": {
-            "min": 0.25,
-            "default": 0.35,
-            "max": 0.75,
-            "atual": 0.35,
+            "min": 0.45,
+            "default": 0.75,
+            "max": 1.55,
+            "atual": 0.75,
             "ultimoupdate": "",
             "updates": []
         },

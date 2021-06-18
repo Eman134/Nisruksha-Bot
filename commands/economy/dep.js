@@ -10,7 +10,7 @@ module.exports = {
             description: 'Selecione uma quantia de dinheiro para depósito',
             required: true
         }],
-        mastery: 20,
+    mastery: 20,
 	async execute(API, msg) {
 
         const args = API.args(msg);

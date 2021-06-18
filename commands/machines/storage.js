@@ -78,8 +78,8 @@ module.exports = {
             money = await API.eco.money.get(msg.author);
             price = await API.maqExtension.storage.getPrice(member)
 
-            collector.stop()
             reacted = true;
+            collector.stop()
             embed.fields = [];
             b.defer()
                 
