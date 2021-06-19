@@ -89,6 +89,7 @@ module.exports = {
 
         const embedmsg = await msg.quote( { embed, components: [ rowButton0 ] } );
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
+        API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -286,6 +287,7 @@ module.exports = {
                 }
 
                 API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
+                API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
                 inbattle = true
                 
@@ -411,6 +413,7 @@ module.exports = {
                             else await embedmsg.edit({embed, components })
                         } catch {
                             API.cacheLists.waiting.remove(msg.author, 'hunting')
+                            API.cacheLists.waiting.remove(msg.author, 'working');
                             collector.stop();
                             autohunt = false
                         }
@@ -421,6 +424,7 @@ module.exports = {
 
                 if (dead) {
                     API.cacheLists.waiting.remove(msg.author, 'hunting')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     collector.stop();
                     autohunt = false
                 }
@@ -444,6 +448,7 @@ module.exports = {
         
         collector.on('end', async collected => {
             API.cacheLists.waiting.remove(msg.author, 'hunting')
+            API.cacheLists.waiting.remove(msg.author, 'working');
             if (dead) return
             if (reacted) {
                 fixedembed.fields = []

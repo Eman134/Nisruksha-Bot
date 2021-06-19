@@ -92,6 +92,14 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 return;
             }
 
+            if (API.cacheLists.waiting.includes(member, 'working')) {
+                const embedtemp = await API.sendError(msg, `Você não pode demitir um funcionário enquanto o mesmo está trabalhando na mesma!`)
+                await msg.quote(embedtemp)
+                return;
+            }
+
+            API.company.jobs.process.remove(member)
+
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Demitido!', `Você demitiu ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!\nMotivo: ${API.getMultipleArgs(msg, 2)}`)

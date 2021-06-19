@@ -23,6 +23,7 @@ module.exports = {
 
         API.cacheLists.remember.load()
         API.shopExtension.load()
+        API.company.jobs.process.load()
 
         console.log(`\n         Bot iniciado.\n`.green);
 

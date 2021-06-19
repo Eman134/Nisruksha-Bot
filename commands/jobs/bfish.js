@@ -82,6 +82,7 @@ module.exports = {
         let embedmsg = await msg.quote({ embed, components: reworkBtns() }).catch();
         
         API.cacheLists.waiting.add(msg.author, embedmsg, 'fishing');
+        API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
         let coletados = new Map()
 
@@ -299,6 +300,7 @@ module.exports = {
                     await embedmsg.edit({ embed, components: reworkBtns() })
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     return
                 }
 
@@ -306,6 +308,7 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
                 }
 
@@ -313,6 +316,7 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
                 }
 
@@ -348,6 +352,7 @@ module.exports = {
                             await embedmsg.edit({ embed, components: reworkBtns() }).catch()
                         }catch{
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
+                            API.cacheLists.waiting.remove(msg.author, 'working');
                             return
                         }
                     }
@@ -359,6 +364,7 @@ module.exports = {
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
                         await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
+                        API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {edit(msg, company);}
                 });
                 

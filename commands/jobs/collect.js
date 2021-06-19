@@ -51,6 +51,7 @@ module.exports = {
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedmsg = await msg.quote(embed);
         API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
+        API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
         
         function gen(){
             let por = 6;
@@ -128,12 +129,14 @@ module.exports = {
                         await embedmsg.edit({ embed, component })
                     }catch{
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
+                        API.cacheLists.waiting.remove(msg.author, 'working');
                     }
 
                 if (descartados.length == seedobj.length) {
                     const embedtemp = await API.sendError(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
                 }
 
@@ -141,6 +144,7 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
                     await msg.quote({ embed: embedtemp, mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
+                    API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
                 }
 
@@ -162,6 +166,7 @@ module.exports = {
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
                         await msg.quote(embedtemp)
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
+                        API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {
                         edit();
                     }

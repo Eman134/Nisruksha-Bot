@@ -16,6 +16,12 @@ module.exports = {
             return;
         }
 
+        if (API.cacheLists.waiting.includes(msg.author, 'working')) {
+            const embedtemp = await API.sendError(msg, `Você não pode sair de uma empresa enquanto está trabalhando na mesma!`)
+            await msg.quote(embedtemp)
+            return;
+        }
+
         let pobj = await API.getInfo(msg.author, 'players')
 
         let company = await API.company.get.companyById(pobj.company);
@@ -53,6 +59,8 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embedmsg.edit({ embed });
                 return;
             }
+
+            API.company.jobs.process.remove(msg.author)
 
             embed.fields = [];
             embed.setColor('#5bff45');

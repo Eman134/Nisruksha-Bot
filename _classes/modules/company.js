@@ -671,6 +671,52 @@ const jobs = {
 // Processamento
 {
 
+    jobs.process.load = async function() {
+
+        const list = await jobs.process.get()
+        
+    }
+
+    jobs.process.get = async function() {
+
+        const processinglist = await API.getGlobalInfo('processing')
+        
+        if (processinglist == null) return []
+    
+        return processinglist
+    
+    }
+    
+    jobs.process.includes = async function(member){
+    
+        const list = await jobs.process.get()
+    
+        return list.includes(member.id)
+    }
+    
+    jobs.process.remove = async function(member){
+    
+      const list = await jobs.process.get()
+    
+      const index = list.indexOf(member.id);
+      if (index > -1) {
+        list.splice(index, 1);
+        await API.setGlobalInfo('processing', list)
+      }
+    
+    }
+    
+    jobs.process.add = async function(member) {
+    
+      const list = await jobs.process.get()
+    
+      if (!(list.includes(member.id))) {
+        list.push(member.id)
+        await API.setGlobalInfo('processing', list)
+      }
+    
+    }
+
     jobs.process.tools.load = function() {
         const { readFileSync } = require('fs')
         const path = './_json/companies/process/tools.json'

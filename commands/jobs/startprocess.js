@@ -162,7 +162,7 @@ module.exports = {
         
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
@@ -176,7 +176,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             } if (b.id == 'lqd') {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*1000} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
@@ -223,7 +223,8 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             await embedmsg.edit({ embed, components })
 
-            await add(API, msg.author)
+            await API.company.jobs.process.add(msg.author)
+            API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
         });
         
@@ -236,44 +237,3 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
 	}
 };
-
-
-async function get(API) {
-
-    const processinglist = await API.getGlobalInfo('processing')
-    
-    if (processinglist == null) return []
-
-    return processinglist
-
-}
-
-async function includes(API, member){
-
-    const list = await get(API)
-
-    return list.includes(member.id)
-}
-
-async function remove(API, member){
-
-  const list = await get(API)
-
-  const index = list.indexOf(member.id);
-  if (index > -1) {
-    list.splice(index, 1);
-    await API.setGlobalInfo('processing', list)
-  }
-
-}
-
-async function add(API, member) {
-
-  const list = await get(API)
-
-  if (!(list.includes(member.id))) {
-    list.push(member.id)
-    await API.setGlobalInfo('processing', list)
-  }
-
-}
