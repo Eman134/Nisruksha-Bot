@@ -220,6 +220,7 @@ const jobs = {
         update: 15
     },
     process: {
+        update: 40,
         tools: {
             obj: {}
         }
@@ -674,8 +675,69 @@ const jobs = {
     jobs.process.load = async function() {
 
         const list = await jobs.process.get()
+
+        for (xilist = 0; xilist < list.length; xilist++) {
+
+            
+            const member = await API.client.users.fetch(list[xilist])
+
+            jobs.process.loopProcess(member)
+            API.cacheLists.waiting.add(member, { url: '' }, 'working');
+
+        }
         
     }
+
+    jobs.process.loopProcess = async function(member) {
+
+        if (!await jobs.process.includes(member)) return
+
+        async function st() {
+            const players_utils = await API.getInfo(member, 'players_utils')
+
+            let processjson = players_utils.process
+
+            if (processjson == null) return jobs.process.remove(member)
+
+            const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
+
+            if (inprocs.length <= 0) {
+
+                jobs.process.remove(member)
+
+            } else {
+
+                const obj = await API.getInfo(member, "machines")
+
+                let maq = API.shopExtension.getProduct(obj.machine);
+
+                for (inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
+
+                    const tool = processjson.tools[inprocs[inprocsi].tool]
+
+                    const indexProcess = processjson.in.indexOf(inprocs[inprocsi])
+
+                    processjson.in[indexProcess].fragments.current -= 1
+
+                    if (inprocs[inprocsi].tool == 0) {
+                        processjson.tools[inprocs[inprocsi].tool].durability.current -= API.random(0, Math.round(1*tool.durability.max/200))
+                    }
+
+                    processjson.in[indexProcess].xp += Math.round((API.random(1, 25) * (maq.tier+1))/1.35) // SE PROCESSAR E TAMBÉM ADICIONAR SCORE
+
+                }
+
+                API.setInfo(member, 'players_utils', 'process', processjson)
+
+                setTimeout(() => { st( )}, API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, 1))
+
+            }
+
+        }
+
+        st()
+
+    } 
 
     jobs.process.get = async function() {
 
@@ -713,6 +775,7 @@ const jobs = {
       if (!(list.includes(member.id))) {
         list.push(member.id)
         await API.setGlobalInfo('processing', list)
+        jobs.process.loopProcess(member)
       }
     
     }
@@ -755,7 +818,7 @@ const jobs = {
 
     jobs.process.calculateTime = function(potency, qnt) {
 
-        let ms = Math.round(potency*qnt*3550)
+        let ms = qnt*jobs.process.update*1000*(potency/12)
 
         return Math.round(ms)
     }

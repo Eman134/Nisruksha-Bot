@@ -98,7 +98,9 @@ module.exports = {
         function setProcess() {
             if (processjson.in.length > 0) {
                 for (i = 0; i < processjson.in.length; i++) {
-                    embed.addField(`⏳ Processo ${processjson.in[i].id}: ${API.ms2(Date.now()-processjson.in[i].started)}`, `Termina em: ${API.ms2(Date.now()-processjson.in[i].end > 0 ? 'Finalizado' : API.ms2(-1*(Date.now()-processjson.in[i].end)))} \nID de Processo: ${processjson.in[i].id}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]`, true)
+                    const checkfi = processjson.in[i].fragments.current == 0
+                    
+                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id} ${(checkfi ? 'Finalizado ✅' : '')}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score.toFixed(2)} ⭐`, true)
                 }
             } else {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`, true)
@@ -165,7 +167,7 @@ module.exports = {
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
+Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${tool.potency.name})
@@ -179,7 +181,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Máximo: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
+Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Consumo: ${(tool.fuel.consume/1000).toFixed(2)}L por 1000 <:fragmento:843674514260623371>
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
