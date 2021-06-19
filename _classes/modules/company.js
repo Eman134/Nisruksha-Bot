@@ -719,17 +719,27 @@ const jobs = {
 
                     processjson.in[indexProcess].fragments.current -= 1
 
-                    if (inprocs[inprocsi].tool == 0) {
-                        processjson.tools[inprocs[inprocsi].tool].durability.current -= API.random(0, Math.round(1*tool.durability.max/200))
+                    if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
+                        const percentdurability = Math.round(1*tool.durability.max/100)
+                        console.log(percentdurability)
+                        processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                     }
 
-                    processjson.in[indexProcess].xp += Math.round((API.random(1, 25) * (maq.tier+1))/1.35) // SE PROCESSAR E TAMBÉM ADICIONAR SCORE
+                    const xpbase = API.random(1, 25)
+
+                    processjson.in[indexProcess].xpbase += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP BASE
+                    processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
+                    processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
 
                 }
 
                 API.setInfo(member, 'players_utils', 'process', processjson)
 
-                setTimeout(() => { st( )}, API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, 1))
+                const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, 1)
+
+                console.log(API.getFormatedDate() + ' Processed | ' + API.ms2(timetoone))
+
+                setTimeout(() => { st( )}, timetoone)
 
             }
 

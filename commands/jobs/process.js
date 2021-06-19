@@ -77,7 +77,7 @@ module.exports = {
 
                     const estimadoms = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, processjson.in[i].fragments.current)
                     
-                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : API.ms2(estimadoms))}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score.toFixed(2)} ⭐`, true)
+                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : API.ms2(estimadoms))}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
                 }
             } else {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
@@ -255,6 +255,20 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             } 
             if (b.id.startsWith('proc:')) {
                 const id = parseInt(b.id.replace(/proc:/g, ''))
+                const oldproc = processjson.in.find((x) => x.id == id)
+                const indexProcess = processjson.in.indexOf(oldproc)
+                processjson.in.splice(indexProcess, 1)
+                processjson.tools[oldproc.tool].process.current -= 1
+                API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                embed.setDescription('')
+                setProcess()
+
+                let xp = oldproc.xpbase
+                xp = await API.playerUtils.execExp(msg, xp)
+                let score = (oldproc.score).toFixed(2)
+                API.company.stars.add(msg.author, company.company_id, { score })
+
+                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}`)
             }
 
             b.defer()

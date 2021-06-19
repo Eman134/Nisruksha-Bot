@@ -14,6 +14,8 @@ async function loadbg() {
 
 playerUtils.execExp = async function(msg, xpp) {
 
+    if (!msg || xpp == null || xpp == undefined) return
+
     const Discord = API.Discord;
     const obj = await API.getInfo(msg.author, "machines")
 
