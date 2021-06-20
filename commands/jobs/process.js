@@ -265,7 +265,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
                 let xp = oldproc.xpbase
                 xp = await API.playerUtils.execExp(msg, xp)
-                let score = (oldproc.score).toFixed(2)
+                let score = parseFloat(oldproc.score)
                 API.company.stars.add(msg.author, company.company_id, { score })
 
                 embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}`)

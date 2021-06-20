@@ -717,16 +717,17 @@ const jobs = {
 
                     const indexProcess = processjson.in.indexOf(inprocs[inprocsi])
 
-                    processjson.in[indexProcess].fragments.current -= 1
-
                     if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
                         const percentdurability = Math.round(1*tool.durability.max/100)
-                        console.log(percentdurability)
+                        if (processjson.tools[inprocs[inprocsi].tool].durability.current - percentdurability <= 0) {
+                            return processjson.tools[inprocs[inprocsi].tool].durability.current = 0
+                        }
                         processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                     }
 
                     const xpbase = API.random(1, 25)
 
+                    processjson.in[indexProcess].fragments.current -= 1
                     processjson.in[indexProcess].xpbase += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP BASE
                     processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
                     processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
@@ -737,7 +738,7 @@ const jobs = {
 
                 const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, 1)
 
-                console.log(API.getFormatedDate() + ' Processed | ' + API.ms2(timetoone))
+                if (API.debug) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
 
                 setTimeout(() => { st( )}, timetoone)
 
