@@ -10,8 +10,7 @@
                 "current": 40,
                 "default": 40,
                 "rangemax": 60,
-                "max": 200,
-                "name": "Baixa potência"
+                "max": 200
             },
             "durability": {
                 "current": 300,
@@ -48,8 +47,7 @@
                 "current": 60,
                 "default": 60,
                 "rangemax": 80,
-                "max": 200,
-                "name": "Baixa potência"
+                "max": 200
             },
             "fuel": {
                 "consume": 5000,
