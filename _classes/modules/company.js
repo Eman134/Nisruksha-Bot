@@ -725,46 +725,12 @@ const jobs = {
                         processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                     }
 
-                    if (API.random(0, 100) < 40) {
+                    const xpbase = API.random(1, 25)
 
-                        if ((API.random(0, tool.potency.max) < tool.potency.current) && (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))) {
-                            
-                            const gnR = API.random(0, 100)
-
-                            let selectedRarity
-
-                            switch(gnR) {
-                                case gnR <= tool.drops.mythic:
-                                    selectedRarity = "mythic"
-                                    break;
-                                case gnR <= tool.drops.lendary:
-                                    selectedRarity = "lendary"
-                                    break;
-                                case gnR <= tool.drops.epic:
-                                    selectedRarity = "epic"
-                                    break;
-                                case gnR <= tool.drops.rare:
-                                    selectedRarity = "rare"
-                                    break;
-                                case gnR <= tool.drops.uncommon:
-                                    selectedRarity = "uncommon"
-                                default:
-                                    selectedRarity = "common"
-                                    break;
-                            }
-                            
-                            
-                            const xpbase = API.random(1, 25)
-
-                            processjson.in[indexProcess].xpbase += xpbase // ADICIONAR XP BASE
-                            processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
-                            processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
-
-                        }
-
-                    }
-                    
                     processjson.in[indexProcess].fragments.current -= 1
+                    processjson.in[indexProcess].xpbase += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP BASE
+                    processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
+                    processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
 
                 }
 
@@ -859,21 +825,6 @@ const jobs = {
 
         return filteredequip;
 
-    }
-
-    jobs.process.searchDrop = async function(rarity, level) {
-
-    }
-
-    jobs.process.translatePotency = function(potency) {
-
-        if (potency < 40) return "Baixa potência"
-
-        if (potency < 70) return "Média potência"
-
-        if (potency < 100) return "Alta potência"
-
-        return "Não foi possível definir a potência"
     }
 
     jobs.process.calculateTime = function(potency, qnt) {

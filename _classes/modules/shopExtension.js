@@ -42,11 +42,6 @@ shopExtension.loadItens = async function() {
     const customerusaveis = JSON.parse(jsonStringusaveis);
     
     list = list.concat(customerusaveis)
-
-    const jsonStringprocessdrops = readFileSync('./_json/companies/process/drops.json', 'utf8')
-    const customerprocessdrops = JSON.parse(jsonStringprocessdrops);
-    
-    list = list.concat(customerprocessdrops)
     
     bigobj["drops"] = list
       
