@@ -37,7 +37,7 @@ module.exports = {
         let member;
         if (msg.mentions.users.size < 1) {
             try{
-                member = await API.client.users.fetch(`${args[0]}`)
+                member = await API.client.users.fetch(args[0])
             }catch{
                 const embedtemp = await API.sendError(msg, `Este funcionário não foi encontrado!\nVocê deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
                 await msg.quote({ embeds: [embedtemp]})

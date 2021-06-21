@@ -191,8 +191,6 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        console.log(embeds)
-
         let embedmsg = await msg.quote({ embeds, components });
 
         const filter = i => i.user.id === msg.author.id;
@@ -293,7 +291,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
         
         collector.on('end', async collected => {
             const components = reworkButtons(current, true)
-            embedmsg.edit({ embeds: [embed], components })
+            embedmsg.edit({ embeds, components })
             API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 0);
             return;
         });

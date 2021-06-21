@@ -300,16 +300,14 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
 
-    const { Permissions } = require('discord.js')
-
-    const p = new Permissions(chan.permissionsFor(me));
+    const p = chan.permissionsFor(me).toArray()
         
-    p.has(Permissions.FLAGS.EMBED_LINKS, false) ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
-    p.has(Permissions.FLAGS.ATTACH_FILES, false) ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-    p.has(Permissions.FLAGS.MANAGE_MESSAGES, false) ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
-    p.has(Permissions.FLAGS.USE_EXTERNAL_EMOJIS, false) ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
-    p.has(Permissions.FLAGS.ADD_REACTIONS, false) ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
-    p.has(Permissions.FLAGS.READ_MESSAGE_HISTORY, false) ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
+    p.includes('EMBED_LINKS') ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
+    p.includes('ATTACH_FILES') ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
+    p.includes('MANAGE_MESSAGES') ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
+    p.includes('USE_EXTERNAL_EMOJIS') ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
+    p.includes('ADD_REACTIONS') ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
+    p.includes('READ_MESSAGE_HISTORY') ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
 
     let result = "";
     result = list.join('\n').toString();
@@ -341,7 +339,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         .setTitle(`Opa, deslizou ai?`)
         .setDescription(`Seu **MVP** acaba de ter seu tempo expirado!\nPara adquirir **MVP** basta doar usando \`${API.prefix}doar\` e em seguida contatar o criador do bot\nPara conseguir cristais rapidamente você precisa doar para o bot e contatando o criador.\nPara entrar no servidor de suporte utilize \`${API.prefix}convite\``)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        await msg.quote({ content: msg.author, embed, mention: true})
+        await msg.quote({ embeds: [embed], mention: true})
         API.setInfo(msg.author, 'players', 'mvp', null)
         if (perm == 3) API.setPerm(msg.author, 1)
     }

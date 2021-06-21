@@ -86,7 +86,7 @@ module.exports = {
 
                 try{
                     if (stop) component = undefined
-                    await embedmsg.edit({embed, component }).catch()
+                    await embedmsg.edit({embeds: [embed], component }).catch()
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'digging');
                     return

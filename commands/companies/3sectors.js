@@ -82,7 +82,7 @@ module.exports = {
         
             reworkButtons(current)
 
-            await embedmsg.edit({embed, components})
+            await embedmsg.edit({embeds: [embed], components})
 
             collector.resetTimer()
             b.deferUpdate()
