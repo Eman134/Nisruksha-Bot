@@ -45,7 +45,8 @@ module.exports = {
             API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
         }
 
-        
+        let embeds = []
+
         /*
 
         {
@@ -70,14 +71,60 @@ module.exports = {
         */
 
         function setProcess() {
+            
             if (processjson.in.length > 0) {
+                embeds = []
                 for (i = 0; i < processjson.in.length; i++) {
     
+                    const eproctemp = new Discord.MessageEmbed()
+
                     const checkfi = processjson.in[i].fragments.current == 0
 
                     const estimadoms = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, processjson.in[i].fragments.current)
                     
-                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : API.ms2(estimadoms))}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
+                    if (!processjson.in[i]) break
+                    eproctemp.setDescription(`ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
+                
+                    eproctemp.setTitle(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : API.ms2(estimadoms))}`)
+                    
+                    if (processjson.in[i].drops && processjson.in[i].drops.length > 0) {
+
+                        function gen(rarity, title) {
+        
+                            let cclist_rar = processjson.in[i].drops.filter((item) => item.rarity == rarity);
+        
+                            let ccmap_rar = ""
+                            
+                            if (cclist_rar.length > 0) {
+                            
+                                let totalpages_rar = cclist_rar.length % 5;
+                                if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
+                                else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
+        
+                                for (iil = totalpages_rar; iil > 0; i--){
+                                    let ic = totalpages_rar+1-iil
+                                    ccmap_rar += cclist_rar.slice((ic-1)*5, ic*5).map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
+                                }
+        
+                                eproctemp.addField(title, ccmap_rar, false)
+        
+                            }
+        
+                        }
+        
+                        gen('common', "<:comum:852302869889155082> Comuns:\n")
+                        gen('uncommon', "<:incomum:852302869888630854> Incomuns:\n")
+                        gen('rare', "<:raro:852302870074359838> Raros:\n")
+                        gen('epic', "<:epico:852302869628715050> Épicos:\n")
+                        gen('lendary', "<:lendario:852302870144745512> Lendários:\n")
+                        gen('mythic', "<:mitico:852302869746548787> Míticos:\n")
+        
+                    } else {
+                        eproctemp.addField(`❌ Sem drops`, `Este processo ainda não possui drops de fragmentos processados.`, true)
+                    }
+        
+                    embeds.push(eproctemp)
+                
                 }
             } else {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
@@ -96,11 +143,11 @@ module.exports = {
             const components = []
 
             const btn0 = API.createButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            const btn1 = API.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
+            //const btn1 = API.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
             const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
             const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
             
-            components.push(API.rowButton([btn0, btn1, btn2, btn3]))
+            components.push(API.rowButton([btn0, btn2, btn3]))
 
             if (current == 'ferr' || current == 'lqd') {
                 const btn4 = API.createButton('pot1', 'PRIMARY', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
@@ -144,7 +191,9 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embeds: [embed], components });
+        console.log(embeds)
+
+        let embedmsg = await msg.quote({ embeds, components });
 
         const filter = i => i.user.id === msg.author.id;
         
@@ -152,6 +201,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
             reacted = true;
+            embeds = [embed]
             embed.fields = [];
             embed.setDescription('')
             current = b.customID
@@ -159,45 +209,6 @@ module.exports = {
 
             const players_utils = await API.getInfo(msg.author, 'players_utils')
             processjson = players_utils.process
-
-            if (b.customID == 'inv') {
-                embed.setDescription('Inventário de itens processados')
-                if (processjson.drops && processjson.drops.length > 0) {
-    
-                    function gen(rarity, title) {
-    
-                        let cclist_rar = processjson.drops.filter((item) => item.rarity == rarity);
-
-                        let ccmap_rar = ""
-                        
-                        if (cclist_rar.length > 0) {
-                        
-                            let totalpages_rar = cclist_rar.length % 5;
-                            if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
-                            else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
-
-                            for (i = totalpages_rar; i > 0; i--){
-                                let ic = totalpages_rar+1-i
-                                ccmap_rar += cclist_rar.slice((ic-1)*5, ic*5).map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
-                            }
-
-                            embed.addField(title, ccmap_rar, false)
-
-                        }
-    
-                    }
-    
-                    gen('common', "<:comum:852302869889155082> Comuns:\n")
-                    gen('uncommon', "<:incomum:852302869888630854> Incomuns:\n")
-                    gen('rare', "<:raro:852302870074359838> Raros:\n")
-                    gen('epic', "<:epico:852302869628715050> Épicos:\n")
-                    gen('lendary', "<:lendario:852302870144745512> Lendários:\n")
-                    gen('mythic', "<:mitico:852302869746548787> Míticos:\n")
-    
-                } else {
-                    embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui itens que foram encontrados de processos\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
-                }
-            }
 
             if (b.customID == 'processos') {
                 embed.setDescription('')
@@ -276,7 +287,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             const components = reworkButtons(current)
 
-            await embedmsg.edit({ embeds: [embed], components })
+            await embedmsg.edit({ embeds, components })
 
         });
         
