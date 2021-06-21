@@ -98,14 +98,14 @@ module.exports = {
                 }
 
                 let reacted = false
-                const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
-                const collector = embedmsg.createButtonCollector(filter, { time: API.events.treasure.update*1000 });
+                const filter = i => i.user.id === msg.author.id;
+                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.events.treasure.update*1000 });
 
                 collector.on('collect', (b) => {
-                    if (b.id == 'stopBtn') {
+                    if (b.customID == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        b.defer()
+                        b.deferUpdate()
                         API.cacheLists.waiting.remove(msg.author,  'digging');
                     }
                 });

@@ -66,20 +66,20 @@ ${API.helpExtension.getCategoryList()}`)
 
 		let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         
         collector.on('collect', async (b) => {
 
-			current = b.id
-            if (b.id == 'home') {
+			current = b.customID
+            if (b.customID == 'home') {
                 home()
             } else {
 
 				const cmdlist = API.client.commands.filter((cmd) => cmd.category == current )
             
-				embed.setTitle(`<:info:736274028515295262> Categoria ${b.id.toUpperCase()}`);
+				embed.setTitle(`<:info:736274028515295262> Categoria ${b.customID.toUpperCase()}`);
 				embed.setColor("#03d7fc");
 				embed.setDescription(`${cmdlist.map((cmd) => `\`${API.prefix}${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 
@@ -90,7 +90,7 @@ ${API.helpExtension.getCategoryList()}`)
             await embedmsg.edit({ embeds: [embed], components})
 
             collector.resetTimer()
-            b.defer()
+            b.deferUpdate()
             
         });
         

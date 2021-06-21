@@ -109,16 +109,16 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
             reacted = true;
             collector.stop();
-            b.defer()
+            b.deferUpdate()
             const embed = new API.Discord.MessageEmbed()
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Geração de chave cancelada', `
                 Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)

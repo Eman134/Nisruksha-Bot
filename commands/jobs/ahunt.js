@@ -91,9 +91,9 @@ module.exports = {
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
         API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 45000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 45000 });
         let reacted = false;
         let inbattle = false;
         let dead = false;
@@ -107,11 +107,11 @@ module.exports = {
         let components = []
         collector.on('collect', async (b) => {
             
-            if (!reactequiplist.includes(b.id)) return;
+            if (!reactequiplist.includes(b.customID)) return;
 
             reacted = true;
 
-            if (b.id == 'run' && inbattle == false) {
+            if (b.customID == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
                 return;
@@ -279,10 +279,10 @@ module.exports = {
 
             }
             
-            if ((b.id == 'fight' || b.id == 'autofight') && inbattle == false) {
+            if ((b.customID == 'fight' || b.customID == 'autofight') && inbattle == false) {
                 
                 
-                if (pobj.mvp && b.id == 'autofight') {
+                if (pobj.mvp && b.customID == 'autofight') {
                     autohunt = true
                 }
 
@@ -330,7 +330,7 @@ module.exports = {
 
             async function go() {
             
-                let eq = reactequips[b.id];
+                let eq = reactequips[b.customID];
 
                 if (autohunt) {
                     Object.keys(reactequips)
@@ -442,7 +442,7 @@ module.exports = {
 
             collector.resetTimer();
 
-            b.defer()
+            b.deferUpdate()
 
         });
         

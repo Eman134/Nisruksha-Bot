@@ -6,7 +6,7 @@ Message.prototype.quote = async function (x) {
 
   if (x.mention) x.allowedMentions = { repliedUser: true}
   
-  x.reply = { messageReference: this.id }
+  //x.reply = { messageReference: this.id }
 
   return await this.channel.send(x);
 }

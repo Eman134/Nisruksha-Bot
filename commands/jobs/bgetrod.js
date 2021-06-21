@@ -49,23 +49,23 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: reworkBtns(pobjcheck.rod) });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
             reacted = true;
 
-            let troca = b.id == 'troca'
+            let troca = b.customID == 'troca'
 
             let pobj2 = await API.getInfo(msg.author, 'players')
             if (pobj2.rod == null) delete pobj2.rod
             let pobj3 = await API.getInfo(msg.author, 'machines')
 
-            b.defer()
+            b.deferUpdate()
 
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField(`❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.`)
                 embedmsg.edit({ embeds: [embed] });

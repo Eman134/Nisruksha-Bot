@@ -209,13 +209,13 @@ module.exports = {
 
                 let stopped = false
 
-                const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+                const filter = i => i.user.id === msg.author.id;
 
-                const collector = embedmsg.createButtonCollector(filter, { time: timeupdate });
+                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (b) => {
-                    if (b.id == 'stopBtn') {
-                        b.defer()
+                    if (b.customID == 'stopBtn') {
+                        b.deferUpdate()
                         stopped = true;
                         collector.stop();
                     }

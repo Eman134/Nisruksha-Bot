@@ -206,11 +206,11 @@ shopExtension.categoryExists = function(cat) {
 
 shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, page, totalpages) {
   
-  const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+  const filter = i => i.user.id === msg.author.id;
 
   let currentpage = page;
   
-  let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+  let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
   
   collector.on('collect', async(b) => {
       
@@ -220,11 +220,11 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
       let stopComponents = false
 
-      if (b.id == 'forward'){
+      if (b.customID == 'forward'){
         if (currentpage < totalpages) currentpage += 1;
-      } if (b.id == 'backward') {
+      } if (b.customID == 'backward') {
         if (currentpage > 1) currentpage -= 1;
-      } if (b.id == 'stop') {
+      } if (b.customID == 'stop') {
         collector.stop()
         embed.setColor('#a60000')
         components = []
@@ -233,9 +233,9 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
       embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
 
-      if (b.id != 'stop' && b.id != 'forward' && b.id != 'backward') {
+      if (b.customID != 'stop' && b.customID != 'forward' && b.customID != 'backward') {
         collector.stop()
-        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.id));
+        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.customID));
         components = []
         stopComponents = true
       }
@@ -245,7 +245,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       await embedmsg.edit({ embeds: [embed], components });
       collector.resetTimer();
 
-      b.defer()
+      b.deferUpdate()
 
 
   });
@@ -332,9 +332,9 @@ shopExtension.execute = async function(msg, p) {
 
   let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-  const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+  const filter = i => i.user.id === msg.author.id;
 
-  let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+  let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
   let buyed = false;
 
   collector.on('collect', async(b) => {
@@ -342,9 +342,9 @@ shopExtension.execute = async function(msg, p) {
     buyed = true;
     collector.stop();
     embed.fields = [];
-    b.defer()
+    b.deferUpdate()
 
-    if (b.id == 'confirm'){
+    if (b.customID == 'confirm'){
 
       const money = await API.eco.money.get(msg.author);
       const points = await API.eco.points.get(msg.author);
@@ -503,7 +503,7 @@ shopExtension.execute = async function(msg, p) {
           API.client.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
-    } if (b.id == 'cancel'){
+    } if (b.customID == 'cancel'){
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)

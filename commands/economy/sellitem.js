@@ -163,16 +163,16 @@ module.exports = {
 
         let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        let collector = msgembed.createButtonCollector(filter, { time: 30000 });
+        let collector = msgembed.createMessageComponentInteractionCollector(filter, { time: 30000 });
         let selled = false;
         collector.on('collect', async(b) => {
             selled = true;
             collector.stop();
             embed.fields = [];
-            b.defer()
-            if (b.id == 'cancel'){
+            b.deferUpdate()
+            if (b.customID == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)

@@ -69,15 +69,15 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createButtonCollector(filter, { time: 15000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let reacted = false;
         collector.on('collect', async(b) => {
             reacted = true;
             collector.stop();
             embed.fields = [];
-            b.defer()
+            b.deferUpdate()
 
             const obj2 = await API.getInfo(msg.author, 'storage')
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
@@ -88,7 +88,7 @@ module.exports = {
                 return;
             }
 
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso cancelado', `
                 Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``)

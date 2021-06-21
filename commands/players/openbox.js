@@ -67,18 +67,18 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
             
-        const collector = await embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = await embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            b.defer()
+            b.deferUpdate()
             
             reacted = true;
             collector.stop();
 
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)

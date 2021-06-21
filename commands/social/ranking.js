@@ -111,28 +111,28 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         
         collector.on('collect', async (b) => {
 
-            if (b.id == 'change') {
+            if (b.customID == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
                 embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 if (current == 'change' || current == '') {
                     reworkButtons(rankingtype)
-                    b.defer()
-                    return await embedmsg.edit({embed, components})
+                    b.deferUpdate()
+                    return await embedmsg.edit({ embeds: [embed], components})
                 } 
-                b.id = current
+                b.customID = current
             }
             
-            current = b.id
+            current = b.customID
 
-            reworkButtons(rankingtype, b.id)
+            reworkButtons(rankingtype, b.customID)
             
-            const text =  `SELECT * FROM ${vare[b.id].db.table};`
+            const text =  `SELECT * FROM ${vare[b.customID].db.table};`
             let array = [];
             try {
                 let res = await API.db.pool.query(text);
@@ -162,7 +162,7 @@ module.exports = {
             }
 
             array.sort(function(c, d){
-                return d[vare[b.id].db.column] - c[vare[b.id].db.column];
+                return d[vare[b.customID].db.column] - c[vare[b.customID].db.column];
             });
 
             array = array.slice(0, 10)
@@ -177,21 +177,22 @@ module.exports = {
                 rank++;
             }
 
-            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.id].db.column]} ${vare[b.id].formated}`).join('\n')
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customID].db.column]} ${vare[b.customID].formated}`).join('\n')
 
             const obj = array.find((u) => u.user_id == msg.author.id )
             const pos = array.indexOf(obj)+1
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.id].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customID].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
             .setColor('#32a893')
             .setDescription(maparray)
 
             collector.resetTimer()
 
-            await embedmsg.edit({embed, components})
-            b.defer()
+            
+            await embedmsg.edit({ embeds: [embed], components})
+            b.deferUpdate()
             
         });
         

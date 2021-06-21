@@ -20,27 +20,15 @@ module.exports = {
 
         let response = false
 
-        interaction.quote2 = async function (x) {
-
-            x.allowedMentions = { users: [], repliedUser: false }
-            
-            if (x.mention) x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
-
-            const message = await interaction.fetchReply();
-
-            x.reply = { messageReference: message.id }
-          
-            return await client.channels.cache.get(interaction.channel.id).send(x)
-          }
-
         interaction.quote = async (x) => {
+
+            x.allowedMentions = { repliedUser: false}
+
+            if (x.mention) x.allowedMentions = { repliedUser: true}
+
             if (!response) {
 
                 response = true
-
-                x.allowedMentions = { repliedUser: false}
-
-                if (x.mention) x.allowedMentions = { repliedUser: true}
 
                 /*if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
                     const ie = await interaction.editReply('\u200B')
@@ -49,25 +37,11 @@ module.exports = {
                 }*/
                 return interaction.editReply(x)
             } else {
-                return interaction.quote2(x)
-            }
-        }
+                const message = await interaction.fetchReply();
 
-        interaction.edit = async (x) => {
+                x.reply = { messageReference: message.id }
             
-            if (!response) {
-
-                response = true;
-                interaction.defer(true)
-
-                x.allowedMentions = { repliedUser: false}
-                   
-                if (x.mention) x.allowedMentions = { repliedUser: true}
-
-                return await interaction.editReply(x)
-
-            } else {
-                return interaction.quote2(x)
+                return await client.channels.cache.get(interaction.channel.id).send(x)
             }
         }
 

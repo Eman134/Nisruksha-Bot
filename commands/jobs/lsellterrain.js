@@ -67,17 +67,17 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createButtonCollector(filter, { time: 15000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let selled = false;
         API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
         collector.on('collect', async(b) => {
             selled = true;
             collector.stop();
-            b.defer()
+            b.deferUpdate()
             embed.fields = [];
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**.`)

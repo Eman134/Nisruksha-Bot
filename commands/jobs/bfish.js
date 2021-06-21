@@ -86,7 +86,7 @@ module.exports = {
 
         let coletados = new Map()
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
 
         function duplicateElements(array, times) {
 
@@ -321,19 +321,19 @@ module.exports = {
                 }
 
                 let reacted = false
-                const collector = embedmsg.createButtonCollector(filter, { time: API.company.jobs.fish.update*1000 });
+                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.company.jobs.fish.update*1000 });
                 let lastreacttime = Date.now()-10000;
                 collector.on('collect', async (b) => {
-                    if (b.id == 'stopBtn') {
-                        b.defer()
+                    if (b.customID == 'stopBtn') {
+                        b.deferUpdate()
                         reacted = true;
                         collector.stop();
-                    } else if (b.id == 'downBtn' || b.id == 'upBtn') {
+                    } else if (b.customID == 'downBtn' || b.customID == 'upBtn') {
                         if (Date.now()-lastreacttime < 2000) return;
-                        b.defer()
+                        b.deferUpdate()
                         lastreacttime = Date.now()
                         
-                        if (b.id == 'downBtn') {
+                        if (b.customID == 'downBtn') {
                             header.levels["0"] = (header.levels["0"] == 5 ? 1 : header.levels["0"]+1)
                         } else {
                             header.levels["0"] = (header.levels["0"] == 1 ? 5 : header.levels["0"]-1)

@@ -59,13 +59,13 @@ module.exports = {
 
 		let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         
         collector.on('collect', async (b) => {
-            current = b.id
-            if (b.id == 'home') {
+            current = b.customID
+            if (b.customID == 'home') {
                 home()
             } else {
                 embed.fields = []
@@ -85,7 +85,7 @@ module.exports = {
             await embedmsg.edit({embed, components})
 
             collector.resetTimer()
-            b.defer()
+            b.deferUpdate()
             
         });
         

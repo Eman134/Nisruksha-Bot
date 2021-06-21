@@ -146,21 +146,21 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 35000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 35000 });
 
         collector.on('collect', async (b) => {
             reacted = true;
             embed.fields = [];
             embed.setDescription('')
-            current = b.id
+            current = b.customID
             API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 35);
 
             const players_utils = await API.getInfo(msg.author, 'players_utils')
             processjson = players_utils.process
 
-            if (b.id == 'inv') {
+            if (b.customID == 'inv') {
                 embed.setDescription('Inventário de itens processados')
                 if (processjson.drops && processjson.drops.length > 0) {
     
@@ -199,37 +199,37 @@ module.exports = {
                 }
             }
 
-            if (b.id == 'processos') {
+            if (b.customID == 'processos') {
                 embed.setDescription('')
                 setProcess()
             }
 
-            if (b.id == 'ferr') tool = processjson.tools[0]
-            if (b.id == 'lqd') tool = processjson.tools[1]
+            if (b.customID == 'ferr') tool = processjson.tools[0]
+            if (b.customID == 'lqd') tool = processjson.tools[1]
 
-            if (b.id.startsWith('pot')) {
-                if (b.id == 'pot1') {
+            if (b.customID.startsWith('pot')) {
+                if (b.customID == 'pot1') {
                     if (tool.potency.current-5 >= tool.potency.rangemin) tool.potency.current -= 5
                 }
-                if (b.id == 'pot2') {
+                if (b.customID == 'pot2') {
                     if (tool.potency.current-1 >= tool.potency.rangemin) tool.potency.current -= 1
                 }
-                if (b.id == 'potreset') {
+                if (b.customID == 'potreset') {
                     tool.potency.current = tool.potency.default
                 }
-                if (b.id == 'pot3') {
+                if (b.customID == 'pot3') {
                     if (tool.potency.current+1 <= tool.potency.rangemax) tool.potency.current += 1
                 }
-                if (b.id == 'pot4') {
+                if (b.customID == 'pot4') {
                     if (tool.potency.current+5 <= tool.potency.rangemax) tool.potency.current += 5
                 }
                 processjson.tools[tool.type] = tool
                 API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                b.id = (tool.type == 0 ? 'ferr' : 'lqd')
+                b.customID = (tool.type == 0 ? 'ferr' : 'lqd')
                 current = (tool.type == 0 ? 'ferr' : 'lqd')
             }
             
-            if (b.id == 'ferr') {
+            if (b.customID == 'ferr') {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
@@ -240,7 +240,7 @@ Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durabil
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 `)
-            } if (b.id == 'lqd') {
+            } if (b.customID == 'lqd') {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
@@ -253,8 +253,8 @@ Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 `)
             } 
-            if (b.id.startsWith('proc:')) {
-                const id = parseInt(b.id.replace(/proc:/g, ''))
+            if (b.customID.startsWith('proc:')) {
+                const id = parseInt(b.customID.replace(/proc:/g, ''))
                 const oldproc = processjson.in.find((x) => x.id == id)
                 const indexProcess = processjson.in.indexOf(oldproc)
                 processjson.in.splice(indexProcess, 1)
@@ -270,7 +270,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}`)
             }
 
-            b.defer()
+            b.deferUpdate()
 
             collector.resetTimer()
 

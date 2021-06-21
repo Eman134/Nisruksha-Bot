@@ -161,15 +161,15 @@ module.exports = {
             
             const embedmsg = await msg.quote({ embeds: [embedtemp], component: API.rowButton([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')]) } )
 
-            const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+            const filter = i => i.user.id === msg.author.id;
             
-            const collector = embedmsg.createButtonCollector(filter, { time: 15000 });
+            const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
             let reacted = false;
             collector.on('collect', async (b) => {
 
                 reacted = true;
                 collector.stop();
-                b.defer()
+                b.deferUpdate()
                 embed.fields = [];
 
                 pobj = await API.getInfo(msg.author, 'players')
@@ -237,14 +237,14 @@ module.exports = {
 
         const embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
 
         collector.on('collect', async (b) => {
 
             reacted = true;
-            b.defer()
+            b.deferUpdate()
 
             collector.resetTimer()
 
@@ -255,7 +255,7 @@ module.exports = {
             let allplots = pobj.plots
             let components = plotReturns.components
 
-            if (b.id == 'upgrade') {
+            if (b.customID == 'upgrade') {
 
                 const points = await API.eco.points.get(msg.author);
 
@@ -297,7 +297,7 @@ module.exports = {
 
             } else {
 
-                let selectedplant = plot.plants[parseInt(b.id)-1]
+                let selectedplant = plot.plants[parseInt(b.customID)-1]
 
                 if (selectedplant.percent < 100) {
                     embed.addField('❌ Falha na colheita', `Esta plantação ainda não está crescida!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`)
@@ -307,7 +307,7 @@ module.exports = {
 
                 let pobj2 = await API.getInfo(msg.author, 'machines')
 
-                allplots[townnum].plants.splice([parseInt(b.id)-1], 1)
+                allplots[townnum].plants.splice([parseInt(b.customID)-1], 1)
                 if (allplots[townnum].plants.length == 0) {
                     delete allplots[townnum].plants
                 }

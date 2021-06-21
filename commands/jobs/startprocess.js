@@ -122,9 +122,9 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 35000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 35000 });
 
         let reacted = false
 
@@ -132,16 +132,16 @@ module.exports = {
             reacted = true;
             embed.fields = [];
             embed.setDescription('')
-            current = b.id
+            current = b.customID
 
-            b.defer()
+            b.deferUpdate()
 
             collector.stop()
             const storage = await API.getInfo(msg.author, 'storage')
             const players_utils = await API.getInfo(msg.author, 'players_utils')
             let processjson = players_utils.process
 
-            const tool = (b.id == 'ferr' ? processjson.tools[0] : processjson.tools[1])
+            const tool = (b.customID == 'ferr' ? processjson.tools[0] : processjson.tools[1])
 
             if (API.toNumber(args[0]) < Math.round(tool.process.maxfragments*0.15)) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
@@ -160,7 +160,7 @@ module.exports = {
                 return;
             }
 
-            if (b.id == 'ferr') {
+            if (b.customID == 'ferr') {
         
                 embed.setDescription(
 `${tool.icon} ${tool.name}
@@ -175,7 +175,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 **Você iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`${API.prefix}processos\`.**
 `)
-            } if (b.id == 'lqd') {
+            } if (b.customID == 'lqd') {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
@@ -202,7 +202,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             const defaultjsonprocess = {
                 id,
-                tool: (b.id == 'ferr' ? 0 : 1),
+                tool: (b.customID == 'ferr' ? 0 : 1),
                 started: Date.now(),
                 end: Date.now()+API.company.jobs.process.calculateTime(tool.potency.current, quantia),
                 fragments: {
@@ -213,7 +213,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 score: 0
             }
 
-            processjson.tools[(b.id == 'ferr' ? 0 : 1)].process.current += 1
+            processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current += 1
 
             processjson.in.push(defaultjsonprocess)
 

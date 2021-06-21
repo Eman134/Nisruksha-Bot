@@ -133,7 +133,7 @@ module.exports = {
 
         let reacted = {}
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 60000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
 
         collector.on('collect', async (b) => {
 
@@ -141,13 +141,13 @@ module.exports = {
             API.playerUtils.cooldown.set(msg.author, "flip", 60);
             API.playerUtils.cooldown.set(member, "flip", 60);
             reacted[b.clicker.user.id] = true
-            if (b.id == 'cancel'){
+            if (b.customID == 'cancel'){
                 confirm[b.clicker.user.id] = '❌'
             } else {
                 confirm[b.clicker.user.id] = '✅'
             }
 
-            b.defer()
+            b.deferUpdate()
 
             const embed = new Discord.MessageEmbed()
             .setTitle('Giro')

@@ -114,17 +114,17 @@ module.exports = {
         
         if (currentpage == totalpages || totalpages == 0) return
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         
         collector.on('collect', async(b) => {
             
-            b.defer()
+            b.deferUpdate()
 
-            if (b.id == 'forward'){
+            if (b.customID == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;
-            } else if (b.id == 'backward') {
+            } else if (b.customID == 'backward') {
                 if (currentpage > 1) currentpage -= 1;
             }
 

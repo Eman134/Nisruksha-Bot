@@ -65,9 +65,9 @@ module.exports = {
         
         const embedmsg = await msg.quote({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createButtonCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
 
         collector.on('collect', async (b) => {
 
@@ -75,15 +75,15 @@ module.exports = {
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 30);
 
-            if (b.id == 'f0Btn'){
+            if (b.customID == 'f0Btn'){
                 if (current < total) current += 1;
-            } if (b.id == 'b0Btn'){
+            } if (b.customID == 'b0Btn'){
                 if (current > 1) current -= 1;
             }
 
-            if (b.id == 'f1Btn'){
+            if (b.customID == 'f1Btn'){
                 current = total;
-            } if (b.id == 'b1Btn'){
+            } if (b.customID == 'b1Btn'){
                 current = 1;
             }
 
@@ -111,7 +111,7 @@ module.exports = {
 
             embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
-            if (b.id == 'nBtn') {
+            if (b.customID == 'nBtn') {
                 
                 API.frames.reforge(msg.author, 0)
 
@@ -120,11 +120,11 @@ module.exports = {
                 embed.setImage(API.frames.get(frames[0]).url)
                 await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
-                b.defer()
+                b.deferUpdate()
 
                 return collector.stop();
 
-            } else if (b.id == 'sBtn'){
+            } else if (b.customID == 'sBtn'){
 
                 API.frames.reforge(msg.author, frame.id)
 
@@ -133,7 +133,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
-                b.defer()
+                b.deferUpdate()
                 
                 return collector.stop();
 
@@ -142,7 +142,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
-                b.defer()
+                b.deferUpdate()
 
             }
 

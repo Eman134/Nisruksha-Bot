@@ -79,14 +79,14 @@ module.exports = {
 
         let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
+        const filter = i => i.user.id === msg.author.id;
             
-        const collector = await msgembed.createButtonCollector(filter, { time: 60000 });
+        const collector = await msgembed.createMessageComponentInteractionCollector(filter, { time: 60000 });
         let selected;
         collector.on('collect', async (b) => {
 
-            selected = b.id;
-            b.defer()
+            selected = b.customID;
+            b.deferUpdate()
 
             let array = [];
             let rolnum = API.random(15, 20)
