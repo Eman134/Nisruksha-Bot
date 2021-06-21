@@ -65,10 +65,10 @@ module.exports = {
         
         let monster = API.company.jobs.explore.searchMob(pobj2.level);
 
-        if (monster == undefined) {
+        if (!monster) {
             embed.setTitle(`Nenhum monstro por perto`)
             .setDescription(`Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`)
-         await msg.quote({ embeds: [embed] });
+            await msg.quote({ embeds: [embed] });
             return;
         }
         
@@ -105,6 +105,8 @@ module.exports = {
         let autohunt = false
         const equipsBtn = []
         let components = []
+
+        let session = 0
         collector.on('collect', async (b) => {
             
             if (!reactequiplist.includes(b.customID)) return;
@@ -114,12 +116,13 @@ module.exports = {
             if (b.customID == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
+                b.deferUpdate().catch()
                 return;
             }
 
             //collector.stop();
 
-            async function build(lost) {
+            async function build(lost, attach) {
 
                 let background = bg
     
@@ -211,12 +214,18 @@ module.exports = {
                 background = await API.img.drawText(background, `Estamina: ${stcstatdm}/${monster.sta}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 160, 8)
                 background = await API.img.drawText(background, `${monster.name}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 396, 190, 2)
                 background = await API.img.drawText(background, `Nível ${monster.level}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
+
+                monster.csta -= td_.monster
+                API.maqExtension.stamina.remove(msg.author, td_.player)
+
+                if (attach) {
+                    const attach =  await API.img.getAttachment(background, 'hunt' + session + '.png')
+                    return { attach, plost }
+                }
                 
                 let msg2 = await API.img.sendImage(API.client.channels.cache.get('761582265741475850'), background, msg.id);
                 let url = await msg2.attachments.array()[0].url
 
-                monster.csta -= td_.monster
-                API.maqExtension.stamina.remove(msg.author, td_.player)
                 try{
                 if (lastmsg) lastmsg.delete()
                 }catch{}
@@ -279,7 +288,7 @@ module.exports = {
 
             }
             
-            if ((b.customID == 'fight' || b.customID == 'autofight') && inbattle == false) {
+            if ((b.customID == 'fight' || b.customID == 'autofight') && !inbattle) {
                 
                 
                 if (pobj.mvp && b.customID == 'autofight') {
@@ -309,10 +318,14 @@ module.exports = {
 
                 if (!autohunt) components = [ API.rowButton(equipsBtn) ]
                 
-				let firstbuild = await build()
+				let firstbuild = await build({ player: 0, monster: 0 }, false)
 				
                 await embed.setImage(firstbuild.url)
-                await embedmsg.edit({embed, components });
+
+                //embed.setImage('attachment://hunt' + session + '.png')
+
+                await embedmsg.edit({ embeds: [embed], components })//, files: [firstbuild.attach] });
+
                 fixedembed = embed
 
                 if (autohunt) {
@@ -322,11 +335,13 @@ module.exports = {
                     }, 6000)
                 }
 
+                b.deferUpdate().catch()
+
                 return;
                 
             }
             
-            if(inbattle == false) return
+            if(!inbattle) return
 
             async function go() {
             
@@ -374,9 +389,11 @@ module.exports = {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
                 
-                let buildlost = await build(lost)
+                let buildlost = await build(lost, false)
                 
                 await embed.setImage(buildlost.url)
+                embed.attachFiles([buildlost.attach])//attachment])
+                //embed.setImage('attachment://hunt' + session + '.png')
                 
                 let currmsg = ""
                 {
@@ -404,20 +421,24 @@ module.exports = {
                 await embed.setFooter(`Informações do ataque atual\n${currmsg}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
 
                 try {
-                    if (dead) await embedmsg.edit({embed})
-                    else await embedmsg.edit({embed, components })
-                } catch {
+                    if (dead) {
+                        await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
+                    } else {
+                        await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
+                    }
+                } catch (err) {
+                    console.log(err)
                     setTimeout(async function(){
                         try {
-                            if (dead) await embedmsg.edit({embed})
-                            else await embedmsg.edit({embed, components })
+                            if (dead) await embedmsg.edit({embeds: [embed], components: []})//, files: [buildlost.attach] })
+                            else await embedmsg.edit({embeds: [embed], components})//, files: [buildlost.attach] })
                         } catch {
                             API.cacheLists.waiting.remove(msg.author, 'hunting')
                             API.cacheLists.waiting.remove(msg.author, 'working');
                             collector.stop();
                             autohunt = false
                         }
-                    }, 1000)
+                    }, 3000)
                 }
                 lastreacttime = Date.now()
                 fixedembed = embed
@@ -438,24 +459,28 @@ module.exports = {
 
             }
 
+            //session += 1
+
             await go()
 
             collector.resetTimer();
 
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
         });
         
         collector.on('end', async collected => {
             API.cacheLists.waiting.remove(msg.author, 'hunting')
             API.cacheLists.waiting.remove(msg.author, 'working');
+
             if (dead) return
+
             if (reacted) {
                 fixedembed.fields = []
                 fixedembed.setTitle(`Mas que covarde!`)
                 fixedembed.setColor('#a60000');
                 fixedembed.setDescription(`❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`)
-                embedmsg.edit({ embeds: [fixedembed] });
+                embedmsg.edit({ embeds: [fixedembed], components: [] });
                 return;
             
             }
@@ -463,7 +488,7 @@ module.exports = {
             embed.setTitle(`Oops, o monstro percebeu sua presença!`)
             embed.setColor('#a60000');
             embed.setDescription(`❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 
