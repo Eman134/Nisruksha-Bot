@@ -13,13 +13,13 @@ module.exports = {
 
         if (parseInt(API.events.treasure.loc) != parseInt(townnum) || API.events.treasure.picked) {
             const embedtemp = await API.sendError(msg, `Não possui nenhum tesouro não explorado na sua vila atual!\nUtilize \`${API.prefix}mapa\` para achar algum tesouro em outras vilas\nOBS: Os alertas de novos tesouros são feitos no servidor oficial do Nisruksha (\`${API.prefix}convidar\`)`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
@@ -34,7 +34,7 @@ module.exports = {
             return API.getProgress(8, '<:escav:807999848196079646>', '<:energyempty:741675234796503041>', prof > prof2 ? prof2 : prof, prof2, true);
         }
         
-        let btn = API.createButton('stopBtn', 'red', 'Parar escavação')
+        let btn = API.createButton('stopBtn', 'DANGER', 'Parar escavação')
 
         let component = API.rowButton([btn])
 
@@ -46,7 +46,7 @@ module.exports = {
         
         let embedmsg
         try {
-            embedmsg = await msg.quote(embed).then((ems) => embedmsg = ems).catch();
+            embedmsg = await msg.quote({ embeds: [embed] }).then((ems) => embedmsg = ems).catch();
         } catch {}  
 
         API.cacheLists.waiting.add(msg.author, embedmsg, 'digging');
@@ -113,7 +113,7 @@ module.exports = {
                 collector.on('end', async collected => {
                     if (reacted) {
                         const embedtemp = await API.sendError(msg, `Você parou a escavação!`)
-                        await msg.quote({ embed: embedtemp })
+                        await msg.quote({ embeds: [embedtemp] })
                         API.cacheLists.waiting.remove(msg.author, 'digging');
                     } else {
                         edit();

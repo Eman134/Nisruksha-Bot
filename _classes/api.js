@@ -2,7 +2,7 @@ const { prefix, owner, token, ip, app } = require("../_classes/config");
 const db = require('./db.js');
 const serverdb = {};
 const version = require('../package.json').version
-const { MessageActionRow, MessageButton } = require('discord-buttons')
+const { MessageActionRow, MessageButton } = require('discord.js')
 
 serverdb.getServerInfo = async function (id) {
     
@@ -115,7 +115,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
         const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
-        await msg.quote(embedtemp)
+        await msg.quote({ embeds: [embedtemp]})
         return true
     }
     
@@ -129,7 +129,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         .setDescription(`<:banido:756525777981276331> Este servidor está **BANIDO** do Nisruksha!\nMotivo: ${serverobj.banreason}\n[MEU SERVIDOR](https://bit.ly/svnisru)`)
         .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
         .setThumbnail(`https://cdn.discordapp.com/emojis/756525777981276331.png?v=1`)
-        await msg.quote(embed)
+        await msg.quote({ embeds: [embed] })
 
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -140,7 +140,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
         }
 
         return true;
@@ -152,7 +152,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         .setDescription(`<:error:736274027756388353> Este servidor não está permitido o uso de comandos!\nContate o criador do bot para analisar o motivo.\n[MEU SERVIDOR](https://bit.ly/svnisru)`)
         .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
         .setThumbnail(`https://cdn.discordapp.com/emojis/736274027756388353.png?v=1`)
-        await msg.quote(embed)
+        await msg.quote({ embeds: [embed] })
 
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -163,7 +163,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
         }
 
         return true;
@@ -180,7 +180,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setDescription(`<:banido:756525777981276331> **O BOT ESTÁ EM MODO MANUTENÇÃO NO MOMENTO!**\nMotivo: **${globalman}**\n[MEU SERVIDOR](https://bit.ly/svnisru)`)
             .setAuthor(msg.guild.name, msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }))
             .setThumbnail(`https://cdn.discordapp.com/emojis/736274027756388353.png?v=1`)
-            await msg.quote(embed)
+            await msg.quote({ embeds: [embed] })
 
             if (API.logs.falhas) {
                 const embedcmd = new API.Discord.MessageEmbed()
@@ -191,7 +191,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
                 .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-                API.client.channels.cache.get('770059589076123699').send(embedcmd);
+                API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
             }
                 
             return true;
@@ -213,7 +213,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setThumbnail(`https://cdn.discordapp.com/emojis/756525777981276331.png?v=1`)
         .setImage(`https://media1.tenor.com/images/b1b83ab983d136bdf3fed71af0b40c0e/tenor.gif?itemid=17528115`)
-        await msg.quote(embed)
+        await msg.quote({ embeds: [embed] })
 
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -224,7 +224,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
         }
 
         return true;
@@ -233,7 +233,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     async function limitedpatrao() {
         const embedtemp = await API.sendError(msg, `Você foi limitado inicialmente a 200 comandos e precisa estar em nosso servidor oficial para poder usufruir mais do bot!\nA partir do momento que estiver no servidor oficial, você poderá continuar a usar bot em qualquer outro servidor que o tenha!\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)`)
-        await msg.quote({ embed: embedtemp, mention: true } )
+        await msg.quote({ embeds: [embedtemp], mention: true } )
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -243,7 +243,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
             return true;
         }
     }
@@ -266,7 +266,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
         const embedtemp = await API.sendError(msg, `Você não pode executar comandos no bot por sua conta ser criada recentemente! Tente novamente mais tarde.\nPara quaisquer suporte entre em [MEU SERVIDOR](https://bit.ly/svnisru)\nVocê poderá usar o bot em \`${API.ms(86400000*7-(Date.now()-new Date(msg.author.createdAt).getTime()))}\``)
-        await msg.quote({ embed: embedtemp, mention: true } )
+        await msg.quote({ embeds: [embedtemp], mention: true } )
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -276,7 +276,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             if (arg.length > 0) embedcmd.addField('Argumentos', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
         }
 
         return true;
@@ -289,7 +289,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             if (check2) return true;
             API.playerUtils.cooldown.set(msg.author, "antispam", 3);
             const embedtemp = await API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return true;
         }
     }
@@ -317,7 +317,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
 
     if (result.includes('❌') && perm < 4) {
-     await msg.quote('O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru').catch()
+     await msg.quote({ content: 'O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru' }).catch()
             
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()
@@ -328,7 +328,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             .addField('Perms', `\`\`\`\n${result}\`\`\``)
-            API.client.channels.cache.get('770059589076123699').send(embedcmd).catch();
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]}).catch();
         }
             
             return true;
@@ -377,8 +377,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 		
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `' + API.prefix + 'tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
-     await msg.quote({ content: msg.author, embed: voteembed, mention: true})
-		
+        await msg.quote({ embeds: [voteembed], mention: true})
 		return false;
 		
 		
@@ -395,7 +394,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
             }
 
-         await msg.quote({ content: msg.author, embed: voteembed, mention: true})
+            await msg.quote({ embeds: [voteembed], mention: true})
 			return false;
         });
     }
@@ -411,13 +410,13 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 		.addField('<:channel:788949139390988288> Canal', `\`${chan.name} (${msg.channel.id})\``)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 		.setFooter(guild.name + " | " + guild.id, guild.iconURL())
-        API.client.channels.cache.get('768465691547271168').send(embedcmd);
+        API.client.channels.cache.get('768465691547271168').send({ embeds: [embedcmd]});
     }
 
     if (companytype && companytype != 0) {
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]} para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return true;
         }
         let company;
@@ -426,14 +425,14 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             company = await API.company.get.companyById(pobj.company);
             if (company.type != companytype) {
                 const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return true;
             }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != companytype) {
                 const embedtemp = await API.sendError(msg, `A sua empresa não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return true;
 
             }
@@ -736,12 +735,12 @@ API.getMultipleArgs = function(msg, index) {
 API.createButton = function(id, style, label, emoji, disabled) {
 
     let button = new MessageButton()
-    .setStyle(style)
+    .setStyle(style.toUpperCase())
     .setLabel(label)
     if (emoji) button.setEmoji(emoji)
     if (style == 'url') button.setURL(id) 
-    else button.setID(id)
-    if (disabled) button.setDisabled();
+    else button.setCustomID(id)
+    if (disabled) button.setDisabled(true);
 
     return button
 }
@@ -751,7 +750,7 @@ API.rowButton = function(arr) {
     let btnRow = new MessageActionRow()
 
     for (rowButtonVar = 0; rowButtonVar < arr.length; rowButtonVar++) {
-        btnRow.addComponent(arr[rowButtonVar])
+        btnRow.addComponents(arr[rowButtonVar])
     }
 
     return btnRow

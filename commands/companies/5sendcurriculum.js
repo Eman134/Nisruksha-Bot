@@ -18,19 +18,19 @@ module.exports = {
 
         if (await API.company.check.hasCompany(msg.author)) {
             const embedtemp = await API.sendError(msg, `Você não pode enviar currículo para alguma empresa pois você já possui uma`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (await API.company.check.isWorker(msg.author)) {
             const embedtemp = await API.sendError(msg, `Você não pode enviar currículo para outra empresa pois você já trabalha em uma`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar um código de empresa para enviar um currículo!\nPesquise empresas utilizando \`${API.prefix}empresas\``, 'enviarc 000Z10')
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -42,7 +42,7 @@ module.exports = {
 			
 			if (owner == null) {
                 const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
-           	    await msg.quote(embedtemp)
+           	    await msg.quote({ embeds: [embedtemp]})
                 return;
 			}
 			
@@ -50,7 +50,7 @@ module.exports = {
 
             if (res.rows[0] == undefined || res.rows[0] == null) {
                 const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
-           	    await msg.quote(embedtemp)
+           	    await msg.quote({ embeds: [embedtemp]})
                 return;
             } else {
                 company = res.rows[0]
@@ -66,7 +66,7 @@ module.exports = {
         
         if (locname != townname) {
             const embedtemp = await API.sendError(msg, `Você precisa estar na mesma vila da empresa para enviar o currículo!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -74,20 +74,20 @@ module.exports = {
 
         if (pobjmaq.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para enviar currículo!\nSeu nível atual: **${pobjmaq.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (!(await API.company.check.hasVacancies(args[0]))) {
             const embedtemp = await API.sendError(msg, `Esta empresa não possui vagas ou estão fechadas, tente novamente quando houver vagas!`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
 
         if (company.curriculum != null && company.curriculum.length >= 10) {
             const embedtemp = await API.sendError(msg, `Esta empresa já possui o máximo de currículos pendentes **10/10**.`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
         let clist0 = []
@@ -101,7 +101,7 @@ module.exports = {
 
         if (currincl == true) {
             const embedtemp = await API.sendError(msg, `Você já enviou um currículo para esta empresa! Aguarde uma resposta.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
@@ -109,10 +109,10 @@ module.exports = {
 		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja enviar seu currículo para a empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**?`)
         .setFooter('Ao enviar o currículo você está em consentimento em receber DM\'S do bot de quando você for aceito ou negado na empresa!')
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -140,7 +140,7 @@ module.exports = {
                     
                     if (res.rows[0] == undefined || res.rows[0] == null) {
                         const embedtemp = await API.sendError(msg, `O id de empresa ${args[0]} é inexistente!\nPesquise empresas utilizando \`${API.prefix}empresas\``)
-           	            await msg.quote(embedtemp)
+           	            await msg.quote({ embeds: [embedtemp]})
                         return;
                     } else {
                         companyobj = res.rows[0]
@@ -193,7 +193,7 @@ module.exports = {
                     embed2.setColor('#5bff45')
                     embed2.setDescription(`O membro ${msg.author} enviou um currículo para a sua empresa!\nUtilize \`${API.prefix}curriculos\` em algum servidor do bot para visualizar os currículos pendentes.`)
                     .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                    await companyowner.send(embed2).catch()
+                    await companyowner.send({ embeds: [embed2] }).catch()
                 } catch { 
                 }
                 

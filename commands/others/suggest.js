@@ -17,7 +17,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa definir um texto explicando a sugestão', 'sugerir <texto>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
   
@@ -27,7 +27,7 @@ module.exports = {
         .setDescription(`Sugestão enviada com sucesso!
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
         
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
 
         const embed2 = new Discord.MessageEmbed()
         .setColor('RANDOM')
@@ -35,7 +35,7 @@ module.exports = {
         .setDescription(`🔴 Negada | 🟠 Em análise | 🟢 Aceita | 🟣 Existente/planejada | ⚫ Ignorada
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
         try{
-            let msg2 = await API.client.channels.cache.get('693910939111653436').send(embed2);
+            let msg2 = await API.client.channels.cache.get('693910939111653436').send({ embeds: [embed2] });
             await msg2.react(`👍🏾`)
             await msg2.react(`👎🏾`)
         }catch{}

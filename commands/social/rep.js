@@ -17,7 +17,7 @@ module.exports = {
         if (!msg.slash) {
             if (msg.mentions.users.size < 1) {
                 const embedtemp = await API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return
             } else {
                 member = msg.mentions.users.first();
@@ -32,7 +32,7 @@ module.exports = {
 
         if (member.id == msg.author.id) {
             const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -48,7 +48,7 @@ module.exports = {
 
         if (cmaq < 102) {
             const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -58,7 +58,7 @@ module.exports = {
 
         API.setInfo(member, "players", "reps", parseInt(reps)+1)
 
-        await msg.quote('Você deu **+1 REP** para **' + member.tag + '**!')
+        await msg.quote({ content: 'Você deu **+1 REP** para **' + member.tag + '**!' })
 
     },
 };

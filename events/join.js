@@ -20,7 +20,7 @@ module.exports = {
                 .setDescription(`Bot tentou entrar no servidor ${guild.name}`)
                 .setFooter(guild.name + " | " + guild.id, guild.iconURL())
                 .setAuthor(guild.name, guild.iconURL())
-            API.client.channels.cache.get('770059589076123699').send(embedcmd);
+            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
 
             return;
         }
@@ -30,7 +30,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed();
         embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)
             .setColor('#55eb34')
-        client.channels.cache.get('746735962196803584').send(embed);
+        client.channels.cache.get('746735962196803584').send({ embeds: [embed]});;
 
     }
 }

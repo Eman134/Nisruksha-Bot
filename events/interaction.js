@@ -20,33 +20,11 @@ module.exports = {
 
         let response = false
 
-        interaction.quote2 = async function (c, o) {
-
-            const { APIMessage } = require("discord.js");
-            const content = c
-            const options = o
-          
-            let x 
-            
-            if (c.type == 'rich') {
-                x = { embed: c, ...o }
-            } else {
-                x = { ...c, ...o }
-            }
+        interaction.quote2 = async function (x) {
 
             x.allowedMentions = { users: [], repliedUser: false }
-
-            if (!options) {
-                if (typeof content === 'object') {
-                    if (content.mention) {
-                        x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
-                    }
-                }
-            } else {
-                if (options.mention) {
-                    x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
-                }
-            }
+            
+            if (x.mention) x.allowedMentions = { users: [interaction.author.id], repliedUser: true }
 
             const message = await interaction.fetchReply();
 
@@ -55,77 +33,41 @@ module.exports = {
             return await client.channels.cache.get(interaction.channel.id).send(x)
           }
 
-        interaction.quote = async (c, o) => {
+        interaction.quote = async (x) => {
             if (!response) {
 
                 response = true
 
-                const x = { ...c, ...o }
-
                 x.allowedMentions = { repliedUser: false}
 
-                if (!o) {
-                    if (typeof c === 'object') {
-                        if (c.mention) {
-                            x.allowedMentions = { repliedUser: true}
-                        }
-                    }
-                } else {
-                    if (o.mention) {
-                        x.allowedMentions = { repliedUser: true}
-                    }
-                }
+                if (x.mention) x.allowedMentions = { repliedUser: true}
 
-                if (c.type == 'rich') return interaction.editReply(c)
-
-                if (typeof c === 'string') x.content = c
-
-                if (Object.keys(x).includes('embed')) x.embeds = [{ ...x.embed }]
-
-                if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
+                /*if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
                     const ie = await interaction.editReply('\u200B')
                     return ie.edit(x)
                 } else {
-                    return interaction.editReply(x)
-                }
+                }*/
+                return interaction.editReply(x)
             } else {
-                return interaction.quote2(c, o)
+                return interaction.quote2(x)
             }
         }
 
-        interaction.edit = async (c, o) => {
+        interaction.edit = async (x) => {
             
             if (!response) {
 
                 response = true;
                 interaction.defer(true)
 
-                let x 
-            
-                if (c.type == 'rich') {
-                    x = { embed: c, ...o }
-                } else {
-                    x = { ...c, ...o }
-                }
-
                 x.allowedMentions = { repliedUser: false}
-
-                if (!o) {
-                    if (typeof c === 'object') {
-                        if (c.mention) {
-                            x.allowedMentions = { repliedUser: true}
-                        }
-                    }
-                } else {
-                    if (o.mention) {
-                        x.allowedMentions = { repliedUser: true}
-                    }
-                }
+                   
+                if (x.mention) x.allowedMentions = { repliedUser: true}
 
                 return await interaction.editReply(x)
 
             } else {
-                return interaction.quote2(c, o)
+                return interaction.quote2(x)
             }
         }
 

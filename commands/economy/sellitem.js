@@ -23,7 +23,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -31,7 +31,7 @@ module.exports = {
 
         if (armsize <= 0) {
             const embedtemp = await API.sendError(msg, `Você não possui itens na sua mochila para vender!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -39,19 +39,19 @@ module.exports = {
 
         if (args.length >= 2 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 2), 'drops') == false)) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
             const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.isInt(arg0) && args.length == 1) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -72,7 +72,7 @@ module.exports = {
 
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -83,18 +83,18 @@ module.exports = {
             type = 2;
             if (parseInt(arg0) <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (parseInt(arg0) > obj2[drop.name.replace(/"/g, '')]) {
                 const embedtemp = await API.sendError(msg, `Você não possui **${arg0}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
         }
@@ -158,10 +158,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}?`)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

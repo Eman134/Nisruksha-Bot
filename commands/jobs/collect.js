@@ -14,13 +14,13 @@ module.exports = {
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se coletando no momento! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -28,11 +28,11 @@ module.exports = {
 
         if (sta <= 40) {
             const embedtemp = await API.sendError(msg, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
-        let btn = API.createButton('stopBtn', 'red', 'Parar coleta')
+        let btn = API.createButton('stopBtn', 'DANGER', 'Parar coleta')
 
         let component = API.rowButton([btn])
 
@@ -49,7 +49,7 @@ module.exports = {
         embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote(embed);
+        let embedmsg = await msg.quote({ embeds: [embed] });
         API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
         API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
         
@@ -126,7 +126,7 @@ module.exports = {
                 }
 
                     try{
-                        await embedmsg.edit({ embed, component })
+                        await embedmsg.edit({ embeds: [embed], component })
                     }catch{
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                         API.cacheLists.waiting.remove(msg.author, 'working');
@@ -134,7 +134,7 @@ module.exports = {
 
                 if (descartados.length == seedobj.length) {
                     const embedtemp = await API.sendError(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote({ embed: embedtemp, mention: true } )
+                    await msg.quote({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
@@ -142,7 +142,7 @@ module.exports = {
 
                 if (sta2 < 30) {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote({ embed: embedtemp, mention: true } )
+                    await msg.quote({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'collecting')
                     API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
@@ -164,7 +164,7 @@ module.exports = {
                     if (reacted) {
                         await embedmsg.edit({ embed }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
-                        await msg.quote(embedtemp)
+                        await msg.quote({ embeds: [embedtemp]})
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                         API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {

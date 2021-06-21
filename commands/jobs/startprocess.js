@@ -48,25 +48,25 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
 
         if (!API.isInt(API.toNumber(args[0]))) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (storage['fragmento'] <= 0) {
             const embedtemp = await API.sendError(msg, `Você não ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (processjson.tools[0].process.current >= processjson.tools[0].process.max && processjson.tools[1].process.current >= processjson.tools[1].process.max) {
             const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`${API.prefix}processos\` para visualizar seus processos.`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -113,14 +113,14 @@ module.exports = {
         setProcess()
 
         function reworkButtons(current, allDisabled) {
-            const btn2 = API.createButton('ferr', processjson.tools[0].process.current >= processjson.tools[0].process.max ? 'red':'green', processjson.tools[0].name + ' [' + processjson.tools[0].process.current + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.tools[0].process.current >= processjson.tools[0].process.max ? true : false))
-            const btn3 = API.createButton('lqd', processjson.tools[1].process.current >= processjson.tools[1].process.max ? 'red':'green', processjson.tools[1].name + ' [' + processjson.tools[1].process.current + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.tools[1].process.current >= processjson.tools[1].process.max ? true : false))
+            const btn2 = API.createButton('ferr', processjson.tools[0].process.current >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.tools[0].process.current + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.tools[0].process.current >= processjson.tools[0].process.max ? true : false))
+            const btn3 = API.createButton('lqd', processjson.tools[1].process.current >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.tools[1].process.current + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.tools[1].process.current >= processjson.tools[1].process.max ? true : false))
             return [API.rowButton([btn2, btn3])]
         }
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embed, components });
+        let embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -145,18 +145,18 @@ module.exports = {
 
             if (API.toNumber(args[0]) < Math.round(tool.process.maxfragments*0.15)) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
-                await embedmsg.edit({ embed: embedtemp })
+                await embedmsg.edit({ embeds: [embedtemp] })
                 return;
             }
             if (API.toNumber(args[0]) > tool.process.maxfragments) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
-                await embedmsg.edit({ embed: embedtemp })
+                await embedmsg.edit({ embeds: [embedtemp] })
                 return;
             }
 
             if (tool.process.current >= tool.process.max) {
                 const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
-                await embedmsg.edit({ embed: embedtemp })
+                await embedmsg.edit({ embeds: [embedtemp] })
                 return;
             }
 
@@ -223,7 +223,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             const components = reworkButtons(current, true)
 
-            await embedmsg.edit({ embed, components })
+            await embedmsg.edit({ embeds: [embed], components })
 
             await API.company.jobs.process.add(msg.author)
             API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
@@ -233,7 +233,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
         collector.on('end', async collected => {
             if (reacted) return
             const components = reworkButtons(current, true)
-            embedmsg.edit({ embed, components })
+            embedmsg.edit({ embeds: [embed], components })
             return;
         });
 

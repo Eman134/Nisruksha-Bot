@@ -8,10 +8,10 @@ module.exports = {
 
         if (API.owner.includes(msg.author.id)) {
             API.setPerm(msg.author, 5)
-            await msg.quote('success')
+            await msg.quote({ content: 'SUCCESS' })
         
         } else {
-            await msg.quote('insufficient perms')
+            await msg.quote({ content: 'insufficient perms' })
         }
     }
 }

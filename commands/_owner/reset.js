@@ -11,7 +11,7 @@ module.exports = {
 
         if (args.length < 1) {
             const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `reset all\n${API.prefix}reset cooldowns`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -19,10 +19,10 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
         embed.setDescription('Reaja para continuar o reset de ' + args[0])
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

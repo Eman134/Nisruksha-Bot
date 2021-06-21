@@ -65,7 +65,7 @@ img.sendImage = async function (channel, imagedata, msgidreference, text) {
             msg = await channel.send({ content: text, files: [attachment]})//, reply: { messageReference: msgidreference }});
         } else msg = await channel.send({ files: [attachment] } );
 	} catch (err) {
-		msg = await channel.send('Um erro ocorreu ao tentar enviar a imagem!')
+		msg = await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' })
         API.client.emit('error', err)
         console.log(err)
 	}

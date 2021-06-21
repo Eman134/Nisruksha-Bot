@@ -12,7 +12,7 @@ module.exports = {
 
         if (!(await API.company.check.hasCompany(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você não possui uma empresa aberta para fecha-la!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -24,13 +24,13 @@ module.exports = {
         
         if (locname != townname) {
             const embedtemp = await API.sendError(msg, `Você precisa estar na mesma vila da empresa para fechar a empresa!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover\``, `mover ${locname}`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (company.workers != null && company.workers.length > 0) {
             const embedtemp = await API.sendError(msg, `Você não pode fechar uma empresa antes de demitir os funcionários!\nUtilize \`${API.prefix}demitir\` para demitir seus funcionários`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -57,10 +57,10 @@ module.exports = {
         .addField(`📑 Requisitos de fechamento`, `Valor final: **${API.format(total)} ${API.money} ${API.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}`)
         .setColor('#00e061')
 		
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -127,7 +127,7 @@ module.exports = {
             embed2.setTitle(`Empresa fechada!`) 
             .addField(`Informações da Empresa`, `Fundador: ${msg.author}\nNome: **${name}**\nSetor: **${icon} ${API.company.types[company.type].charAt(0).toUpperCase() + API.company.types[company.type].slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
             embed2.setColor('#a60000')
-            API.client.guilds.cache.get('693150851396796446').channels.cache.get('747490313765126336').send(embed2);
+            API.client.guilds.cache.get('693150851396796446').channels.cache.get('747490313765126336').send({ embeds: [embed2] });
 
         });
         

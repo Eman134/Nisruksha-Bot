@@ -62,7 +62,7 @@ module.exports = {
         .addField(`📤 Saques`, code('autohotkey', obj.saq), true)
         .addField(`📥 Depósitos`, code('autohotkey', obj.dep), true)
         .addField(`📭 Transferências`, code('autohotkey', obj.tran), true)
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
 
     },
 };

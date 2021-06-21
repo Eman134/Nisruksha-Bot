@@ -87,10 +87,10 @@ module.exports = {
 
             components = []
 
-            butnList.push(API.createButton('change', (type == 0 ? 'green' : 'blurple'), (type == 0 ? 'Global' : 'Local'), '🔁'))
+            butnList.push(API.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
             for (i = 0; i < Object.keys(vare).length; i++) {
-                butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'green': 'grey'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
+                butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
@@ -109,7 +109,7 @@ module.exports = {
 
         }
 
-        let embedmsg = await msg.quote({ embed, components });
+        let embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

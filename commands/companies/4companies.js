@@ -70,7 +70,7 @@ module.exports = {
             await formatList(API, embed, 1);
         }
         
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
         
 	}
 };

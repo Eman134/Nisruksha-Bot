@@ -15,7 +15,7 @@ module.exports.votos = async (msg) => {
                     .setDescription(`\`${user.tag}\` votou na **Best** e ganhou ${size}x 📦 Caixa Comum como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://www.bestlist.online/bots/763815343507505183)`)
                     .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://www.bestlist.online/bots/763815343507505183')
 
-                API.client.channels.cache.get('777972678069714956').send(embed)
+                API.client.channels.cache.get('777972678069714956').send({ embeds: [embed]});
                 API.crateExtension.give(user, 1, 1)
             }
 

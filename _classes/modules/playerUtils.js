@@ -58,7 +58,7 @@ Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 
   
       API.crateExtension.give(msg.author, 2, 3)
   
-      await msg.quote({content: msg.author, embed, mention: true});
+      await msg.quote({ embeds: [embed], mention: true});
   
     } else API.setInfo(msg.author, "machines", "xp", obj.xp+xp);
   
@@ -105,7 +105,7 @@ playerUtils.cooldown.message = async function(msg, vare, text) {
   .setColor('#b8312c')
   .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para ' + text + '.')
   .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-  const embedmsg = await msg.quote(embed);
+  const embedmsg = await msg.quote({ embeds: [embed] });
   return embedmsg;
 }
 

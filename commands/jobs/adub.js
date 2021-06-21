@@ -38,13 +38,13 @@ module.exports = {
         
         if (!contains) {
             const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}terrenoatual\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (!plot.adubacao || plot.adubacao >= 100) {
             const embedtemp = await API.sendError(msg, `Este terreno já está com a adubação em seu ápice!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -57,10 +57,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja adubar ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${API.format(total)} ${API.money}\` ${API.moneyemoji}?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        const embedmsg = await msg.quote({ embed, component: API.rowButton([btn0, btn1]) } )
+        const embedmsg = await msg.quote({ embeds: [embed], component: API.rowButton([btn0, btn1]) } )
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

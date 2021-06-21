@@ -17,13 +17,13 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de caixa para visualizar as recompensas!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
 
@@ -32,7 +32,7 @@ module.exports = {
 
         if (obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
 
@@ -51,7 +51,7 @@ module.exports = {
 	    .setColor('#606060')
         .setDescription(`🏅 Recompensas disponíveis\n \n${rewardsmap}`)
         .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-     await msg.quote(embed);
+     await msg.quote({ embeds: [embed] });
 
 	}
 };

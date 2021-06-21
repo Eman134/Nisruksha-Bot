@@ -16,7 +16,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed().setColor(`#b8312c`)
         if (!pobj.plots || Object.keys(pobj.plots).length == 0) {
             embed.addField(`❌ Não possui terrenos`, `Utilize \`${API.prefix}terrenoatual\` para adquirir um terreno`)
-         await msg.quote(embed);
+         await msg.quote({ embeds: [embed] });
             return;
         }
 
@@ -37,7 +37,7 @@ module.exports = {
             embed.addField(`${townnum == r.loc ? '<:arrow:737370913204600853> ':''}<:terreno:765944910179336202> Terreno ${x}`, `Área máxima em m²: \`${r.area}m²\`\nLotes de plantação: \`${r.plants ? r.plants.length : 0}/5\`\nÁrea com plantação: \`${areaplant}m²\`\nLocalização: \`${API.townExtension.getTownNameByNum(r.loc)}\``)
             x++
         }
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
 
 	}
 };

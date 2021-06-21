@@ -31,7 +31,7 @@ module.exports = {
             }
             if (footer != "") embed.setFooter(footer)
 
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
 
         }
 
@@ -40,7 +40,7 @@ module.exports = {
 
             if (!API.maqExtension.ores.checkExists(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`${API.prefix}cotação\``)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -81,7 +81,7 @@ module.exports = {
             .setTitle('📈 Cotação recente de ' + minerio.icon + ' ' + minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1))
             .attachFiles([attachment])
             .setImage('attachment://cot.png')
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
 
         }
 

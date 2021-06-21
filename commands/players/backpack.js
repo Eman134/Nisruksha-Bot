@@ -93,8 +93,8 @@ module.exports = {
             const butnList = []
             const components = []
       
-            butnList.push(API.createButton('backward', 'blurple', '', '852241487064596540', (currentpage == 1 ? true : false)))
-            butnList.push(API.createButton('forward', 'blurple', '', '737370913204600853', (currentpage == totalpages ? true : false)))
+            butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
+            butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
             components.push(API.rowButton(butnList))
       
@@ -110,7 +110,7 @@ module.exports = {
 
         if (currentpage == totalpages || totalpages == 0) components = []
         
-        const embedmsg = await msg.quote({ embed, components });
+        const embedmsg = await msg.quote({ embeds: [embed], components });
         
         if (currentpage == totalpages || totalpages == 0) return
 
@@ -134,7 +134,7 @@ module.exports = {
             
             await setInfosEmbed(embed, member)
            
-            embedmsg.edit({ embed, components });
+            embedmsg.edit({ embeds: [embed], components });
             collector.resetTimer();
         });
         

@@ -12,7 +12,7 @@ module.exports = {
 
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -37,7 +37,7 @@ module.exports = {
             .setFooter(("Para demitir um funcionário utilize " + API.prefix + "demitir <id>"), company.logo)
             embed.addField('📌 `' + msg.author.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + msg.author.id + '\nNível: **' + ownerobj2.level + '**\nÚltima atividade: **' + (ownerobj.companyact == null ? 'Não houve' : API.ms2(Date.now() - ownerobj.companyact.last)) + '**\n**Fundador**', false)
 
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
             return;
         }
 
@@ -51,7 +51,7 @@ module.exports = {
                 usrlist.splice(i, 1)
                 API.setCompanieInfo(owner, company.company_id, 'workers', usrlist)
                 const embedtemp = await API.sendError(msg, 'Houve um erro ao carregar a lista de funcionários! Tente novamente.')
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return
             }
 
@@ -90,7 +90,7 @@ module.exports = {
             embed.addField( (func.user.id == msg.author.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : API.ms2(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? API.format(0) : API.format(func.companyact.rend))  + ' ' + API.money + ' ' + API.moneyemoji + '**', false)
         }
 
-        const embedmsg = await msg.quote(embed);
+        const embedmsg = await msg.quote({ embeds: [embed] });
 
         
         if (!(await API.company.check.hasCompany(msg.author))) return

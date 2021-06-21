@@ -14,13 +14,13 @@ module.exports = {
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para pegar uma vara de pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
             const embedtemp = await API.sendError(msg, `Você não pode comprar/trocar uma vara enquanto estiver pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -37,8 +37,8 @@ module.exports = {
 
         function reworkBtns(hasrod) {
 
-            const btn0 = API.createButton(hasrod ? 'troca' : 'compra', 'grey', hasrod ? 'Trocar vara' : 'Comprar vara', hasrod ? '🔁' : '✅')
-            const btn1 = API.createButton('cancel', 'grey', 'Cancelar', '❌')
+            const btn0 = API.createButton(hasrod ? 'troca' : 'compra', 'SECONDARY', hasrod ? 'Trocar vara' : 'Comprar vara', hasrod ? '🔁' : '✅')
+            const btn1 = API.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
             return [API.rowButton([btn0, btn1])]
         }
@@ -47,7 +47,7 @@ module.exports = {
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
 
-        let embedmsg = await msg.quote({ embed, components: reworkBtns(pobjcheck.rod) });
+        let embedmsg = await msg.quote({ embeds: [embed], components: reworkBtns(pobjcheck.rod) });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -96,7 +96,7 @@ module.exports = {
             embed
             .addField(`✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`${API.prefix}pescar\`!`)
             .setColor('#5bff45')
-            embedmsg.edit({ embed, components: reworkBtns(true) });
+            embedmsg.edit({ embeds: [embed], components: reworkBtns(true) });
             API.setInfo(msg.author, 'players', 'rod', vara)
 
             collector.resetTimer();

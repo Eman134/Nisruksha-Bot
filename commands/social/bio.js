@@ -17,12 +17,12 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você não definiu um texto sobre você', 'sobremim <texto>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (API.getMultipleArgs(msg, 1).length > 50) {
             const embedtemp = await API.sendError(msg, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50', 'sobremim <texto>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         API.setInfo(msg.member, "players", "bio", API.getMultipleArgs(msg, 1))
@@ -31,7 +31,7 @@ module.exports = {
         .setDescription(`Sua biografia foi definida para:
         \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
         .setFooter('Quantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50')
-     await msg.quote(embed);
+     await msg.quote({ embeds: [embed] });
 
 	}
 };

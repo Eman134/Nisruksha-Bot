@@ -95,19 +95,19 @@ module.exports = {
 
             const components = []
 
-            const btn0 = API.createButton('processos', (current == 'processos' ? 'green': 'grey'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            const btn1 = API.createButton('inv', (current == 'inv' ? 'green': 'grey'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'green': 'grey'), 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
-            const btn3 = API.createButton('lqd', (current == 'lqd' ? 'green': 'grey'), 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
+            const btn0 = API.createButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
+            const btn1 = API.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
+            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
+            const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
             
             components.push(API.rowButton([btn0, btn1, btn2, btn3]))
 
             if (current == 'ferr' || current == 'lqd') {
-                const btn4 = API.createButton('pot1', 'blurple', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
-                const btn5 = API.createButton('pot2', 'blurple', '-1 Potência', '', ((tool.potency.current-1 < tool.potency.rangemin) || allDisabled ? true : false))
-                const btnreset = API.createButton('potreset', 'blurple', '', '🔁', (allDisabled ? true : false))
-                const btn6 = API.createButton('pot3', 'blurple', '+1 Potência', '', ((tool.potency.current+1 > tool.potency.rangemax) || allDisabled ? true : false))
-                const btn7 = API.createButton('pot4', 'blurple', '+5 Potência', '', ((tool.potency.current+5 > tool.potency.rangemax) || allDisabled ? true : false))
+                const btn4 = API.createButton('pot1', 'PRIMARY', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
+                const btn5 = API.createButton('pot2', 'PRIMARY', '-1 Potência', '', ((tool.potency.current-1 < tool.potency.rangemin) || allDisabled ? true : false))
+                const btnreset = API.createButton('potreset', 'PRIMARY', '', '🔁', (allDisabled ? true : false))
+                const btn6 = API.createButton('pot3', 'PRIMARY', '+1 Potência', '', ((tool.potency.current+1 > tool.potency.rangemax) || allDisabled ? true : false))
+                const btn7 = API.createButton('pot4', 'PRIMARY', '+5 Potência', '', ((tool.potency.current+5 > tool.potency.rangemax) || allDisabled ? true : false))
                 components.push(API.rowButton([btn4, btn5, btnreset, btn6, btn7]))
             }
 
@@ -120,7 +120,7 @@ module.exports = {
                 let butnList = []
 
                 for (i = 0; i < endprocs.length; i++) {1
-                    butnList.push(API.createButton('proc:' + endprocs[i].id, 'grey', 'Processo: ' + endprocs[i].id, '', (allDisabled ? true : false)))
+                    butnList.push(API.createButton('proc:' + endprocs[i].id, 'SECONDARY', 'Processo: ' + endprocs[i].id, '', (allDisabled ? true : false)))
                 }
 
                 let totalcomponents = butnList.length % 5;
@@ -144,7 +144,7 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embed, components });
+        let embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -276,13 +276,13 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             const components = reworkButtons(current)
 
-            await embedmsg.edit({ embed, components })
+            await embedmsg.edit({ embeds: [embed], components })
 
         });
         
         collector.on('end', async collected => {
             const components = reworkButtons(current, true)
-            embedmsg.edit({ embed, components })
+            embedmsg.edit({ embeds: [embed], components })
             API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 0);
             return;
         });

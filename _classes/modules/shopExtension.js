@@ -143,13 +143,13 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       const butnList = []
       const components = []
 
-      butnList.push(API.createButton('backward', 'blurple', '', '852241487064596540', (currentpage == 1 ? true : false)))
-      butnList.push(API.createButton('stop', 'grey', '', '🔴'))
-      butnList.push(API.createButton('forward', 'blurple', '', '737370913204600853', (currentpage == totalpages ? true : false)))
+      butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
+      butnList.push(API.createButton('stop', 'SECONDARY', '', '🔴'))
+      butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
       for (i = 0; i < productscurrentpage.length; i++) {
          if (!productscurrentpage[i]) break
-         butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'grey', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2] ? productscurrentpage[i].icon.split(':')[2].replace('>', '') : productscurrentpage[i].icon, !productscurrentpage[i].buyable ? true : false))
+         butnList.push(API.createButton(productscurrentpage[i].id.toString(), 'SECONDARY', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2] ? productscurrentpage[i].icon.split(':')[2].replace('>', '') : productscurrentpage[i].icon, !productscurrentpage[i].buyable ? true : false))
       }
 
       let totalcomponents = butnList.length % perRow;
@@ -242,7 +242,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
       components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, msg.author, stopComponents);
 
-      await embedmsg.edit({ embed, components });
+      await embedmsg.edit({ embeds: [embed], components });
       collector.resetTimer();
 
       b.defer()
@@ -308,7 +308,7 @@ shopExtension.execute = async function(msg, p) {
     let obj = API.shopExtension.getShopObj();
     let array = Object.keys(obj);
     const embedtemp = await API.sendError(msg, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-    await msg.quote(embedtemp)
+    await msg.quote({ embeds: [embedtemp]})
     return;
   }
 
@@ -327,10 +327,10 @@ shopExtension.execute = async function(msg, p) {
   embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
   Você deseja comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**?`)
 
-  const btn0 = API.createButton('confirm', 'grey', '', '✅')
-  const btn1 = API.createButton('cancel', 'grey', '', '❌')
+  const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+  const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-  let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+  let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
   const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
 
@@ -500,7 +500,7 @@ shopExtension.execute = async function(msg, p) {
           .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
           .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
           .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-          API.client.channels.cache.get('826177953796587530').send(embedcmd);
+          API.client.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
     } if (b.id == 'cancel'){

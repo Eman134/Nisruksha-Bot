@@ -18,13 +18,13 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item para uso!`, `usaritem <nome do item>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length >= 1 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -34,14 +34,14 @@ module.exports = {
         
         if (!drop.usavel) {
             const embedtemp = await API.sendError(msg, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
         const obj2 = await API.getInfo(msg.author, 'storage')
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
             const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -64,10 +64,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\``)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -120,7 +120,7 @@ module.exports = {
 
                     const embed2 = new Discord.MessageEmbed();
                     embed2.setTitle(`${drop.icon} ${drop.displayname}`).setColor("#2ed1ce")
-                    const embedmsg2 = await msg.quote(embed2)
+                    const embedmsg2 = await msg.quote({ embeds: [embed2]});
 
                     
                     let totalcoletado = 0;
@@ -184,7 +184,7 @@ module.exports = {
                                 embed2.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                             }
                             try{
-                                await embedmsg2.edit({ embed: embed2, allowedMentions: {"replied_user": false}}).catch()
+                                await embedmsg2.edit({ embeds: [embed2]}).catch()
                             }catch{
                                 return
                             }
@@ -210,7 +210,7 @@ module.exports = {
 
                 default:
                     embedmsg.delete()
-                    msg.quote('Ocorreu um erro ao utilizar o item, contate algum moderador do bot.')
+                    msg.quote({ content: 'Ocorreu um erro ao utilizar o item, contate algum moderador do bot.'})
 
             }
 

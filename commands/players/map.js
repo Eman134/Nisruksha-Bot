@@ -26,7 +26,7 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "map", 60);
 
-        let todel = await msg.quote(`<a:loading:736625632808796250> Carregando mapa`)
+        let todel = await msg.quote({ content: `<a:loading:736625632808796250> Carregando mapa` })
 
         let background = bg
 

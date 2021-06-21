@@ -24,7 +24,7 @@ module.exports = {
         
         if (args.length < 2) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar um nome e setor para a sua empresa!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -33,25 +33,25 @@ module.exports = {
         
         if (!(Object.keys(e).includes(tipo))) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar um setor de empresa existente!\nUtilize \`${API.prefix}setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
         if (API.getMultipleArgs(msg, 2).length > 30) {
             const embedtemp = await API.sendError(msg, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
         if (await API.company.check.hasCompany(msg.author)) {
             const embedtemp = await API.sendError(msg, `Você não pode abrir mais de uma empresa!`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (await API.company.check.isWorker(msg.author)) {
             const embedtemp = await API.sendError(msg, `Você precisa sair da sua empresa atual para abrir outra!`)
-           	await msg.quote(embedtemp)
+           	await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -81,10 +81,10 @@ module.exports = {
         .setColor('#00e061')
         .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
 		
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

@@ -25,7 +25,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -33,7 +33,7 @@ module.exports = {
 
         if (armsize <= 0) {
             const embedtemp = await API.sendError(msg, `Você não possui recursos no seu armazém para vender!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -41,19 +41,19 @@ module.exports = {
 
         if (args.length >= 2 && (!API.maqExtension.ores.checkExists(args[1]))) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
             const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.isInt(arg0) && args.length == 1) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -72,7 +72,7 @@ module.exports = {
 
             if (obj2[id] <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -83,18 +83,18 @@ module.exports = {
             type = 2;
             if (parseInt(arg0) <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             if (obj2[id] <= 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (parseInt(arg0) > obj2[id]) {
                 const embedtemp = await API.sendError(msg, `Você não possui **${arg0}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
         }
@@ -151,10 +151,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

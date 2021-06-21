@@ -16,7 +16,7 @@ module.exports = {
 
         if (!(await API.company.check.hasCompany(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -24,13 +24,13 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length == 1) {
             const embedtemp = await API.sendError(msg, `Você deve especificar um motivo para a demissão`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -40,7 +40,7 @@ module.exports = {
                 member = await API.client.users.fetch(`${args[0]}`)
             }catch{
                 const embedtemp = await API.sendError(msg, `Este funcionário não foi encontrado!\nVocê deve digitar o **ID** ou **MENCIONAR** o funcionário que deseja demitir`, `demitir @membro <motivo>\n${API.prefix}demitir 422002630106152970 <motivo>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
         } else {
@@ -51,7 +51,7 @@ module.exports = {
 
         if (pobj2.workers == null || !(pobj2.workers.includes(member.id))) {
             const embedtemp = await API.sendError(msg, `Este funcionário não trabalha em sua empresa!\nVeja seus funcionários usando \`${API.prefix}func\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -60,10 +60,10 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
 Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**?`)
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -94,7 +94,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
 
             if (API.cacheLists.waiting.includes(member, 'working')) {
                 const embedtemp = await API.sendError(msg, `Você não pode demitir um funcionário enquanto o mesmo está trabalhando na mesma!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -112,7 +112,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 embed.setColor("#a60000")
                 .setDescription(`Você foi demitido da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**\nMotivo: ${API.getMultipleArgs(msg, 2)}`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações da empresa onde trabalha!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                await member.send(embed).catch()
+                await member.send({ embeds: [embed]}).catch()
             }catch{}
 
             

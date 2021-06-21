@@ -7,7 +7,7 @@ module.exports = {
 	async execute(API, msg) {
         
 		const embed = await API.getBotInfoProperties()
-		msg.quote(embed);
+		await msg.quote({ embeds: [embed]});
 
 	}
 };

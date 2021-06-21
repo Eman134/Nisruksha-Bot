@@ -55,12 +55,12 @@ module.exports = {
         if (member == msg.author)embed.addField('<:waiting:739967127502454916> Aguardando resposta'
         , 'Aprimorar o armazém [<:upgrade:738434840457642054>]\nVisualizar recursos da sua máquina [<:recursos:738429524416528554>]')
 
-        if (member != msg.author) return await msg.quote(embed)
+        if (member != msg.author) return await msg.quote({ embeds: [embed] })
 
-        const btn0 = API.createButton('upgrade', 'grey', 'Upgrade', '738434840457642054')
-        const btn1 = API.createButton('recursos', 'grey', 'Recursos', '738429524416528554')
+        const btn0 = API.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
+        const btn1 = API.createButton('recursos', 'SECONDARY', 'Recursos', '738429524416528554')
 
-        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

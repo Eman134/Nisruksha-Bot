@@ -39,7 +39,7 @@ module.exports = {
 
             if (msg.mentions.users.size < 1) {
                 const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `girar @membro <quantia | tudo>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             
@@ -47,7 +47,7 @@ module.exports = {
         
         if (member.id == msg.author.id) {
             const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -56,12 +56,12 @@ module.exports = {
 
         if (!(API.townExtension.games[townauthor].includes('flip'))) {
             const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${API.townExtension.games[townauthor].join(', ')}.**`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (!(API.townExtension.games[townmember].includes('flip'))) {
             const embedtemp = await API.sendError(msg, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${API.townExtension.games[townmember].join(', ')}.**`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -71,13 +71,13 @@ module.exports = {
 
             if (args.length < 2) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar o membro e a quantia da aposta!`, `girar @membro <aposta>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (!API.isInt(args[1])) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `girar @membro <aposta>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -86,12 +86,12 @@ module.exports = {
 
         if (aposta < 1) {
             const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (aposta > 5000) {
             const embedtemp = await API.sendError(msg, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -99,14 +99,14 @@ module.exports = {
 
         if (token < aposta) {
             const embedtemp = await API.sendError(msg, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         const tokenmember = await API.eco.token.get(member)
 
         if (tokenmember < aposta) {
             const embedtemp = await API.sendError(msg, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -124,10 +124,10 @@ module.exports = {
 		.setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
         .addField('<a:loading:736625632808796250> Aguardando confirmações', `${msg.author} ${confirm[msg.author.id]}\n${member} ${confirm[member.id]}`)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && (button.clicker.user.id == msg.author.id || button.clicker.user.id == member.id)
 
@@ -155,7 +155,7 @@ module.exports = {
             .setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             if (confirm[msg.author.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
                 embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${msg.author} ${confirm[msg.author.id]}\n${member} ${confirm[member.id]}`)
-                return embedmsg.edit({ embed, components: [API.rowButton([btn0, btn1])] })
+                return embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn0, btn1])] })
             }
 
             collector.stop()

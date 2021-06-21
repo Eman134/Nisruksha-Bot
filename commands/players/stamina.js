@@ -17,7 +17,7 @@ module.exports = {
 	    .setColor('#e06f0b')
         if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)
         else embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!`)
-        const embedmsg = await msg.quote(embed);
+        const embedmsg = await msg.quote({ embeds: [embed] });
         if (stamina == staminamax) return;
         embedmsg.react('⏰')
 

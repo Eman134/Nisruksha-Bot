@@ -19,7 +19,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas para troca!`, `trocarfichas <quantia | tudo>`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
         const token = await API.eco.token.get(msg.author)
@@ -28,26 +28,26 @@ module.exports = {
 
             if (!API.isInt(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para troca!`, `trocarfichas <quantia | tudo>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (token < parseInt(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você não possui essa quantia de fichas para trocar!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (parseInt(args[0]) < 1) {
                 const embedtemp = await API.sendError(msg, `Você não pode trocar essa quantia de fichas!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             fichas = parseInt(args[0]);
         } else {
             if (token < 1) {
                 const embedtemp = await API.sendError(msg, `Você não possui fichas para trocar!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             fichas = token;
@@ -55,7 +55,7 @@ module.exports = {
 
         if (fichas < 20) {
             const embedtemp = await API.sendError(msg, `A quantia mínima de fichas para troca é 20 fichas!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -65,10 +65,10 @@ module.exports = {
 	    .setColor('#32a893')
         .addField('<a:loading:736625632808796250> Aguardando confirmação', `Você deseja trocar ${API.format(fichas)} ${API.money3} ${API.money3emoji} pelo valor de ${API.format(total)} ${API.money} ${API.moneyemoji}?`)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

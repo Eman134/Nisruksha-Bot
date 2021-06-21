@@ -16,13 +16,13 @@ module.exports = {
 
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
             const embedtemp = await API.sendError(msg, `Você não pode upar uma vara enquanto estiver pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (!pobj.rod) {
             const embedtemp = await API.sendError(msg, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -33,7 +33,7 @@ module.exports = {
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
         .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
         let embedmsg
-        await msg.quote(embed).then((emsg) => {
+        await msg.quote({ embeds: [embed] }).then((emsg) => {
             embedmsg = emsg
             emsg.react('🔼')
         })

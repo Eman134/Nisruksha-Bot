@@ -12,13 +12,13 @@ module.exports = {
 
         if (!(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você não trabalha em nenhuma empresa para se demitir${ await API.company.check.hasCompany(msg.author) ?`\nCaso deseja fechar sua empresa utilize \`${API.prefix}fecharempresa\``:''}`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'working')) {
             const embedtemp = await API.sendError(msg, `Você não pode sair de uma empresa enquanto está trabalhando na mesma!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -30,10 +30,10 @@ module.exports = {
 		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
 Você deseja se demitir da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -76,7 +76,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${msg.author.tag} (${msg.author.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                owner.send(embed).catch()
+                owner.send({ embeds: [embed]}).catch()
             }catch{
             }
 

@@ -11,7 +11,7 @@ module.exports = {
 
         if (args.length < 2) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela>");
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -28,7 +28,7 @@ module.exports = {
         }
 
         if (!v)  {
-            return msg.quote('id undefined')
+            return msg.quote({ content: 'id undefined' })
         }
 
 		const embed = new Discord.MessageEmbed()
@@ -63,7 +63,7 @@ module.exports = {
             .addField('Erro:', `\`\`\`js\n${e.stack}\`\`\``)
             .setColor('#eb4034')
         } finally {
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
         }
 
 	}

@@ -42,10 +42,10 @@ ${API.helpExtension.getCategoryList()}`)
 
             components = []
 
-            butnList.push(API.createButton('home', 'blurple', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
+            butnList.push(API.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
             for (i = 0; i < categorylist.length; i++) {
-                butnList.push(API.createButton(categorylist[i], (current == categorylist[i] ? 'green': 'grey'), categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
+                butnList.push(API.createButton(categorylist[i], (current == categorylist[i] ? 'SUCCESS': 'SECONDARY'), categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
@@ -64,7 +64,7 @@ ${API.helpExtension.getCategoryList()}`)
 
         }
 
-		let embedmsg = await msg.quote({ embed, components });
+		let embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -87,7 +87,7 @@ ${API.helpExtension.getCategoryList()}`)
         
             reworkButtons(current)
 
-            await embedmsg.edit({embed, components})
+            await embedmsg.edit({ embeds: [embed], components})
 
             collector.resetTimer()
             b.defer()
@@ -96,7 +96,7 @@ ${API.helpExtension.getCategoryList()}`)
         
         collector.on('end', collected => {
 			reworkButtons(current, true)
-            embedmsg.edit({ embed, components })
+            embedmsg.edit({ embeds: [embed], components })
         });
 		
 	}

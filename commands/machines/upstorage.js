@@ -18,18 +18,18 @@ module.exports = {
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de níveis (NÚMERO) para upar!`, `uparm <níveis>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (parseInt(args[0]) < 1) {
             const embedtemp = await API.sendError(msg, `Você não pode upar essa quantia de níveis!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (parseInt(args[0]) > 25) {
             const embedtemp = await API.sendError(msg, `Você só pode upar até 25 níveis de armazém por vez!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -47,7 +47,7 @@ module.exports = {
         .addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${API.money}\` ${API.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`${API.prefix}armazém\``)
         embed.addField('<:waiting:739967127502454916> Aguardando resposta'
         , 'Aprimorar o armazém [<:upgrade:738434840457642054>]')
-        let msgembed = await msg.quote(embed);
+        let msgembed = await msg.quote({ embeds: [embed] });
         if (msg.author != msg.author)return;
         let money = await API.eco.money.get(msg.author);
         try {

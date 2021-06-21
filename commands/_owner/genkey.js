@@ -13,7 +13,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar um tipo de chave e sua duração', `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -51,18 +51,18 @@ module.exports = {
         let choose = args[0].toUpperCase();
         if (Object.keys(types).includes(choose) == false) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (types[choose].requiret == true && args.length < 2) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar um tempo de duração para a o produto', `gerarchave ${types[choose].name} 1mo 30d 10h 30m 30s`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (types[choose].requiresize == true && args.length < 2) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         let time = 0;
@@ -94,7 +94,7 @@ module.exports = {
         let size = 0;
         if (types[choose].requiresize == true && !API.isInt(args[1])) {
             const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (types[choose].requiresize == true){
@@ -104,10 +104,10 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -168,7 +168,7 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
 \`\`\``)
             .setColor(`#fc8c03`)
             let ch = await API.client.channels.cache.get('758711135284232263')
-            let createdmsg = await ch.send(embed2);
+            let createdmsg = await ch.send({ embeds: [embed2] });
 
             embed.setColor('#5bff45');
             embed.addField('✅ Chave criada com sucesso', `

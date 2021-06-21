@@ -11,7 +11,7 @@ module.exports = {
 
         if (args.length < 1) {
             const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `query <m parameters>\n${API.prefix}query DELETE FROM players WHERE user_id=422002630106152970`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -32,7 +32,7 @@ module.exports = {
             embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
             embed.setColor('#eb4034')
         } finally {
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
         }
 
 	}

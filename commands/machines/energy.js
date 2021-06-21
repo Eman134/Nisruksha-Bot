@@ -19,7 +19,7 @@ module.exports = {
         
         embed.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
         
-        const embedmsg = await msg.quote(embed);
+        const embedmsg = await msg.quote({ embeds: [embed] });
         if (energia == energiamax) return;
         embedmsg.react('⏰')
 

@@ -19,13 +19,13 @@ module.exports = {
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             const embedtemp = await API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length < 1 || (!API.isInt(args[0]) && args[0] != "tudo")) {
             const embedtemp = await API.sendError(msg, `Você precisa escrever um ID de slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`, `desequipar <slot | tudo>`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -40,7 +40,7 @@ module.exports = {
 
             if (!pieces[0]) {
                 const embedtemp = await API.sendError(msg, `Você não possui chipes equipados no momento!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
@@ -55,7 +55,7 @@ module.exports = {
 
             if (!API.isInt(args[0]) || parseInt(args[0]) < 0 || !pieces[slot] || pieces[slot] == 0) {
                 const embedtemp = await API.sendError(msg, `Você não possui chipes neste slot para desequipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             } 
 
@@ -74,7 +74,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed();
         embed.setColor('#5bff45');
         embed.addField('✅ Sucesso ao desequipar', `Você desequipou **${desequipado}** da sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
         
 	}
 };

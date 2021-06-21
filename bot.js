@@ -8,7 +8,5 @@ const config = require("./_classes/config")
 
 const client = new NisrukshaClient(config)
 
-require('discord-buttons')(client)
-
 client.login()
 

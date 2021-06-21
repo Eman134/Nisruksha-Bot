@@ -18,7 +18,7 @@ module.exports = {
             let res = await API.db.pool.query(`SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = '${args[0]}');`);
 
             if (!res.rows[0].exists) {
-                return msg.quote('Essa tabela não existe! Utilize `'+API.prefix+'seetables`')
+                return msg.quote({ content: 'Essa tabela não existe! Utilize `'+API.prefix+'seetables`'})
             }
 
 

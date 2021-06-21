@@ -16,19 +16,19 @@ module.exports = {
 
         if (!pobj.rod) {
             const embedtemp = await API.sendError(msg, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -39,7 +39,7 @@ module.exports = {
         if (stamina < cost) {
             
             const embedtemp = await API.sendError(msg, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
             
         }
@@ -58,9 +58,9 @@ module.exports = {
 
             let buttons = []
 
-            let btn = API.createButton('stopBtn', 'red', 'Parar pesca')
-            let btn1 = API.createButton('downBtn', 'grey', 'Descer anzol', '⬇')
-            let btn2 = API.createButton('upBtn', 'grey', 'Subir anzol', '⬆')
+            let btn = API.createButton('stopBtn', 'DANGER', 'Parar pesca')
+            let btn1 = API.createButton('downBtn', 'SECONDARY', 'Descer anzol', '⬇')
+            let btn2 = API.createButton('upBtn', 'SECONDARY', 'Subir anzol', '⬆')
 
             buttons.push(btn)
             buttons.push(btn1)
@@ -79,7 +79,7 @@ module.exports = {
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote({ embed, components: reworkBtns() }).catch();
+        let embedmsg = await msg.quote({ embeds: [embed], components: reworkBtns() }).catch();
         
         API.cacheLists.waiting.add(msg.author, embedmsg, 'fishing');
         API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
@@ -297,7 +297,7 @@ module.exports = {
                 embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
-                    await embedmsg.edit({ embed, components: reworkBtns() })
+                    await embedmsg.edit({ embeds: [embed], components: reworkBtns() })
                 }catch{
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     API.cacheLists.waiting.remove(msg.author, 'working');
@@ -306,7 +306,7 @@ module.exports = {
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
                     const embedtemp = await API.sendError(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote({ embed: embedtemp, mention: true } )
+                    await msg.quote({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
@@ -314,7 +314,7 @@ module.exports = {
 
                 if (sta2 < pobj.rod.sta) {
                     const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote({ embed: embedtemp, mention: true } )
+                    await msg.quote({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(msg.author, 'fishing')
                     API.cacheLists.waiting.remove(msg.author, 'working');
                     return;
@@ -349,7 +349,7 @@ module.exports = {
                         await embed.addField(`➰ Coletados`, ccmap)
                         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            await embedmsg.edit({ embed, components: reworkBtns() }).catch()
+                            await embedmsg.edit({ embeds: [embed], components: reworkBtns() }).catch()
                         }catch{
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             API.cacheLists.waiting.remove(msg.author, 'working');
@@ -362,7 +362,7 @@ module.exports = {
                     if (reacted) {
                         await embedmsg.edit({ embed }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
-                        await msg.quote(embedtemp)
+                        await msg.quote({ embeds: [embedtemp]})
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                         API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {edit(msg, company);}

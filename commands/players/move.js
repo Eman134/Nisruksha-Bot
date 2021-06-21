@@ -17,39 +17,39 @@ module.exports = {
         let args = API.args(msg);
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.townExtension.getTownNumByName(args[0]) == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa digitar o nome de alguma vila EXISTENTE para se mover!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`, `mover <${Object.keys(API.townExtension.population).join(' | ')}>`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto pesca! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'hunting')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto caça! [[VER CAÇA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto coleta! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         if (API.cacheLists.waiting.includes(msg.author, 'digging')) {
             const embedtemp = await API.sendError(msg, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'digging')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -59,7 +59,7 @@ module.exports = {
 
         if (atual == prox) {
             const embedtemp = await API.sendError(msg, `Você já se encontra nesta vila!\nUtilize \`${API.prefix}mapa\` para visualizar as vilas existentes.`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -69,7 +69,7 @@ module.exports = {
         if (stamina < 150) {
             
             const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
 
         }
@@ -112,7 +112,7 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
         .setDescription(`Você usou 150 pontos de Estamina 🔸 e se moveu da vila **${API.townExtension.getTownNameByNum(atual)}** para a vila **${API.townExtension.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${API.format(total)} ${API.money} ${API.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
-     await msg.quote(`${msg.author}`, embed);
+        await msg.quote({ embeds: [embed], mention: true });
 
 	}
 };

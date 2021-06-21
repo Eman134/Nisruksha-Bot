@@ -20,7 +20,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embed = await API.sendError(msg, 'Argumento inexistente')
-            return await msg.quote(embed)
+            return await msg.quote({ embeds: [embed] })
         } else {
             try {
                 
@@ -30,7 +30,7 @@ module.exports = {
                 embed.addField('Resultado', code('js', res), false)
                 
 
-                if (!Boolean(res) || (!Boolean(evald) && evald !== 0)) embed.setColor('RED')
+                if (!Boolean(res) || (!Boolean(evald) && evald !== 0)) embed.setColor('DANGER')
                 else {
                 embed
                     .addField('Tipo', code('css', typeof evald), true)
@@ -39,12 +39,12 @@ module.exports = {
             } catch (error) {
                 embed
                 .addField('Erro', code('js', error), true)
-                .setColor('RED')
+                .setColor('DANGER')
             } finally {
 
                 const content = '**Executado em ' + (Date.now()-tempo)+" ms**"
-                const msgembed = await msg.quote({ content, embed}).catch(error => {
-                msg.quote(`Ocorreu um erro ao dar eval! ${error.message}`)
+                const msgembed = await msg.quote({ content, embeds: [embed] }).catch(error => {
+                msg.quote({ content: `Ocorreu um erro ao dar eval! ${error.message}`})
                 })
 
                 msgembed.react('🗑');

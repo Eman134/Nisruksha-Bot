@@ -11,7 +11,7 @@ module.exports = {
 
         if (args.length < 4) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "setvar <id> <tabela> <coluna> <valor>");
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -30,7 +30,7 @@ module.exports = {
         }
 
         if (!v) {
-            msg.quote(`id undefined`)
+            msg.quote({ content: `id undefined` })
             return;
         }
 
@@ -49,7 +49,7 @@ module.exports = {
             embed.addField('Erro:', `\`\`\`js\n${e}\`\`\``);
             embed.setColor('#eb4034')
         } finally {
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
         }
 
 	}

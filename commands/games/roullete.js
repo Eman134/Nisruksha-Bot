@@ -26,19 +26,19 @@ module.exports = {
 
         if (!(API.townExtension.games[await API.townExtension.getTownName(msg.author)].includes('roleta'))) {
             const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}.**`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas para aposta!`, `roleta 5`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `roleta 5`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -46,7 +46,7 @@ module.exports = {
 
         if (aposta < 5) {
             const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -54,7 +54,7 @@ module.exports = {
 
         if (token < aposta) {
             const embedtemp = await API.sendError(msg, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
@@ -72,12 +72,12 @@ module.exports = {
         .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
         .setFooter(`⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
-        const btn0 = API.createButton('🍊', 'grey', '', '🍊')
-        const btn1 = API.createButton('🍓', 'grey', '', '🍓')
-        const btn2 = API.createButton('🍐', 'grey', '', '🍐')
-        const btn3 = API.createButton('🍇', 'grey', '', '🍇')
+        const btn0 = API.createButton('🍊', 'SECONDARY', '', '🍊')
+        const btn1 = API.createButton('🍓', 'SECONDARY', '', '🍓')
+        const btn2 = API.createButton('🍐', 'SECONDARY', '', '🍐')
+        const btn3 = API.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let msgembed = await msg.quote({ embed, components: [API.rowButton([btn0, btn1, btn2, btn3])] });
+        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
             
@@ -144,7 +144,7 @@ module.exports = {
                     .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
                     
                 }
-                msgembed.edit({ embed: embed2 });
+                msgembed.edit({ embeds: [embed2] });
             }
 
             roll();

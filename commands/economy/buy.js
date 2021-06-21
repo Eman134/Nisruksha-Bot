@@ -17,13 +17,13 @@ module.exports = {
         let array = Object.keys(obj);
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (!API.isInt(args[0])) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item (número)!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -31,7 +31,7 @@ module.exports = {
 
         if (!API.shopExtension.checkIdExists(id)) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item existente para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         

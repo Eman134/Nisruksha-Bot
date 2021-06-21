@@ -20,7 +20,7 @@ module.exports = {
         
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa pedir ao seu amigo o código de convite dele!', 'usarcodigo <codigo>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -28,13 +28,13 @@ module.exports = {
 
         if (!check.exists) {
             const embedtemp = await API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
         if (check.owner == msg.author.id) {
             const embedtemp = await API.sendError(msg, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -42,7 +42,7 @@ module.exports = {
 
         if (invitejson.usedinvite) {
             const embedtemp = await API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -50,7 +50,7 @@ module.exports = {
 
         if (cmaq < 102) {
             const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
@@ -62,7 +62,7 @@ module.exports = {
         .setColor('#5bff45')
         .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + API.tp.name + ' ' + API.tp.emoji + ', enquanto seu amigo recebeu 1 ' + API.tp.name + ' ' + API.tp.emoji)
         .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize ' + API.prefix + 'convite para mais informações')
-        await msg.quote(embed)
+        await msg.quote({ embeds: [embed] })
 
         const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')
@@ -72,7 +72,7 @@ module.exports = {
           .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
           .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
           .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
-          API.client.channels.cache.get('826184097814020116').send(embedcmd);
+          API.client.channels.cache.get('826184097814020116').send({ embeds: [embedcmd]});
 
         updateInviteJson(msg.author, owner)
 

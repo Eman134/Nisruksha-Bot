@@ -24,7 +24,7 @@ async function sendCmdsExec(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`📕 Comandos executados`, `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`)
         .setTimestamp()
- await msg.quote(embed)
+ await msg.quote({ embeds: [embed] })
 
 }
 
@@ -40,7 +40,7 @@ async function sendInative(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-s.lastcmd))}\``).join('\n')}`)
         .setTimestamp()
- await msg.quote(embed)
+ await msg.quote({ embeds: [embed] })
 
 }
 
@@ -131,7 +131,7 @@ async function send(API, msg) {
 📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
 💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-array2[0].lastcmd))}\``)
         .setTimestamp()
-        await msg.quote(embed)
+        await msg.quote({ embeds: [embed] })
 
         await sendCmdsExec(API, msg, array1)
         await sendInative(API, msg, array2)

@@ -963,7 +963,7 @@ company.create = async function(member, ob) {
                     embed.setTitle(`Nova empresa!`) 
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.tipo.charAt(0).toUpperCase() + ob.tipo.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
-                    API.client.channels.cache.get('747490313765126336').send(embed);
+                    API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                     await API.db.pool.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
                     await API.setCompanieInfo(member, code, 'company_id', code)
                     await API.setCompanieInfo(member, code, 'type', ob.type)
@@ -979,7 +979,7 @@ company.create = async function(member, ob) {
                 try{
                     embed.setDescription(`Failed on generating company ${ob.type}:${ob.name} with code ${code}; Try by ${member}`)
                     embed.setColor('#eb4828')
-                    API.client.channels.cache.get('747490313765126336').send(embed);
+                    API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                 }catch (err){
                     client.emit('error', err)
                     console.log(err)

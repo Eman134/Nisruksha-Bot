@@ -62,7 +62,7 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "maq", 10);
 
-        let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações da máquina`)
+        let todel = await msg.quote({ content: `<a:loading:736625632808796250> Carregando informações da máquina` })
 
         let background = bg
 
@@ -180,7 +180,7 @@ module.exports = {
         embed.attachFiles([attachment])
         embed.setImage('attachment://maq.png')
 
-        await msg.channel.send(embed);
+        await msg.quote({ embeds: [embed]});
 
         try {
             await todel.delete().catch();

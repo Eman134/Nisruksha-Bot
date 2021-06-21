@@ -37,7 +37,7 @@ module.exports = {
         await reaction.users.remove(dados.d.user_id);
         if (['🐝', '🦂', '🦋', '🐞'].includes(reaction.emoji.name) == false) return;
 
-        let info = await msg.quote(`Criando nova thread...`)
+        let info = await msg.quote({ content: `Criando nova thread...` })
         setTimeout(function(){info.delete()}, 6000);
              
         let fetched = guild.channels.cache.find(r => r.name.includes(`${member.id.slice(0,4)}`));

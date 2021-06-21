@@ -20,7 +20,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você precisa digitar um código de chave para a ativação', `usarkey 000-000-000-000-N`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         let key = args[0]
@@ -39,7 +39,7 @@ module.exports = {
 
         if (!exists) {
             const embedtemp = await API.sendError(msg, 'Essa chave de ativação é inexistente!')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -59,10 +59,10 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -148,7 +148,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
 `)
             .setColor(`#5bff45`)
             let ch = await API.client.channels.cache.get('758711135284232263')
-            ch.send(embed2);
+            ch.send({ embeds: [embed2] });
 
             API.playerUtils.cooldown.set(msg.author, "usekey", 0);
 

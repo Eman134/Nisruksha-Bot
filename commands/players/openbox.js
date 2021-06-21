@@ -26,7 +26,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar um id de caixa para abrir!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -35,13 +35,13 @@ module.exports = {
         
         if (!API.isInt(args[0]) || obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
             const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-			await msg.quote(embedtemp)
+			await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
         if (args.length == 2 && API.isInt(args[1]) && obj[`crate:${id}`] < parseInt(args[1])) {
             const embedtemp = await API.sendError(msg, `Você não possui essa quantia de caixas [${obj[`crate:${id}`]}/${parseInt(args[1])}]!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -53,7 +53,7 @@ module.exports = {
         
         if (boxl > 10) {
             const embedtemp = await API.sendError(msg, `Você não pode abrir mais do que 10 caixas simultaneamente!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
@@ -62,10 +62,10 @@ module.exports = {
         .addField('<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
         .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
             
@@ -154,7 +154,7 @@ module.exports = {
                     console.log(array[5])
                     console.log(`\n${err}`)
                     client.emit('error', err)
-                    msg.quote('Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.')
+                    msg.quote({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
                 }
 
                 if (descartou && currnum >= rewards.length) {

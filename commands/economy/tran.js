@@ -22,20 +22,20 @@ module.exports = {
 
         if (msg.mentions.users.size < 1) {
             const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `transferir @membro <quantia | tudo>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         const member = msg.mentions.users.first();
         
         if (member.id == msg.author.id) {
             const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para transferir', 'transferir @membro <quantia | tudo>')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return
         }
 
         if (args.length < 2) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para transferir!`, `transferir @membro <quantia | tudo>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
         const money = await API.eco.bank.get(msg.author)
@@ -44,26 +44,26 @@ module.exports = {
 
             if (!API.isInt(API.toNumber(args[1]))) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (money < API.toNumber(args[1])) {
                 const embedtemp = await API.sendError(msg, `Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize \`${API.prefix}depositar\` para depositar dinheiro no banco`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (API.toNumber(args[1]) < 1) {
                 const embedtemp = await API.sendError(msg, `Você não pode transferir essa quantia de dinheiro!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             total = API.toNumber(args[1])
         } else {
             if (money < 1) {
                 const embedtemp = await API.sendError(msg, `Você não possui dinheiro __no banco__ para transferir!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             total = money;
@@ -89,7 +89,7 @@ module.exports = {
             .setColor('#b8312c')
             .setDescription('❌ Este membro já recebeu uma transferência nas últimas 12 horas!\nAguarde mais `' + API.ms(cooldown) + '` para fazer uma transferência para ele!')
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
             return;
         }
 
@@ -99,7 +99,7 @@ module.exports = {
         
         if (total > mat) {
             const embedtemp = await API.sendError(msg, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -112,10 +112,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja transferir o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member}?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

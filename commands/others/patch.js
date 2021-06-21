@@ -62,13 +62,13 @@ module.exports = {
 
         .setFooter(`Veja um patch específico utilizando ${API.prefix}versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
         if (!API.owner.includes(msg.author.id)) {
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
             return;
         } else {
             
             let embedmsg
-            if (!msg.slash) embedmsg = await msg.channel.send(embed);
-            else embedmsg = await msg.quote(embed)
+            if (!msg.slash) embedmsg = await msg.channel.send({ embeds: [embed]});
+            else embedmsg = await msg.quote({ embeds: [embed] })
 
             try {
 

@@ -15,7 +15,7 @@ module.exports = {
 
         if (frames == null || frames.length == 0) {
             const embedtemp = await API.sendError(msg, 'Você não possui molduras disponíveis para serem apresentadas.')
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -36,10 +36,10 @@ module.exports = {
 
         let btn1 = API.createButton('sBtn', 'gray', 'Equipar', '✅')
         let btn2 = API.createButton('nBtn', 'gray', 'Desequipar', '❌')
-        let btn3 = API.createButton('b1Btn', 'blurple', '', '⏪')
+        let btn3 = API.createButton('b1Btn', 'PRIMARY', '', '⏪')
         let btn4 = API.createButton('b0Btn', 'gray', '', '852241487064596540')
         let btn5 = API.createButton('f0Btn', 'gray', '', '737370913204600853')
-        let btn6 = API.createButton('f1Btn', 'blurple', '', '⏩')
+        let btn6 = API.createButton('f1Btn', 'PRIMARY', '', '⏩')
 
         if (total < 2) {
             btn3.setDisabled()
@@ -63,7 +63,7 @@ module.exports = {
         .setImage(API.frames.get(frames[0]).url)
         .setColor('#60ced6')
         
-        const embedmsg = await msg.quote({ embed, components: [ btnRow0, btnRow1] });
+        const embedmsg = await msg.quote({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -118,7 +118,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
                 embed.setImage(API.frames.get(frames[0]).url)
-                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
+                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
                 b.defer()
 
@@ -131,7 +131,7 @@ module.exports = {
                 embed.setColor('#5bff45');
                 embed.setDescription('✅ Moldura equipada')
                 embed.setImage(frame.url)
-                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
+                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
                 b.defer()
                 
@@ -140,7 +140,7 @@ module.exports = {
             } else {
                 
                 embed.setImage(frame.url)
-                await embedmsg.edit({ embed, components: [ btnRow0, btnRow1] });
+                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
                 b.defer()
 

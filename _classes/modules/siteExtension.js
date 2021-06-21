@@ -12,7 +12,7 @@ Usuário acionador: ${member} | ${member.tag} | ${member.id}
 Ação executada: ${action}
     `).setColor('#5d7fc7')
 
-    API.client.channels.cache.get('773223319603904522').send(embed)
+    API.client.channels.cache.get('773223319603904522').send({ embeds: [embed]});
 }
 
 

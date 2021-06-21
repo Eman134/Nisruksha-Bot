@@ -45,7 +45,7 @@ Total de doações: ${donates}
 Total arrecadado em doações: R$${totaldonates},00
 
 `).setTimestamp()
-             await msg.quote(embed);
+             await msg.quote({ embeds: [embed] });
         
         
 	}

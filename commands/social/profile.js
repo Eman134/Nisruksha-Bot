@@ -61,7 +61,7 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "profile", 10);
 
-        let todel = await msg.quote(`<a:loading:736625632808796250> Carregando informações do perfil`)
+        let todel = await msg.quote({ content: `<a:loading:736625632808796250> Carregando informações do perfil` })
 
         const playerobj = await API.getInfo(member, 'machines')
         const obj = await API.getInfo(member, "players")
@@ -93,7 +93,7 @@ module.exports = {
             }catch(err){
                 API.setInfo(member, 'players', 'bglink', null);
                 const embedtemp = await API.sendError(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)
-                await msg.quote({ embed: embedtemp, mention: true } )
+                await msg.quote({ embeds: [embedtemp], mention: true } )
             }
         }
 

@@ -7,7 +7,7 @@ module.exports = {
     perm: 5,
 	async execute(API, msg) {
 
-        await msg.quote(`Debug foi setado para ${!API.debug}`)
+        await msg.quote({ content: `Debug foi setado para ${!API.debug}` })
         
         API.debug = !API.debug
 

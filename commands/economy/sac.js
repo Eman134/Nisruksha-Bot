@@ -17,7 +17,7 @@ module.exports = {
 
         if (args.length == 0) {
             const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para saque!`, `sacar <quantia | tudo>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
         const money = await API.eco.bank.get(msg.author)
@@ -26,26 +26,26 @@ module.exports = {
 
             if (!API.isInt(API.toNumber(args[0]))) {
                 const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (money < API.toNumber(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
             if (API.toNumber(args[0]) < 1) {
                 const embedtemp = await API.sendError(msg, `Você não pode sacar essa quantia de dinheiro!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             total = API.toNumber(args[0]);
         } else {
             if (money < 1) {
                 const embedtemp = await API.sendError(msg, `Você não possui dinheiro __no banco__ para sacar!`)
-                await msg.quote(embedtemp)
+                await msg.quote({ embeds: [embedtemp]})
                 return;
             }
             total = money;
@@ -61,10 +61,10 @@ module.exports = {
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

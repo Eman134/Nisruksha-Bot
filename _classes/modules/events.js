@@ -113,7 +113,7 @@ events.alert = async function(text) {
         const channel = API.client.channels.cache.get(config.events.channel)
         await channel.bulkDelete(10).catch()
         let eventmsg 
-        await channel.send(embed).then((embedmsg) => {
+        await channel.send({ embeds: [embed]}).then((embedmsg) => {
             if (channel.type == 'news') embedmsg.crosspost()
             eventmsg = embedmsg
         })

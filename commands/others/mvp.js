@@ -39,7 +39,7 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
                 if (pobj.mvp != null) {
                     embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${API.ms2((Date.now()-pobj.mvp)*-1)}**`)
                 }
-             await msg.quote(embed);
+             await msg.quote({ embeds: [embed] });
         
         
 	}

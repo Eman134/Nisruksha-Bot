@@ -15,7 +15,7 @@ module.exports = {
                 .addField(
                     '**Mais informações**', 
                     `📨 [Entre em meu servidor](https://bit.ly/svnisru)\n🗳 [Vote para ajudar o bot](https://top.gg/bot/763815343507505183)\n📩 [Convide-me para seu servidor](http://bit.ly/invnisru)`)
-        await msg.quote(embed);
+        await msg.quote({ embeds: [embed] });
 
 	}
 };

@@ -26,13 +26,13 @@ module.exports = {
 
         if (pobj2.level < 3) {
             const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(msg.author, 'hunting')) {
             const embedtemp = await API.sendError(msg, `Você já encontra-se caçando no momento! [[VER BATALHA]](${API.cacheLists.waiting.getLink(msg.author, 'hunting')})`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -44,7 +44,7 @@ module.exports = {
         if (stamina < cost) {
             
             const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
 
         }
@@ -68,7 +68,7 @@ module.exports = {
         if (monster == undefined) {
             embed.setTitle(`Nenhum monstro por perto`)
             .setDescription(`Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`${API.prefix}estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`)
-         await msg.quote(embed);
+         await msg.quote({ embeds: [embed] });
             return;
         }
         
@@ -77,9 +77,9 @@ module.exports = {
         .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
 
-        const btn0 = API.createButton('fight', 'green', 'Lutar', '⚔')
-        const btn1 = API.createButton('run', 'red', 'Fugir', '🏃🏾‍♂️')
-        const btn2 = API.createButton('autofight', 'grey', 'Luta Automática', '🤖')
+        const btn0 = API.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
+        const btn1 = API.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
+        const btn2 = API.createButton('autofight', 'SECONDARY', 'Luta Automática', '🤖')
 
         const rb0 = [ btn0, btn1 ]
 
@@ -87,7 +87,7 @@ module.exports = {
 
         const rowButton0 = API.rowButton(rb0)
 
-        const embedmsg = await msg.quote( { embed, components: [ rowButton0 ] } );
+        const embedmsg = await msg.quote( { embeds: [embed], components: [ rowButton0 ] } );
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
         API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
 
@@ -300,7 +300,7 @@ module.exports = {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
                     if (!autohunt) {
-                        equipsBtn.push(API.createButton(id, 'grey', r.name, id))
+                        equipsBtn.push(API.createButton(id, 'SECONDARY', r.name, id))
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
@@ -455,7 +455,7 @@ module.exports = {
                 fixedembed.setTitle(`Mas que covarde!`)
                 fixedembed.setColor('#a60000');
                 fixedembed.setDescription(`❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`)
-                embedmsg.edit(fixedembed);
+                embedmsg.edit({ embeds: [fixedembed] });
                 return;
             
             }

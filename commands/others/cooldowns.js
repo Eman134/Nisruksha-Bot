@@ -76,7 +76,7 @@ module.exports = {
             embed.setDescription('Não possui nenhum cooldown ativo!')
         }
 
-        msg.quote(embed)
+        await msg.quote({ embeds: [embed]});
 
 	}
 };

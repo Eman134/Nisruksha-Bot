@@ -34,11 +34,11 @@ module.exports = {
 
             components = []
 
-            butnList.push(API.createButton('home', 'blurple', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
+            butnList.push(API.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
             for (i = 0; i < Object.keys(API.company.e).length; i++) {
                 const sector = API.company.e[Object.keys(API.company.e)[i]]
-                if (sector.description) butnList.push(API.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'green': 'grey'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
+                if (sector.description) butnList.push(API.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'SUCCESS': 'SECONDARY'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
@@ -57,7 +57,7 @@ module.exports = {
 
         }
 
-		let embedmsg = await msg.quote({ embed, components });
+		let embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -91,7 +91,7 @@ module.exports = {
         
         collector.on('end', collected => {
 			reworkButtons(current, true)
-            embedmsg.edit({ embed, components })
+            embedmsg.edit({ embeds: [embed], components })
         });
 
 	}

@@ -201,7 +201,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                             .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
                             .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
-                        API.client.channels.cache.get(options.dbl.voteLogs_channel).send(embed)
+                        API.client.channels.cache.get(options.dbl.voteLogs_channel).send({ embeds: [embed]});
                         API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
                         API.eco.points.add(user, size)
                         API.playerUtils.cooldown.set(user, "votetopgg", 43200);

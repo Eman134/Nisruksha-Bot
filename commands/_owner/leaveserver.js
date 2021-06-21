@@ -10,14 +10,14 @@ module.exports = {
         let args = API.args(msg);
 
         if (args.length == 0) {
-            await msg.quote(`${API.prefix}sairsv <id>`)
+            await msg.quote({ content: `${API.prefix}sairsv <id>` })
             return;
         }
 
-        if (API.client.guilds.cache.get(args[0]) == undefined) return await msg.quote('invalid server')
+        if (API.client.guilds.cache.get(args[0]) == undefined) return await msg.quote({ content: 'invalid server' })
 
         API.client.guilds.cache.get(args[0]).leave();
 
-        await msg.quote('success')
+        await msg.quote({ content: 'SUCCESS'})
     }
 }

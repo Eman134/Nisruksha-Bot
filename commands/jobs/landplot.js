@@ -118,13 +118,13 @@ module.exports = {
                 const growBtnList = []
 
                 if (plot.area < 100) {
-                    row0.push(API.createButton('upgrade', 'grey', 'Upgrade', '833837888634486794'))
+                    row0.push(API.createButton('upgrade', 'SECONDARY', 'Upgrade', '833837888634486794'))
                 }
                 
                 if (row0.length > 0) components.push(API.rowButton(row0))
 
                 for (i = 0; i < grow.length; i++) {
-                    growBtnList.push(API.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'green' : 'red'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
+                    growBtnList.push(API.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
                 }
 
                 let totalcomponents = growBtnList.length % 5;
@@ -159,7 +159,7 @@ module.exports = {
 
             const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
             
-            const embedmsg = await msg.quote({ embed: embedtemp, component: API.rowButton([API.createButton('confirm', 'green', 'Comprar Terreno', '765944910179336202')]) } )
+            const embedmsg = await msg.quote({ embeds: [embedtemp], component: API.rowButton([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')]) } )
 
             const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
             
@@ -235,7 +235,7 @@ module.exports = {
 
         const components = plotReturns.components
 
-        const embedmsg = await msg.quote({ embed, components });
+        const embedmsg = await msg.quote({ embeds: [embed], components });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         
@@ -262,14 +262,14 @@ module.exports = {
                 if (!(points >= priceupgrade)) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${API.format(points)}/${API.format(priceupgrade)} ${API.money2} ${API.money2emoji}**`)
-                    embedmsg.edit({ embed, components });
+                    embedmsg.edit({ embeds: [embed], components });
                     return;
                 }
 
                 if (plot.area+10 > 100) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no upgrade', `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!`)
-                    embedmsg.edit({ embed, components });
+                    embedmsg.edit({ embeds: [embed], components });
                     return;
                 }
 
@@ -291,7 +291,7 @@ module.exports = {
                 embed.addField('✅ Upgrade realizado', `
                 Você pagou \`${priceupgrade} ${API.money2}\` ${API.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
                 
-                await embedmsg.edit({ embed, components });
+                await embedmsg.edit({ embeds: [embed], components });
 
                 return
 
@@ -301,7 +301,7 @@ module.exports = {
 
                 if (selectedplant.percent < 100) {
                     embed.addField('❌ Falha na colheita', `Esta plantação ainda não está crescida!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`)
-                    await embedmsg.edit({ embed, components })
+                    await embedmsg.edit({ embeds: [embed], components })
                     return;
                 }
 
@@ -345,7 +345,7 @@ module.exports = {
                 embed.setColor('#5bff45')
                 embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
                 
-                await embedmsg.edit({ embed, components })
+                await embedmsg.edit({ embeds: [embed], components })
 
                 API.eco.addToHistory(msg.member, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
 

@@ -11,7 +11,7 @@ module.exports = {
 
         if (args.length < 4) {
             const embedtemp = await API.sendError(msg, "Você precisa preencher todos os parâmetros.", "addvar <id> <tabela> <coluna> <valor>");
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -42,7 +42,7 @@ module.exports = {
             .addField('Erro:', `\`\`\`js\n${e.stack}\`\`\``)
             .setColor('#eb4034')
         } finally {
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
         }
 
 	}

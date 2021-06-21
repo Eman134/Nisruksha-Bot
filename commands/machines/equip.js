@@ -22,13 +22,13 @@ module.exports = {
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             const embedtemp = await API.sendError(msg, `Você não pode equipar/desequipar chipes enquanto está minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length < 1) {
             const embedtemp = await API.sendError(msg, `Você precisa escrever um ID de chipe para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`, `equipar <id>`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         let contains = false;
@@ -41,7 +41,7 @@ module.exports = {
 
         if (contains == false) {
             const embedtemp = await API.sendError(msg, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
@@ -49,7 +49,7 @@ module.exports = {
 
         if (playerobj.slots != null && playerobj.slots.length >= API.maqExtension.getSlotMax(playerobj.level, mvp)) {
             const embedtemp = await API.sendError(msg, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`);
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
             return;
         }
         
@@ -57,10 +57,10 @@ module.exports = {
 		.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja equipar **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina?`)
 
-        const btn0 = API.createButton('confirm', 'grey', '', '✅')
-        const btn1 = API.createButton('cancel', 'grey', '', '❌')
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embed, components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = (button) => button.clicker != null && button.clicker.user != null && button.clicker.user.id == msg.author.id
         

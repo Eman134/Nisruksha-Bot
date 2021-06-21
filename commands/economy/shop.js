@@ -23,7 +23,7 @@ module.exports = {
             ↳ Utilize \`${API.prefix}comprar <id>\` para realizar uma compra
             `)
             .addField('<:list:736274028179750922> Categorias', API.shopExtension.getShopList())
-            await msg.quote(embed);
+            await msg.quote({ embeds: [embed] });
             return;
         }
         let categoria = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -34,7 +34,7 @@ module.exports = {
         let array = Object.keys(obj);
         if (!API.shopExtension.categoryExists(categoria)){
             const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote(embedtemp)
+            await msg.quote({ embeds: [embedtemp]})
 			return;
         }
         var product = obj[categoria];
@@ -60,7 +60,7 @@ module.exports = {
 
         const components = await API.shopExtension.formatPages(embed, { currentpage, totalpages }, product, msg.author, stopComponents);
 
-        let embedmsg = await msg.quote({ embed, components });
+        let embedmsg = await msg.quote({ embeds: [embed], components });
 
         if (stopComponents) return
 
