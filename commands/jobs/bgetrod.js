@@ -68,7 +68,7 @@ module.exports = {
             if (b.id == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField(`❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
 				collector.stop();
                 return;
             }
@@ -78,7 +78,7 @@ module.exports = {
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}`, `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${API.format(pobj2.money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
 				collector.stop();
                 return
             }
@@ -105,11 +105,11 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted) {
-                return embedmsg.edit({ embed });;
+                return embedmsg.edit({ embeds: [embed] });;
             }
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

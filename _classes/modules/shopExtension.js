@@ -355,24 +355,24 @@ shopExtension.execute = async function(msg, p) {
       if (!(money >= price)) {
         embed.setColor('#a60000');
         embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${API.format(money)}/${API.format(price)} ${API.money} ${API.moneyemoji}**`)
-        await embedmsg.edit({ embed });
+        await embedmsg.edit({ embeds: [embed] });
 			  return;
 
       }if(p.price2 > 0 && !(points >= p.price2)){
         embed.setColor('#a60000');
         embed.addField('❌ Falha na compra', `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
-        await embedmsg.edit({ embed });
+        await embedmsg.edit({ embeds: [embed] });
         return;
 
       }if(p.price3 > 0 && !(convites.points >= p.price3)){
           embed.setColor('#a60000');
           embed.addField('❌ Falha na compra', `Você não possui ${API.tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${API.tp.name} atuais: **${API.format(convites.points)}/${API.format(p.price3)} ${API.tp.name} ${API.tp.emoji}**`)
-          await embedmsg.edit({ embed });
+          await embedmsg.edit({ embeds: [embed] });
           return; 
       }if (p.level > 0 && obj2.level < p.level) {
         embed.setColor('#a60000');
         embed.addField('❌ Falha na compra', `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-        await embedmsg.edit({ embed });
+        await embedmsg.edit({ embeds: [embed] });
         return;
       }
 
@@ -384,7 +384,7 @@ shopExtension.execute = async function(msg, p) {
           if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             embed.setColor('#a60000');
             embed.addField('❌ Falha na compra', `Você não pode realizar uma compra de uma máquina enquanto estiver minerando!`)
-            await embedmsg.edit({ embed });
+            await embedmsg.edit({ embeds: [embed] });
             return;
           }
 
@@ -393,7 +393,7 @@ shopExtension.execute = async function(msg, p) {
           if (p.id > cmaq+1) {
             embed.setColor('#a60000');
             embed.addField('❌ Falha na compra', `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${API.shopExtension.getProduct(cmaq+1).name}**`)
-            await embedmsg.edit({ embed });
+            await embedmsg.edit({ embeds: [embed] });
             return;
           }
 
@@ -431,7 +431,7 @@ shopExtension.execute = async function(msg, p) {
           if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
             embed.setColor('#a60000');
             embed.addField('❌ Falha na compra', `Você não pode realizar reparos de uma máquina enquanto estiver minerando!`)
-            await embedmsg.edit({ embed });
+            await embedmsg.edit({ embeds: [embed] });
             return;
           }
 
@@ -476,7 +476,7 @@ shopExtension.execute = async function(msg, p) {
       
       if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
           
-      await embedmsg.edit({ embed });
+      await embedmsg.edit({ embeds: [embed] });
           
       await API.eco.money.remove(msg.author, price);
           
@@ -507,7 +507,7 @@ shopExtension.execute = async function(msg, p) {
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
-          await embedmsg.edit({ embed });
+          await embedmsg.edit({ embeds: [embed] });
           return;
         }
       
@@ -521,7 +521,7 @@ shopExtension.execute = async function(msg, p) {
     embed.setColor('#a60000');
     embed.addField('❌ Tempo expirado', `
     Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!`)
-    embedmsg.edit({ embed });
+    embedmsg.edit({ embeds: [embed] });
     return;
 
   });

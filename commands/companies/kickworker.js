@@ -79,7 +79,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
                 Você cancelou a demissão de ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
@@ -88,7 +88,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             if (pobj2.workers == null || !(pobj2.workers.includes(member.id))) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na demissão', `Este funcionário não trabalha em sua empresa!\nVeja seus funcionários usando \`${API.prefix}func\``)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
@@ -103,7 +103,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Demitido!', `Você demitiu ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!\nMotivo: ${API.getMultipleArgs(msg, 2)}`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
             let company2 = await API.company.get.company(msg.author);
             let botowner = await API.client.users.fetch(API.owner[0])
@@ -133,7 +133,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             embed.fields = []
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

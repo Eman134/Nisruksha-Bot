@@ -28,14 +28,14 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `
                 Você cancelou o envio de currículo para a empresa **${company.name}**.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
             embed.setColor('#5bff45');
             embed.addField('✅ Currículo enviado', `
             Você enviou o currículo para a empresa **${company.name}**!\nAguarde uma resposta da empresa.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
         });
         
@@ -44,7 +44,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria enviar o currículo para a empresa **${API.company.e[API.company.types[1]].icon}**, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

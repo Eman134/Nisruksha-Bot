@@ -196,7 +196,7 @@ module.exports = {
         });
         
         collector.on('end', collected => {
-            embedmsg.edit({ embed })
+            embedmsg.edit({ embeds: [embed] })
         });
 
 	}

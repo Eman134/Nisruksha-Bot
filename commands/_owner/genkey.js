@@ -122,7 +122,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Geração de chave cancelada', `
                 Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
@@ -173,7 +173,7 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
             embed.setColor('#5bff45');
             embed.addField('✅ Chave criada com sucesso', `
             Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdmsg.id}`})`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
         });
         
@@ -182,7 +182,7 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

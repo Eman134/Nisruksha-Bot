@@ -171,13 +171,13 @@ module.exports = {
 
                 if (token < aposta) {
                     embed.addField('❌ Aposta cancelada', `${msg.author} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-                    return embedmsg.edit({ embed });
+                    return embedmsg.edit({ embeds: [embed] });
                 }
                 const tokenmember = await API.eco.token.get(member)
 
                 if (tokenmember < aposta) {
                     embed.addField('❌ Aposta cancelada', `${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-                    return embedmsg.edit({ embed });
+                    return embedmsg.edit({ embeds: [embed] });
                 }
 
                 let fresponse = ""
@@ -238,7 +238,7 @@ module.exports = {
                 API.playerUtils.cooldown.set(member, "flip", 0);
             }
             
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
         });
         
@@ -252,7 +252,7 @@ module.exports = {
             .setColor('#a60000')
             .setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
             return;
         });

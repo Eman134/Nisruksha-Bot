@@ -59,7 +59,7 @@ module.exports = {
             if (!pobj2.rod) {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha no upgrade`, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return
             }
     
@@ -67,7 +67,7 @@ module.exports = {
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha no upgrade`, `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${API.format(pobj2.money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return
             }
 
@@ -103,7 +103,7 @@ module.exports = {
             if (list.length == 0) {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
-                return embedmsg.edit({ embed });
+                return embedmsg.edit({ embeds: [embed] });
             }
 			upgraded = true
 
@@ -117,7 +117,7 @@ module.exports = {
                 embed.setColor('#5bff45')
                 .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
-                return embedmsg.edit({ embed });
+                return embedmsg.edit({ embeds: [embed] });
 
             } if (list.includes(1)) {
                 pobj2.rod.sta -= 1
@@ -125,7 +125,7 @@ module.exports = {
                 embed.setColor('#5bff45')
                 .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
-                return embedmsg.edit({ embed });
+                return embedmsg.edit({ embeds: [embed] });
 
             } if (list.includes(2)) {
                 pobj2.rod.profundidade = (parseFloat(pobj2.rod.profundidade) + parseFloat("0." + API.random(2, 5))).toFixed(1)
@@ -137,11 +137,11 @@ module.exports = {
                 embed.setColor('#5bff45')
                 .setDescription(`\`${API.company.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
                 embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${API.format(total)} ${API.money} ${API.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
-                return embedmsg.edit({ embed })
+                return embedmsg.edit({ embeds: [embed] })
             } else {
                 embed.setColor('#a60000');
                 embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
-                return embedmsg.edit({ embed });
+                return embedmsg.edit({ embeds: [embed] });
             }
             
             
@@ -153,7 +153,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria upar sua vara de pesca, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

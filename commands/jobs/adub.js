@@ -78,7 +78,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Adubação cancelada', `
                 Você cancelou uma adubação de ${((100-plot.adubacao))}% em seu terreno localizado em **${townname}** pelo preço de \`${API.format(total)} ${API.money}\` ${API.moneyemoji}.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
@@ -89,7 +89,7 @@ module.exports = {
             if (!(money >= total)) {
               embed.setColor('#a60000');
               embed.addField('❌ Falha na adubação', `Você não possui dinheiro suficiente para realizar a adubação!\nSeu dinheiro atual: **${API.format(money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-              await embedmsg.edit({ embed });
+              await embedmsg.edit({ embeds: [embed] });
               return;
             }
 
@@ -103,7 +103,7 @@ module.exports = {
             embed.setColor('#5bff45');
             embed.addField('✅ Adubação realizada', `
             Você adubou ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${API.format(total)} ${API.money}\` ${API.moneyemoji}.`)
-            await embedmsg.edit({ embed });
+            await embedmsg.edit({ embeds: [embed] });
 
             API.playerUtils.cooldown.set(msg.author, "landplot", 0);
 
@@ -117,7 +117,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria adubar um terreno, porém o tempo expirou!`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
         });
 
 	}

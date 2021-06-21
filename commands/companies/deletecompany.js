@@ -75,7 +75,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Fechamento cancelado', `
                 Você cancelou o fechamento da empresa **${icon} ${name}**.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
@@ -88,21 +88,21 @@ module.exports = {
             if (locname != townname) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha no fechamento', `Você precisa estar na mesma vila da empresa para fechar a empresa!\nSua vila atual: **${townname}**\nVila da empresa: **${locname}**\nPara visualizar o mapa ou se mover, utilize, respectivamente, \`${API.prefix}mapa\` e \`${API.prefix}mover ${locname}\``)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             }
 
             if (company.workers != null && company.workers.length > 0) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha no fechamento', `Você não pode fechar uma empresa antes de demitir os funcionários!\nUtilize \`${API.prefix}demitir\` para demitir seus funcionários`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return
             }
 
             if (playerobj2.money < total) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha no fechamento', `Você não possui dinheiro o suficiente para fechar sua empresa!\nSeu dinheiro atual: **${API.format(playerobj2.money)}/${API.format(total)} ${API.money} ${API.moneyemoji}**`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return
             }
 
@@ -121,7 +121,7 @@ module.exports = {
             embed
             .addField(`✅ Sucesso no fechamento`, `Você acaba de fechar sua empresa **${icon} ${name}**!`)
             .setColor('#a60000')
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
 
             const embed2 = new API.Discord.MessageEmbed();
             embed2.setTitle(`Empresa fechada!`) 
@@ -136,7 +136,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria fechar a empresa **${icon} ${name}**, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
         

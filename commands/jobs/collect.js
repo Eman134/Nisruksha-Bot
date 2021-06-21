@@ -162,7 +162,7 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await embedmsg.edit({ embed }).catch()
+                        await embedmsg.edit({ embeds: [embed] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
                         await msg.quote({ embeds: [embedtemp]})
                         API.cacheLists.waiting.remove(msg.author, 'collecting')

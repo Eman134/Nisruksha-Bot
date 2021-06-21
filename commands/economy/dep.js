@@ -98,7 +98,7 @@ module.exports = {
                     API.eco.money.globaladd(taxa)
                 }
             }
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
         });
         
         collector.on('end', collected => {
@@ -107,7 +107,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria depositar o valor de **${API.format(total2)} ${API.money} ${API.moneyemoji}** na sua conta bancária, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

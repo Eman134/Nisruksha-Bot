@@ -59,7 +59,7 @@ module.exports = {
             embed.fields = []
             embed.setColor('#e06f0b')
             embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${st}/${1000}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
         });
 
 	}

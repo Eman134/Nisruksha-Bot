@@ -128,7 +128,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `
                 Você cancelou o envio de currículo para a empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
                 return;
             } else {
                 
@@ -154,14 +154,14 @@ module.exports = {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no currículo', `
                     Você já enviou um currículo para esta empresa! Aguarde uma resposta..`)
-                    embedmsg.edit({ embed });
+                    embedmsg.edit({ embeds: [embed] });
                     return;
                 }
                 if (await API.company.check.hasCompany(msg.author)) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no currículo', `
                     Você não pode enviar currículo para alguma empresa pois você já possui uma`)
-                    embedmsg.edit({ embed });
+                    embedmsg.edit({ embeds: [embed] });
                     return;
                 }
         
@@ -169,14 +169,14 @@ module.exports = {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no currículo', `
                     Você não pode enviar currículo para outra empresa pois você já trabalha em uma`)
-                    embedmsg.edit({ embed });
+                    embedmsg.edit({ embeds: [embed] });
                     return;
                 }
                 if (!(await API.company.check.hasVacancies(args[0]))) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no currículo', `
                     Esta empresa não possui vagas ou estão fechadas, tente novamente quando houver vagas!`)
-                    embedmsg.edit({ embed });
+                    embedmsg.edit({ embeds: [embed] });
                     return;
                 }
                 let clist = []
@@ -201,7 +201,7 @@ module.exports = {
                 embed.addField('✅ Currículo enviado', `
                 Você enviou o currículo para a empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!\nAguarde uma resposta da empresa.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`)
                 .setFooter('Ao enviar o currículo você está em consentimento em receber DM\'S do bot de quando você for aceito ou negado na empresa!')
-                embedmsg.edit({ embed });
+                embedmsg.edit({ embeds: [embed] });
 
                 return;
             }
@@ -213,7 +213,7 @@ module.exports = {
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria enviar o currículo para a empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
-            embedmsg.edit({ embed });
+            embedmsg.edit({ embeds: [embed] });
             return;
         });
 

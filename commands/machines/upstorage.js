@@ -98,7 +98,7 @@ module.exports = {
                     collector.stop()
                 }
                 try {
-                    if (msgembed)msgembed.edit({ embed });
+                    if (msgembed)msgembed.edit({ embeds: [embed] });
                 }catch (err){
                     client.emit('error', err)
                     console.log(err)
@@ -117,7 +117,7 @@ module.exports = {
                     embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${API.money}\` ${API.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`${API.prefix}armazém\``)
                     embed.addField('❌ Sessão encerrada', 'O tempo de reação foi expirado!')
                     .setFooter('')
-                    msgembed.edit({ embed });}
+                    msgembed.edit({ embeds: [embed] });}
                 }
                 msgembed.reactions.removeAll().catch();
             }catch (err){
