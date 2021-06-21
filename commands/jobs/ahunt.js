@@ -318,13 +318,14 @@ module.exports = {
 
                 if (!autohunt) components = [ API.rowButton(equipsBtn) ]
                 
-				let firstbuild = await build({ player: 0, monster: 0 }, false)
+				let firstbuild = await build({ player: 0, monster: 0 }, true)
 				
-                await embed.setImage(firstbuild.url)
+                //await embed.setImage(firstbuild.url)
 
-                //embed.setImage('attachment://hunt' + session + '.png')
+                embed.setImage('attachment://hunt' + session + '.png')
 
-                await embedmsg.edit({ embeds: [embed], components })//, files: [firstbuild.attach] });
+                //await embedmsg.edit({ embeds: [embed], components })//, files: [firstbuild.attach] });
+                await embedmsg.edit({ embeds: [embed], components, files: [firstbuild.attach] });
 
                 fixedembed = embed
 
@@ -389,11 +390,11 @@ module.exports = {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
                 
-                let buildlost = await build(lost, false)
+                let buildlost = await build(lost, true)
                 
-                await embed.setImage(buildlost.url)
-                embed.attachFiles([buildlost.attach])//attachment])
-                //embed.setImage('attachment://hunt' + session + '.png')
+                //await embed.setImage(buildlost.url)
+                //embed.attachFiles([buildlost.attach])
+                embed.setImage('attachment://hunt' + session + '.png')
                 
                 let currmsg = ""
                 {
@@ -422,16 +423,23 @@ module.exports = {
 
                 try {
                     if (dead) {
-                        await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
+                        //await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
+                        await embedmsg.edit({ embeds: [embed], attachments: [], components: [], files: [buildlost.attach]})
                     } else {
-                        await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
+                        //await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
+                        await embedmsg.edit({ embeds: [embed], attachments: [], components, files: [buildlost.attach] })
                     }
                 } catch (err) {
                     console.log(err)
                     setTimeout(async function(){
                         try {
-                            if (dead) await embedmsg.edit({embeds: [embed], components: []})//, files: [buildlost.attach] })
-                            else await embedmsg.edit({embeds: [embed], components})//, files: [buildlost.attach] })
+                            if (dead) {
+                                //await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
+                                await embedmsg.edit({ embeds: [embed], components: [], files: [buildlost.attach]})
+                            } else {
+                                //await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
+                                await embedmsg.edit({ embeds: [embed], components, files: [buildlost.attach] })
+                            }
                         } catch {
                             API.cacheLists.waiting.remove(msg.author, 'hunting')
                             API.cacheLists.waiting.remove(msg.author, 'working');
