@@ -198,7 +198,6 @@ get.company = async function(owner) {
 
 const jobs = { 
     itens: {},
-    maxitens: 30,
     explore: {
         mobs: {
             obj: {}

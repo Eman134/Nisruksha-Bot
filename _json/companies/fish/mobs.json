@@ -2,6 +2,7 @@
     {
         "name": "\"mumxe\"",
         "displayname": "Mumxe",
+        "rarity": "common",
         "icon": "🐟",
         "profundidade": 0.5,
         "chance": 60,
@@ -10,6 +11,7 @@
     {
         "name": "\"tropfish\"",
         "displayname": "Tropfish",
+        "rarity": "common",
         "icon": "🐠",
         "profundidade": 1,
         "chance": 60,
@@ -18,6 +20,7 @@
     {
         "name": "\"bikcu\"",
         "displayname": "Bikcu",
+        "rarity": "common",
         "icon": "🐡",
         "profundidade": 1.7,
         "chance": 47,
@@ -27,6 +30,7 @@
         "name": "\"peiza\"",
         "displayname": "Peiza",
         "icon": "<:peixe1:830819804658925578>",
+        "rarity": "common",
         "profundidade": 2.5,
         "chance": 40,
         "price": 1250
@@ -35,6 +39,7 @@
         "name": "\"poison fiha\"",
         "displayname": "Poison fiha",
         "icon": "<:peixe2:782297639081082890>",
+        "rarity": "uncommon",
         "profundidade": 3,
         "chance": 50,
         "price": 2400
@@ -43,6 +48,7 @@
         "name": "\"orgh\"",
         "displayname": "Orgh",
         "icon": "<:peixe3:830823148705284167>",
+        "rarity": "uncommon",
         "profundidade": 3.2,
         "chance": 46,
         "price": 2680
@@ -51,6 +57,7 @@
         "name": "\"lislif\"",
         "displayname": "Lislif",
         "icon": "<:peixe4:782306352688398384>",
+        "rarity": "uncommon",
         "profundidade": 3.5,
         "chance": 44,
         "price": 3500
@@ -59,6 +66,7 @@
         "name": "\"ahaco\"",
         "displayname": "Ahaco",
         "icon": "<:peixe5:782312801636712458>",
+        "rarity": "uncommon",
         "profundidade": 4.0,
         "chance": 30,
         "price": 3670
@@ -67,6 +75,7 @@
         "name": "\"abehi\"",
         "displayname": "Abehi",
         "icon": "<:peixe6:782320686944485376>",
+        "rarity": "uncommon",
         "profundidade": 4.5,
         "chance": 35,
         "price": 4000
@@ -75,6 +84,7 @@
         "name": "\"octo\"",
         "displayname": "Octo",
         "icon": "🐙",
+        "rarity": "rare",
         "profundidade": 5.0,
         "chance": 50,
         "price": 4300
@@ -83,6 +93,7 @@
         "name": "\"codd\"",
         "displayname": "Codd",
         "icon": "<:peixe7:830823495977140254>",
+        "rarity": "rare",
         "profundidade": 5.7,
         "chance": 55,
         "price": 5100
@@ -91,6 +102,7 @@
         "name": "\"seem\"",
         "displayname": "Seem",
         "icon": "<:peixe8:830823746544992257>",
+        "rarity": "rare",
         "profundidade": 7,
         "chance": 40,
         "price": 7400
@@ -98,6 +110,7 @@
     {
         "name": "\"crab\"",
         "displayname": "Crab",
+        "rarity": "rare",
         "icon": "🦀",
         "profundidade": 8,
         "chance": 50,
@@ -107,6 +120,7 @@
         "name": "\"angler\"",
         "displayname": "Angler",
         "icon": "<:peixe9:830824555223187466>",
+        "rarity": "epic",
         "profundidade": 9,
         "chance": 10,
         "price": 14400
@@ -115,6 +129,7 @@
         "name": "\"swe\"",
         "displayname": "Swe",
         "icon": "<:peixe10:830824811478515762>",
+        "rarity": "epic",
         "profundidade": 10,
         "chance": 15,
         "price": 25400

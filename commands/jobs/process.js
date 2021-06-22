@@ -127,7 +127,9 @@ module.exports = {
                 
                 }
             } else {
+                embed.fields = []
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                embeds.push(embed)
             }
 
         }

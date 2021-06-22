@@ -3,6 +3,7 @@
         "name": "\"soja\"",
         "displayname": "Soja",
         "icon": "<:semente:766062555277557791>",
+        "rarity": "common",
         "type": "seed",
         "loc": ["*"],
         "chance": 100,
@@ -12,6 +13,7 @@
         "name": "\"milho\"",
         "displayname": "Milho",
         "icon": "🌽",
+        "rarity": "common",
         "type": "seed",
         "loc": ["*"],
         "chance": 60,
@@ -22,6 +24,7 @@
         "displayname": "Rosaris",
         "icon": "<:seed1:769217121312833586>",
         "type": "seed",
+        "rarity": "common",
         "loc": ["1"],
         "chance": 42,
         "price": 105
@@ -31,6 +34,7 @@
         "displayname": "Golderis",
         "icon": "<:seed2:769217121288060958>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["1"],
         "chance": 36,
         "price": 76
@@ -40,6 +44,7 @@
         "displayname": "Purplis",
         "icon": "<:seed3:769217121087389736>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["1"],
         "chance": 17,
         "price": 107
@@ -49,6 +54,7 @@
         "displayname": "Staris",
         "icon": "<:seed4:769217120982532097>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["1"],
         "chance": 35,
         "price": 95
@@ -58,6 +64,7 @@
         "displayname": "Duplex Daisies",
         "icon": "<:seed5:769217120973750282>",
         "type": "seed",
+        "rarity": "common",
         "loc": ["1"],
         "chance": 40,
         "price": 89
@@ -67,6 +74,7 @@
         "displayname": "Tamarind",
         "icon": "<:seed21:830767757762494536>",
         "type": "seed",
+        "rarity": "common",
         "loc": ["1"],
         "chance": 46,
         "price": 75
@@ -76,7 +84,9 @@
         "displayname": "Apium",
         "icon": "<:seed30:830767758689697803>",
         "type": "seed",
+        "rarity": "common",
         "loc": ["1"],
+        "levelprocess": 5,
         "chance": 46,
         "price": 82
     },
@@ -85,6 +95,7 @@
         "displayname": "Cepa",
         "icon": "<:seed26:830767758286389258>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["1"],
         "chance": 25,
         "price": 84
@@ -94,6 +105,7 @@
         "displayname": "Arugula",
         "icon": "<:seed34:830767758945812481>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["1"],
         "chance": 25,
         "price": 93
@@ -103,6 +115,7 @@
         "displayname": "Herba",
         "icon": "<:seed6:769217120943865906>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["2"],
         "chance": 30,
         "price": 45
@@ -112,6 +125,7 @@
         "displayname": "Flore Caeruleo",
         "icon": "<:seed7:769217120873349170>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 60,
         "price": 56
@@ -121,6 +135,7 @@
         "displayname": "Rosarium",
         "icon": "<:seed8:769217120860241980>",
         "type": "seed",
+        "rarity": "common",
         "loc": ["2"],
         "chance": 75,
         "price": 44
@@ -130,6 +145,7 @@
         "displayname": "Alba Duplis",
         "icon": "<:seed9:769217120717635614>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["2"],
         "chance": 24,
         "price": 70
@@ -139,6 +155,7 @@
         "displayname": "Magenta",
         "icon": "<:seed10:769217120600588318>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 36,
         "price": 99
@@ -148,6 +165,7 @@
         "displayname": "Sapidum",
         "icon": "<:seed22:830767757938262027>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 40,
         "price": 103
@@ -157,6 +175,7 @@
         "displayname": "Rufus",
         "icon": "<:seed25:830767758198439936>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 45,
         "price": 70
@@ -166,6 +185,7 @@
         "displayname": "Roris Marini",
         "icon": "<:seed29:830767758639235082>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 45,
         "price": 50
@@ -175,6 +195,7 @@
         "displayname": "Cyminum Sparget",
         "icon": "<:seed33:830767758874509313>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["2"],
         "chance": 45,
         "price": 56
@@ -184,6 +205,7 @@
         "displayname": "Flos Ruber",
         "icon": "<:seed11:769217120592461824>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["3"],
         "chance": 20,
         "price": 99
@@ -193,6 +215,7 @@
         "displayname": "Nocte",
         "icon": "<:seed12:769217120591413319>",
         "type": "seed",
+        "rarity": "epic",
         "loc": ["3"],
         "chance": 15,
         "price": 74
@@ -202,6 +225,7 @@
         "displayname": "Rosa Vere",
         "icon": "<:seed13:769217120465584129>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["3"],
         "chance": 40,
         "price": 95
@@ -210,6 +234,7 @@
         "name": "\"oregano\"",
         "displayname": "Orégano",
         "icon": "🌿",
+        "rarity": "uncommon",
         "type": "seed",
         "loc": ["3"],
         "chance": 40,
@@ -219,6 +244,7 @@
         "name": "\"mutatio oregano\"",
         "displayname": "Mutatio Orégano",
         "icon": "🍂",
+        "rarity": "rare",
         "type": "seed",
         "loc": ["3"],
         "chance": 23,
@@ -229,6 +255,7 @@
         "displayname": "Duo Media Nocte",
         "icon": "<:seed14:769217120440811660>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["3"],
         "chance": 34,
         "price": 80
@@ -238,6 +265,7 @@
         "displayname": "Rosa Rubrum",
         "icon": "<:seed15:769217120436355102>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["3"],
         "chance": 30,
         "price": 106
@@ -247,6 +275,7 @@
         "displayname": "Ocimum",
         "icon": "<:seed24:830767758169473046>",
         "type": "seed",
+        "rarity": "rare",
         "loc": ["3"],
         "chance": 30,
         "price": 90
@@ -256,6 +285,8 @@
         "displayname": "Purus",
         "icon": "<:seed28:830767758345109514>",
         "type": "seed",
+        "rarity": "uncommon",
+        "levelprocess": 4,
         "loc": ["3"],
         "chance": 35,
         "price": 115
@@ -265,6 +296,7 @@
         "displayname": "Spica",
         "icon": "<:seed32:830767758849212446>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["3"],
         "chance": 35,
         "price": 68
@@ -274,6 +306,7 @@
         "displayname": "Poris",
         "icon": "<:seed16:769217120403193866>",
         "type": "seed",
+        "rarity": "epic",
         "loc": ["4"],
         "chance": 20,
         "price": 88
@@ -283,6 +316,7 @@
         "displayname": "Totidem Foliorum",
         "icon": "<:seed17:769217120398737448>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["4"],
         "chance": 50,
         "price": 98
@@ -292,6 +326,7 @@
         "displayname": "Varetus",
         "icon": "<:seed18:769217120289423420>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["4"],
         "chance": 45,
         "price": 67
@@ -301,6 +336,7 @@
         "displayname": "Tria Lilia",
         "icon": "<:seed19:769217120151928854>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["4"],
         "chance": 40,
         "price": 90
@@ -310,6 +346,7 @@
         "displayname": "Triticum",
         "icon": "<:seed20:769217936904421416>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["4"],
         "chance": 40,
         "price": 77
@@ -319,6 +356,7 @@
         "displayname": "Trifolium",
         "icon": "🍀",
         "type": "seed",
+        "rarity": "epic",
         "loc": ["4"],
         "chance": 10,
         "price": 75
@@ -328,6 +366,7 @@
         "displayname": "Allium",
         "icon": "<:seed23:830767758153220116>",
         "type": "seed",
+        "rarity": "uncommon",
         "loc": ["4"],
         "chance": 38,
         "price": 86
@@ -337,6 +376,7 @@
         "displayname": "Ogm Oregano",
         "icon": "<:seed27:830767758320467988>",
         "type": "seed",
+        "rarity": "epic",
         "loc": ["4"],
         "chance": 15,
         "price": 105
@@ -346,6 +386,7 @@
         "displayname": "Anethi",
         "icon": "<:seed31:830767758701887499>",
         "type": "seed",
+        "rarity": "epic",
         "loc": ["4"],
         "chance": 15,
         "price": 97
