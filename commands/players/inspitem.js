@@ -42,7 +42,7 @@ module.exports = {
         
         embed.addField('🔎 Inspeção', `Nome: **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? API.itemExtension.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}`)
         if (drop.icon.includes('>')) embed.setImage('https://cdn.discordapp.com/emojis/' + drop.icon.split(':')[2].replace('>', '') + '.png?v=1')
-        let embedmsg = await msg.quote({ embeds: [embed] });
+        await msg.quote({ embeds: [embed] });
 
 	}
 };
