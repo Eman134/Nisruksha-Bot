@@ -22,14 +22,14 @@ module.exports = {
             return;
         }
 
-        if (args.length >= 1 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
+        if (args.length >= 1 && (API.itemExtension.exists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         let id = API.getMultipleArgs(msg, 1).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); 
-        const drop = API.maqExtension.ores.getDrop(id)
+        const drop = API.itemExtension.get(id)
 
         
         if (!drop.usavel) {
@@ -161,7 +161,7 @@ module.exports = {
                                 if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
                                 else coletadox.set(r.name, size)
                                 sizeMap.set(r.name, size)
-                                API.maqExtension.storage.giveOre(msg.author, r.name, size)
+                                API.itemExtension.add(msg.author, r.name, size)
                                 round += size;
                 
                                 if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
@@ -214,7 +214,7 @@ module.exports = {
 
             }
 
-            API.maqExtension.storage.setOre(msg.author, drop.name, obj3[drop.name.replace(/"/g, '')]-quantia)
+            API.itemExtension.set(msg.author, drop.name, obj3[drop.name.replace(/"/g, '')]-quantia)
 
         });
         

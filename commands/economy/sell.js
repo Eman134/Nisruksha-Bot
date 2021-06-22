@@ -39,7 +39,7 @@ module.exports = {
 
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-        if (args.length >= 2 && (!API.maqExtension.ores.checkExists(args[1]))) {
+        if (args.length >= 2 && (!API.itemExtension.exists(args[1]))) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
             await msg.quote({ embeds: [embedtemp]})
             return;
@@ -65,7 +65,7 @@ module.exports = {
             type = 0;
         }
 
-        let obj = API.maqExtension.ores.getObj();
+        let obj = API.itemExtension.getObj();
         const obj2 = await API.getInfo(msg.author, 'storage')
 
         if (arg0 == 'tudo' && args.length >= 2) {
@@ -188,7 +188,7 @@ module.exports = {
 
                     //for (const key in obj) {
                         for (const r of obj.minerios) {
-                            API.maqExtension.storage.setOre(msg.author, r.name, 0)
+                            API.itemExtension.set(msg.author, r.name, 0)
                         }
                     //}
                     break;
@@ -200,7 +200,7 @@ module.exports = {
                         return;
                     }
 
-                    API.maqExtension.storage.setOre(msg.author, id, 0)
+                    API.itemExtension.set(msg.author, id, 0)
                     break;
                 case 2:
 
@@ -216,7 +216,7 @@ module.exports = {
                         return;
                     }
 
-                    API.maqExtension.storage.setOre(msg.author, id, obj2[id]-parseInt(arg0))
+                    API.itemExtension.set(msg.author, id, obj2[id]-parseInt(arg0))
                     break;
             }
             

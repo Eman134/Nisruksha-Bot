@@ -14,7 +14,7 @@ module.exports = {
 
         const Discord = API.Discord;
 
-        let pieces = await API.maqExtension.getPieces(msg.author);
+        let pieces = await API.itemExtension.getPieces(msg.author);
         let playerobj = await API.getInfo(msg.author, 'machines');
         let pobj = await API.getInfo(msg.author, 'players');
 
@@ -79,7 +79,7 @@ module.exports = {
                 return;
             }
 
-            let pieces1 = await API.maqExtension.getPieces(msg.author);
+            let pieces1 = await API.itemExtension.getPieces(msg.author);
             let playerobj1 = await API.getInfo(msg.author, 'machines');
 
             let contains1 = false;
@@ -106,7 +106,7 @@ module.exports = {
             embed.addField('✅ Sucesso ao equipar', `Você equipou **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
             embedmsg.edit({ embeds: [embed] })
 
-            API.maqExtension.givePiece(msg.author, placa.id);
+            API.itemExtension.givePiece(msg.author, placa.id);
             API.setInfo(msg.author, 'storage', `"piece:${placa.id}"`, placa.size-1)
 
         });

@@ -227,71 +227,8 @@ const jobs = {
     }
 };
 
-// Itens e exploração
+// Exploração
 {
-
-    jobs.giveItem = async function(msg, dp) {
-
-        let descartados = []
-        let colocados = []
-
-        for (const y of dp) {
-            if (!y.size) y.size = 1
-            y.sz = y.size
-        }
-
-        const utilsobj = await API.getInfo(msg.author, 'players_utils')
-
-        let backpackid = utilsobj.backpack;
-        let backpack = API.shopExtension.getProduct(backpackid);
-
-        const maxitens = backpack.customitem.itensmax
-        const maxtypes = backpack.customitem.typesmax
-
-        
-        for (const y of dp) {
-            
-            let arrayitens = await API.company.jobs.itens.get(msg.author, true, true)
-            let curinfo = await API.getInfo(msg.author, 'storage')
-            let rsize = curinfo[y.name.replace(/"/g, "")];
-            let csize = await API.getInfo(msg.author, 'storage')
-            csize2 = csize[y.name.replace(/"/g, '')]
-            let s = parseInt(csize2) + parseInt(y.sz)
-
-            if (s >= maxitens) {
-                if (s == maxitens) {
-                    s -= (s-maxitens)
-                } else {
-                    if (y.sz - (s-maxitens) <= 0) {
-                        s = 0
-                    } else {
-
-                        y.sz -= (s-maxitens);
-                        y.size -= (s-maxitens);
-                        s -= (s-maxitens)
-                    }
-                }
-            }
-
-            if ((arrayitens >= maxtypes && rsize == 0 || csize2 >= maxitens && rsize == 0 || s > maxitens && rsize ==  0) || s == 0) {
-                
-                descartados.push(y)
-                
-            } else {
-                
-                colocados.push(y)
-                await API.setInfo(msg.author, 'storage', y.name, s)
-                
-            }
-        }
-
-        for (const y of dp) {
-            y.size = y.sz
-        }
-
-        return { descartados, colocados }
-
-    }
 
     jobs.explore.mobs.get = function() {
         if (Object.keys(jobs.explore.mobs.obj).length == 0) jobs.explore.mobs.load();
@@ -499,7 +436,7 @@ const jobs = {
     }
 
     jobs.itens.get = async function(member, filtered, length) {
-        let obj = API.maqExtension.ores.getObj();
+        let obj = API.itemExtension.getObj();
         let obj2 = obj
         let res;
         await API.setPlayer(member, 'storage')
@@ -753,11 +690,28 @@ const jobs = {
                                     break;
                             }
 
-                            const drops = API.maqExtension.ores.obj.drops
+                            const drops = API.itemExtension.getObj().drops.filter((r) => r.levelprocess)
                             
-                            let filtereddrop = drops.filter((r) => obj.rarity == selectedRarity && obj.level >= r.level).sort(function(a, b){
-                                return b.level - a.level;
+                            let filtereddrop = drops.filter((r) => obj.rarity == selectedRarity && obj.level >= r.levelprocess).sort(function(a, b){
+                                return b.levelprocess - a.levelprocess;
                             }).slice(0, 6)[API.random(0, 6)]
+
+                            if (filtereddrop) {
+                                const droplist = processjson.in[indexProcess].drops || []
+                                const dropInList = droplist.find((r) => r.name == filtereddrop.name)
+                                if (dropInList) {
+                                    const indexDropInList = processjson.in.drops.indexOf(dropInList)
+                                    if (indexDropInList >= 0) {
+                                        droplist[indexDropInList].quantia += 1
+                                        droplist[indexDropInList].size += 1
+                                    }
+                                } else {
+                                    filtereddrop.size = 1
+                                    filtereddrop.quantia = 1
+                                    droplist.push(filtereddrop)
+                                }
+                                processjson.in[indexProcess].drops = droplist
+                            }
                             
                             const xpbase = API.random(1, 25)
 

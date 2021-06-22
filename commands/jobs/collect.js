@@ -38,7 +38,7 @@ module.exports = {
 
         let init = Date.now();
 
-        let seedobj = API.maqExtension.ores.getObj().drops.filter(i => i.type == "seed");
+        let seedobj = API.itemExtension.getObj().drops.filter(i => i.type == "seed");
         let loc = await API.townExtension.getTownNum(msg.author)
         seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
         if (API.debug) console.log(seedobj)
@@ -63,7 +63,7 @@ module.exports = {
                     t += Math.round(por/i/2*0.1);
 
                     t = Math.round((seed.name.toLowerCase().includes('soja') ? t * 1.7 :t )/2);
-                    let d = API.maqExtension.ores.getDrop(seed.name);
+                    let d = API.itemExtension.get(seed.name);
                     d.size = t;
 
                     let cha = API.random(0, 100)
@@ -88,7 +88,7 @@ module.exports = {
                 xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.stamina.remove(msg.author, 30);
                 
-                let retorno = await API.company.jobs.giveItem(msg, obj2)
+                let retorno = await API.itemExtension.give(msg, obj2)
                 let descartados = retorno.descartados
                 let colocados = retorno.colocados
 

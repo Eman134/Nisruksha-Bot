@@ -178,7 +178,7 @@ module.exports = {
 
                             const capturado = fish.find((fsh) => fsh.icon == levels[xi.toString()].waterarray[0])
 
-                            retorno = await API.company.jobs.giveItem(msg, [capturado])
+                            retorno = await API.itemExtension.give(msg, [capturado])
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 

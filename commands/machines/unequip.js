@@ -14,7 +14,7 @@ module.exports = {
 
         const Discord = API.Discord;
 
-        let pieces = await API.maqExtension.getEquipedPieces(msg.author);
+        let pieces = await API.itemExtension.getEquipedPieces(msg.author);
         var args = API.args(msg);
 
         if (API.cacheLists.waiting.includes(msg.author, 'mining')) {

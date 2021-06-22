@@ -217,7 +217,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             processjson.in.push(defaultjsonprocess)
 
-            API.maqExtension.storage.setOre(msg.author, 'fragmento', storage['fragmento']-quantia)
+            API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
 
             API.setInfo(msg.author, 'players_utils', 'process', processjson)
 

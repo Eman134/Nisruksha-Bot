@@ -5,11 +5,11 @@ const helpExtension = {
 };
 
 helpExtension.getCategoryList = function() {
-    return '**' + helpExtension.category.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
+    return '**' + this.category.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
 }
 
 helpExtension.getCategoryListObj = function() {
-    return helpExtension.category
+    return this.category
 }
 
 helpExtension.categoryExists = function(cat) {
@@ -17,8 +17,8 @@ helpExtension.categoryExists = function(cat) {
 }
 
 helpExtension.addCommand = async function(command) {
-  if (command.category != 'none' && !(helpExtension.category.includes(command.category))) {
-    helpExtension.category.push(command.category)
+  if (command.category != 'none' && !(this.category.includes(command.category))) {
+    this.category.push(command.category)
   }
 }
 

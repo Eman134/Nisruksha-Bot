@@ -138,7 +138,7 @@ module.exports = {
                             break;
                         default:
 
-                            let retorno = await API.company.jobs.giveItem(msg, [reward])
+                            let retorno = await API.itemExtension.give(msg, [reward])
 
                             let descartado = retorno.descartados
 

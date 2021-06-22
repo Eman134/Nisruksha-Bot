@@ -118,7 +118,7 @@ module.exports = {
         quantidade = parseInt(quantidade)
         semente = semente.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
-        let seedobj = API.maqExtension.ores.getObj().drops.filter(i => i.type == "seed");
+        let seedobj = API.itemExtension.getObj().drops.filter(i => i.type == "seed");
 
         let contains2 = false;
 

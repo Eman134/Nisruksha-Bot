@@ -105,7 +105,7 @@ module.exports = {
             } else if (b.customID == 'recursos'){
                 let obj55 = await API.getInfo(member, 'storage');
                 let lvl55 = obj55.storage;
-                let obj = API.maqExtension.ores.getObj();
+                let obj = API.itemExtension.getObj();
                 const obj2 = await API.getInfo(member, 'storage')
                 embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(await API.maqExtension.storage.getSize(member))}/${API.format(max+(r1*API.maqExtension.storage.sizeperlevel)-API.maqExtension.storage.sizeperlevel)}]g**\nNível do armazém: **${API.format(lvl55)}**`);
                 let total = 0;

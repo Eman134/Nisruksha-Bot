@@ -52,10 +52,9 @@ shopExtension.loadItens = async function() {
       
   } catch (err) {
       console.log('Error parsing JSON string:', err);
-      ores.obj = `Error on pick ores obj`;
       client.emit('error', err)
   }
-  API.maqExtension.ores.obj = bigobj;
+  API.itemExtension.obj = bigobj;
 
   return bigobj
 }
@@ -80,7 +79,7 @@ shopExtension.load = async function() {
         API.client.emit('error', err)
     }
 
-    await API.maqExtension.loadToStorage(await this.loadItens())
+    await API.itemExtension.loadToStorage(await this.loadItens())
 
 }
 
@@ -114,7 +113,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       formated += `\nMáximo de Tipos: **${p.customitem.typesmax}**\nQuantia máxima por item: **${p.customitem.itensmax}**`
     }
     if (p.tier) {
-      var oreobj = API.maqExtension.ores.getObj().minerios;
+      var oreobj = API.itemExtension.getObj().minerios;
       oreobj = oreobj.filter((ore) => !ore.nomine)
       formated += `\nTier: ${p.tier} (${oreobj[p.tier].name} ${oreobj[p.tier].icon})`
     }
@@ -404,7 +403,7 @@ shopExtension.execute = async function(msg, p) {
             }
           }
 
-          let pieces = await API.maqExtension.getEquipedPieces(msg.author);
+          let pieces = await API.itemExtension.getEquipedPieces(msg.author);
 
           for (i = 0; i < pieces.length; i++){
               const pic = await API.getInfo(msg.author, 'storage')

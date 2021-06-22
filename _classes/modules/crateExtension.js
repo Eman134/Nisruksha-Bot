@@ -90,7 +90,7 @@ crateExtension.getReward = function(id, size) {
         let array2 = crateobj.rewards;
         
         if (typeof crateobj.rewards == 'string') {
-            const droparr = API.maqExtension.ores.getObj().drops
+            const droparr = API.itemExtension.getObj().drops
 
             let droparray = droparr
 

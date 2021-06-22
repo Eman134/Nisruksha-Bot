@@ -43,15 +43,11 @@ stamina.add = async function(member, valor) {
   stamina.subset(member, get+valor)
 }
 
-const ores = {
-
-  obj: {}
-
-};
+const ores = {};
 
 ores.gen = async function(maq, profundidade, chip) {
 
-    let oreobj = API.maqExtension.ores.getObj().minerios;
+    let oreobj = API.itemExtension.getObj().minerios;
 
     let oreobj2nomine = 1
 
@@ -102,65 +98,11 @@ ores.gen = async function(maq, profundidade, chip) {
 
 }
 
-ores.getObj = function() {
-  return ores.obj;
-}
-
-ores.checkExists = function(args, k) {
-  const obj = maqExtension.ores.getObj();
-  let id = args.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (!k) key = "minerios"
-  else key = k
-  for (const r of obj[key]) {
-    
-    let _id = r.name;
-    let _id2 = r.displayname;
-
-    if (_id2) {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return true;
-    } else {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return true;
-    }
-
-  }
-  return false;
-}
-
-ores.getDrop = function(args, k) {
-  let obj = ores.getObj();
-  let id = args
-  if (!k) key = "drops"
-  else key = k
-
-  for (const r of obj[key]) {
-    let _id = r.name;
-    let _id2 = r.displayname;
-
-    if (_id2) {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return r;
-    } else {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return r;
-    }
-  }
-
-  return undefined;
-}
-
 const storage = {
 
   sizeperlevel: 1000
 
 };
-
-storage.giveOre = async function(member, ore, value) {
-  let ore2 = ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const obj = await API.getInfo(member, "storage");
-  API.setInfo(member, "storage", ore2, obj[ore2] + value);
-}
-
-storage.setOre = async function(member, ore, value) {
-  API.setInfo(member, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
-}
 
 storage.getMax = async function(member) {
   const obj = await API.getInfo(member, 'storage');
@@ -171,7 +113,7 @@ storage.getMax = async function(member) {
 
 storage.getSize = async function(member) {
   let size = 0;
-  const obj = maqExtension.ores.getObj();
+  const obj = API.itemExtension.getObj();
   await API.setPlayer(member, 'storage')
   let res;
   const text =  `SELECT * FROM storage WHERE user_id = $1;`,
@@ -248,52 +190,11 @@ const maqExtension = {
   }
 };
 
-maqExtension.loadToStorage = async function(obj) {
-  for (const key in obj) {
-    for (const r of obj[key]) {
-      const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS ${r.name} double precision NOT NULL DEFAULT 0;`
-      try {
-          API.db.pool.query(text);
-      } catch (err) {
-          console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          client.emit('error', err)
-          process.exit()
-      }
-    }
-  }
-
-  let obj2 = API.shopExtension.getShopObj();
-
-  let placasobjkeys = Object.keys(obj2)
-
-  let placas = []
-
-  for (i = 0; i < placasobjkeys.length; i++) {
-    for (ai = 0; ai < obj2[placasobjkeys[i]].length; ai++){
-      if (obj2[placasobjkeys[i]][ai].type == 5) {
-        placas.push(obj2[placasobjkeys[i]][ai])
-      }
-    }
-  }
-
-  for (const r of placas) {
-      const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "piece:${r.id}" double precision NOT NULL DEFAULT 0;`
-      try {
-          API.db.pool.query(text);
-      } catch (err) {
-          console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          API.client.emit('error', err)
-          process.exit()
-      }
-  }
-
-}
-
 maqExtension.forceCot = async function() {
 
   maqExtension.lastcot = API.getFormatedDate()
 
-  const oreslist = maqExtension.ores.obj.minerios
+  const oreslist = API.itemExtension.getObj().minerios
 
   for (i = 0; i < oreslist.length; i++) {
     if (API.random(0, 100) < 30) {
@@ -301,28 +202,28 @@ maqExtension.forceCot = async function() {
       
       let x = {
         update: "",
-        price: API.random(API.maqExtension.ores.obj.minerios[i].price.min, API.maqExtension.ores.obj.minerios[i].price.max, true).toFixed(2)
+        price: API.random(API.itemExtension.getObj().minerios[i].price.min, API.itemExtension.getObj().minerios[i].price.max, true).toFixed(2)
       }
 
-      let mudou = (API.maqExtension.ores.obj.minerios[i].price.atual-x.price).toFixed(2)
+      let mudou = (API.itemExtension.getObj().minerios[i].price.atual-x.price).toFixed(2)
 
       if (mudou < 0) mudou *= -1
 
       if (mudou == 0) {
-        return API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = ""
+        return API.itemExtension.getObj().minerios[i].price.ultimoupdate = ""
       }
 
       mudou = mudou*2/2
       
-      x.update = ((x.price < API.maqExtension.ores.obj.minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
+      x.update = ((x.price < API.itemExtension.getObj().minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
 
-      API.maqExtension.ores.obj.minerios[i].price.updates.unshift({ price: x.price, date: API.getFormatedDate(true) })
-      API.maqExtension.ores.obj.minerios[i].price.updates = API.maqExtension.ores.obj.minerios[i].price.updates.slice(0, 10)
-      API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = x.update
+      API.itemExtension.getObj().minerios[i].price.updates.unshift({ price: x.price, date: API.getFormatedDate(true) })
+      API.itemExtension.getObj().minerios[i].price.updates = API.itemExtension.getObj().minerios[i].price.updates.slice(0, 10)
+      API.itemExtension.getObj().minerios[i].price.ultimoupdate = x.update
 
-      API.maqExtension.ores.obj.minerios[i].price.atual = x.price*2/2
+      API.itemExtension.getObj().minerios[i].price.atual = x.price*2/2
     } else {
-      API.maqExtension.ores.obj.minerios[i].price.ultimoupdate = ""
+      API.itemExtension.getObj().minerios[i].price.ultimoupdate = ""
     }
   }
 }
@@ -425,69 +326,16 @@ maqExtension.getSlotMax = function(level, mvp) {
   return res;
 }
 
-maqExtension.getPieces = async function(member) {
-
-    let obj = API.shopExtension.getShopObj();
-
-    let placasobjkeys = Object.keys(obj)
-
-    let placas = []
-
-    for (i = 0; i < placasobjkeys.length; i++) {
-      for (ai = 0; ai < obj[placasobjkeys[i]].length; ai++){
-        if (obj[placasobjkeys[i]][ai].type == 5) {
-          placas.push(obj[placasobjkeys[i]][ai])
-        }
-      }
-    }
-    
-    const text =  `SELECT * FROM storage WHERE user_id=${member.id};`
-    let res;
-    let array = [];
-    try {
-        res = await API.db.pool.query(text);
-        res = res.rows[0];
-    } catch (err) {
-        console.log(err.stack)
-        client.emit('error', err)
-    }
-
-    if (res == null || res == undefined) return [];
-
-    for (const r of placas) {
-      if (res['piece:' + r.id] > 0) {
-        let robj = r;
-        robj.size = res['piece:' + r.id]
-        array.push(robj)
-      }
-    }
-    return array;
-}
-
 maqExtension.getDepth = async function(member) {
   let playerobj = await API.getInfo(member, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
   let r = 0;
-  const array = await maqExtension.getEquipedPieces(member);
+  const array = await API.itemExtension.getEquipedPieces(member);
   for (const i of array){
     if (API.shopExtension.getProduct(i).typeeffect == 2) r = r+API.shopExtension.getProduct(i).size;
   }
   return maq.profundidade+r
-}
-
-maqExtension.getEquipedPieces = async function(member) {
-  const obj = await API.getInfo(member, 'machines')
-  return obj.slots == null ? [] : obj.slots;
-}
-
-maqExtension.givePiece = async function(member, piece) {
-  let array = await maqExtension.getEquipedPieces(member);
-
-  if (array == null) array = [];
-
-  array.push(piece);
-  API.setInfo(member, 'machines', 'slots', array);
 }
 
 module.exports = maqExtension;

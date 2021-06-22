@@ -247,7 +247,7 @@ module.exports = {
                 for (const r of array2) {
 					let rx = API.random(0, 100)
                     if (rx < r.chance) {
-                        let d = API.maqExtension.ores.getDrop(r.name);
+                        let d = API.itemExtension.get(r.name);
                         if (d) {
                             d.size = API.random(1, r.maxdrops)
                             drops.push(d);
@@ -262,7 +262,7 @@ module.exports = {
                 let xp = API.random(Math.round((mo.level+1)*2.5), Math.round((mo.level+1)*3))
                 xp = await API.playerUtils.execExp(msg, xp)
                 
-                let retorno = await API.company.jobs.giveItem(msg, drops)
+                let retorno = await API.itemExtension.give(msg, drops)
 
                 descartado = retorno.descartados
                 colocados = retorno.colocados

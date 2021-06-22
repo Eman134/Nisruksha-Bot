@@ -37,7 +37,7 @@ module.exports = {
 
         let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
-        if (args.length >= 2 && (API.maqExtension.ores.checkExists(API.getMultipleArgs(msg, 2), 'drops') == false)) {
+        if (args.length >= 2 && (API.itemExtension.exists(API.getMultipleArgs(msg, 2), 'drops') == false)) {
             const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
             await msg.quote({ embeds: [embedtemp]})
             return;
@@ -59,13 +59,13 @@ module.exports = {
         let id = '';
         let drop
         let realname = ""
-        if (args.length > 1) {id = API.getMultipleArgs(msg, 2).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); drop = API.maqExtension.ores.getDrop(id)}
+        if (args.length > 1) {id = API.getMultipleArgs(msg, 2).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); drop = API.itemExtension.get(id)}
         if (drop) realname = drop.name
         if (arg0 == 'tudo' && args.length == 1) {
             type = 0;
         }
 
-        let obj = API.maqExtension.ores.getObj();
+        let obj = API.itemExtension.getObj();
         const obj2 = await API.getInfo(msg.author, 'storage')
 
         if (arg0 == 'tudo' && args.length >= 2) {
@@ -195,7 +195,7 @@ module.exports = {
 
                     //for (const key in obj) {
                         for (const r of obj.drops) {
-                            API.maqExtension.storage.setOre(msg.author, r.name, 0)
+                            API.itemExtension.set(msg.author, r.name, 0)
                         }
                     //}
                     break;
@@ -207,7 +207,7 @@ module.exports = {
                         return;
                     }
 
-                    API.maqExtension.storage.setOre(msg.author, realname, 0)
+                    API.itemExtension.set(msg.author, realname, 0)
                     break;
                 case 2:
 
@@ -223,7 +223,7 @@ module.exports = {
                         return;
                     }
 
-                    API.maqExtension.storage.setOre(msg.author, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(arg0))
+                    API.itemExtension.set(msg.author, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(arg0))
                     break;
             }
 

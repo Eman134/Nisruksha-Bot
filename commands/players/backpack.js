@@ -80,9 +80,9 @@ module.exports = {
             .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa utilize \`${API.prefix}abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`${API.prefix}recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
             
-            embed.addField(`🦴 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`${API.prefix}venderitem\`\nPara usar itens utilize \`${API.prefix}usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
+            embed.addField(`💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`${API.prefix}venderitem\`\nPara usar itens utilize \`${API.prefix}usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
             //for (i = 1; i < totalpages; i++) {
-            const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `**${i2.size}x ${i2.icon} ${i2.displayname}**${i2.usavel ? ` 💫` : ''}`).join('\n')
+            const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${API.itemExtension.translateRarity(i2.rarity)}] `:''}**${i2.size}x ${i2.icon} ${i2.displayname}**${i2.usavel ? ` 💫` : ''}`).join('\n')
             embed.addField(`Itens Página ${currentpage}/${totalpages}`, (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
            // }
             return embed

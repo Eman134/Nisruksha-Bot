@@ -80,7 +80,7 @@ module.exports = {
 
         let profundidade = await API.maqExtension.getDepth(member)
 
-        let ep = await API.maqExtension.getEquipedPieces(member);
+        let ep = await API.itemExtension.getEquipedPieces(member);
 
         background = await API.img.drawText(background, maq.name, 24, './resources/fonts/Uni Sans.ttf', '#ffffff', 250, 38, 4)
 
@@ -117,7 +117,7 @@ module.exports = {
             
                 await API.setInfo(member, 'storage', `"piece:${placa.id}"`, pic[`piece:${placa.id}`]+1)
                 await API.setInfo(member, 'machines', `slots`, ep)
-                ep = await API.maqExtension.getEquipedPieces(member);
+                ep = await API.itemExtension.getEquipedPieces(member);
 
             }
 
@@ -170,17 +170,16 @@ module.exports = {
             }
         }
         
-        const pieces = await API.maqExtension.getPieces(member);
+        const pieces = await API.itemExtension.getPieces(member);
         const piecesmap = pieces.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
         embed.setDescription(`A cada **6 níveis** você adquire **+1 slot** para equipar chipes!`)
         .addField(`<:chip:833521401951944734> Inventário de Chipes`, `\nPara equipar um chipe utilize \`${API.prefix}equipar <ID DO CHIPE>\`\nPara desequipar um chipe utilize \`${API.prefix}desequipar <SLOT>\`\n\n` + (pieces.length <= 0 ? '**Não possui chipes de aprimoramento**' : piecesmap))
         embed.setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         embed.setColor('#7e6eb5')
         const attachment = await API.img.getAttachment(background, 'maq.png')
-        embed.attachFiles([attachment])
         embed.setImage('attachment://maq.png')
 
-        await msg.quote({ embeds: [embed]});
+        await msg.quote({ embeds: [embed], files: [attachment]});
 
         try {
             await todel.delete().catch();

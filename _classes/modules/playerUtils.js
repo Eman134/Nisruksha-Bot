@@ -49,7 +49,6 @@ playerUtils.execExp = async function(msg, xpp) {
   
       const embed = new Discord.MessageEmbed();
       embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-      .attachFiles([attachment])
       embed.setImage('attachment://levelup.png')
       embed.addField(`🥇 Recompensas`, `**3x <:caixaup:782307290295435304> Caixa up**!
 Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVocê liberou acesso ao sistema de **EMPRESAS** do bot e a partir daqui você já pode trabalhar em alguma empresa!`:''}${obj.level+1 == 10 ? `\n \nVocê liberou acesso a **CRIAÇÃO DE EMPRESAS**, utilize \`${API.prefix}abrirempresa\` para mais informações.`:''}${slot ? `\n \nVocê recebeu **+1 Slot de Aprimoramento para máquinas**!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots.\nUtilize \`${API.prefix}loja chipes\` para comprar chipes para seus slots.` : ''}`)
@@ -58,7 +57,7 @@ Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 
   
       API.crateExtension.give(msg.author, 2, 3)
   
-      await msg.quote({ embeds: [embed], mention: true});
+      await msg.quote({ embeds: [embed], mention: true, files: [attachment]});
   
     } else API.setInfo(msg.author, "machines", "xp", obj.xp+xp);
   

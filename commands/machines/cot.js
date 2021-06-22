@@ -21,7 +21,7 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
             .setColor('#32a893')
             .setTitle('📈 Cotação atual dos minérios')
-            .setDescription(`${API.maqExtension.ores.obj.minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+            .setDescription(`${API.itemExtension.getObj().minerios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${API.money}\` ${API.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
             let footer = ""
             if (API.maqExtension.lastcot !== '') {
             footer += ('Última atualização em ' + API.maqExtension.lastcot)
@@ -38,13 +38,13 @@ module.exports = {
         if (args.length > 0) {
 
 
-            if (!API.maqExtension.ores.checkExists(args[0])) {
+            if (!API.itemExtension.exists(args[0])) {
                 const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`${API.prefix}cotação\``)
                 await msg.quote({ embeds: [embedtemp]})
                 return;
             }
 
-            let minerio = API.maqExtension.ores.getDrop(args[0], "minerios")
+            let minerio = API.itemExtension.get(args[0], "minerios")
 
             let prefix = ""
             if (minerio.price.updates.length == 0) {
@@ -79,9 +79,8 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
             .setColor('#32a893')
             .setTitle('📈 Cotação recente de ' + minerio.icon + ' ' + minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1))
-            .attachFiles([attachment])
             .setImage('attachment://cot.png')
-            await msg.quote({ embeds: [embed] });
+            await msg.quote({ embeds: [embed], files: [attachment] });
 
         }
 

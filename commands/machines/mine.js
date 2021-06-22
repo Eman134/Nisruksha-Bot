@@ -55,7 +55,7 @@ module.exports = {
         let energymax = await API.maqExtension.getEnergyMax(msg.author)
         let progress = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(msg.author), energymax);
 
-        let ep = await API.maqExtension.getEquipedPieces(msg.author);
+        let ep = await API.itemExtension.getEquipedPieces(msg.author);
         let armazematual = await API.maqExtension.storage.getSize(msg.author);
         let armazemmax = await API.maqExtension.storage.getMax(msg.author);
         let obj6 = await API.getInfo(msg.author, "machines");
@@ -145,7 +145,7 @@ module.exports = {
                     if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
                     else coletadox.set(r.name, size)
                     sizeMap.set(r.name, size)
-                    API.maqExtension.storage.giveOre(msg.author, r.name, size)
+                    API.itemExtension.add(msg.author, r.name, size)
                     round += size;
 
                     if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
@@ -153,7 +153,7 @@ module.exports = {
                 }
                 
                 let armazemmax2 = await API.maqExtension.storage.getMax(msg.author);
-                ep = await API.maqExtension.getEquipedPieces(msg.author);
+                ep = await API.itemExtension.getEquipedPieces(msg.author);
                 let energymax = await API.maqExtension.getEnergyMax(msg.author)
                 const e = await API.maqExtension.getEnergy(msg.author);
                 let progress2 = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', e+1, energymax);

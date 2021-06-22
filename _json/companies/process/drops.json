@@ -4,7 +4,7 @@
         "displayname": "Fragmento de Pedra",
         "icon": "❔",
         "rarity": "common",
-        "level": 3,
+        "levelprocess": 1,
         "price": 100
     }
 ]
