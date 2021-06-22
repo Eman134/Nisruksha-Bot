@@ -17,7 +17,7 @@ module.exports = {
 
         const streakmax = 100
         
-        const obj = await API.getInfo(msg.member, "players");
+        const obj = await API.getInfo(msg.author, "players");
         let streak = obj['streak'];
 
         let reward;
@@ -62,10 +62,10 @@ module.exports = {
         .setDescription(`Você recebeu \`${reward}\` ${API.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${API.money2}\` ${API.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}/${streakmax}**`)
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         await msg.quote({ embeds: [embed] });
-        API.eco.money.add(msg.member, reward)
-        API.eco.points.add(msg.member, cristal)
-        API.setInfo(msg.member, "players", "streak", streak)
-        API.eco.addToHistory(msg.member, `Recompensa diária | + ${API.format(reward)} ${API.moneyemoji}`)
+        API.eco.money.add(msg.author, reward)
+        API.eco.points.add(msg.author, cristal)
+        API.setInfo(msg.author, "players", "streak", streak)
+        API.eco.addToHistory(msg.author, `Recompensa diária | + ${API.format(reward)} ${API.moneyemoji}`)
         API.playerUtils.cooldown.set(msg.author, "daily", 86400);
         API.playerUtils.cooldown.set(msg.author, "breakstreak", 86400*2);
         if (obj.perm >= 3)API.crateExtension.give(msg.author, 1, 2)

@@ -96,7 +96,7 @@ module.exports = {
                 embedmsg.edit({ embeds: [embed] });
                 API.eco.token.remove(msg.author, fichas)
                 API.eco.money.add(msg.author, total)
-                API.eco.addToHistory(msg.member, `Troca | - ${API.format(fichas)} ${API.money3emoji} : + ${API.format(total)} ${API.moneyemoji}`)
+                API.eco.addToHistory(msg.author, `Troca | - ${API.format(fichas)} ${API.money3emoji} : + ${API.format(total)} ${API.moneyemoji}`)
             }
         });
         

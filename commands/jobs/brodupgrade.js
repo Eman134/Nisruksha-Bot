@@ -108,7 +108,7 @@ module.exports = {
 			upgraded = true
 
             API.eco.money.remove(msg.author, total)
-            API.eco.addToHistory(msg.member, `Upgrade da vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
+            API.eco.addToHistory(msg.author, `Upgrade da vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
 
             if (list.includes(0)) {
 

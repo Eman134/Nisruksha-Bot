@@ -116,7 +116,7 @@ module.exports = {
             const code = company.company_id
             
             API.eco.money.remove(msg.author, total)
-            API.eco.addToHistory(msg.member, `Empresa fechada | - ${API.format(total)} ${API.moneyemoji}`)
+            API.eco.addToHistory(msg.author, `Empresa fechada | - ${API.format(total)} ${API.moneyemoji}`)
             townname = await API.townExtension.getTownName(msg.author);
             embed
             .addField(`✅ Sucesso no fechamento`, `Você acaba de fechar sua empresa **${icon} ${name}**!`)

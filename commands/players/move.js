@@ -103,7 +103,7 @@ module.exports = {
                 } else {
                     API.eco.money.remove(msg.author, total);
                     API.eco.money.globaladd(total);
-                    API.eco.addToHistory(msg.member, `Assalto | - ${API.format(total)} ${API.moneyemoji}`)
+                    API.eco.addToHistory(msg.author, `Assalto | - ${API.format(total)} ${API.moneyemoji}`)
                 }
             }
         }

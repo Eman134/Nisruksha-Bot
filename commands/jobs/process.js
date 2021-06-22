@@ -276,7 +276,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 let score = parseFloat(oldproc.score)
                 API.company.stars.add(msg.author, company.company_id, { score })
 
-                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}`)
+                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? '\nOs itens que foram encontrados por este processo foram para a mochila.':''}`)
             }
 
             b.deferUpdate()

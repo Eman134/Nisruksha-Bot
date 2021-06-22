@@ -118,7 +118,7 @@ module.exports = {
                 try {
                     const obj = await API.getInfo(msg.author, 'storage');
                     API.setInfo(msg.author, 'storage', `"crate:${id}"`, obj[`crate:${id}`]-1);
-                    API.eco.addToHistory(msg.member, `${API.crateExtension.obj[id.toString()].name} | ${reward.size > 0 ? '+ ' + API.format(reward.size) + ' ':''}${reward.icon}`)
+                    API.eco.addToHistory(msg.author, `${API.crateExtension.obj[id.toString()].name} | ${reward.size > 0 ? '+ ' + API.format(reward.size) + ' ':''}${reward.icon}`)
                     switch (reward.type) {
                         case 0:
                             API.eco.money.add(msg.author, reward.size)

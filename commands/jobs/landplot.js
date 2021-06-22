@@ -214,7 +214,7 @@ module.exports = {
                 API.playerUtils.cooldown.set(msg.author, "landplot", 0);
 
                 await API.eco.money.remove(msg.author, price);
-                await API.eco.addToHistory(msg.member, `Compra <:terreno:765944910179336202> | - ${API.format(price)}`)
+                await API.eco.addToHistory(msg.author, `Compra <:terreno:765944910179336202> | - ${API.format(price)}`)
     
             });
             
@@ -281,7 +281,7 @@ module.exports = {
                 API.playerUtils.cooldown.set(msg.author, "landplot", 0);
 
                 API.eco.points.remove(msg.author, priceupgrade);
-                await API.eco.addToHistory(msg.member, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${API.money2emoji}`)
+                await API.eco.addToHistory(msg.author, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${API.money2emoji}`)
 
                 pobj = await API.getInfo(msg.author, 'players')
                 plotReturns = await makeEmbed(pobj)
@@ -347,7 +347,7 @@ module.exports = {
                 
                 await embedmsg.edit({ embeds: [embed], components })
 
-                API.eco.addToHistory(msg.member, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
+                API.eco.addToHistory(msg.author, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
 
                 API.eco.money.add(msg.author, total)
 

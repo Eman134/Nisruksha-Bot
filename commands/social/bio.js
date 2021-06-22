@@ -25,7 +25,7 @@ module.exports = {
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
-        API.setInfo(msg.member, "players", "bio", API.getMultipleArgs(msg, 1))
+        API.setInfo(msg.author, "players", "bio", API.getMultipleArgs(msg, 1))
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#8adb5e')
         .setDescription(`Sua biografia foi definida para:

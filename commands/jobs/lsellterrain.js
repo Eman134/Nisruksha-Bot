@@ -111,7 +111,7 @@ module.exports = {
             embed.addField('✅ Sucesso na venda', `
             Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}** ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`)
             embedmsg.edit({ embeds: [embed] });
-            API.eco.addToHistory(msg.member, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
+            API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
             API.eco.money.add(msg.author, total)
             API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);

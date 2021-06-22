@@ -84,7 +84,7 @@ module.exports = {
             }
             
             API.eco.money.remove(msg.author, total)
-            API.eco.addToHistory(msg.member, `${pobj2.rod ? 'Troca' : 'Compra'} de vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
+            API.eco.addToHistory(msg.author, `${pobj2.rod ? 'Troca' : 'Compra'} de vara de pesca | - ${API.format(total)} ${API.moneyemoji}`)
 
             let vara = API.company.jobs.fish.rods.get(pobj3.level)
             embed.fields = []

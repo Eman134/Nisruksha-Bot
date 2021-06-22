@@ -752,7 +752,12 @@ const jobs = {
                                     selectedRarity = "common"
                                     break;
                             }
+
+                            const drops = API.maqExtension.ores.obj.drops
                             
+                            let filtereddrop = drops.filter((r) => obj.rarity == selectedRarity && obj.level >= r.level).sort(function(a, b){
+                                return b.level - a.level;
+                            }).slice(0, 6)[API.random(0, 6)]
                             
                             const xpbase = API.random(1, 25)
 
@@ -858,10 +863,6 @@ const jobs = {
         })[0]
 
         return filteredequip;
-
-    }
-
-    jobs.process.searchDrop = async function(rarity, level) {
 
     }
 

@@ -108,7 +108,7 @@ module.exports = {
             API.playerUtils.cooldown.set(msg.author, "landplot", 0);
 
             await API.eco.money.remove(msg.author, total);
-            await API.eco.addToHistory(msg.member, `Adubação <:terreno:765944910179336202> | - ${API.format(total)}`)
+            await API.eco.addToHistory(msg.author, `Adubação <:terreno:765944910179336202> | - ${API.format(total)}`)
 
         });
         

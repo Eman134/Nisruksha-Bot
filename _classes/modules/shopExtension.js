@@ -317,7 +317,7 @@ shopExtension.execute = async function(msg, p) {
   embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
   let price = p.price;
   let torp = 0;
-  let playerobj = await API.getInfo(msg.member, 'machines');
+  let playerobj = await API.getInfo(msg.author, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
   if (p.type == 4){torp=price;price = Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1))}
@@ -486,10 +486,10 @@ shopExtension.execute = async function(msg, p) {
           
       if (cashback > 0) {
         await API.eco.money.add(msg.author, cashback);
-        await API.eco.addToHistory(msg.member, `Cashback | + ${API.format(cashback)} ${API.moneyemoji}`)
+        await API.eco.addToHistory(msg.author, `Cashback | + ${API.format(cashback)} ${API.moneyemoji}`)
       }
       
-      await API.eco.addToHistory(msg.member, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
+      await API.eco.addToHistory(msg.author, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
 
       const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')

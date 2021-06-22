@@ -92,7 +92,7 @@ module.exports = {
                     Você sacou o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária!`)
                     API.eco.money.add(msg.author, total);
                     API.eco.bank.remove(msg.author, total);
-                    API.eco.addToHistory(msg.member, `📤 Saque | - ${API.format(total)} ${API.moneyemoji}`)
+                    API.eco.addToHistory(msg.author, `📤 Saque | - ${API.format(total)} ${API.moneyemoji}`)
                     let obj = await API.getInfo(msg.author, "players");
                     API.setInfo(msg.author, "players", "saq", obj.saq + 1);
                 }

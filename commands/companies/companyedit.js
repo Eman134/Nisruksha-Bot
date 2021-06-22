@@ -166,7 +166,7 @@ module.exports = {
            	  await msg.quote({ embeds: [embedtemp]})
               return;
             }
-            API.setCompanieInfo(msg.member, companyid, "descr", API.getMultipleArgs(msg, 2))
+            API.setCompanieInfo(msg.author, companyid, "descr", API.getMultipleArgs(msg, 2))
 
             embed
             .setColor('#8adb5e')

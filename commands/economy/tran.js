@@ -144,8 +144,8 @@ module.exports = {
                     Você transferiu o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member} com sucesso!`)
                     API.eco.bank.remove(msg.author, total);
                     API.eco.bank.add(member, total);
-                    API.eco.addToHistory(msg.member, `📤 Transferência para ${member} | - ${API.format(total)} ${API.moneyemoji}`)
-                    API.eco.addToHistory(member, `📥 Transferência de ${msg.member} | + ${API.format(total)} ${API.moneyemoji}`)
+                    API.eco.addToHistory(msg.author, `📤 Transferência para ${member} | - ${API.format(total)} ${API.moneyemoji}`)
+                    API.eco.addToHistory(member, `📥 Transferência de ${msg.author} | + ${API.format(total)} ${API.moneyemoji}`)
                     let obj = await API.getInfo(msg.author, "players");
                     API.setInfo(msg.author, "players", "tran", obj.tran + 1);
                     if (total > mat/2.5) {

@@ -97,7 +97,7 @@ module.exports = {
 
                 let profundidade = await API.maqExtension.getDepth(msg.author)
 
-                let playerobj = await API.getInfo(msg.member, 'machines');
+                let playerobj = await API.getInfo(msg.author, 'machines');
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 
@@ -179,7 +179,7 @@ module.exports = {
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return
                 }
-                playerobj = await API.getInfo(msg.member, 'machines');
+                playerobj = await API.getInfo(msg.author, 'machines');
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
                     const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
                     await msg.quote({ embeds: [embedtemp], mention: true })
