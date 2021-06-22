@@ -656,50 +656,58 @@ const jobs = {
                     if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
                         const percentdurability = Math.round(1*tool.durability.max/100)
                         if (processjson.tools[inprocs[inprocsi].tool].durability.current - percentdurability <= 0) {
-                            return processjson.tools[inprocs[inprocsi].tool].durability.current = 0
+                            processjson.tools[inprocs[inprocsi].tool].durability.current = 0
+                        } else {
+                            processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                         }
-                        processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
+                    }
+                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 20) {
+                        if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
+                            processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
+                        } else {
+                            processjson.tools[inprocs[inprocsi].tool].fuel.current -= processjson.tools[inprocs[inprocsi].tool].fuel.consume
+                        }
                     }
 
-                    if (API.random(0, 100) < 40) {
+                    function sendDrop() {
 
-                        if ((API.random(0, tool.potency.max) < tool.potency.current) && (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))) {
-                            
+                        const check0 = API.random(0, 100) < 80
+                        const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
+                        const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
+
+                        if (check0 && check1 && check2) {
+                                
                             const gnR = API.random(0, 100)
 
                             let selectedRarity
+                                
+                            if (gnR <= tool.drops.mythic) selectedRarity = "mythic"
 
-                            switch(gnR) {
-                                case gnR <= tool.drops.mythic:
-                                    selectedRarity = "mythic"
-                                    break;
-                                case gnR <= tool.drops.lendary:
-                                    selectedRarity = "lendary"
-                                    break;
-                                case gnR <= tool.drops.epic:
-                                    selectedRarity = "epic"
-                                    break;
-                                case gnR <= tool.drops.rare:
-                                    selectedRarity = "rare"
-                                    break;
-                                case gnR <= tool.drops.uncommon:
-                                    selectedRarity = "uncommon"
-                                default:
-                                    selectedRarity = "common"
-                                    break;
-                            }
+                            if (gnR <= tool.drops.lendary) selectedRarity = "lendary"
+
+                            if (gnR <= tool.drops.epic) selectedRarity = "epic"
+
+                            if (gnR <= tool.drops.rare) selectedRarity = "rare"
+
+                            if (gnR <= tool.drops.uncommon) selectedRarity = "uncommon"
+
+                            if (!selectedRarity) selectedRarity = "common"
 
                             const drops = API.itemExtension.getObj().drops.filter((r) => r.levelprocess)
+
+                            let filtereddrop = drops.filter((r) => r.rarity == selectedRarity && obj.level+6 >= r.levelprocess)
                             
-                            let filtereddrop = drops.filter((r) => obj.rarity == selectedRarity && obj.level >= r.levelprocess).sort(function(a, b){
+                            filtereddrop = filtereddrop.sort(function(a, b){
                                 return b.levelprocess - a.levelprocess;
-                            }).slice(0, 6)[API.random(0, 6)]
+                            })
+
+                            filtereddrop = filtereddrop[API.random(0, filtereddrop.length-1)]
 
                             if (filtereddrop) {
                                 const droplist = processjson.in[indexProcess].drops || []
                                 const dropInList = droplist.find((r) => r.name == filtereddrop.name)
                                 if (dropInList) {
-                                    const indexDropInList = processjson.in.drops.indexOf(dropInList)
+                                    const indexDropInList = processjson.in[indexProcess].drops.indexOf(dropInList)
                                     if (indexDropInList >= 0) {
                                         droplist[indexDropInList].quantia += 1
                                         droplist[indexDropInList].size += 1
@@ -721,14 +729,21 @@ const jobs = {
                         }
 
                     }
+
+                    if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
+                        sendDrop()
+                        processjson.in[indexProcess].fragments.current -= 1
+                    } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
+                        sendDrop()
+                        processjson.in[indexProcess].fragments.current -= 1
+                    }
                     
-                    processjson.in[indexProcess].fragments.current -= 1
 
                 }
 
                 API.setInfo(member, 'players_utils', 'process', processjson)
 
-                const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, 1)
+                const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
 
                 if (API.debug) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
 

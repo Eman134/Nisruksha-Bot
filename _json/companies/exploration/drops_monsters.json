@@ -63,7 +63,7 @@
         "displayname": "Pele de Cold Gazbur",
         "icon": "<:wolfskin2:764870476865470514>",
         "levelprocess": 8,
-        "rarity": "common",
+        "rarity": "uncommon",
         "price": 1750
     },
     {
@@ -71,7 +71,7 @@
         "displayname": "Pele de Poison Gazbur",
         "icon": "<:wolfskin3:764870476886704138>",
         "levelprocess": 8,
-        "rarity": "common",
+        "rarity": "uncommon",
         "price": 1900
     },
     {
@@ -79,7 +79,7 @@
         "displayname": "Carne de monstro",
         "icon": "<:beef:764882082500837406>",
         "levelprocess": 9,
-        "rarity": "common",
+        "rarity": "uncommon",
         "price": 2500
     },
     {

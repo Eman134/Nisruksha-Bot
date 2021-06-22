@@ -101,9 +101,11 @@ module.exports = {
                                 if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
                                 else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
         
-                                for (iil = totalpages_rar; iil > 0; i--){
-                                    let ic = totalpages_rar+1-iil
-                                    ccmap_rar += cclist_rar.slice((ic-1)*5, ic*5).map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
+                                for (iil = 0; iil < totalpages_rar; iil++){
+                                    const sliced = cclist_rar.slice(((iil+1)*5)-5, ((iil+1)*5))
+                                    if (sliced.length > 0) {
+                                        ccmap_rar += sliced.map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
+                                    }
                                 }
         
                                 eproctemp.addField(title, ccmap_rar, false)
@@ -258,7 +260,6 @@ Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - 
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
-Consumo: ${(tool.fuel.consume/1000).toFixed(2)}L por 1000 <:fragmento:843674514260623371>
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
@@ -278,7 +279,11 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 let score = parseFloat(oldproc.score)
                 API.company.stars.add(msg.author, company.company_id, { score })
 
-                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? '\nOs itens que foram encontrados por este processo foram para a mochila.':''}`)
+                
+                const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
+                
+                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
+
             }
 
             b.deferUpdate()
