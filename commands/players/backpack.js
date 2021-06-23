@@ -58,9 +58,9 @@ module.exports = {
 
         let arrayitens = await API.company.jobs.itens.get(member, true)
 
-        arrayitens = arrayitens.sort(function(a, b){
-            return b.size - a.size;
-        })
+        let sorter = 0
+        let sortermode = 0
+        let currentsort = 0
 
         let totalpages = arrayitens.length % 10;
         if (totalpages == 0) totalpages = (arrayitens.length)/10;
@@ -74,6 +74,55 @@ module.exports = {
     
             const map = array2.map(crate => `**${crate.split(';')[1]}x** ${API.crateExtension.obj[crate.split(';')[0]].icon} ${API.crateExtension.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
             
+            arrayitens = arrayitens.sort(function(a, b){
+
+                if (sorter == 0) {
+                    if (sortermode == 0) {
+                        return b.size - a.size
+                    } else {
+                        return a.size - b.size
+                    }
+                }
+
+                if (sorter == 1 && a.rarity && b.rarity) {
+                    const rarities = {
+                        "common": 0,
+                        "uncommon": 1,
+                        "rare": 2,
+                        "epic": 3,
+                        "lendary": 4,
+                        "mythic": 5
+                    }
+                    if (sortermode == 0) {
+                        return rarities[b.rarity] - rarities[a.rarity]
+                    } else {
+                        return rarities[a.rarity] - rarities[b.rarity]
+                    }
+                }
+
+                if (sorter == 2) {
+                    if (sortermode == 0) {
+                        if(a.displayname < b.displayname) { 
+                            return -1; 
+                        }
+                        if(a.displayname > b.displayname) { 
+                            return 1; 
+                        }
+                    } else {
+                        if(a.displayname < b.displayname) { 
+                            return -1; 
+                        }
+                        if(a.displayname > b.displayname) { 
+                            return 1; 
+                        }
+                    }
+                }
+
+                return b.size - a.size;
+            })
+
+            if (sorter == 2 && sortermode == 1) arrayitens = arrayitens.reverse()
+
             embed
             .setColor('#a85a32')
             .setTitle(backpack.icon + ' ' + backpack.name)
@@ -91,12 +140,20 @@ module.exports = {
         function reworkButtons({ currentpage, totalpages }) {
 
             const butnList = []
+            const butnList2 = []
             const components = []
       
             butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
             butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
+            // Sorters
+            butnList2.push(API.createButton('sort0', 'SECONDARY', 'Quantidade', '🔢'))
+            butnList2.push(API.createButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
+            butnList2.push(API.createButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
+
             components.push(API.rowButton(butnList))
+
+            components.push(API.rowButton(butnList2))
       
             return components
       
@@ -126,6 +183,16 @@ module.exports = {
                 if (currentpage < totalpages) currentpage += 1;
             } else if (b.customID == 'backward') {
                 if (currentpage > 1) currentpage -= 1;
+            } 
+
+            if (b.customID.startsWith('sort')) {
+                if (currentsort == parseInt(b.customID.replace('sort', ''))) {
+                    sortermode == 0 ? sortermode = 1 : sortermode = 0
+                } else {
+                    sortermode = 0
+                    sorter = parseInt(b.customID.replace('sort', ''))
+                    currentsort = parseInt(b.customID.replace('sort', ''))
+                }
             }
 
             components = reworkButtons({ currentpage, totalpages })

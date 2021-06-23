@@ -1,8 +1,6 @@
-const { ms } = require('../../_classes/api');
-
 module.exports = {
     name: 'versão',
-    aliases: ['versao', 'patch', 'att'],
+    aliases: ['versao', 'patch', 'att', 'temporada'],
     category: 'Outros',
     description: 'Visualize o último patch de atualizações do bot',
     options: [{

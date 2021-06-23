@@ -128,6 +128,8 @@ module.exports = {
 
         let reacted = false
 
+        const custostart = 200
+
         collector.on('collect', async (b) => {
             reacted = true;
             embed.fields = [];
@@ -142,6 +144,18 @@ module.exports = {
             let processjson = players_utils.process
 
             const tool = (b.customID == 'ferr' ? processjson.tools[0] : processjson.tools[1])
+
+            let stamina = await API.playerUtils.stamina.get(msg.author)
+
+            if (stamina < custostart) {
+                
+                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
+                await msg.quote({ embeds: [embedtemp]})
+                return;
+
+            }
+
+            API.playerUtils.stamina.remove(msg.author, custostart)
 
             if (API.toNumber(args[0]) < Math.round(tool.process.maxfragments*0.15)) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
@@ -172,7 +186,7 @@ Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durabil
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
-**Você iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
+**Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`${API.prefix}processos\`.**
 `)
             } if (b.customID == 'lqd') {
@@ -186,7 +200,7 @@ Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
-**Você iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
+**Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`${API.prefix}processos\`.**
 `)
             }

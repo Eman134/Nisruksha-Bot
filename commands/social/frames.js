@@ -34,11 +34,11 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "molduras", 30);
 
-        let btn1 = API.createButton('sBtn', 'gray', 'Equipar', '✅')
-        let btn2 = API.createButton('nBtn', 'gray', 'Desequipar', '❌')
+        let btn1 = API.createButton('sBtn', 'SECONDARY', 'Equipar', '✅')
+        let btn2 = API.createButton('nBtn', 'SECONDARY', 'Desequipar', '❌')
         let btn3 = API.createButton('b1Btn', 'PRIMARY', '', '⏪')
-        let btn4 = API.createButton('b0Btn', 'gray', '', '852241487064596540')
-        let btn5 = API.createButton('f0Btn', 'gray', '', '737370913204600853')
+        let btn4 = API.createButton('b0Btn', 'SECONDARY', '', '852241487064596540')
+        let btn5 = API.createButton('f0Btn', 'SECONDARY', '', '737370913204600853')
         let btn6 = API.createButton('f1Btn', 'PRIMARY', '', '⏩')
 
         if (total < 2) {
