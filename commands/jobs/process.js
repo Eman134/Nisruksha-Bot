@@ -150,8 +150,8 @@ module.exports = {
 
             const btn0 = API.createButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
             //const btn1 = API.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), 'Ferramenta de Limpeza', '🔨', (current == 'ferr' || allDisabled ? true : false))
-            const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), 'Líquido de Limpeza', '🧪', (current == 'lqd' || allDisabled ? true : false))
+            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🔨', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
+            const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? 'Repor' : 'Líquido de Limpeza', current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? '⚗' : '🧪', (current == 'lqd' && (tool.fuel.current/tool.fuel.max*100).toFixed(2) >= 50 || allDisabled ? true : false))
             
             components.push(API.rowButton([btn0, btn2, btn3]))
 
@@ -207,11 +207,19 @@ module.exports = {
             reacted = true;
             embeds = [embed]
             embed.fields = [];
+            let repair = false
+            let custorepair = 0
             embed.setDescription('')
+            embed.setColor('#36393e')
+            if ((b.customID == 'ferr' && current == 'ferr')) repair = true
+            if ((b.customID == 'lqd' && current == 'lqd')) repair = true
+
             current = b.customID
+
             API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 35);
 
             const players_utils = await API.getInfo(msg.author, 'players_utils')
+            const money = await API.eco.money.get(msg.author)
             processjson = players_utils.process
 
             if (b.customID == 'processos') {
@@ -245,6 +253,11 @@ module.exports = {
             }
             
             if (b.customID == 'ferr') {
+
+                if ((tool.durability.current/tool.durability.max*100).toFixed(2) < 70) {
+                    custorepair = (tool.durability.max-tool.durability.current)*200
+                }
+
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
@@ -254,19 +267,49 @@ Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.p
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de reparação atual: \`${custorepair} ${API.money}\` ${API.moneyemoji}` : ''}
 `)
             } if (b.customID == 'lqd') {
+
+                if ((tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50) {
+                    custorepair = (tool.fuel.max-tool.current.current)*250
+                }
+
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
-Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L
+Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L (${(tool.fuel.current/tool.fuel.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição atual: \`${custorepair} ${API.money}\` ${API.moneyemoji}` : ''}
 `)
-            } 
+            }  if (repair) {
+                if (money < custorepair) {
+                    embed.setColor('#a60000');
+                    embed.addField('❌ Falha ' + (b.customID == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customID == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${API.format(money)}/${API.format(custorepair)} ${API.money} ${API.moneyemoji}**`)
+                } else {
+
+                    embed.setColor('#5bff45');
+                    embed.addField('✅ Sucesso ' +  (b.customID == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${API.format(custorepair)} ${API.money} ${API.moneyemoji}** e ${(b.customID == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
+                
+                
+                    if (b.customID == 'ferr') {
+                        processjson.tools[0].durability.current = processjson.tools[0].durability.max
+
+                    } else {
+                        processjson.tools[0].fuel.current = processjson.tools[0].fuel.max
+                    }
+                    
+                    API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                    await API.eco.money.remove(msg.author, custorepair);
+                    await API.eco.addToHistory(msg.author, `${(b.customID == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
+                }
+                    
+            
+            }
             if (b.customID.startsWith('proc:')) {
 
                 let stamina = await API.playerUtils.stamina.get(msg.author)
@@ -301,10 +344,11 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             b.deferUpdate()
 
-            collector.resetTimer()
+            if (repair) collector.stop()
+            else collector.resetTimer()
 
             const components = reworkButtons(current)
-
+            
             await embedmsg.edit({ embeds, components })
 
         });

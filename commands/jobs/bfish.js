@@ -360,9 +360,9 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await embedmsg.edit({ embeds: [embed] }).catch()
+                        await embedmsg.edit({ embeds: [embed], components:[] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
-                        await msg.quote({ embeds: [embedtemp]})
+                        await msg.quote({ embeds: [embedtemp], components:[]})
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                         API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {edit(msg, company);}

@@ -671,7 +671,7 @@ const jobs = {
 
                     function sendDrop() {
 
-                        const check0 = API.random(0, 100) < 80
+                        const check0 = API.random(0, 100) < 40
                         const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
                         const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
 
