@@ -683,13 +683,13 @@ const jobs = {
                                 
                             if (gnR <= tool.drops.mythic) selectedRarity = "mythic"
 
-                            if (gnR <= tool.drops.lendary) selectedRarity = "lendary"
+                            else if (gnR <= tool.drops.lendary) selectedRarity = "lendary"
 
-                            if (gnR <= tool.drops.epic) selectedRarity = "epic"
+                            else if (gnR <= tool.drops.epic) selectedRarity = "epic"
 
-                            if (gnR <= tool.drops.rare) selectedRarity = "rare"
+                            else if (gnR <= tool.drops.rare) selectedRarity = "rare"
 
-                            if (gnR <= tool.drops.uncommon) selectedRarity = "uncommon"
+                            else if (gnR <= tool.drops.uncommon) selectedRarity = "uncommon"
 
                             if (!selectedRarity) selectedRarity = "common"
 
