@@ -76,13 +76,7 @@ module.exports = {
             
             arrayitens = arrayitens.sort(function(a, b){
 
-                if (sorter == 0) {
-                    if (sortermode == 0) {
-                        return b.size - a.size
-                    } else {
-                        return a.size - b.size
-                    }
-                }
+                if (sorter == 0) return b.size - a.size
 
                 if (sorter == 1 && a.rarity && b.rarity) {
                     const rarities = {
@@ -93,35 +87,23 @@ module.exports = {
                         "lendary": 4,
                         "mythic": 5
                     }
-                    if (sortermode == 0) {
-                        return rarities[b.rarity] - rarities[a.rarity]
-                    } else {
-                        return rarities[a.rarity] - rarities[b.rarity]
-                    }
+                    if (sortermode == 0) return rarities[b.rarity] - rarities[a.rarity]
+                    
                 }
 
                 if (sorter == 2) {
-                    if (sortermode == 0) {
-                        if(a.displayname < b.displayname) { 
-                            return -1; 
-                        }
-                        if(a.displayname > b.displayname) { 
-                            return 1; 
-                        }
-                    } else {
-                        if(a.displayname < b.displayname) { 
-                            return -1; 
-                        }
-                        if(a.displayname > b.displayname) { 
-                            return 1; 
-                        }
+                    if(a.displayname < b.displayname) { 
+                        return -1; 
+                    }
+                    if(a.displayname > b.displayname) { 
+                        return 1; 
                     }
                 }
 
                 return b.size - a.size;
             })
 
-            if (sorter == 2 && sortermode == 1) arrayitens = arrayitens.reverse()
+            if (sortermode == 1) arrayitens = arrayitens.reverse()
 
             embed
             .setColor('#a85a32')
@@ -132,7 +114,7 @@ module.exports = {
             embed.addField(`💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`${API.prefix}venderitem\`\nPara usar itens utilize \`${API.prefix}usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
             //for (i = 1; i < totalpages; i++) {
             const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${API.itemExtension.translateRarity(i2.rarity)}] `:''}**${i2.size}x** ${i2.icon} ${i2.displayname}${i2.usavel ? ` 💫` : ''}`).join('\n')
-            embed.addField(`Itens Página ${currentpage}/${totalpages}`, (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
+            embed.addField(`Itens Página ${currentpage}/${totalpages} ${sorter == 0 ? '🔢' : sorter == 1 ? '<:raro:852302870074359838>' : '🔠'}${sortermode == 0 ? '<:up:833837888634486794>':'<:down:833837888546275338>'}`, (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
            // }
             return embed
         }
@@ -206,7 +188,7 @@ module.exports = {
         });
         
         collector.on('end', collected => {
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
         });
 
 	}
