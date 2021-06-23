@@ -8,9 +8,9 @@ module.exports = {
 
         const Discord = API.Discord;
 
-        let time = await API.maqExtension.stamina.time(msg.author)
+        let time = await API.playerUtils.stamina.time(msg.author)
         let staminamax = 1000;
-        let stamina = await API.maqExtension.stamina.get(msg.author)
+        let stamina = await API.playerUtils.stamina.get(msg.author)
         let perm = await API.getPerm(msg.author);
 
 		const embed = new Discord.MessageEmbed()
@@ -30,9 +30,9 @@ module.exports = {
         collector.on('collect', async (reaction, user) => {
             reacted = true;
             const embed2 = new Discord.MessageEmbed()
-            const e1 = await API.maqExtension.stamina.get(msg.author);
+            const e1 = await API.playerUtils.stamina.get(msg.author);
             const e2 = 1000
-            const e3 = await API.maqExtension.stamina.time(msg.author);
+            const e3 = await API.playerUtils.stamina.time(msg.author);
             embed2.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${e1}/${e2}]**`, `Irá recuperar completamente em: \`${API.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
             embedmsg.edit(embed2);
@@ -40,12 +40,12 @@ module.exports = {
             if (API.cacheLists.remember.includes(msg.author, "estamina")) return;
             API.cacheLists.remember.add(msg.author, msg.channel.id, "estamina");
             async function rem(){
-                if (await API.maqExtension.stamina.get(msg.author) >= 1000) {
-                 await msg.quote({ content: `Relatório de estamina: ${await API.maqExtension.stamina.get(msg.author)}/1000`, mention: true})
+                if (await API.playerUtils.stamina.get(msg.author) >= 1000) {
+                 await msg.quote({ content: `Relatório de estamina: ${await API.playerUtils.stamina.get(msg.author)}/1000`, mention: true})
                     API.cacheLists.remember.remove(msg.author, "estamina")
                     return;
                 } else {
-                    setTimeout(function(){rem()}, await API.maqExtension.stamina.time(msg.author)+1000)
+                    setTimeout(function(){rem()}, await API.playerUtils.stamina.time(msg.author)+1000)
                 }
             }  
             rem();
@@ -54,8 +54,8 @@ module.exports = {
         collector.on('end', async collected => {
             embedmsg.reactions.removeAll();
             if (reacted) return;
-            let time = await API.maqExtension.stamina.time(msg.author);
-            let st = await API.maqExtension.stamina.get(msg.author);
+            let time = await API.playerUtils.stamina.time(msg.author);
+            let st = await API.playerUtils.stamina.get(msg.author);
             embed.fields = []
             embed.setColor('#e06f0b')
             embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${st}/${1000}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!`)

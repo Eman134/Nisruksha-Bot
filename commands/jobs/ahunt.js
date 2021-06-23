@@ -36,7 +36,7 @@ module.exports = {
             return;
         }
 
-        let stamina = await API.maqExtension.stamina.get(msg.author)
+        let stamina = await API.playerUtils.stamina.get(msg.author)
 
         let cost = pobj2.level+1 * 2
         cost > 30 ? cost = 30 : cost = cost;
@@ -59,7 +59,7 @@ module.exports = {
 
         API.playerUtils.cooldown.set(msg.author, "hunt", 0);
 
-        API.maqExtension.stamina.remove(msg.author, cost-1)
+        API.playerUtils.stamina.remove(msg.author, cost-1)
 
         const embed = new Discord.MessageEmbed()
         
@@ -138,7 +138,7 @@ module.exports = {
                 let pobj2 = await API.getInfo(msg.author, 'machines')
                 let playerlevel2 = pobj2.level;
                 
-                let stp = await API.maqExtension.stamina.get(msg.author);
+                let stp = await API.playerUtils.stamina.get(msg.author);
 
                 let td_ = lost
 
@@ -216,7 +216,7 @@ module.exports = {
                 background = await API.img.drawText(background, `Nível ${monster.level}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
 
                 monster.csta -= td_.monster
-                API.maqExtension.stamina.remove(msg.author, td_.player)
+                API.playerUtils.stamina.remove(msg.author, td_.player)
 
                 if (attach) {
                     const attach =  await API.img.getAttachment(background, 'hunt' + session + '.png')
@@ -284,7 +284,7 @@ module.exports = {
                 embed.fields = []
                 embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
                 API.setInfo(member, "machines", "xp", 0)
-                API.maqExtension.stamina.subset(member, 0)
+                API.playerUtils.stamina.subset(member, 0)
 
             }
             

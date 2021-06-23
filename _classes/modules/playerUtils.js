@@ -1,7 +1,8 @@
 const API = require("../api.js");
 
 const playerUtils = {
-  cooldown: {}
+  cooldown: {},
+  stamina: {}
 }
 
 let bglevelup
@@ -118,6 +119,47 @@ playerUtils.getMastery = async function (member) {
   let obj = await API.getInfo(member, "players");
   result = obj["mastery"];
   return result;
+}
+
+playerUtils.stamina.get = async function(member) {
+  const obj = await API.getInfo(member, 'players')
+  let stamina = obj.stamina;
+
+  let res = (Date.now()/1000)-(stamina/1000);
+  let time = 1000*30 - res;
+  time = Math.round(time)
+  if (time < 1){ 
+    stamina = 1000;
+  } else {
+    stamina = (1000-((time-(time%30))/30))-1;
+  }
+  return stamina;
+}
+
+playerUtils.stamina.time = async function(member) {
+  const obj = await API.getInfo(member, 'players')
+  let stamina = obj.stamina;
+  let res = (Date.now()/1000)-(stamina/1000);
+  let time = 1000*30 - res;
+  time = Math.round(time)
+  return time*1000;
+}
+
+playerUtils.stamina.set = async function(member, valor) {
+  API.setInfo(member, 'players', 'stamina', valor)
+}
+playerUtils.stamina.subset = async function(member, valor) {
+  API.playerUtils.stamina.set(member, Date.now()-(30000*(valor)))
+}
+
+playerUtils.stamina.remove = async function(member, valor) {
+  const get = await playerUtils.stamina.get(member)
+  playerUtils.stamina.subset(member, get-valor)
+}
+
+playerUtils.stamina.add = async function(member, valor) {
+  const get = await playerUtils.stamina.get(member)
+  playerUtils.stamina.subset(member, get+valor)
 }
 
 module.exports = playerUtils

@@ -63,7 +63,7 @@ module.exports = {
             return;
         }
 
-        let stamina = await API.maqExtension.stamina.get(msg.author)
+        let stamina = await API.playerUtils.stamina.get(msg.author)
         let staminamax = 1000;
 
         if (stamina < 150) {
@@ -108,7 +108,7 @@ module.exports = {
             }
         }
         
-        API.maqExtension.stamina.remove(msg.author, 149)
+        API.playerUtils.stamina.remove(msg.author, 149)
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
         .setDescription(`Você usou 150 pontos de Estamina 🔸 e se moveu da vila **${API.townExtension.getTownNameByNum(atual)}** para a vila **${API.townExtension.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${API.format(total)} ${API.money} ${API.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)

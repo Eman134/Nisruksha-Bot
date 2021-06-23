@@ -199,7 +199,7 @@ module.exports = {
                     break;
 
                 case 2:
-                    await API.maqExtension.stamina.add(msg.author, drop.value);
+                    await API.playerUtils.stamina.add(msg.author, drop.value);
                     sucessEmbed()
                     break;
 

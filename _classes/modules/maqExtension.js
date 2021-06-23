@@ -1,48 +1,5 @@
 const API = require("../api.js");
 
-const stamina = {};
-
-stamina.get = async function(member) {
-  const obj = await API.getInfo(member, 'players')
-  let stamina = obj.stamina;
-
-  let res = (Date.now()/1000)-(stamina/1000);
-  let time = 1000*30 - res;
-  time = Math.round(time)
-  if (time < 1){ 
-    stamina = 1000;
-  } else {
-    stamina = (1000-((time-(time%30))/30))-1;
-  }
-  return stamina;
-}
-
-stamina.time = async function(member) {
-  const obj = await API.getInfo(member, 'players')
-  let stamina = obj.stamina;
-  let res = (Date.now()/1000)-(stamina/1000);
-  let time = 1000*30 - res;
-  time = Math.round(time)
-  return time*1000;
-}
-
-stamina.set = async function(member, valor) {
-  API.setInfo(member, 'players', 'stamina', valor)
-}
-stamina.subset = async function(member, valor) {
-  API.maqExtension.stamina.set(member, Date.now()-(30000*(valor)))
-}
-
-stamina.remove = async function(member, valor) {
-  const get = await stamina.get(member)
-  stamina.subset(member, get-valor)
-}
-
-stamina.add = async function(member, valor) {
-  const get = await stamina.get(member)
-  stamina.subset(member, get+valor)
-}
-
 const ores = {};
 
 ores.gen = async function(maq, profundidade, chip) {
@@ -170,7 +127,6 @@ storage.isFull = async function(member) {
 const maqExtension = {
   ores: ores, 
   storage,
-  stamina,
   update: 20,
   lastcot: "",
   proxcot: 0,

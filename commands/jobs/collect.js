@@ -24,7 +24,7 @@ module.exports = {
             return;
         }
 
-        const sta = await API.maqExtension.stamina.get(msg.author);
+        const sta = await API.playerUtils.stamina.get(msg.author);
 
         if (sta <= 40) {
             const embedtemp = await API.sendError(msg, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
@@ -86,7 +86,7 @@ module.exports = {
                 let round = 0;
                 let xp = API.random(2, 6);
                 xp = await API.playerUtils.execExp(msg, xp);
-                await API.maqExtension.stamina.remove(msg.author, 30);
+                await API.playerUtils.stamina.remove(msg.author, 30);
                 
                 let retorno = await API.itemExtension.give(msg, obj2)
                 let descartados = retorno.descartados
@@ -105,9 +105,9 @@ module.exports = {
 
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");
-                let sta2 = await API.maqExtension.stamina.get(msg.author);
+                let sta2 = await API.playerUtils.stamina.get(msg.author);
                 embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.maqExtension.stamina.get(msg.author)}/1000 🔸 \`(-30)\``)
+                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.playerUtils.stamina.get(msg.author)}/1000 🔸 \`(-30)\``)
                 embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 
                 for await (const r of colocados) {

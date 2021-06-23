@@ -28,6 +28,8 @@ module.exports = {
 
         let processjson = players_utils.process
 
+        const custoretirar = 200
+
         if (players_utils.process == null) {
 
             const defaultjson = {
@@ -98,17 +100,17 @@ module.exports = {
                             if (cclist_rar.length > 0) {
                             
                                 let totalpages_rar = cclist_rar.length % 5;
-                                if (totalpages_rar == 0) totalpages = (cclist_rar.length)/5;
+                                if (totalpages_rar == 0) totalpages_rar = (cclist_rar.length)/5;
                                 else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
-        
+                                
                                 for (iil = 0; iil < totalpages_rar; iil++){
                                     const sliced = cclist_rar.slice(((iil+1)*5)-5, ((iil+1)*5))
                                     if (sliced.length > 0) {
                                         ccmap_rar += sliced.map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
                                     }
                                 }
-        
-                                eproctemp.addField(title, ccmap_rar, false)
+
+                                if (ccmap_rar.length > 0) eproctemp.addField(title, ccmap_rar, false)
         
                             }
         
@@ -130,7 +132,7 @@ module.exports = {
                 }
             } else {
                 embed.fields = []
-                embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
                 embeds.push(embed)
             }
 
@@ -171,7 +173,7 @@ module.exports = {
                 let butnList = []
 
                 for (i = 0; i < endprocs.length; i++) {1
-                    butnList.push(API.createButton('proc:' + endprocs[i].id, 'SECONDARY', 'Processo: ' + endprocs[i].id, '', (allDisabled ? true : false)))
+                    butnList.push(API.createButton('proc:' + endprocs[i].id, 'SECONDARY', ' ' + custoretirar + ' | Processo: ' + endprocs[i].id, '🔸', (allDisabled ? true : false)))
                 }
 
                 let totalcomponents = butnList.length % 5;
@@ -266,13 +268,25 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 `)
             } 
             if (b.customID.startsWith('proc:')) {
+
+                let stamina = await API.playerUtils.stamina.get(msg.author)
+
+                if (stamina < custoretirar) {
+                    
+                    const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
+                    await msg.quote({ embeds: [embedtemp]})
+                    return;
+
+                }
+
+                API.playerUtils.stamina.remove(msg.author, custoretirar)
+
                 const id = parseInt(b.customID.replace(/proc:/g, ''))
                 const oldproc = processjson.in.find((x) => x.id == id)
                 const indexProcess = processjson.in.indexOf(oldproc)
                 processjson.in.splice(indexProcess, 1)
                 processjson.tools[oldproc.tool].process.current -= 1
                 API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                embed.setDescription('')
                 setProcess()
 
                 let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
@@ -282,7 +296,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
                 
                 embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
-                embeds.push(embed)
+            
             }
 
             b.deferUpdate()

@@ -97,9 +97,9 @@ const remembermap = new Map();
 
         break;
       case "estamina":
-        from = await API.maqExtension.stamina.get(member)
+        from = await API.playerUtils.stamina.get(member)
         to = 1000
-        time = await API.maqExtension.stamina.time(member)+1000
+        time = await API.playerUtils.stamina.time(member)+1000
       default:
         break;
     }

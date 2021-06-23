@@ -32,7 +32,7 @@ module.exports = {
             return;
         }
 
-        let stamina = await API.maqExtension.stamina.get(msg.author)
+        let stamina = await API.playerUtils.stamina.get(msg.author)
         let staminamax = 1000;
         let cost = pobj.rod.sta * 5
 
@@ -278,17 +278,17 @@ module.exports = {
                 let xp = API.random(1, 3);
                 xp = await API.playerUtils.execExp(msg, xp);
 
-                await API.maqExtension.stamina.remove(msg.author, gastosta);
+                await API.playerUtils.stamina.remove(msg.author, gastosta);
 
                 pobj = await API.getInfo(msg.author, 'players')
 
-                stamina = await API.maqExtension.stamina.get(msg.author)
+                stamina = await API.playerUtils.stamina.get(msg.author)
 
                 if (header.stars > 0 ) API.company.stars.add(msg.author, company.company_id, { score: header.stars })
 
                 embed.fields = [];
                 const obj6 = await API.getInfo(msg.author, "machines");
-                let sta2 = await API.maqExtension.stamina.get(msg.author);
+                let sta2 = await API.playerUtils.stamina.get(msg.author);
                 embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
                 embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``)
                 embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
