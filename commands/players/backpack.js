@@ -87,7 +87,7 @@ module.exports = {
                         "lendary": 4,
                         "mythic": 5
                     }
-                    if (sortermode == 0) return rarities[b.rarity] - rarities[a.rarity]
+                    return rarities[b.rarity] - rarities[a.rarity]
                     
                 }
 
