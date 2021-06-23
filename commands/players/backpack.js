@@ -122,20 +122,17 @@ module.exports = {
         function reworkButtons({ currentpage, totalpages }) {
 
             const butnList = []
-            const butnList2 = []
             const components = []
       
             butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
             butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
             // Sorters
-            butnList2.push(API.createButton('sort0', 'SECONDARY', 'Quantidade', '🔢'))
-            butnList2.push(API.createButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
-            butnList2.push(API.createButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
+            butnList.push(API.createButton('sort0', 'SECONDARY', 'Quantidade', '🔢'))
+            butnList.push(API.createButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
+            butnList.push(API.createButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
 
             components.push(API.rowButton(butnList))
-
-            components.push(API.rowButton(butnList2))
       
             return components
       

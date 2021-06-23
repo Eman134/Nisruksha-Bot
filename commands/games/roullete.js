@@ -77,16 +77,19 @@ module.exports = {
         const btn2 = API.createButton('🍐', 'SECONDARY', '', '🍐')
         const btn3 = API.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3])] });
 
         const filter = i => i.user.id === msg.author.id;
             
-        const collector = await msgembed.createMessageComponentInteractionCollector(filter, { time: 60000 });
+        const collector = await embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
         let selected;
+        let reacted = false
         collector.on('collect', async (b) => {
 
             selected = b.customID;
             b.deferUpdate()
+
+            reacted = true
 
             let array = [];
             let rolnum = API.random(15, 20)
@@ -136,7 +139,11 @@ module.exports = {
                 } else {
                     let title
                     let emote
-                    if (selected == array[5]) {API.eco.addToHistory(msg.author, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; await API.eco.token.add(msg.author, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(msg.author, "roullete", 0);}
+                    if (selected == array[5]) {
+                        API.eco.addToHistory(msg.author, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);
+                        embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; 
+                        await API.eco.token.add(msg.author, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(msg.author, "roullete", 0);
+                    }
                     else {API.eco.addToHistory(msg.author, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(msg.author, aposta);API.playerUtils.cooldown.set(msg.author, "roullete", 0);}
                     embed2.fields = [];
                     embed2.addField(`Sua aposta`, `Aposta: ${API.format(aposta)} ${API.money3} ${API.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${API.money3} ${API.money3emoji}`, true)
@@ -144,12 +151,23 @@ module.exports = {
                     .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
                     
                 }
-                msgembed.edit({ embeds: [embed2] });
+                embedmsg.edit({ embeds: [embed2] });
             }
 
             roll();
 
             collector.stop();
+        });
+
+        collector.on('end', async collected => {
+
+            API.playerUtils.cooldown.set(msg.author, "roullete", 0);
+
+            if (reacted) return
+
+            embedmsg.edit({ embeds: [embed], components: [] });
+
+            return;
         });
 
         API.playerUtils.cooldown.set(msg.author, "roullete", 60);

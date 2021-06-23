@@ -43,16 +43,16 @@ module.exports = {
             } finally {
 
                 const content = '**Executado em ' + (Date.now()-tempo)+" ms**"
-                const msgembed = await msg.quote({ content, embeds: [embed] }).catch(error => {
+                const embedmsg = await msg.quote({ content, embeds: [embed] }).catch(error => {
                 msg.quote({ content: `Ocorreu um erro ao dar eval! ${error.message}`})
                 })
 
-                msgembed.react('🗑');
+                embedmsg.react('🗑');
                     
-                msgembed.awaitReactions((reaction, user) => user.id == msg.author.id && (reaction.emoji.name == '🗑'),
+                embedmsg.awaitReactions((reaction, user) => user.id == msg.author.id && (reaction.emoji.name == '🗑'),
                             { max: 1, time: 30000 }).then(collected => {
                                     if (collected.first().emoji.name == '🗑') {
-                                        msgembed.delete();
+                                        embedmsg.delete();
                                     }
                             }).catch(() => {
                             });

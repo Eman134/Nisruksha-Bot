@@ -47,81 +47,69 @@ module.exports = {
         .addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${API.money}\` ${API.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`${API.prefix}armazém\``)
         embed.addField('<:waiting:739967127502454916> Aguardando resposta'
         , 'Aprimorar o armazém [<:upgrade:738434840457642054>]')
-        let msgembed = await msg.quote({ embeds: [embed] });
-        if (msg.author != msg.author)return;
-        let money = await API.eco.money.get(msg.author);
-        try {
-            msgembed.react('738434840457642054');
-        }catch (err){
-            client.emit('error', err)
-        }
 
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
-      
-        const emojis = ['738434840457642054'];
+        const btn0 = API.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
+
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0])] });
+
+        const filter = i => i.user.id === msg.author.id;
         
-        let collector = msgembed.createReactionCollector(filter, { time: 15000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 20000 });
 
         let reacted
         let err = false;
         let pago = 0;
         
-        collector.on('collect', async(reaction, user) => {
+        collector.on('collect', async(b) => {
             let ap = false;
             size = await API.maqExtension.storage.getSize(msg.author);
             max = await API.maqExtension.storage.getMax(msg.author);
-            money = await API.eco.money.get(msg.author);
+            const money = await API.eco.money.get(msg.author);
 
-            if (emojis.includes(reaction.emoji.id)) {
-                reacted = true;
-                embed.fields = [];
-                if (reaction.emoji.id == '738434840457642054'){
-                    if (price > await API.eco.money.get(msg.author)) {
-                        embed.setColor('#a60000')
-                        .addField('❌ Aprimoramento mal sucedido!', `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${API.format(await API.eco.money.get(msg.author))}/${API.format(await API.maqExtension.storage.getPrice(msg.author))} ${API.money} ${API.moneyemoji}**`)
-                        .setFooter('')
-                        err = true;
-                    } else {
-                        embed.setColor('#5bff45');
-                        pago += price;
-                        await API.setInfo(msg.author, 'storage', 'storage', lvl+r1)
-                        let obj55 = await API.getInfo(msg.author, 'storage');
-                        let lvl55 = obj55.storage;
-                        embed.addField('<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', `Peso máximo: **${API.format(max)}g (+${r1*API.maqExtension.storage.sizeperlevel})**\nNível do armazém: **${API.format(lvl55)} (+${r1})**\nPreço pago: **${API.format(pago)} ${API.money} ${API.moneyemoji}**`)
-                        .setFooter('')
-                        API.eco.money.remove(msg.author, price)
-                        API.eco.addToHistory(msg.author, `Aprimoramento Armazém | - ${API.format(price)} ${API.moneyemoji}`)
-                        ap = true;
-                    }
-                    collector.stop()
+            reacted = true;
+            embed.fields = [];
+            if (b.customID == 'upgrade'){
+                if (price > money) {
+                    embed.setColor('#a60000')
+                    .addField('❌ Aprimoramento mal sucedido!', `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${API.format(await API.eco.money.get(msg.author))}/${API.format(await API.maqExtension.storage.getPrice(msg.author))} ${API.money} ${API.moneyemoji}**`)
+                    .setFooter('')
+                    err = true;
+                } else {
+                    embed.setColor('#5bff45');
+                    pago += price;
+                    await API.setInfo(msg.author, 'storage', 'storage', lvl+r1)
+                    let obj55 = await API.getInfo(msg.author, 'storage');
+                    let lvl55 = obj55.storage;
+                    embed.addField('<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', `Peso máximo: **${API.format(max)}g (+${r1*API.maqExtension.storage.sizeperlevel})**\nNível do armazém: **${API.format(lvl55)} (+${r1})**\nPreço pago: **${API.format(pago)} ${API.money} ${API.moneyemoji}**`)
+                    .setFooter('')
+                    API.eco.money.remove(msg.author, price)
+                    API.eco.addToHistory(msg.author, `Aprimoramento Armazém | - ${API.format(price)} ${API.moneyemoji}`)
+                    ap = true;
                 }
-                try {
-                    if (msgembed)msgembed.edit({ embeds: [embed] });
-                }catch (err){
-                    client.emit('error', err)
-                    console.log(err)
-                }
-                if (err)collector.stop()
+                collector.stop()
             }
-            reaction.users.remove(user.id).catch();
-            collector.resetTimer();
+            try {
+                if (embedmsg)embedmsg.edit({ embeds: [embed], components: [] });
+            }catch (err){
+                client.emit('error', err)
+                console.log(err)
+            }
+            if (err)collector.stop()
+            
         });
         
         collector.on('end', collected => {
             try {
-                if (msgembed){
+                if (embedmsg){
                     if (!reacted) {
                     embed.fields = [];
                     embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${API.money}\` ${API.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`${API.prefix}armazém\``)
                     embed.addField('❌ Sessão encerrada', 'O tempo de reação foi expirado!')
                     .setFooter('')
-                    msgembed.edit({ embeds: [embed] });}
+                    embedmsg.edit({ embeds: [embed], components: [] });}
                 }
-                msgembed.reactions.removeAll().catch();
             }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
                 console.log(err)
             }
         });

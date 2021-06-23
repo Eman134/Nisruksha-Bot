@@ -9,8 +9,8 @@ const townExtension = {
         'Tyris': 0
     },
     games: {
-        'Nishigami': ['roleta', 'flip'],
-        'Harotec': ['roleta', 'flip'],
+        'Nishigami': ['roleta', 'flip', 'luckycards'],
+        'Harotec': ['roleta', 'flip', 'luckycards'],
         'Massibi': ['roleta', 'flip'],
         'Tyris': ['roleta', 'flip']
     }

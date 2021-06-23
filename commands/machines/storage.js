@@ -60,11 +60,11 @@ module.exports = {
         const btn0 = API.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
         const btn1 = API.createButton('recursos', 'SECONDARY', 'Recursos', '738429524416528554')
 
-        let msgembed = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = msgembed.createMessageComponentInteractionCollector(filter, { time: 15000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 20000 });
 
         let reacted
         let r1 = 1;
@@ -122,7 +122,7 @@ module.exports = {
                 } else embed.setFooter('💰 Seus recursos valem ' + API.format(Math.round(total)) + ' ' + API.money)
             }
 
-            await msgembed.edit({ embeds: [embed] });
+            await embedmsg.edit({ embeds: [embed] });
 
             collector.resetTimer();
         });
@@ -134,7 +134,7 @@ module.exports = {
             embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)}**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**`)
             embed.addField('❌ Sessão encerrada', 'O tempo de reação foi expirado!')
             .setFooter('')
-            msgembed.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed] });
 
         });
 
