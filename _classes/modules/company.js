@@ -677,19 +677,17 @@ const jobs = {
 
                         if (check0 && check1 && check2) {
                                 
-                            const gnR = API.random(0, 100)
+                            const gnR = API.random(0, 100, true)
 
+                            let chance = 0
                             let selectedRarity
-                                
-                            if (gnR <= tool.drops.mythic) selectedRarity = "mythic"
-
-                            else if (gnR <= tool.drops.lendary) selectedRarity = "lendary"
-
-                            else if (gnR <= tool.drops.epic) selectedRarity = "epic"
-
-                            else if (gnR <= tool.drops.rare) selectedRarity = "rare"
-
-                            else if (gnR <= tool.drops.uncommon) selectedRarity = "uncommon"
+                            for (const ri in tool.drops) {
+                                chance += tool.drops[ri]
+                                if (gnR <= chance) {
+                                    selectedRarity = ri
+                                    break;
+                                }
+                            }
 
                             if (!selectedRarity) selectedRarity = "common"
 
