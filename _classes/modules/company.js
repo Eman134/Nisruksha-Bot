@@ -661,7 +661,7 @@ const jobs = {
                             processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                         }
                     }
-                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 20) {
+                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 25) {
                         if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
                             processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
                         } else {
@@ -728,12 +728,40 @@ const jobs = {
 
                     }
 
+                    function processed() {
+                        sendDrop()
+                        processjson.in[indexProcess].fragments.current -= 1
+
+                        processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(0, 30)
+
+                        const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
+
+                        if (processjson.tools[inprocs[inprocsi].tool].toollevel.exp >= maxexp) {
+                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp = 0
+                            if (processjson.tools[inprocs[inprocsi].tool].toollevel.current < processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+                                processjson.tools[inprocs[inprocsi].tool].toollevel.current += 1
+
+                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current == processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+
+                                    const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool),
+
+                                    if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
+                                        processjson.tools[inprocs[inprocsi].tool] = newtool
+                                    } else {
+                                        processjson.tools[inprocs[inprocsi].tool].toollevel.current = Math.round(processjson.tools[inprocs[inprocsi].tool].toollevel.max/2)
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                    }
+
                     if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
-                        sendDrop()
-                        processjson.in[indexProcess].fragments.current -= 1
+                        processed()
                     } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
-                        sendDrop()
-                        processjson.in[indexProcess].fragments.current -= 1
+                        processed()
                     }
                     
 
