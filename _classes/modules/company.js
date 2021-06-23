@@ -697,7 +697,7 @@ const jobs = {
                             
                             filtereddrop = filtereddrop.sort(function(a, b){
                                 return b.levelprocess - a.levelprocess;
-                            })
+                            }).slice(0, 8)
 
                             filtereddrop = filtereddrop[API.random(0, filtereddrop.length-1)]
 
