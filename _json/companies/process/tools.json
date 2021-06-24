@@ -34,6 +34,321 @@
                 "uncommon": 30,
                 "common": 40
             }
+        },
+        {
+            "name": "Licha Simples",
+            "icon": "🔨",
+            "level": 6,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Licha Reforçada",
+            "icon": "🔨",
+            "level": 9,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Limpador Simples",
+            "icon": "🔨",
+            "level": 15,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Limpador Grande",
+            "icon": "🔨",
+            "level": 18,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Licha com ponta de cristal",
+            "icon": "🔨",
+            "level": 25,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Laser Simples",
+            "icon": "🔨",
+            "level": 30,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Laser Diodo de Pulso Longo",
+            "icon": "🔨",
+            "level": 40,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Luz Intensa Pulsada",
+            "icon": "🔨",
+            "level": 50,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
+        },
+        {
+            "name": "Laser Q-Switched Nd:Yag",
+            "icon": "🔨",
+            "level": 60,
+            "type": 0,
+            "potency": {
+                "rangemin": 20,
+                "current": 40,
+                "default": 40,
+                "rangemax": 60,
+                "max": 100
+            },
+            "durability": {
+                "current": 300,
+                "max": 300
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 100
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 20,
+                "uncommon": 30,
+                "common": 40
+            }
         }
     ],
     "1": [

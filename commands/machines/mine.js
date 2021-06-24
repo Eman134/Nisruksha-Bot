@@ -97,7 +97,7 @@ module.exports = {
 
                 let profundidade = await API.maqExtension.getDepth(msg.author)
 
-                let playerobj = await API.getInfo(msg.author, 'machines');
+                let playerobj = await API.getInfo({ id: msg.author.id }, 'machines');
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 
