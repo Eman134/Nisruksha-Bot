@@ -75,7 +75,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Equipar cancelado', `
                 Você cancelou a o equipar de **${placa.icon ? placa.icon+' ':''}${placa.name}**.`)
-                embedmsg.edit({ embeds: [embed] })
+                embedmsg.edit({ embeds: [embed], components: [] })
                 return;
             }
 
@@ -91,20 +91,20 @@ module.exports = {
             if (!contains1) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`${API.prefix}maquina\` para visualizar seus chipes`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
             if (playerobj.slots != null && playerobj1.slots.length >= API.maqExtension.getSlotMax(playerobj1.level, mvp) || API.maqExtension.getSlotMax(playerobj1.level, mvp) == 0) {
                 embed.setColor('#a60000')
                 .addField('❌ Falha ao equipar', `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots`)
-                embedmsg.edit({ embeds: [embed] })
+                embedmsg.edit({ embeds: [embed], components: [] })
                 return;
             }
 
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso ao equipar', `Você equipou **${placa.icon ? placa.icon+' ':''}${placa.name}** na sua máquina com sucesso!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots e chipes`)
-            embedmsg.edit({ embeds: [embed] })
+            embedmsg.edit({ embeds: [embed], components: [] })
 
             API.itemExtension.givePiece(msg.author, placa.id);
             API.setInfo(msg.author, 'storage', `"piece:${placa.id}"`, placa.size-1)
@@ -117,7 +117,7 @@ module.exports = {
             embed.setColor('#a60000')
             .addField('❌ Tempo expirado', `
             Você iria equipar **${placa.icon ? placa.icon+' ':''}${placa.name}**, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed] })
+            embedmsg.edit({ embeds: [embed], components: [] })
             return;
         });
 

@@ -42,11 +42,10 @@ OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \
 🔗 PIX: kessdev09@gmail.com
 
 Total de doações: ${donates}
-Total arrecadado em doações: R$${totaldonates},00
+Total arrecadado em doações: R$${(totaldonates + "").replace('.', ',')}
 
 `).setTimestamp()
              await msg.quote({ embeds: [embed] });
-        
         
 	}
 };
