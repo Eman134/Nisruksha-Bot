@@ -272,7 +272,7 @@ ${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de 
             } if (b.customID == 'lqd') {
 
                 if ((tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50) {
-                    custorepair = (tool.fuel.max-tool.current.current)*250
+                    custorepair = (tool.fuel.max-tool.fuel.current)*15
                 }
 
                 embed.setDescription(
@@ -300,7 +300,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                         processjson.tools[0].durability.current = processjson.tools[0].durability.max
 
                     } else {
-                        processjson.tools[0].fuel.current = processjson.tools[0].fuel.max
+                        processjson.tools[1].fuel.current = processjson.tools[1].fuel.max
                     }
                     
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
