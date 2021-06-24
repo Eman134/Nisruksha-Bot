@@ -362,10 +362,6 @@ module.exports = {
                             youhasbeencombedmeuamigo = true
                         } else if (combo[0] != combo[1] != combo[2]) {
                             youhasbeencombedmeuamigo = true
-                        } else if (combo[0] == combo[1] != combo[2]) {
-                            youhasbeencombedmeuamigo = true
-                        } else if (combo[2] == combo[1] != combo[0]) {
-                            youhasbeencombedmeuamigo = true
                         } else if (combo[0] == combo[2] != combo[1]) {
                             youhasbeencombedmeuamigo = true
                         }

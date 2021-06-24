@@ -4,21 +4,21 @@
         "displayname": "Pena",
         "icon": "<:pena1:764485712539156490>",
         "rarity": "common",
-        "price": 100
+        "price": 130
     },
     {
         "name": "\"pena laranja\"",
         "displayname": "Pena laranja",
         "icon": "<:pena2:764491850379427880>",
         "rarity": "common",
-        "price": 130
+        "price": 150
     },
     {
         "name": "\"pena zumbi\"",
         "displayname": "Pena zumbi",
         "icon": "<:pena3:764492355125772338>",
         "rarity": "common",
-        "price": 150
+        "price": 200
     },
     {
         "name": "\"dente quebrado\"",
@@ -26,7 +26,7 @@
         "icon": "<:brokentooth:764559740754984961>",
         "levelprocess": 3,
         "rarity": "common",
-        "price": 200
+        "price": 360
     },
     {
         "name": "\"asas de kirebat\"",
@@ -41,7 +41,7 @@
         "icon": "<:poisonbatwing:764565254943670273>",
         "levelprocess": 7,
         "rarity": "common",
-        "price": 610
+        "price": 710
     },
     {
         "name": "\"olho\"",
@@ -49,7 +49,7 @@
         "icon": "<:eyeball:764870551075946526>",
         "levelprocess": 7,
         "rarity": "common",
-        "price": 780
+        "price": 880
     },
     {
         "name": "\"pele de gazbur\"",
@@ -96,7 +96,7 @@
         "icon": "<:poison3:764882081972879380>",
         "levelprocess": 7,
         "rarity": "uncommon",
-        "price": 4000
+        "price": 4300
     },
     {
         "name": "\"veneno de poison frikki\"",
@@ -104,7 +104,7 @@
         "icon": "<:poison2:764882082014822410>",
         "levelprocess": 7,
         "rarity": "uncommon",
-        "price": 5000
+        "price": 5500
     },
     {
         "name": "\"antena de baraz\"",
@@ -167,7 +167,7 @@
         "icon": "<:ant3:764898650856882186>",
         "levelprocess": 14,
         "rarity": "rare",
-        "price": 9610
+        "price": 10610
     },
     {
         "name": "\"perna de shiny baraz\"",
@@ -223,7 +223,7 @@
         "icon": "<:imeaskin:830600038643269692>",
         "levelprocess": 17,
         "rarity": "epic",
-        "price": 17000
+        "price": 19000
     },
     {
         "name": "\"corpo de gasho\"",
@@ -231,7 +231,7 @@
         "icon": "<:gashostones:830603998520147979>",
         "levelprocess": 17,
         "rarity": "epic",
-        "price": 35000
+        "price": 45000
     },
     {
         "name": "\"carola de saseu\"",
@@ -255,7 +255,7 @@
         "icon": "<:partedecleitin:830605952259981385>",
         "levelprocess": 19,
         "rarity": "epic",
-        "price": 25000
+        "price": 35000
     },
     {
         "name": "\"pernas do cleitin\"",
@@ -263,7 +263,7 @@
         "icon": "<:pernascleitin:830606357227896842>",
         "levelprocess": 18,
         "rarity": "epic",
-        "price": 20000
+        "price": 30000
     },
     {
         "name": "\"armadura de olp\"",
@@ -271,7 +271,7 @@
         "icon": "<:olparmor:830607080159313920>",
         "levelprocess": 23,
         "rarity": "epic",
-        "price": 29000
+        "price": 39000
     },
     {
         "name": "\"pernas de olp\"",
@@ -279,7 +279,7 @@
         "icon": "<:olppernas:830607398993264641>",
         "levelprocess": 27,
         "rarity": "lendary",
-        "price": 34500
+        "price": 54500
     },
     {
         "name": "\"restos de basg\"",
@@ -287,7 +287,7 @@
         "icon": "<:restosdebasg:830608024007344199>",
         "levelprocess": 29,
         "rarity": "lendary",
-        "price": 55000
+        "price": 75000
     },
     {
         "name": "\"corpo de meil\"",
