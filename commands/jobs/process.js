@@ -318,6 +318,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     
                     setProcess()
                     embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
+                    if (processjson.in.length > 0) embeds.push(embed)
 
                 } else {
 
