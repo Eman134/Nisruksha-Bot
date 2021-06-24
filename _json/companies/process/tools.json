@@ -6,33 +6,33 @@
             "level": 3,
             "type": 0,
             "potency": {
-                "rangemin": 20,
-                "current": 40,
-                "default": 40,
-                "rangemax": 60,
-                "max": 100
+                "rangemin": 15,
+                "current": 20,
+                "default": 20,
+                "rangemax": 25,
+                "max": 50
             },
             "durability": {
-                "current": 300,
-                "max": 300
+                "current": 100,
+                "max": 100
             },
             "toollevel": {
                 "current": 1,
-                "max": 10,
+                "max": 5,
                 "exp": 0
             },
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 50
             },
             "drops": {
                 "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
-                "common": 40
+                "lendary": 1,
+                "epic": 2,
+                "rare": 6,
+                "uncommon": 20,
+                "common": 70
             }
         },
         {
@@ -41,33 +41,33 @@
             "level": 6,
             "type": 0,
             "potency": {
-                "rangemin": 20,
-                "current": 40,
-                "default": 40,
-                "rangemax": 60,
-                "max": 100
+                "rangemin": 15,
+                "current": 25,
+                "default": 25,
+                "rangemax": 35,
+                "max": 60
             },
             "durability": {
-                "current": 300,
-                "max": 300
+                "current": 120,
+                "max": 120
             },
             "toollevel": {
                 "current": 1,
-                "max": 10,
+                "max": 5,
                 "exp": 0
             },
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 50
             },
             "drops": {
                 "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
-                "common": 40
+                "lendary": 1,
+                "epic": 2,
+                "rare": 6,
+                "uncommon": 25,
+                "common": 65
             }
         },
         {
@@ -77,35 +77,35 @@
             "type": 0,
             "potency": {
                 "rangemin": 20,
-                "current": 40,
-                "default": 40,
-                "rangemax": 60,
-                "max": 100
+                "current": 30,
+                "default": 30,
+                "rangemax": 40,
+                "max": 60
             },
             "durability": {
-                "current": 300,
-                "max": 300
+                "current": 150,
+                "max": 150
             },
             "toollevel": {
                 "current": 1,
-                "max": 10,
+                "max": 5,
                 "exp": 0
             },
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 50
             },
             "drops": {
                 "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 20,
+                "lendary": 1,
+                "epic": 2,
+                "rare": 6,
                 "uncommon": 30,
-                "common": 40
+                "common": 60
             }
         },
-        {
+        { // fazer
             "name": "Limpador Simples",
             "icon": "🔨",
             "level": 15,

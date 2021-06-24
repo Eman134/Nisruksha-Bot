@@ -113,7 +113,7 @@ module.exports = {
                 const obj2 = await API.maqExtension.ores.gen(maq, profundidade, chipe);
                 let sizeMap = new Map();
                 let round = 0;
-                let xp = API.random(15, 35);
+                let xp = API.random(20, 40);
                 xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.removeEnergy(msg.author, 1);
 				

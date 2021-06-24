@@ -391,9 +391,9 @@ module.exports = {
                         crit = Math.round(eq.dmg)
                     }
                     lost.monster = Math.round(eq.dmg)+crit
-                    if (youhasbeencombedmeuamigo) lost.player = monster.level
+                    if (youhasbeencombedmeuamigo) lost.player = Math.round(monster.level/3)
                 } else {
-                    lost.player = monster.level+Math.round(40*eq.dmg/100)
+                    lost.player = Math.round((monster.level/1.5)+(40*eq.dmg/100))
                 }
                 
                 if (API.debug) console.log(`${eq.name}`.yellow)

@@ -58,7 +58,7 @@ module.exports = {
         if (getPatch.alc.length > 0) embed.addField(`\`Novas alcunhas\``, getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n'))
         if (getPatch.fix.length > 0) embed.addField(`\`Bugs fixados\``, getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n'))
 
-        .setFooter(`Veja um patch específico utilizando ${API.prefix}versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
+        .setFooter(`A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando ${API.prefix}versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
         if (!API.owner.includes(msg.author.id)) {
             await msg.quote({ embeds: [embed] });
             return;
