@@ -35,7 +35,7 @@ module.exports = {
             const e3 = await API.playerUtils.stamina.time(msg.author);
             embed2.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${e1}/${e2}]**`, `Irá recuperar completamente em: \`${API.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
-            embedmsg.edit(embed2);
+            embedmsg.edit({ embeds: [embed2]});
             collector.stop();
             if (API.cacheLists.remember.includes(msg.author, "estamina")) return;
             API.cacheLists.remember.add(msg.author, msg.channel.id, "estamina");

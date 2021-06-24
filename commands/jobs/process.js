@@ -316,30 +316,31 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                 if (stamina < custoretirar) {
                     
-                    const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
-                    await msg.quote({ embeds: [embedtemp]})
-                    return;
+                    setProcess()
+                    embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
+
+                } else {
+
+                    API.playerUtils.stamina.remove(msg.author, custoretirar)
+
+                    const id = parseInt(b.customID.replace(/proc:/g, ''))
+                    const oldproc = processjson.in.find((x) => x.id == id)
+                    const indexProcess = processjson.in.indexOf(oldproc)
+                    processjson.in.splice(indexProcess, 1)
+                    processjson.tools[oldproc.tool].process.current -= 1
+                    API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                    setProcess()
+
+                    let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
+                    let score = parseFloat(oldproc.score)
+                    API.company.stars.add(msg.author, company.company_id, { score })
+
+                    const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
+                    
+                    embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
+                    if (processjson.in.length > 0) embeds.push(embed)
 
                 }
-
-                API.playerUtils.stamina.remove(msg.author, custoretirar)
-
-                const id = parseInt(b.customID.replace(/proc:/g, ''))
-                const oldproc = processjson.in.find((x) => x.id == id)
-                const indexProcess = processjson.in.indexOf(oldproc)
-                processjson.in.splice(indexProcess, 1)
-                processjson.tools[oldproc.tool].process.current -= 1
-                API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                setProcess()
-
-                let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
-                let score = parseFloat(oldproc.score)
-                API.company.stars.add(msg.author, company.company_id, { score })
-
-                const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
-                
-                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
-                if (processjson.in.length > 0) embeds.push(embed)
             }
 
             b.deferUpdate()

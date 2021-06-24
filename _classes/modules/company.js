@@ -732,7 +732,7 @@ const jobs = {
                         sendDrop()
                         processjson.in[indexProcess].fragments.current -= 1
 
-                        processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(0, 100)
+                        processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(30, 130)
 
                         const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
 
@@ -741,7 +741,7 @@ const jobs = {
                             if (processjson.tools[inprocs[inprocsi].tool].toollevel.current < processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
                                 processjson.tools[inprocs[inprocsi].tool].toollevel.current += 1
 
-                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current == processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
 
                                     const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
 
