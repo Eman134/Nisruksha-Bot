@@ -105,7 +105,7 @@ module.exports = {
         let autohunt = false
         const equipsBtn = []
         let components = []
-
+        let combo = []
         let session = 0
         collector.on('collect', async (b) => {
             
@@ -303,7 +303,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}]**`: ''}`)
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
@@ -348,9 +348,29 @@ module.exports = {
             
                 let eq = reactequips[b.customID];
 
+                let youhasbeencombedmeuamigo = false
+
                 if (autohunt) {
                     Object.keys(reactequips)
                     eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
+                } else {
+                    if (combo.length >= 3) combo = []
+                    combo.push(API.client.emojis.cache.get(b.customID))
+
+                    if (combo.length >= 3) {
+                        if (combo[0] == combo[1] == combo[2]) {
+                            youhasbeencombedmeuamigo = true
+                        } else if (combo[0] != combo[1] != combo[2]) {
+                            youhasbeencombedmeuamigo = true
+                        } else if (combo[0] == combo[1] != combo[2]) {
+                            youhasbeencombedmeuamigo = true
+                        } else if (combo[2] == combo[1] != combo[0]) {
+                            youhasbeencombedmeuamigo = true
+                        } else if (combo[0] == combo[2] != combo[1]) {
+                            youhasbeencombedmeuamigo = true
+                        }
+                    }
+
                 }
                 
                 if (!eq) return
@@ -362,21 +382,22 @@ module.exports = {
 
                 let crit = 0;
                 let roll = API.random(0, 100)
-                if (roll < eq.chance) {
+                if (roll < eq.chance || youhasbeencombedmeuamigo) {
                     let reroll = API.random(0, 50)
                     lost.player = Math.round(eq.dmg/API.random(3, 4))
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                    else if(API.random(0, 50) < 10) {
+                    else if(API.random(0, 50) < 10 || youhasbeencombedmeuamigo) {
                         lost.player = 0
                         crit = Math.round(eq.dmg)
                     }
                     let roll3 = API.random(0, 100)
-                    if (roll3 <= eq.crit) {
+                    if (roll3 <= eq.crit || youhasbeencombedmeuamigo) {
                         crit = Math.round(eq.dmg)
                     }
                     lost.monster = Math.round(eq.dmg)+crit
+                    if (youhasbeencombedmeuamigo) lost.player = monster.level
                 } else {
-                    lost.player = monster.level+Math.round(80*eq.dmg/100)
+                    lost.player = monster.level+Math.round(40*eq.dmg/100)
                 }
                 
                 if (API.debug) console.log(`${eq.name}`.yellow)
@@ -384,9 +405,9 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}]${youhasbeencombedmeuamigo ? ' 💥':''}**`: ''}`)
                     
-                    for (const r of equips) {
+                for (const r of equips) {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
                 

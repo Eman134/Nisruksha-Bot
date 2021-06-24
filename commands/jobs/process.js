@@ -344,8 +344,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
             b.deferUpdate()
 
-            if (repair) collector.stop()
-            else collector.resetTimer()
+            collector.resetTimer()
 
             const components = reworkButtons(current)
             

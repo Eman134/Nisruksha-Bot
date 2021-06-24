@@ -6,5 +6,93 @@
         "rarity": "common",
         "levelprocess": 1,
         "price": 100
+    },
+    {
+        "name": "\"fragmento de cobre\"",
+        "displayname": "Fragmento de Cobre",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 2,
+        "price": 200
+    },
+    {
+        "name": "\"fragmento de ferro\"",
+        "displayname": "Fragmento de Ferro",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 3,
+        "price": 300
+    },
+    {
+        "name": "\"fragmento de bauxita\"",
+        "displayname": "Fragmento de Bauxita",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 7,
+        "price": 500
+    },
+    {
+        "name": "\"fragmento de manganes\"",
+        "displayname": "Fragmento de Manganes",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 12,
+        "price": 800
+    },
+    {
+        "name": "\"fragmento de niobio\"",
+        "displayname": "Fragmento de Niobio",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 16,
+        "price": 1000
+    },
+    {
+        "name": "\"fragmento de ouro\"",
+        "displayname": "Fragmento de Ouro",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 22,
+        "price": 1300
+    },
+    {
+        "name": "\"fragmento de rubi\"",
+        "displayname": "Fragmento de Rubi",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 28,
+        "price": 1500
+    },
+    {
+        "name": "\"fragmento de ametista\"",
+        "displayname": "Fragmento de Ametista",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 37,
+        "price": 2000
+    },
+    {
+        "name": "\"fragmento de diamante\"",
+        "displayname": "Fragmento de Diamante",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 60,
+        "price": 15000
+    },
+    {
+        "name": "\"fragmento de jade\"",
+        "displayname": "Fragmento de Jade",
+        "icon": "❔",
+        "rarity": "lendary",
+        "levelprocess": 76,
+        "price": 55000
+    },
+    {
+        "name": "\"fragmento de safira\"",
+        "displayname": "Fragmento de Safira",
+        "icon": "❔",
+        "rarity": "mythic",
+        "levelprocess": 85,
+        "price": 75000
     }
 ]

@@ -271,7 +271,7 @@ module.exports = {
 
             try{
 
-                let gastosta = 1
+                let gastosta = 3
 
                 if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
 
