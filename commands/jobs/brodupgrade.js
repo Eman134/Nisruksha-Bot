@@ -26,7 +26,7 @@ module.exports = {
             return
         }
 
-        let total = Math.round(3200*pobj.rod.level*2)
+        let total = Math.round(1200*pobj.rod.level*2)
 
         const embed = new Discord.MessageEmbed()
         .setColor('#63b8ae')
