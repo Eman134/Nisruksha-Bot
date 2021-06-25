@@ -13,6 +13,11 @@ module.exports = {
         let stamina = await API.playerUtils.stamina.get(msg.author)
         let perm = await API.getPerm(msg.author);
 
+        if (stamina < 0) {
+            await API.playerUtils.stamina.subset(msg.author, 0)
+            stamina = await API.playerUtils.stamina.get(msg.author)
+        }
+
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#e06f0b')
         if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)

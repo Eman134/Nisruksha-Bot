@@ -23,7 +23,7 @@
             },
             "process": {
                 "current": 0,
-                "max": 2,
+                "max": 1,
                 "maxfragments": 50
             },
             "drops": {
@@ -59,7 +59,7 @@
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 50
+                "maxfragments": 60
             },
             "drops": {
                 "mythic": 1,
@@ -94,7 +94,7 @@
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 50
+                "maxfragments": 60
             },
             "drops": {
                 "mythic": 1,
@@ -105,7 +105,7 @@
                 "common": 60
             }
         },
-        { // fazer
+        {
             "name": "Limpador Simples",
             "icon": "🔨",
             "level": 15,
@@ -123,7 +123,7 @@
             },
             "toollevel": {
                 "current": 1,
-                "max": 10,
+                "max": 5,
                 "exp": 0
             },
             "process": {
@@ -234,7 +234,7 @@
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 110
             },
             "drops": {
                 "mythic": 1,
@@ -258,8 +258,8 @@
                 "max": 100
             },
             "durability": {
-                "current": 300,
-                "max": 300
+                "current": 350,
+                "max": 350
             },
             "toollevel": {
                 "current": 1,
@@ -269,14 +269,14 @@
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 110
             },
             "drops": {
                 "mythic": 1,
                 "lendary": 3,
                 "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
+                "rare": 25,
+                "uncommon": 25,
                 "common": 40
             }
         },
@@ -286,15 +286,15 @@
             "level": 50,
             "type": 0,
             "potency": {
-                "rangemin": 20,
-                "current": 40,
-                "default": 40,
-                "rangemax": 60,
-                "max": 100
+                "rangemin": 30,
+                "current": 45,
+                "default": 45,
+                "rangemax": 65,
+                "max": 120
             },
             "durability": {
-                "current": 300,
-                "max": 300
+                "current": 500,
+                "max": 500
             },
             "toollevel": {
                 "current": 1,
@@ -304,14 +304,14 @@
             "process": {
                 "current": 0,
                 "max": 2,
-                "maxfragments": 100
+                "maxfragments": 120
             },
             "drops": {
                 "mythic": 1,
                 "lendary": 3,
                 "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
+                "rare": 25,
+                "uncommon": 25,
                 "common": 40
             }
         },
@@ -321,11 +321,11 @@
             "level": 60,
             "type": 0,
             "potency": {
-                "rangemin": 20,
-                "current": 40,
-                "default": 40,
-                "rangemax": 60,
-                "max": 100
+                "rangemin": 30,
+                "current": 45,
+                "default": 45,
+                "rangemax": 65,
+                "max": 120
             },
             "durability": {
                 "current": 300,
@@ -338,36 +338,216 @@
             },
             "process": {
                 "current": 0,
-                "max": 2,
-                "maxfragments": 100
+                "max": 3,
+                "maxfragments": 150
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
-                "common": 40
+                "mythic": 2,
+                "lendary": 5,
+                "epic": 8,
+                "rare": 25,
+                "uncommon": 25,
+                "common": 35
             }
         }
     ],
     "1": [
         {
-            "name": "Água",
+            "name": "Água Cloridificada",
             "icon": "🧪",
             "level": 3,
             "type": 1,
             "potency": {
-                "rangemin": 40,
+                "rangemin": 30,
+                "current": 40,
+                "default": 40,
+                "rangemax": 55,
+                "max": 80
+            },
+            "fuel": {
+                "consume": 5,
+                "current": 1000,
+                "max": 1000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 5,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 1,
+                "maxfragments": 150
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 25,
+                "uncommon": 25,
+                "common": 40
+            }
+        },
+        {
+            "name": "Líquido de Caverna",
+            "icon": "🧪",
+            "level": 6,
+            "type": 1,
+            "potency": {
+                "rangemin": 30,
+                "current": 40,
+                "default": 40,
+                "rangemax": 55,
+                "max": 80
+            },
+            "fuel": {
+                "consume": 5,
+                "current": 1200,
+                "max": 1200
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 5,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 160
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 25,
+                "uncommon": 25,
+                "common": 40
+            }
+        },
+        {
+            "name": "Líquido Semi Peneirado",
+            "icon": "🧪",
+            "level": 9,
+            "type": 1,
+            "potency": {
+                "rangemin": 30,
+                "current": 40,
+                "default": 40,
+                "rangemax": 55,
+                "max": 80
+            },
+            "fuel": {
+                "consume": 5,
+                "current": 1200,
+                "max": 1200
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 5,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 160
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 25,
+                "uncommon": 25,
+                "common": 40
+            }
+        },
+        {
+            "name": "Flatu",
+            "icon": "🧪",
+            "level": 15,
+            "type": 1,
+            "potency": {
+                "rangemin": 30,
+                "current": 40,
+                "default": 40,
+                "rangemax": 55,
+                "max": 80
+            },
+            "fuel": {
+                "consume": 10,
+                "current": 1500,
+                "max": 1500
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 6,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 160
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 25,
+                "uncommon": 27,
+                "common": 38
+            }
+        },
+        {
+            "name": "Blasto",
+            "icon": "🧪",
+            "level": 18,
+            "type": 1,
+            "potency": {
+                "rangemin": 30,
+                "current": 40,
+                "default": 40,
+                "rangemax": 55,
+                "max": 80
+            },
+            "fuel": {
+                "consume": 13,
+                "current": 2000,
+                "max": 2000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 6,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 170
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 6,
+                "rare": 25,
+                "uncommon": 30,
+                "common": 35
+            }
+        },
+        {
+            "name": "Yopus",
+            "icon": "🧪",
+            "level": 25,
+            "type": 1,
+            "potency": {
+                "rangemin": 45,
                 "current": 60,
                 "default": 60,
-                "rangemax": 80,
+                "rangemax": 75,
                 "max": 100
             },
             "fuel": {
-                "consume": 50,
-                "current": 10000,
-                "max": 10000
+                "consume": 15,
+                "current": 3000,
+                "max": 3000
             },
             "toollevel": {
                 "current": 1,
@@ -382,10 +562,154 @@
             "drops": {
                 "mythic": 1,
                 "lendary": 3,
-                "epic": 6,
-                "rare": 20,
-                "uncommon": 30,
-                "common": 40
+                "epic": 9,
+                "rare": 25,
+                "uncommon": 27,
+                "common": 35
+            }
+        },
+        {
+            "name": "WLulu",
+            "icon": "🧪",
+            "level": 30,
+            "type": 1,
+            "potency": {
+                "rangemin": 45,
+                "current": 60,
+                "default": 60,
+                "rangemax": 80,
+                "max": 100
+            },
+            "fuel": {
+                "consume": 15,
+                "current": 3000,
+                "max": 3000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 210
+            },
+            "drops": {
+                "mythic": 1,
+                "lendary": 3,
+                "epic": 9,
+                "rare": 25,
+                "uncommon": 27,
+                "common": 35
+            }
+        },
+        {
+            "name": "Kiris",
+            "icon": "🧪",
+            "level": 40,
+            "type": 1,
+            "potency": {
+                "rangemin": 45,
+                "current": 60,
+                "default": 60,
+                "rangemax": 80,
+                "max": 100
+            },
+            "fuel": {
+                "consume": 25,
+                "current": 5000,
+                "max": 5000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 240
+            },
+            "drops": {
+                "mythic": 3,
+                "lendary": 4,
+                "epic": 9,
+                "rare": 22,
+                "uncommon": 27,
+                "common": 35
+            }
+        },
+        {
+            "name": "Bonki",
+            "icon": "🧪",
+            "level": 50,
+            "type": 1,
+            "potency": {
+                "rangemin": 75,
+                "current": 80,
+                "default": 80,
+                "rangemax": 95,
+                "max": 120
+            },
+            "fuel": {
+                "consume": 25,
+                "current": 6000,
+                "max": 6000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 2,
+                "maxfragments": 300
+            },
+            "drops": {
+                "mythic": 3,
+                "lendary": 4,
+                "epic": 9,
+                "rare": 22,
+                "uncommon": 27,
+                "common": 35
+            }
+        },
+        {
+            "name": "VLuris",
+            "icon": "🧪",
+            "level": 60,
+            "type": 1,
+            "potency": {
+                "rangemin": 75,
+                "current": 80,
+                "default": 80,
+                "rangemax": 100,
+                "max": 120
+            },
+            "fuel": {
+                "consume": 25,
+                "current": 6000,
+                "max": 6000
+            },
+            "toollevel": {
+                "current": 1,
+                "max": 10,
+                "exp": 0
+            },
+            "process": {
+                "current": 0,
+                "max": 3,
+                "maxfragments": 310
+            },
+            "drops": {
+                "mythic": 3,
+                "lendary": 4,
+                "epic": 9,
+                "rare": 22,
+                "uncommon": 27,
+                "common": 35
             }
         }
     ]

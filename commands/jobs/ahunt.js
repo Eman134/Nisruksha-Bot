@@ -259,7 +259,7 @@ module.exports = {
                 let descartado = []
                 let colocados = []
                 
-                let xp = API.random(Math.round((mo.level+1)*2.5), Math.round((mo.level+1)*3))
+                let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*2.5))
                 xp = await API.playerUtils.execExp(msg, xp)
                 
                 let retorno = await API.itemExtension.give(msg, drops)

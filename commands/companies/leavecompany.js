@@ -49,14 +49,14 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
                 Você cancelou a própria demissão na empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
             if (!(await API.company.check.isWorker(msg.author))) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na demissão', `Você não trabalha em nenhuma empresa para se demitir${ await API.company.check.hasCompany(msg.author) ?`\nCaso deseja fechar sua empresa utilize \`${API.prefix}fecharempresa\``:''}`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -65,7 +65,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Demitido!', `Você se demitiu da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             
             let pobj = await API.getInfo(msg.author, 'players')
             let company2 = await API.company.get.companyById(pobj.company);
@@ -76,7 +76,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${msg.author.tag} (${msg.author.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                owner.send({ embeds: [embed]}).catch()
+                owner.send({ embeds: [embed], components: [] }).catch()
             }catch{
             }
 
@@ -100,7 +100,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
             embed.fields = []
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria se demitir da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 

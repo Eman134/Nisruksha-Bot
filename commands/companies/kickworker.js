@@ -79,7 +79,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
                 Você cancelou a demissão de ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -88,13 +88,14 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             if (pobj2.workers == null || !(pobj2.workers.includes(member.id))) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na demissão', `Este funcionário não trabalha em sua empresa!\nVeja seus funcionários usando \`${API.prefix}func\``)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
             if (API.cacheLists.waiting.includes(member, 'working')) {
-                const embedtemp = await API.sendError(msg, `Você não pode demitir um funcionário enquanto o mesmo está trabalhando na mesma!`)
-                await msg.quote({ embeds: [embedtemp]})
+                embed.setColor('#a60000');
+                embed.addField('❌ Falha na demissão', `Você não pode demitir um funcionário enquanto o mesmo está trabalhando na mesma!`)
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -112,7 +113,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
                 embed.setColor("#a60000")
                 .setDescription(`Você foi demitido da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**\nMotivo: ${API.getMultipleArgs(msg, 2)}`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações da empresa onde trabalha!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                await member.send({ embeds: [embed]}).catch()
+                await member.send({ embeds: [embed], components: [] }).catch()
             }catch{}
 
             
@@ -133,7 +134,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             embed.fields = []
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 
