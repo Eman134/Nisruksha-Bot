@@ -2,7 +2,7 @@
     {
         "name": "\"fragmento de pedra\"",
         "displayname": "Fragmento de Pedra",
-        "icon": "❔",
+        "icon": "<:stonefragment:858469766452215878>",
         "rarity": "common",
         "levelprocess": 1,
         "price": 100
@@ -10,7 +10,7 @@
     {
         "name": "\"fragmento de cobre\"",
         "displayname": "Fragmento de Cobre",
-        "icon": "❔",
+        "icon": "<:cupfragment:858469765957156885>",
         "rarity": "common",
         "levelprocess": 2,
         "price": 200
@@ -18,7 +18,7 @@
     {
         "name": "\"fragmento de ferro\"",
         "displayname": "Fragmento de Ferro",
-        "icon": "❔",
+        "icon": "<:ironfragment:858469766100156437>",
         "rarity": "common",
         "levelprocess": 3,
         "price": 300
@@ -26,15 +26,15 @@
     {
         "name": "\"fragmento de bauxita\"",
         "displayname": "Fragmento de Bauxita",
-        "icon": "❔",
-        "rarity": "common",
+        "icon": "<:ironfragment:858469766100156437>",
+        "rarity": "uncommon",
         "levelprocess": 7,
         "price": 500
     },
     {
         "name": "\"fragmento de manganes\"",
         "displayname": "Fragmento de Manganes",
-        "icon": "❔",
+        "icon": "<:mgfragment:858469766398214184>",
         "rarity": "uncommon",
         "levelprocess": 12,
         "price": 800
@@ -42,63 +42,63 @@
     {
         "name": "\"fragmento de niobio\"",
         "displayname": "Fragmento de Niobio",
-        "icon": "❔",
-        "rarity": "uncommon",
+        "icon": "<:nbfragment:858469766426787850>",
+        "rarity": "rare",
         "levelprocess": 16,
         "price": 1000
     },
     {
         "name": "\"fragmento de ouro\"",
         "displayname": "Fragmento de Ouro",
-        "icon": "❔",
-        "rarity": "uncommon",
+        "icon": "<:goldfragment:858469766008012831>",
+        "rarity": "rare",
         "levelprocess": 22,
         "price": 1300
     },
     {
         "name": "\"fragmento de rubi\"",
         "displayname": "Fragmento de Rubi",
-        "icon": "❔",
-        "rarity": "rare",
+        "icon": "<:rubyfragment:858469766390218772>",
+        "rarity": "epic",
         "levelprocess": 28,
         "price": 1500
     },
     {
         "name": "\"fragmento de ametista\"",
         "displayname": "Fragmento de Ametista",
-        "icon": "❔",
-        "rarity": "rare",
+        "icon": "<:amefragment:858469766175260682>",
+        "rarity": "epic",
         "levelprocess": 3,
         "price": 2000
     },
     {
         "name": "\"fragmento de diamante\"",
         "displayname": "Fragmento de Diamante",
-        "icon": "❔",
-        "rarity": "epic",
+        "icon": "<:diafragment:858469766305284096>",
+        "rarity": "lendary",
         "levelprocess": 60,
         "price": 15000
     },
     {
         "name": "\"fragmento de jade\"",
         "displayname": "Fragmento de Jade",
-        "icon": "❔",
-        "rarity": "lendary",
+        "icon": "<:jdfragment:858469766468730918>",
+        "rarity": "mythic",
         "levelprocess": 3,
         "price": 45000
     },
     {
         "name": "\"fragmento de safira\"",
         "displayname": "Fragmento de Safira",
-        "icon": "❔",
+        "icon": "<:sapfragment:858469766535708672>",
         "rarity": "mythic",
         "levelprocess": 3,
         "price": 65000
     },
     {
-        "name": "\"galhos secos\"",
-        "displayname": "Galhos Secos",
-        "icon": "❔",
+        "name": "\"galhos\"",
+        "displayname": "Galhos",
+        "icon": "<:branchs:858466454944088074>",
         "rarity": "common",
         "levelprocess": 3,
         "price": 100
@@ -106,7 +106,7 @@
     {
         "name": "\"pedrinha musgosa\"",
         "displayname": "Pedrinha Musgosa",
-        "icon": "❔",
+        "icon": "<:moss:858465495337664533>",
         "rarity": "common",
         "levelprocess": 3,
         "price": 150
@@ -114,7 +114,7 @@
     {
         "name": "\"cabo de picareta\"",
         "displayname": "Cabo de Picareta",
-        "icon": "❔",
+        "icon": "<:pickaxerod:858464780402556978>",
         "rarity": "common",
         "levelprocess": 3,
         "price": 175
@@ -122,7 +122,7 @@
     {
         "name": "\"relogio quebrado\"",
         "displayname": "Relógio Quebrado",
-        "icon": "❔",
+        "icon": "<:clock:858463319904223252>",
         "rarity": "common",
         "levelprocess": 3,
         "price": 175
@@ -130,7 +130,7 @@
     {
         "name": "\"restos de engrenagem\"",
         "displayname": "Restos de Engrenagem",
-        "icon": "❔",
+        "icon": "<:brokengears:858458199350837248>",
         "rarity": "common",
         "levelprocess": 4,
         "price": 200
@@ -138,23 +138,15 @@
     {
         "name": "\"fita rasgada\"",
         "displayname": "Fita Rasgada",
-        "icon": "❔",
+        "icon": "<:tape:858465311941197824>",
         "rarity": "common",
         "levelprocess": 5,
         "price": 300
     },
     {
-        "name": "\"fita rasgada\"",
-        "displayname": "Fita Rasgada",
-        "icon": "❔",
-        "rarity": "uncommon",
-        "levelprocess": 5,
-        "price": 300
-    },
-    {
-        "name": "\"parafuso velho\"",
-        "displayname": "Parafuso Velho",
-        "icon": "❔",
+        "name": "\"parafuso\"",
+        "displayname": "Parafuso",
+        "icon": "<:screw:858465162955980820>",
         "rarity": "uncommon",
         "levelprocess": 5,
         "price": 300
@@ -162,7 +154,7 @@
     {
         "name": "\"fios desencapados\"",
         "displayname": "Fios Desencapados",
-        "icon": "❔",
+        "icon": "<:thread:858465672883339294>",
         "rarity": "uncommon",
         "levelprocess": 7,
         "price": 320
@@ -170,7 +162,7 @@
     {
         "name": "\"chipe velho\"",
         "displayname": "Chipe Velho",
-        "icon": "❔",
+        "icon": "<:oldchip:858455139543023676>",
         "rarity": "uncommon",
         "levelprocess": 8,
         "price": 350
@@ -178,7 +170,7 @@
     {
         "name": "\"fruta podre\"",
         "displayname": "Fruta Podre",
-        "icon": "❔",
+        "icon": "<:rotten:858464261528748042>",
         "rarity": "uncommon",
         "levelprocess": 11,
         "price": 400
@@ -186,7 +178,7 @@
     {
         "name": "\"poeira de minerios\"",
         "displayname": "Poeira de Minérios",
-        "icon": "❔",
+        "icon": "<:commondust:858464112992452618>",
         "rarity": "uncommon",
         "levelprocess": 14,
         "price": 560
@@ -194,7 +186,7 @@
     {
         "name": "\"ossos de monstros\"",
         "displayname": "Ossos de Monstros",
-        "icon": "❔",
+        "icon": "🦴",
         "rarity": "rare",
         "levelprocess": 6,
         "price": 900
@@ -202,7 +194,7 @@
     {
         "name": "\"pecas mecanicas conservadas\"",
         "displayname": "Peças Mecânicas Conservadas",
-        "icon": "❔",
+        "icon": "<:carparts:858465986638250015>",
         "rarity": "rare",
         "levelprocess": 16,
         "price": 1700
@@ -210,7 +202,7 @@
     {
         "name": "\"poeira de minerio raro\"",
         "displayname": "Poeira de Minério Raro",
-        "icon": "❔",
+        "icon": "<:raredust:858463916316688415>",
         "rarity": "rare",
         "levelprocess": 18,
         "price": 2400
@@ -218,7 +210,7 @@
     {
         "name": "\"relogio velho\"",
         "displayname": "Relógio Velho",
-        "icon": "❔",
+        "icon": "<:oldclock:858463627220877312>",
         "rarity": "rare",
         "levelprocess": 20,
         "price": 5000
@@ -226,7 +218,7 @@
     {
         "name": "\"baterias usadas\"",
         "displayname": "Baterias Usadas",
-        "icon": "❔",
+        "icon": "<:battery:858462505641836546>",
         "rarity": "rare",
         "levelprocess": 35,
         "price": 15000
@@ -234,7 +226,7 @@
     {
         "name": "\"engrenagens polidas\"",
         "displayname": "Engrenagens Polidas",
-        "icon": "❔",
+        "icon": "<:polishedgears:858457776463020033>",
         "rarity": "epic",
         "levelprocess": 25,
         "price": 25000
@@ -242,7 +234,7 @@
     {
         "name": "\"poeira de cristal\"",
         "displayname": "Poeira de Cristal",
-        "icon": "❔",
+        "icon": "<:crystaldust:858456835958374401>",
         "rarity": "epic",
         "levelprocess": 27,
         "price": 30000
@@ -250,7 +242,7 @@
     {
         "name": "\"fungo negro\"",
         "displayname": "Fungo Negro",
-        "icon": "❔",
+        "icon": "<:mushroom:858456053612281876>",
         "rarity": "epic",
         "levelprocess": 10,
         "price": 18000
@@ -258,7 +250,7 @@
     {
         "name": "\"fossil antigo\"",
         "displayname": "Fóssil Antigo",
-        "icon": "❔",
+        "icon": "<:fossil:858455877777752084>",
         "rarity": "epic",
         "levelprocess": 15,
         "price": 12000
@@ -266,7 +258,7 @@
     {
         "name": "\"circuito de chipe\"",
         "displayname": "Circuito de Chipe",
-        "icon": "❔",
+        "icon": "<:oldchip:858455139543023676>",
         "rarity": "epic",
         "levelprocess": 18,
         "price": 17513
@@ -274,7 +266,7 @@
     {
         "name": "\"dentes de ouro\"",
         "displayname": "Dentes de Ouro",
-        "icon": "❔",
+        "icon": "<:goldtooth:858454473944465429>",
         "rarity": "epic",
         "levelprocess": 20,
         "price": 23000
@@ -282,7 +274,7 @@
     {
         "name": "\"engrenagens eficientes\"",
         "displayname": "Engrenagens Eficientes",
-        "icon": "❔",
+        "icon": "<:effgears:858458381518110721>",
         "rarity": "lendary",
         "levelprocess": 16,
         "price": 23000
@@ -290,7 +282,7 @@
     {
         "name": "\"joias\"",
         "displayname": "Jóias",
-        "icon": "❔",
+        "icon": "<:jewelry:858460223592333353>",
         "rarity": "lendary",
         "levelprocess": 20,
         "price": 27000
@@ -298,7 +290,7 @@
     {
         "name": "\"dentes de diamante\"",
         "displayname": "Dentes de Diamante",
-        "icon": "❔",
+        "icon": "<:diamondtooth:858454474058366986>",
         "rarity": "lendary",
         "levelprocess": 20,
         "price": 29000
@@ -306,7 +298,7 @@
     {
         "name": "\"cabeca de picareta de ouro\"",
         "displayname": "Cabeça de Picareta de Ouro",
-        "icon": "❔",
+        "icon": "<:pickaxehead:858461780141539349>",
         "rarity": "mythic",
         "levelprocess": 20,
         "price": 100000
@@ -314,7 +306,7 @@
     {
         "name": "\"engrenagens negras\"",
         "displayname": "Engrenagens Negras",
-        "icon": "❔",
+        "icon": "<:blackgears:858458381467385948>",
         "rarity": "mythic",
         "levelprocess": 35,
         "price": 250000
@@ -322,7 +314,7 @@
     {
         "name": "\"cristal colorido\"",
         "displayname": "Cristal Colorido",
-        "icon": "❔",
+        "icon": "<:colouredcrystal:858459562125426699>",
         "rarity": "mythic",
         "levelprocess": 40,
         "price": 500000

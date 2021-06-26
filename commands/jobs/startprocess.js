@@ -149,7 +149,7 @@ module.exports = {
 
             if (stamina < custostart) {
                 
-                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
+                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
                 await msg.quote({ embeds: [embedtemp]})
                 return;
 
