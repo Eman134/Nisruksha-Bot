@@ -68,7 +68,7 @@
         "displayname": "Fragmento de Ametista",
         "icon": "❔",
         "rarity": "rare",
-        "levelprocess": 37,
+        "levelprocess": 3,
         "price": 2000
     },
     {
@@ -84,15 +84,247 @@
         "displayname": "Fragmento de Jade",
         "icon": "❔",
         "rarity": "lendary",
-        "levelprocess": 76,
-        "price": 55000
+        "levelprocess": 3,
+        "price": 45000
     },
     {
         "name": "\"fragmento de safira\"",
         "displayname": "Fragmento de Safira",
         "icon": "❔",
         "rarity": "mythic",
-        "levelprocess": 85,
-        "price": 75000
+        "levelprocess": 3,
+        "price": 65000
+    },
+    {
+        "name": "\"galhos secos\"",
+        "displayname": "Galhos Secos",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 3,
+        "price": 100
+    },
+    {
+        "name": "\"pedrinha musgosa\"",
+        "displayname": "Pedrinha Musgosa",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 3,
+        "price": 150
+    },
+    {
+        "name": "\"cabo de picareta\"",
+        "displayname": "Cabo de Picareta",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 3,
+        "price": 175
+    },
+    {
+        "name": "\"relogio quebrado\"",
+        "displayname": "Relógio Quebrado",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 3,
+        "price": 175
+    },
+    {
+        "name": "\"restos de engrenagem\"",
+        "displayname": "Restos de Engrenagem",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 4,
+        "price": 200
+    },
+    {
+        "name": "\"fita rasgada\"",
+        "displayname": "Fita Rasgada",
+        "icon": "❔",
+        "rarity": "common",
+        "levelprocess": 5,
+        "price": 300
+    },
+    {
+        "name": "\"fita rasgada\"",
+        "displayname": "Fita Rasgada",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 5,
+        "price": 300
+    },
+    {
+        "name": "\"parafuso velho\"",
+        "displayname": "Parafuso Velho",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 5,
+        "price": 300
+    },
+    {
+        "name": "\"fios desencapados\"",
+        "displayname": "Fios Desencapados",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 7,
+        "price": 320
+    },
+    {
+        "name": "\"chipe velho\"",
+        "displayname": "Chipe Velho",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 8,
+        "price": 350
+    },
+    {
+        "name": "\"fruta podre\"",
+        "displayname": "Fruta Podre",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 11,
+        "price": 400
+    },
+    {
+        "name": "\"poeira de minerios\"",
+        "displayname": "Poeira de Minérios",
+        "icon": "❔",
+        "rarity": "uncommon",
+        "levelprocess": 14,
+        "price": 560
+    },
+    {
+        "name": "\"ossos de monstros\"",
+        "displayname": "Ossos de Monstros",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 6,
+        "price": 900
+    },
+    {
+        "name": "\"pecas mecanicas conservadas\"",
+        "displayname": "Peças Mecânicas Conservadas",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 16,
+        "price": 1700
+    },
+    {
+        "name": "\"poeira de minerio raro\"",
+        "displayname": "Poeira de Minério Raro",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 18,
+        "price": 2400
+    },
+    {
+        "name": "\"relogio velho\"",
+        "displayname": "Relógio Velho",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 20,
+        "price": 5000
+    },
+    {
+        "name": "\"baterias usadas\"",
+        "displayname": "Baterias Usadas",
+        "icon": "❔",
+        "rarity": "rare",
+        "levelprocess": 35,
+        "price": 15000
+    },
+    {
+        "name": "\"engrenagens polidas\"",
+        "displayname": "Engrenagens Polidas",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 25,
+        "price": 25000
+    },
+    {
+        "name": "\"poeira de cristal\"",
+        "displayname": "Poeira de Cristal",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 27,
+        "price": 30000
+    },
+    {
+        "name": "\"fungo negro\"",
+        "displayname": "Fungo Negro",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 10,
+        "price": 18000
+    },
+    {
+        "name": "\"fossil antigo\"",
+        "displayname": "Fóssil Antigo",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 15,
+        "price": 12000
+    },
+    {
+        "name": "\"circuito de chipe\"",
+        "displayname": "Circuito de Chipe",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 18,
+        "price": 17513
+    },
+    {
+        "name": "\"dentes de ouro\"",
+        "displayname": "Dentes de Ouro",
+        "icon": "❔",
+        "rarity": "epic",
+        "levelprocess": 20,
+        "price": 23000
+    },
+    {
+        "name": "\"engrenagens eficientes\"",
+        "displayname": "Engrenagens Eficientes",
+        "icon": "❔",
+        "rarity": "lendary",
+        "levelprocess": 16,
+        "price": 23000
+    },
+    {
+        "name": "\"joias\"",
+        "displayname": "Jóias",
+        "icon": "❔",
+        "rarity": "lendary",
+        "levelprocess": 20,
+        "price": 27000
+    },
+    {
+        "name": "\"dentes de diamante\"",
+        "displayname": "Dentes de Diamante",
+        "icon": "❔",
+        "rarity": "lendary",
+        "levelprocess": 20,
+        "price": 29000
+    },
+    {
+        "name": "\"cabeca de picareta de ouro\"",
+        "displayname": "Cabeça de Picareta de Ouro",
+        "icon": "❔",
+        "rarity": "mythic",
+        "levelprocess": 20,
+        "price": 100000
+    },
+    {
+        "name": "\"engrenagens negras\"",
+        "displayname": "Engrenagens Negras",
+        "icon": "❔",
+        "rarity": "mythic",
+        "levelprocess": 35,
+        "price": 250000
+    },
+    {
+        "name": "\"cristal colorido\"",
+        "displayname": "Cristal Colorido",
+        "icon": "❔",
+        "rarity": "mythic",
+        "levelprocess": 40,
+        "price": 500000
     }
 ]

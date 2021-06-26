@@ -171,7 +171,7 @@ module.exports = {
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
-                        let chance = 40 + (pobj.rod.stars*5)
+                        let chance = 30 + (pobj.rod.stars*5)
                         if (pobj.mvp != null) chance += 10
 
                         if (API.random(0, 100) < chance) {

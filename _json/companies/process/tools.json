@@ -27,12 +27,12 @@
                 "maxfragments": 50
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 1,
-                "epic": 2,
-                "rare": 6,
-                "uncommon": 20,
-                "common": 70
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
+                "rare": 0,
+                "uncommon": 15,
+                "common": 85
             }
         },
         {
@@ -62,11 +62,11 @@
                 "maxfragments": 60
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 1,
-                "epic": 2,
-                "rare": 6,
-                "uncommon": 25,
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
+                "rare": 0,
+                "uncommon": 35,
                 "common": 65
             }
         },
@@ -97,11 +97,11 @@
                 "maxfragments": 60
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 1,
-                "epic": 2,
-                "rare": 6,
-                "uncommon": 30,
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
+                "rare": 15,
+                "uncommon": 25,
                 "common": 60
             }
         },
@@ -380,12 +380,12 @@
                 "maxfragments": 150
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 25,
-                "uncommon": 25,
-                "common": 40
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
+                "rare": 0,
+                "uncommon": 15,
+                "common": 85
             }
         },
         {
@@ -416,12 +416,12 @@
                 "maxfragments": 160
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
-                "rare": 25,
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
+                "rare": 0,
                 "uncommon": 25,
-                "common": 40
+                "common": 75
             }
         },
         {
@@ -452,12 +452,12 @@
                 "maxfragments": 160
             },
             "drops": {
-                "mythic": 1,
-                "lendary": 3,
-                "epic": 6,
+                "mythic": 0,
+                "lendary": 0,
+                "epic": 0,
                 "rare": 25,
                 "uncommon": 25,
-                "common": 40
+                "common": 50
             }
         },
         {
