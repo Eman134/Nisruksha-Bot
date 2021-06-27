@@ -108,7 +108,8 @@ module.exports = {
         let combo = []
         let session = 0
         collector.on('collect', async (b) => {
-            
+
+            if (!(b.user.id === msg.author.id)) return            
             if (!reactequiplist.includes(b.customID)) return;
 
             reacted = true;

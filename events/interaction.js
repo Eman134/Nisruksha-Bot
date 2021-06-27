@@ -29,6 +29,7 @@ module.exports = {
             if (!response) {
 
                 response = true
+                await interaction.defer(true)
 
                 /*if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
                     const ie = await interaction.editReply('\u200B')
@@ -51,7 +52,6 @@ module.exports = {
 				.messages['@original'].delete();
 		};
 
-        interaction.defer(true)
         API.client.emit("message", interaction)
 
     }

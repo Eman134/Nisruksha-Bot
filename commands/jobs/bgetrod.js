@@ -55,6 +55,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
+            if (!(b.user.id === msg.author.id)) return
             reacted = true;
 
             let troca = b.customID == 'troca'

@@ -29,6 +29,8 @@ module.exports = {
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
 
         collector.on('collect', async (b) => {
+
+            if (!(b.user.id === msg.author.id)) return
             reacted = true;
             
             if (b.customID == 'cancel') return collector.stop();

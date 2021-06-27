@@ -28,7 +28,7 @@ module.exports = {
 
         let processjson = players_utils.process
 
-        const custoretirar = 200
+        const custoretirar = 100
 
         if (players_utils.process == null) {
 
@@ -204,7 +204,9 @@ module.exports = {
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 35000 });
 
         collector.on('collect', async (b) => {
-            reacted = true;
+
+            if (!(b.user.id === msg.author.id)) return
+reacted = true;
             embeds = [embed]
             embed.fields = [];
             let repair = false

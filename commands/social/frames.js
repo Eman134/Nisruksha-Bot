@@ -71,6 +71,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
+            if (!(b.user.id === msg.author.id)) return
             collector.resetTimer();
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 30);

@@ -69,7 +69,9 @@ module.exports = {
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
-            b.deferUpdate()
+
+            if (!(b.user.id === msg.author.id)) return
+b.deferUpdate()
             reacted = true;
             collector.stop();
             const embed = new API.Discord.MessageEmbed()

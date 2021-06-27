@@ -131,6 +131,8 @@ module.exports = {
         const custostart = 200
 
         collector.on('collect', async (b) => {
+
+            if (!(b.user.id === msg.author.id)) return
             reacted = true;
             embed.fields = [];
             embed.setDescription('')

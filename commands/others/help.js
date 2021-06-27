@@ -72,6 +72,7 @@ ${API.helpExtension.getCategoryList()}`)
         
         collector.on('collect', async (b) => {
 
+            if (!(b.user.id === msg.author.id)) return
 			current = b.customID
             if (b.customID == 'home') {
                 home()

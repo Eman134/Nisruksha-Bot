@@ -91,6 +91,8 @@ module.exports = {
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
         let reacted = false;
         collector.on('collect', async (b) => {
+
+            if (!(b.user.id === msg.author.id)) return
             b.deferUpdate()
             reacted = true;
             collector.stop();

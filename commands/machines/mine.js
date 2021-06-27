@@ -174,7 +174,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({embeds: [embed], component: API.rowButton([btn]) }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] }).catch()
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return
@@ -185,7 +185,7 @@ module.exports = {
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
-                    await embedmsg.edit({embeds: [embed], component: API.rowButton([btn]), mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
                     return;
                 }
 
@@ -194,7 +194,7 @@ module.exports = {
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
-                    await embedmsg.edit({embeds: [embed], component: API.rowButton([btn]), mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
                     return;
                 }
                 if (e+1 < 1) {
@@ -203,7 +203,7 @@ module.exports = {
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
                     btn.setDisabled()
-                    await embedmsg.edit({ embeds: [embed], component: API.rowButton([btn]), mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
                     return;
                 }
 
@@ -226,7 +226,7 @@ module.exports = {
                         btn.setDisabled()
                         await embedmsg.edit({ embeds: [embed] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
-                        await msg.quote({ embeds: [embedtemp] })
+                        await msg.quote({ embeds: [embedtemp], components: [] })
                         API.cacheLists.waiting.remove(msg.author, 'mining')
                     } else {
                         edit();

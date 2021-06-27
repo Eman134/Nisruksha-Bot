@@ -40,7 +40,9 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
-            b.deferUpdate()
+
+            if (!(b.user.id === msg.author.id)) return
+b.deferUpdate()
             reacted = true;
             embed.fields = []
             collector.stop();

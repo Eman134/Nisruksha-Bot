@@ -111,11 +111,13 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === msg.author.id
         
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
         
         collector.on('collect', async (b) => {
+
+            if (!(b.user.id === msg.author.id)) return
 
             if (b.customID == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
@@ -190,14 +192,13 @@ module.exports = {
 
             collector.resetTimer()
 
-            
-            await embedmsg.edit({ embeds: [embed], components})
+            await embedmsg.edit({ embeds: [embed], components })
             b.deferUpdate()
             
         });
         
         collector.on('end', collected => {
-            embedmsg.edit({ embeds: [embed] })
+            embedmsg.edit({ embeds: [embed], components: [] })
         });
 
 	}
