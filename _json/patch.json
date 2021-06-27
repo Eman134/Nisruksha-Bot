@@ -124,7 +124,7 @@
     "2.1.7": {
         "title": "EP 0 - Progressão",
         "add": ["Sistema de combos na exploração", "Novo jogo n.cartasdasorte", "Comando n.inspecionaritem", "Sistema de adubação em agricultura", "<:icon7:851946616738152478> Setor de processamento", "Máquina e minério de safira <:maq11:852242635384946728> <:safira:851945445915230210>", "Rework no n.terrenoatual", "Gráficos de cotações de minérios n.cotação <minério>", "Sistema de pontos de maestria", "Integrado rankingsv ao n.ranking", "Adicionado comandos slash", "Algumas reações de comandos foram migradas para botões"],
-        "rem": ["Categoria trabalhos", "Comando colher", "Comando rankingsv"],
+        "rem": ["Daily agora não possui um máximo de streak definido", "Categoria trabalhos", "Comando colher", "Comando rankingsv"],
         "chn": ["Custo para melhorar a vara de pesca reduzido", "Pequeno aumento no ganho de xp na mineração (Cerca de 10% de aumento)", "Custo de estamina ao mover modificado [150 -> 100]", "Multiplicador da uva na roleta modificado [10x -> 6.5x]", "Dano tomado por monstros na exploração reduzido", "Comandos de trabalhos das empresas movido para n.setores"],
         "fix": ["Top local"],
         "alc": ["versão -> temporada"]

@@ -671,7 +671,7 @@ const jobs = {
 
                     function sendDrop() {
 
-                        const check0 = API.random(0, 100) < 40
+                        const check0 = API.random(0, 100) < 35
                         const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
                         const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
 
@@ -873,7 +873,7 @@ const jobs = {
 
     jobs.process.calculateTime = function(potency, qnt) {
 
-        let ms = qnt*jobs.process.update*1000*(potency/12)
+        let ms = qnt*jobs.process.update*1250*(potency/12)
 
         return Math.round(ms)
     }

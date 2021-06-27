@@ -221,7 +221,7 @@
         "icon": "<:battery:858462505641836546>",
         "rarity": "rare",
         "levelprocess": 35,
-        "price": 15000
+        "price": 7600
     },
     {
         "name": "\"engrenagens polidas\"",
@@ -229,13 +229,13 @@
         "icon": "<:polishedgears:858457776463020033>",
         "rarity": "epic",
         "levelprocess": 25,
-        "price": 25000
+        "price": 18000
     },
     {
         "name": "\"poeira de cristal\"",
         "displayname": "Poeira de Cristal",
         "icon": "<:crystaldust:858456835958374401>",
-        "rarity": "epic",
+        "rarity": "lendary",
         "levelprocess": 27,
         "price": 30000
     },
