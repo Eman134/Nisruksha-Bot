@@ -51,8 +51,8 @@ module.exports = {
 				.messages['@original'].delete();
 		};
 
-        API.client.emit("message", interaction)
         interaction.defer(true)
+        API.client.emit("message", interaction)
 
     }
 }
