@@ -270,14 +270,14 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Alteração cancelada', `
                 Você cancelou a troca de nome da sua empresa para **${novonome}**.`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
               if ((company.score < pricenome)) {
                   embed.setColor('#a60000');
                   embed.addField('❌ Falha na alteração', `A sua empresa não possui score o suficiente para realizar a troca de nome!\nScore: **${API.format(company.score.toFixed(2))}/${API.format(pricenome)} ⭐**`)
-                  embedmsg.edit({ embeds: [embed] });
+                  embedmsg.edit({ embeds: [embed], components: [] });
                   return;
               }
 
@@ -288,7 +288,7 @@ module.exports = {
               embed.addField('✅ Nome modificado', `
               Você gastou ${pricenome} ⭐ da empresa para modificar o nome da sua empresa para **${novonome}**.`)
               embed.setFooter('')
-              embedmsg.edit({ embeds: [embed] });
+              embedmsg.edit({ embeds: [embed], components: [] });
 
               API.setCompanieInfo(msg.author, company.company_id, 'name', novonome)
               API.playerUtils.cooldown.set(msg.author, "setname", 86400*2);
@@ -302,7 +302,7 @@ module.exports = {
 
               embed.setColor('#a60000')
               .addField('❌ Tempo expirado', `Você iria gastar ${pricenome} ⭐ para alterar o nome da sua empresa para **${novonome}**, porém o tempo expirou!`)
-              embedmsg.edit({ embeds: [embed] });
+              embedmsg.edit({ embeds: [embed], components: [] });
 
           });
 

@@ -16,6 +16,8 @@ async function formatList(API, embed2, page2) {
         return b.score - a.score;
     })
 
+    embed2.fields = []
+
     embed2.setTitle(`📃 | Lista de Empresas`)
     
     if (array.length < 1) {
@@ -40,6 +42,8 @@ async function formatList(API, embed2, page2) {
                 let curriculum = r.curriculum == null ? 0 : r.curriculum.length;
                 embed2.addField(`${API.company.e[API.company.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, `Setor: ${API.company.e[API.company.types[r.type]].icon} **${API.company.types[r.type].charAt(0).toUpperCase() + API.company.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`${API.prefix}enviarcurriculo ${r.company_id}\``: `🔴`}`);
             }
+
+        return { totalpages, currentpage: page2 }
         
     }
 
@@ -63,14 +67,64 @@ module.exports = {
 		const Discord = API.Discord;
 
         const embed = new Discord.MessageEmbed()
-        
-        if (args.length == 1 && API.isInt(args[0]) && parseInt(args[0]) > 0) {
-            await formatList(API, embed, parseInt(args[0]));
-        } else {
-            await formatList(API, embed, 1);
+
+        let components
+
+        function reworkButtons({ currentpage, totalpages }) {
+
+            const butnList = []
+            components = []
+      
+            butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
+            butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
+
+            components.push(API.rowButton(butnList))
+      
+            return components
+      
         }
+        let returned
+        if (args.length == 1 && API.isInt(args[0]) && parseInt(args[0]) > 0) {
+            returned = await formatList(API, embed, parseInt(args[0]));
+        } else {
+            returned = await formatList(API, embed, 1);
+        }
+
+        let currentpage = returned.currentpage
+        let totalpages = returned.totalpages
+
+        reworkButtons({ currentpage, totalpages })
+
+        const embedmsg = await msg.quote({ embeds: [embed], components });
+
+        if (returned.currentpage == returned.totalpages || returned.totalpages == 0) return
+
+        const filter = i => i.user.id === msg.author.id;
         
-        await msg.quote({ embeds: [embed] });
+        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
+        
+        collector.on('collect', async(b) => {
+            
+            b.deferUpdate()
+
+            if (b.customID == 'forward'){
+                if (currentpage < totalpages) currentpage += 1;
+            } else if (b.customID == 'backward') {
+                if (currentpage > 1) currentpage -= 1;
+            } 
+
+            reworkButtons({ currentpage, totalpages })
+            
+            returned = await formatList(API, embed, currentpage);
+           
+            embedmsg.edit({ embeds: [embed], components });
+
+            collector.resetTimer();
+        });
+        
+        collector.on('end', collected => {
+            embedmsg.edit({ embeds: [embed], components: [] });
+        });
         
 	}
 };

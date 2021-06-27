@@ -81,7 +81,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**.`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
                 return;
             }
@@ -110,7 +110,7 @@ module.exports = {
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
             Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}** ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
             API.eco.money.add(msg.author, total)
@@ -136,7 +136,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
             return;
         });

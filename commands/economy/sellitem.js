@@ -189,7 +189,7 @@ module.exports = {
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui itens na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed] })
+                        embedmsg.edit({ embeds: [embed], components: [] })
                         return;
                     }
 
@@ -203,7 +203,7 @@ module.exports = {
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed] })
+                        embedmsg.edit({ embeds: [embed], components: [] })
                         return;
                     }
 
@@ -213,13 +213,13 @@ module.exports = {
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed] })
+                        embedmsg.edit({ embeds: [embed], components: [] })
                         return;
                     }
 
                     if (parseInt(arg0) > obj3[drop.name.replace(/"/g, '')]) {
                         embed.addField('❌ Venda cancelada', `Você não possui **${arg0}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed] })
+                        embedmsg.edit({ embeds: [embed], components: [] })
                         return;
                     }
 
@@ -252,7 +252,7 @@ module.exports = {
             embed.addField('✅ Sucesso na venda', `
             Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(totalantes)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
             if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
             API.eco.money.add(msg.author, total)
@@ -277,7 +277,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 

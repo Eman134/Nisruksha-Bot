@@ -13,6 +13,11 @@ module.exports = {
         let stamina = await API.playerUtils.stamina.get(msg.author)
         let perm = await API.getPerm(msg.author);
 
+        if (stamina < 0) {
+            await API.playerUtils.stamina.subset(msg.author, 0)
+            stamina = await API.playerUtils.stamina.get(msg.author)
+        }
+
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#e06f0b')
         if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)
@@ -35,7 +40,7 @@ module.exports = {
             const e3 = await API.playerUtils.stamina.time(msg.author);
             embed2.addField(`🔸 Estamina de \`${msg.author.tag}\`: **[${e1}/${e2}]**`, `Irá recuperar completamente em: \`${API.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
-            embedmsg.edit(embed2);
+            embedmsg.edit({ embeds: [embed2]});
             collector.stop();
             if (API.cacheLists.remember.includes(msg.author, "estamina")) return;
             API.cacheLists.remember.add(msg.author, msg.channel.id, "estamina");

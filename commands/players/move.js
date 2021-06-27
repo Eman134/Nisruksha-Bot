@@ -66,9 +66,9 @@ module.exports = {
         let stamina = await API.playerUtils.stamina.get(msg.author)
         let staminamax = 1000;
 
-        if (stamina < 150) {
+        if (stamina < 100) {
             
-            const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 150 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
+            const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 100 pontos de Estamina.\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${staminamax}]**`)
             await msg.quote({ embeds: [embedtemp]})
             return;
 
@@ -111,7 +111,7 @@ module.exports = {
         API.playerUtils.stamina.remove(msg.author, 149)
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#32a893')
-        .setDescription(`Você usou 150 pontos de Estamina 🔸 e se moveu da vila **${API.townExtension.getTownNameByNum(atual)}** para a vila **${API.townExtension.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${API.format(total)} ${API.money} ${API.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
+        .setDescription(`Você usou 100 pontos de Estamina 🔸 e se moveu da vila **${API.townExtension.getTownNameByNum(atual)}** para a vila **${API.townExtension.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${API.format(total)} ${API.money} ${API.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
         await msg.quote({ embeds: [embed], mention: true });
 
 	}

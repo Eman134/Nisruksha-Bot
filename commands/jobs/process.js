@@ -260,7 +260,7 @@ module.exports = {
 
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
@@ -272,12 +272,12 @@ ${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de 
             } if (b.customID == 'lqd') {
 
                 if ((tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50) {
-                    custorepair = (tool.fuel.max-tool.current.current)*250
+                    custorepair = (tool.fuel.max-tool.fuel.current)*15
                 }
 
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
@@ -300,7 +300,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                         processjson.tools[0].durability.current = processjson.tools[0].durability.max
 
                     } else {
-                        processjson.tools[0].fuel.current = processjson.tools[0].fuel.max
+                        processjson.tools[1].fuel.current = processjson.tools[1].fuel.max
                     }
                     
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
@@ -316,36 +316,37 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                 if (stamina < custoretirar) {
                     
-                    const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
-                    await msg.quote({ embeds: [embedtemp]})
-                    return;
+                    setProcess()
+                    embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
+                    if (processjson.in.length > 0) embeds.push(embed)
+
+                } else {
+
+                    API.playerUtils.stamina.remove(msg.author, custoretirar)
+
+                    const id = parseInt(b.customID.replace(/proc:/g, ''))
+                    const oldproc = processjson.in.find((x) => x.id == id)
+                    const indexProcess = processjson.in.indexOf(oldproc)
+                    processjson.in.splice(indexProcess, 1)
+                    processjson.tools[oldproc.tool].process.current -= 1
+                    API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                    setProcess()
+
+                    let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
+                    let score = parseFloat(oldproc.score)
+                    API.company.stars.add(msg.author, company.company_id, { score })
+
+                    const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
+                    
+                    embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
+                    if (processjson.in.length > 0) embeds.push(embed)
 
                 }
-
-                API.playerUtils.stamina.remove(msg.author, custoretirar)
-
-                const id = parseInt(b.customID.replace(/proc:/g, ''))
-                const oldproc = processjson.in.find((x) => x.id == id)
-                const indexProcess = processjson.in.indexOf(oldproc)
-                processjson.in.splice(indexProcess, 1)
-                processjson.tools[oldproc.tool].process.current -= 1
-                API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                setProcess()
-
-                let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
-                let score = parseFloat(oldproc.score)
-                API.company.stars.add(msg.author, company.company_id, { score })
-
-                const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
-                
-                embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
-            
             }
 
             b.deferUpdate()
 
-            if (repair) collector.stop()
-            else collector.resetTimer()
+            collector.resetTimer()
 
             const components = reworkButtons(current)
             

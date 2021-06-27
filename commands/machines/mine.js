@@ -97,7 +97,7 @@ module.exports = {
 
                 let profundidade = await API.maqExtension.getDepth(msg.author)
 
-                let playerobj = await API.getInfo(msg.author, 'machines');
+                let playerobj = await API.getInfo({ id: msg.author.id }, 'machines');
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 
@@ -113,7 +113,7 @@ module.exports = {
                 const obj2 = await API.maqExtension.ores.gen(maq, profundidade, chipe);
                 let sizeMap = new Map();
                 let round = 0;
-                let xp = API.random(15, 35);
+                let xp = API.random(20, 40);
                 xp = await API.playerUtils.execExp(msg, xp);
                 await API.maqExtension.removeEnergy(msg.author, 1);
 				

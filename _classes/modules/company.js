@@ -661,7 +661,7 @@ const jobs = {
                             processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                         }
                     }
-                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 20) {
+                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 25) {
                         if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
                             processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
                         } else {
@@ -671,7 +671,7 @@ const jobs = {
 
                     function sendDrop() {
 
-                        const check0 = API.random(0, 100) < 40
+                        const check0 = API.random(0, 100) < 35
                         const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
                         const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
 
@@ -728,12 +728,40 @@ const jobs = {
 
                     }
 
+                    function processed() {
+                        sendDrop()
+                        processjson.in[indexProcess].fragments.current -= 1
+
+                        processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(30, 130)
+
+                        const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
+
+                        if (processjson.tools[inprocs[inprocsi].tool].toollevel.exp >= maxexp) {
+                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp = 0
+                            if (processjson.tools[inprocs[inprocsi].tool].toollevel.current < processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+                                processjson.tools[inprocs[inprocsi].tool].toollevel.current += 1
+
+                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+
+                                    const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
+
+                                    if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
+                                        processjson.tools[inprocs[inprocsi].tool] = newtool
+                                    } else {
+                                        processjson.tools[inprocs[inprocsi].tool].toollevel.current = Math.round(processjson.tools[inprocs[inprocsi].tool].toollevel.max/2)
+                                    }
+
+                                }
+
+                            }
+                        }
+
+                    }
+
                     if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
-                        sendDrop()
-                        processjson.in[indexProcess].fragments.current -= 1
+                        processed()
                     } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
-                        sendDrop()
-                        processjson.in[indexProcess].fragments.current -= 1
+                        processed()
                     }
                     
 
@@ -845,7 +873,7 @@ const jobs = {
 
     jobs.process.calculateTime = function(potency, qnt) {
 
-        let ms = qnt*jobs.process.update*1000*(potency/12)
+        let ms = qnt*jobs.process.update*1250*(potency/12)
 
         return Math.round(ms)
     }

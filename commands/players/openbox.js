@@ -82,7 +82,7 @@ module.exports = {
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 API.playerUtils.cooldown.set(msg.author, "crate", 0);
                 return;
             } 
@@ -161,7 +161,7 @@ module.exports = {
                     embed.addField('❌ Oops, um problema ao abrir as caixas!', `Um ou mais itens ganhados das caixas foram descartados da sua mochila\nIsso ocorre quando a sua mochila está lotada de tipos de itens máximo, ou seja, 10/10.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`${API.prefix}venderitem\``)
                 }
 
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 
                 if (currnum < rewards.length) {
 
@@ -181,7 +181,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
         });
 
         API.playerUtils.cooldown.set(msg.author, "crate", 30);

@@ -171,7 +171,7 @@ module.exports = {
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
-                        let chance = 40 + (pobj.rod.stars*5)
+                        let chance = 30 + (pobj.rod.stars*5)
                         if (pobj.mvp != null) chance += 10
 
                         if (API.random(0, 100) < chance) {
@@ -271,7 +271,7 @@ module.exports = {
 
             try{
 
-                let gastosta = 1
+                let gastosta = 3
 
                 if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
 
@@ -362,7 +362,7 @@ module.exports = {
                     if (reacted) {
                         await embedmsg.edit({ embeds: [embed], components:[] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
-                        await msg.quote({ embeds: [embedtemp], components:[]})
+                        await msg.quote({ embeds: [embedtemp], components:[] })
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                         API.cacheLists.waiting.remove(msg.author, 'working');
                     } else {edit(msg, company);}

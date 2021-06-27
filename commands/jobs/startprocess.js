@@ -149,7 +149,7 @@ module.exports = {
 
             if (stamina < custostart) {
                 
-                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
+                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
                 await msg.quote({ embeds: [embedtemp]})
                 return;
 
@@ -178,7 +178,7 @@ module.exports = {
         
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
@@ -192,7 +192,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             } if (b.customID == 'lqd') {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
-Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*1000)).toFixed(2)}%
+Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${tool.process.current}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}

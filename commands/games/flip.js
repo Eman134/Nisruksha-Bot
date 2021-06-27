@@ -38,7 +38,7 @@ module.exports = {
             member = msg.mentions.users.first();
 
             if (msg.mentions.users.size < 1) {
-                const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para transferência!`, `girar @membro <quantia | tudo>`)
+                const embedtemp = await API.sendError(msg, `Você precisa mencionar um player para usar o flip!`, `girar @membro <quantia | tudo>`)
                 await msg.quote({ embeds: [embedtemp]})
                 return;
             }

@@ -62,7 +62,7 @@ module.exports = {
             '🍊': 1.2,
             '🍓': 1.5,
             '🍐': 3,
-            '🍇': 10
+            '🍇': 6.5
         }
 
         const embed = new Discord.MessageEmbed()

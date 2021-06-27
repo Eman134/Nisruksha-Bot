@@ -97,7 +97,7 @@ module.exports = {
                     API.setInfo(msg.author, "players", "saq", obj.saq + 1);
                 }
             }
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
         });
         
         collector.on('end', collected => {
@@ -106,7 +106,7 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 
