@@ -213,7 +213,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 setInterval(() => {
                 API.dbl.postStats({
-                    serverCount: client.guilds.cache.size,
+                    serverCount: this.guilds.cache.size,
                     shardId: 0,
                     shardCount: 0
                 })

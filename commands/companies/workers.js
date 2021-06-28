@@ -90,7 +90,7 @@ module.exports = {
             embed.addField( (func.user.id == msg.author.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : API.ms2(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? API.format(0) : API.format(func.companyact.rend))  + ' ' + API.money + ' ' + API.moneyemoji + '**', false)
         }
 
-        const embedmsg = await msg.quote({ embeds: [embed] });
+        const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowButton([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
 
         
         if (!(await API.company.check.hasCompany(msg.author))) return
@@ -98,26 +98,23 @@ module.exports = {
         const maxWorkers = await API.company.get.maxWorkers(company.company_id)
 
         if (maxWorkers >= 8) return
-
-        await embedmsg.react('🔼')
-
-        const filter = (reaction, user) => {
-            return user.id === msg.author.id;
-        };
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 15000 });
+        const filter = i => i.user.id === msg.author.id;
+        
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let reacted = false;
-        collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
-            if (!(['🔼'].includes(reaction.emoji.name))) return;
+        collector.on('collect', async (b) => {
+            if (!(b.user.id === msg.author.id)) return
             reacted = true;
             collector.stop();
             embed.fields = [];
 
+            b.deferUpdate()
+
             if ((company.score < price)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${API.format(company.score.toFixed(2))}/${API.format(price)} ⭐**`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -129,7 +126,7 @@ module.exports = {
             embed.addField('✅ Upgrade realizado', `
             Você gastou ${price} ⭐ da empresa subiu um nível dela, agora a empresa possui maior capacidade de funcionários máximo.`)
             embed.setFooter('')
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
         });
         
