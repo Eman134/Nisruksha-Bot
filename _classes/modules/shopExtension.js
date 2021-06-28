@@ -212,6 +212,8 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
   
   collector.on('collect', async(b) => {
+
+      if (!(b.user.id === msg.author.id)) return
       
       embed.fields = [];
 
@@ -337,6 +339,8 @@ shopExtension.execute = async function(msg, p) {
   let buyed = false;
 
   collector.on('collect', async(b) => {
+
+    if (!(b.user.id === msg.author.id)) return
 
     buyed = true;
     collector.stop();

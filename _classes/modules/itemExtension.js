@@ -17,7 +17,10 @@ itemExtension.exists = function(args, k) {
   for (const r of obj[key]) {
     
     let _id = r.name;
-    let _id2 = r.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    let _id2
+    
+    if (r.displayname) _id2 = r.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    else _id2 = r.displayname
 
     if (_id2) {
       if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return true;

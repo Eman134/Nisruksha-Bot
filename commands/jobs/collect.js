@@ -153,6 +153,9 @@ module.exports = {
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.company.jobs.agriculture.update*1000 });
 
                 collector.on('collect', (b) => {
+
+                    if (!(b.user.id === msg.author.id)) return
+
                     if (b.customID == 'stopBtn') {
                         reacted = true;
                         collector.stop();

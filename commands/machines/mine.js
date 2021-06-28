@@ -214,6 +214,9 @@ module.exports = {
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (b) => {
+
+                    if (!(b.user.id === msg.author.id)) return
+
                     if (b.customID == 'stopBtn') {
                         b.deferUpdate()
                         stopped = true;
@@ -224,10 +227,10 @@ module.exports = {
                 collector.on('end', async collected => {
                     if (stopped) {
                         btn.setDisabled()
-                        await embedmsg.edit({ embeds: [embed] }).catch()
+                        API.cacheLists.waiting.remove(msg.author, 'mining')
+                        await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
                         await msg.quote({ embeds: [embedtemp], components: [] })
-                        API.cacheLists.waiting.remove(msg.author, 'mining')
                     } else {
                         edit();
                     }

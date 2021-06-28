@@ -73,6 +73,8 @@ module.exports = {
         
         collector.on('collect', async(b) => {
 
+            if (!(b.user.id === msg.author.id)) return
+
             size = await API.maqExtension.storage.getSize(member);
             max = await API.maqExtension.storage.getMax(member);
             money = await API.eco.money.get(msg.author);

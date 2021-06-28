@@ -74,6 +74,9 @@ module.exports = {
         let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
         let reacted = false;
         collector.on('collect', async(b) => {
+
+            if (!(b.user.id === msg.author.id)) return
+
             reacted = true;
             collector.stop();
             embed.fields = [];

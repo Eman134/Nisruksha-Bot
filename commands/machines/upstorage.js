@@ -61,6 +61,9 @@ module.exports = {
         let pago = 0;
         
         collector.on('collect', async(b) => {
+
+            if (!(b.user.id === msg.author.id)) return
+
             let ap = false;
             size = await API.maqExtension.storage.getSize(msg.author);
             max = await API.maqExtension.storage.getMax(msg.author);

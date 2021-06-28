@@ -73,6 +73,9 @@ module.exports = {
         let selled = false;
         API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
         collector.on('collect', async(b) => {
+
+            if (!(b.user.id === msg.author.id)) return
+
             selled = true;
             collector.stop();
             b.deferUpdate()
