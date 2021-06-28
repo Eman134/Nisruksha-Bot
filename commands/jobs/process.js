@@ -133,6 +133,7 @@ module.exports = {
             } else {
                 embed.fields = []
                 embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                embeds = []
                 embeds.push(embed)
             }
 
