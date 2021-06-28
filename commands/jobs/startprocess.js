@@ -59,7 +59,7 @@ module.exports = {
         }
 
         if (storage['fragmento'] <= 0) {
-            const embedtemp = await API.sendError(msg, `Você não ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+            const embedtemp = await API.sendError(msg, `Você não possui ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
