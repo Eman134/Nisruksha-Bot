@@ -30,12 +30,12 @@ module.exports = {
                     member = msg.author;
                 } else {
                     try {
-                    let member2 = await client.users.fetch(args[0])
-                    if (!member2) {
-                        member = msg.author
-                    } else {
-                        member = member2
-                    }
+                        let member2 = await client.users.fetch(args[0])
+                        if (!member2) {
+                            member = msg.author
+                        } else {
+                            member = member2
+                        }
                     } catch {
                         member = msg.author
                     }

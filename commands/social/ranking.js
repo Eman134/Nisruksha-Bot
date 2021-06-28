@@ -114,18 +114,22 @@ module.exports = {
         const filter = i => i.user.id === msg.author.id
         
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
+
+        let waiting = false
         
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
+
+            b.deferUpdate()
 
             if (b.customID == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
                 embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 if (current == 'change' || current == '') {
                     reworkButtons(rankingtype)
-                    await embedmsg.edit({ embeds: [embed], components })
                     b.deferUpdate()
+                    await embedmsg.edit({ embeds: [embed], components })
                     return
                 } 
                 b.customID = current
@@ -145,7 +149,9 @@ module.exports = {
                 API.client.emit('error', err)
             }
 
-            if (rankingtype == 1) {
+            if (rankingtype == 1 && !waiting) {
+
+                waiting = true
                 
                 const arr2check = []
 
@@ -194,7 +200,8 @@ module.exports = {
             collector.resetTimer()
 
             await embedmsg.edit({ embeds: [embed], components })
-            b.deferUpdate()
+
+            waiting = false
             
         });
         

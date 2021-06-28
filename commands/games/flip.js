@@ -129,7 +129,7 @@ module.exports = {
 
         let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
 
-        const filter = (button) => button.clicker != null && button.clicker.user != null && (button.clicker.user.id == msg.author.id || button.clicker.user.id == member.id)
+        const filter = (button) => true
 
         let reacted = {}
         
@@ -141,11 +141,11 @@ module.exports = {
             collector.resetTimer()
             API.playerUtils.cooldown.set(msg.author, "flip", 60);
             API.playerUtils.cooldown.set(member, "flip", 60);
-            reacted[b.clicker.user.id] = true
+            reacted[b.user.id] = true
             if (b.customID == 'cancel'){
-                confirm[b.clicker.user.id] = '❌'
+                confirm[b.user.id] = '❌'
             } else {
-                confirm[b.clicker.user.id] = '✅'
+                confirm[b.user.id] = '✅'
             }
 
             b.deferUpdate()
