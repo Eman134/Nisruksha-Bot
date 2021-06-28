@@ -42,7 +42,7 @@ module.exports = {
              
         let fetched = guild.channels.cache.find(r => r.name.includes(`${member.id.slice(0,4)}`));
         if (fetched){
-            info.edit(`Você já possui um canal de thread! ${fetched}`)
+            info.edit({ content: `Você já possui um canal de thread! ${fetched}` })
             return;
         }
 
@@ -61,7 +61,7 @@ module.exports = {
         let embed = new API.Discord.MessageEmbed()
         .setDescription(`Olá ${member}, detalhe-nos sobre o bug!`)
         .setColor('#443c3c')
-        const embedmsg = await newch.send(member, embed)
+        const embedmsg = await newch.send({ embeds: [embed] })
 
     }
 }

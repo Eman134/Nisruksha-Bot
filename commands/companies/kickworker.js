@@ -106,7 +106,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Demitido!', `Você demitiu ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!\nMotivo: ${API.getMultipleArgs(msg, 2)}`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
             let company2 = await API.company.get.company(msg.author);
             let botowner = await API.client.users.fetch(API.owner[0])

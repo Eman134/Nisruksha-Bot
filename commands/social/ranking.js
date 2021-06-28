@@ -125,7 +125,7 @@ module.exports = {
                 if (current == 'change' || current == '') {
                     reworkButtons(rankingtype)
                     b.deferUpdate()
-                    return await embedmsg.edit({ embeds: [embed], components})
+                    return await embedmsg.edit({ embeds: [embed], components })
                 } 
                 b.customID = current
             }

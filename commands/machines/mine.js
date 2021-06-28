@@ -93,8 +93,6 @@ module.exports = {
 
         async function edit() {
 
-            console.log('edit')
-
             try{
 
                 let profundidade = await API.maqExtension.getDepth(msg.author)
@@ -214,8 +212,6 @@ module.exports = {
 
                 const filter = i => i.user.id === msg.author.id;
 
-                console.log(timeupdate)
-
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (b) => {
@@ -243,7 +239,6 @@ module.exports = {
 
                 setTimeout(function( ) { 
                     if (!stopped) {
-                        console.log('editing')
                         edit();
                     }
                 }, timeupdate)

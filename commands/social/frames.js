@@ -119,7 +119,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
                 embed.setImage(API.frames.get(frames[0]).url)
-                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
+                await embedmsg.edit({ embeds: [embed], components: [] });
 
                 b.deferUpdate()
 
@@ -132,7 +132,7 @@ module.exports = {
                 embed.setColor('#5bff45');
                 embed.setDescription('✅ Moldura equipada')
                 embed.setImage(frame.url)
-                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
+                await embedmsg.edit({ embeds: [embed], components: [] });
 
                 b.deferUpdate()
                 
@@ -146,9 +146,7 @@ module.exports = {
                 b.deferUpdate()
 
             }
-
             
-
         });
         
         collector.on('end', b => {
