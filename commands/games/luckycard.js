@@ -68,14 +68,14 @@ module.exports = {
         .setColor('#4e5052')
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setTitle(`<:hide:855906056865316895> Cartas da Sorte`)
-        .addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0,1x-2,5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}`, true)
+        .addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}`, true)
         
         const cards = {
-            card1: parseFloat(API.random(0, 2.5, true).toFixed(2)),
-            card2: parseFloat(API.random(0, 2.5, true).toFixed(2)),
-            card3: parseFloat(API.random(0, 2.5, true).toFixed(2)),
-            card4: parseFloat(API.random(0, 2.5, true).toFixed(2)),
-            card5: parseFloat(API.random(0, 2.5, true).toFixed(2))
+            card1: parseFloat(API.random(0, 1.5, true).toFixed(2)),
+            card2: parseFloat(API.random(0, 1.5, true).toFixed(2)),
+            card3: parseFloat(API.random(0, 1.5, true).toFixed(2)),
+            card4: parseFloat(API.random(0, 1.5, true).toFixed(2)),
+            card5: parseFloat(API.random(0, 1.5, true).toFixed(2))
         }
 
         const btn0 = API.createButton('card1', 'SECONDARY', '', '855906056865316895')
@@ -108,7 +108,7 @@ module.exports = {
                 return;
             }
 
-            embed.addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0,1x-2,5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}\n${Math.round(aposta*cards[b.customID]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customID])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customID])-aposta) } ${API.money3}\` ${API.money3emoji}`, true)
+            embed.addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}\n${Math.round(aposta*cards[b.customID]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customID])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customID])-aposta) } ${API.money3}\` ${API.money3emoji}`, true)
 
             const btn0 = API.createButton('card1', (b.customID == 'card1' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card1'].toString(), '855906056865316895', true)
             const btn1 = API.createButton('card2', (b.customID == 'card2' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card2'].toString(), '855906056865316895', true)
