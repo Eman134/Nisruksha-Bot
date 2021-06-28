@@ -14,11 +14,17 @@ module.exports = { // Renomeie para config.js
         port: 5432,
     },
 
+    best: {
+        token: "",
+        voteLogs_channel: ""
+    },
+
     dbl: {
         token: "",
         webhookAuthPass: "",
         voteLogs_channel: ""
     },
+    
     app: {
         token: "",
         secret: "",
