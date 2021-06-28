@@ -3,5 +3,10 @@
         "id": 1,
         "name": "Badge de MVP",
         "url": "https://cdn.discordapp.com/emojis/758717273304465478.png?v=1%27"
+    },
+    {
+        "id": 2,
+        "name": "Recompensa EP0",
+        "url": "https://cdn.discordapp.com/attachments/859113005396262968/859113025717927946/badge.png"
     }
 ]

@@ -70,6 +70,12 @@
         "type": 1,
         "name": "Redonda Verde",
         "url": "https://cdn.discordapp.com/attachments/846503913918169110/846542804402569216/moldura.png"
+    },
+    {
+        "id": 13,
+        "type": 0,
+        "name": "Recompensa EP0",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/859112996387291157/moldura.png"
     }
 
 ]

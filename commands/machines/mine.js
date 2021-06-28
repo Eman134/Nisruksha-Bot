@@ -210,6 +210,7 @@ module.exports = {
                 }
 
                 let stopped = false
+                let alerted = false
 
                 const filter = i => i.user.id === msg.author.id;
 
@@ -229,7 +230,9 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
-                    if (stopped) {
+                    if (stopped && !alerted) {
+                        stopped = true
+                        alerted = true
                         btn.setDisabled()
                         API.cacheLists.waiting.remove(msg.author, 'mining')
                         await embedmsg.edit({ embeds: [embed], components: [] }).catch()
