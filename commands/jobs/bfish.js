@@ -322,7 +322,7 @@ module.exports = {
 
                 let reacted = false
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.company.jobs.fish.update*1000 });
-                let lastreacttime = Date.now()-10000;
+
                 collector.on('collect', async (b) => {
 
                     if (!(b.user.id === msg.author.id)) return       
