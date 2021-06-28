@@ -363,8 +363,6 @@ module.exports = {
                             youhasbeencombedmeuamigo = true
                         } else if (combo[0] != combo[1] != combo[2]) {
                             youhasbeencombedmeuamigo = true
-                        } else if (combo[0] == combo[2] != combo[1]) {
-                            youhasbeencombedmeuamigo = true
                         }
                     }
 
@@ -385,11 +383,11 @@ module.exports = {
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
                     else if(API.random(0, 50) < 10 || youhasbeencombedmeuamigo) {
                         lost.player = 0
-                        crit = Math.round(eq.dmg)
+                        crit = Math.round(eq.dmg/2)
                     }
                     let roll3 = API.random(0, 100)
                     if (roll3 <= eq.crit || youhasbeencombedmeuamigo) {
-                        crit = Math.round(eq.dmg)
+                        crit = Math.round(eq.dmg/2)
                     }
                     lost.monster = Math.round(eq.dmg)+crit
                     if (youhasbeencombedmeuamigo) lost.player = Math.round(monster.level/3)
