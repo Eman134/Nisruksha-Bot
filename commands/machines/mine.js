@@ -93,6 +93,8 @@ module.exports = {
 
         async function edit() {
 
+            console.log('edit')
+
             try{
 
                 let profundidade = await API.maqExtension.getDepth(msg.author)
@@ -174,7 +176,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] })
                 }catch{
 					API.cacheLists.waiting.remove(msg.author, 'mining')
                     return
@@ -211,6 +213,8 @@ module.exports = {
 
                 const filter = i => i.user.id === msg.author.id;
 
+                console.log(timeupdate)
+
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
 
                 collector.on('collect', (b) => {
@@ -228,13 +232,19 @@ module.exports = {
                     if (stopped) {
                         btn.setDisabled()
                         API.cacheLists.waiting.remove(msg.author, 'mining')
-                        await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] }).catch()
+                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
                         await msg.quote({ embeds: [embedtemp], components: [] })
-                    } else {
-                        edit();
                     }
                 });
+
+                setTimeout(function( ) { 
+                    if (!stopped) {
+                        console.log('editing')
+                        edit();
+                    }
+                }, timeupdate)
+
             }catch (err){
                 API.client.emit('error', err)
                 console.log(err)

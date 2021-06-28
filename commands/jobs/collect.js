@@ -165,15 +165,19 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await embedmsg.edit({ embeds: [embed] }).catch()
+                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
                         await msg.quote({ embeds: [embedtemp]})
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                         API.cacheLists.waiting.remove(msg.author, 'working');
-                    } else {
-                        edit();
                     }
                 });
+
+                setTimeout(function( ) { 
+                    if (!reacted) {
+                        edit();
+                    }
+                }, API.company.jobs.agriculture.update*1000)
 
             }catch (err){
                 API.client.emit('error', err)

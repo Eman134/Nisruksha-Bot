@@ -362,13 +362,19 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await embedmsg.edit({ embeds: [embed], components:[] }).catch()
+                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
-                        await msg.quote({ embeds: [embedtemp], components:[] })
+                        await msg.quote({ embeds: [embedtemp], components: [] })
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                         API.cacheLists.waiting.remove(msg.author, 'working');
-                    } else {edit(msg, company);}
+                    }
                 });
+
+                setTimeout(function( ) { 
+                    if (!reacted) {
+                        edit(msg, company);
+                    }
+                }, API.company.jobs.fish.update*1000)
                 
             }catch (err){
                 API.client.emit('error', err)

@@ -102,6 +102,9 @@ module.exports = {
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.events.treasure.update*1000 });
 
                 collector.on('collect', (b) => {
+
+                    if (!(b.user.id === msg.author.id)) return  
+
                     if (b.customID == 'stopBtn') {
                         reacted = true;
                         collector.stop();
@@ -115,10 +118,15 @@ module.exports = {
                         const embedtemp = await API.sendError(msg, `Você parou a escavação!`)
                         await msg.quote({ embeds: [embedtemp] })
                         API.cacheLists.waiting.remove(msg.author, 'digging');
-                    } else {
-                        edit();
                     }
                 });
+
+                setTimeout(function( ) { 
+                    if (!reacted) {
+                        edit();
+                    }
+                }, API.events.treasure.update*1000)
+
             }catch (err){
                 API.client.emit('error', err)
             }
