@@ -184,8 +184,7 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
-                    btn.setDisabled()
-                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
 
@@ -193,8 +192,7 @@ module.exports = {
                     const embedtemp = await API.sendError(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
-                    btn.setDisabled()
-                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
                 if (e+1 < 1) {
@@ -202,8 +200,7 @@ module.exports = {
                     
                     await msg.quote({ embeds: [embedtemp], mention: true })
                     API.cacheLists.waiting.remove(msg.author, 'mining')
-                    btn.setDisabled()
-                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])], mention: true }).catch()
+                    await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
 
