@@ -205,7 +205,6 @@ module.exports = {
                 }
 
                 let stopped = false
-                let alerted = false
 
                 const filter = i => i.user.id === msg.author.id;
 
@@ -223,14 +222,13 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
-                    if (stopped && !alerted) {
+                    if (stopped) {
                         stopped = true
-                        alerted = true
                         btn.setDisabled()
                         API.cacheLists.waiting.remove(msg.author, 'mining')
-                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
                         await msg.quote({ embeds: [embedtemp], components: [] })
+                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                     }
                 });
 
