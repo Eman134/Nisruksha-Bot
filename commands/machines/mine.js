@@ -210,7 +210,7 @@ module.exports = {
 
                 const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
 
-                collector.on('collect', (b) => {
+                collector.on('collect', async (b) => {
 
                     if (!(b.user.id === msg.author.id)) return
 
