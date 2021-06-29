@@ -179,7 +179,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
