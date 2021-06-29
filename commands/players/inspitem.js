@@ -40,7 +40,7 @@ module.exports = {
         embed.setColor('#606060');
         embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
-        embed.addField('🔎 Inspeção', `Nome: **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? API.itemExtension.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}`)
+        embed.addField('🔎 Inspeção', `Nome: **${drop.icon} ${drop.displayname}**\nValor: \`${drop.price} ${API.money}\` ${API.moneyemoji}\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? API.itemExtension.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}`)
         if (drop.icon.includes('>')) embed.setImage('https://cdn.discordapp.com/emojis/' + drop.icon.split(':')[2].replace('>', '') + '.png?v=1')
         await msg.quote({ embeds: [embed] });
 
