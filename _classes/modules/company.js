@@ -797,6 +797,10 @@ const jobs = {
 
         }
 
+        if (!jobs.process.current.includes(member.id)) {
+            jobs.process.current.push(member.id)
+        }
+
         st()
 
     } 
