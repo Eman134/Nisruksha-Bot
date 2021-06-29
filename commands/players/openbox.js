@@ -94,7 +94,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#606060');
             embed.setDescription(`<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
             let arraywin = [];
             let currnum = 0;
