@@ -174,6 +174,9 @@ module.exports = {
                 return d[vare[b.customID].db.column] - c[vare[b.customID].db.column];
             });
 
+            const obj = array.find((u) => u.user_id == msg.author.id )
+            const pos = array.indexOf(obj)+1
+
             array = array.slice(0, 10)
 
             var rank = 1;
@@ -187,9 +190,6 @@ module.exports = {
             }
 
             const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customID].db.column]} ${vare[b.customID].formated}`).join('\n')
-
-            const obj = array.find((u) => u.user_id == msg.author.id )
-            const pos = array.indexOf(obj)+1
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')

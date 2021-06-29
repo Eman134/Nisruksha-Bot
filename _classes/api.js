@@ -315,7 +315,13 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
 
     if (result.includes('❌') && perm < 4) {
-     await msg.quote({ content: 'O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru' }).catch()
+        try {
+
+            await msg.quote({ content: 'O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru' }).catch()
+            
+        } catch {
+            
+        }
             
         if (API.logs.falhas) {
             const embedcmd = new API.Discord.MessageEmbed()

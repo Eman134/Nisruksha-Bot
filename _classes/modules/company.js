@@ -742,11 +742,11 @@ const jobs = {
                                 processjson.in[indexProcess].drops = droplist
                             }
                             
-                            const xpbase = API.random(1, 25)
+                            const xpbase = API.random(6, 25)
 
                             processjson.in[indexProcess].xpbase += xpbase // ADICIONAR XP BASE
                             processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
-                            processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
+                            processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()*2).toFixed(2) // ADICIONAR SCORE
 
                         }
 

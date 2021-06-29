@@ -8,7 +8,16 @@ Message.prototype.quote = async function (x) {
   
   x.reply = { messageReference: this.id }
 
-  return await this.channel.send(x);
+  let msg 
+  try {
+  
+    msg = await this.channel.send(x);
+    
+  } catch {
+
+  }
+    
+  return msg
 }
 
 //module.exports = replyQuote
