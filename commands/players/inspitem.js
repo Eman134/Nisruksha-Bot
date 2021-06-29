@@ -1,6 +1,6 @@
 module.exports = {
     name: 'inspecionaritem',
-    aliases: ['veritem', 'vitem', 'insi', 'inspitem'],
+    aliases: ['veritem', 'insi', 'inspitem'],
     category: 'Players',
     description: 'Inspeciona algum item da sua mochila',
     options: [{
@@ -15,13 +15,13 @@ module.exports = {
         const args = API.args(msg);
 
         if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para uso!`, `inspecionaritem <nome do item>`)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para inspecionar!`, `inspecionaritem <nome do item>`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
         if (args.length >= 1 && (API.itemExtension.exists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para inspeção!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
+            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para inspecionar!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }

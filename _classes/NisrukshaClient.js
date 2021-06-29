@@ -212,11 +212,11 @@ module.exports = class NisrukshaClient extends Discord.Client {
                 API.dbl = new Topgg.Api(options.dbl.token)
 
                 setInterval(() => {
-                API.dbl.postStats({
-                    serverCount: API.client.guilds.cache.size,
-                    shardId: 0,
-                    shardCount: 0
-                })
+                    API.dbl.postStats({
+                        serverCount: API.client.guilds.cache.size,
+                        shardId: 0,
+                        shardCount: 0
+                    })
                 }, 1800000) // post every 30 minutes
 
             } catch (err) {
