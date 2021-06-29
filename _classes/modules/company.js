@@ -222,7 +222,8 @@ const jobs = {
         update: 40,
         tools: {
             obj: {}
-        }
+        },
+        current: []
     }
 };
 
@@ -614,13 +615,30 @@ const jobs = {
 
         for (xilist = 0; xilist < list.length; xilist++) {
 
-            
             const member = await API.client.users.fetch(list[xilist])
 
             jobs.process.loopProcess(member)
             API.cacheLists.waiting.add(member, { url: '' }, 'working');
 
         }
+
+        setInterval(function() {
+
+            const list2 = await jobs.process.get()
+
+            for (xilist = 0; xilist < list2.length; xilist++) {
+
+                const member = await API.client.users.fetch(list2[xilist])
+
+                if (!jobs.process.current.includes(member.id)) {
+                    jobs.process.loopProcess(member)
+                    jobs.process.current.push(member.id)
+                    API.cacheLists.waiting.add(member, { url: '' }, 'working');
+                }
+
+            }
+
+        }, 1800000)
         
     }
 
@@ -809,6 +827,10 @@ const jobs = {
         list.splice(index, 1);
         await API.setGlobalInfo('processing', list)
       }
+
+      if (jobs.process.current.indexOf(member.id) > -1) {
+        jobs.process.current.splice(jobs.process.current.indexOf(member.id), 1);
+      }
     
     }
     
@@ -820,7 +842,7 @@ const jobs = {
         list.push(member.id)
         await API.setGlobalInfo('processing', list)
         jobs.process.loopProcess(member)
-      }
+      } 
     
     }
 
