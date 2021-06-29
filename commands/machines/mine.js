@@ -216,19 +216,13 @@ module.exports = {
 
                     if (b.customID == 'stopBtn') {
                         b.deferUpdate()
-                        stopped = true;
-                        collector.stop();
-                    }
-                });
-
-                collector.on('end', async collected => {
-                    if (stopped) {
                         stopped = true
                         btn.setDisabled()
-                        //API.cacheLists.waiting.remove(msg.author, 'mining')
-                        //const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
-                        //await msg.quote({ embeds: [embedtemp], components: [] })
-                        //await embedmsg.edit({ embeds: [embed], components: [] }).catch()
+                        API.cacheLists.waiting.remove(msg.author, 'mining')
+                        const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
+                        await msg.quote({ embeds: [embedtemp], components: [] })
+                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
+                        collector.stop();
                     }
                 });
 
