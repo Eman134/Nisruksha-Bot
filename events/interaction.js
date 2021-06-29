@@ -29,7 +29,11 @@ module.exports = {
             if (!response) {
 
                 response = true
-                await interaction.defer(true)
+                try {
+                    await interaction.defer(true)
+                } catch {
+                    
+                }
 
                 /*if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
                     const ie = await interaction.editReply('\u200B')
