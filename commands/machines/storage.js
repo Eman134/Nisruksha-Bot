@@ -124,9 +124,8 @@ module.exports = {
                 } else embed.setFooter('💰 Seus recursos valem ' + API.format(Math.round(total)) + ' ' + API.money)
             }
 
-            await embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed] });
 
-            collector.resetTimer();
         });
         
         collector.on('end', collected => {
