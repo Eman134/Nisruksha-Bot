@@ -1,6 +1,8 @@
 
 const API = require("../api.js");
 
+const debugmode = false
+
 const stars = {};
 {
     stars.add = async function(member, company_id, options) {
@@ -620,9 +622,11 @@ const jobs = {
             jobs.process.loopProcess(member)
             API.cacheLists.waiting.add(member, { url: '' }, 'working');
 
+            if (debugmode) console.log('Loading: ' + member.id)
+
         }
 
-        setInterval(function() {
+        setInterval(async function() {
 
             const list2 = await jobs.process.get()
 
@@ -635,6 +639,8 @@ const jobs = {
                     jobs.process.current.push(member.id)
                     API.cacheLists.waiting.add(member, { url: '' }, 'working');
                 }
+
+                if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id))
 
             }
 
@@ -789,7 +795,7 @@ const jobs = {
 
                 const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
 
-                if (API.debug) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
+                if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
 
                 setTimeout(() => { st( )}, timetoone)
 
@@ -799,6 +805,7 @@ const jobs = {
 
         if (!jobs.process.current.includes(member.id)) {
             jobs.process.current.push(member.id)
+            if (debugmode) console.log('Starting: ' + member.id)
         }
 
         st()
