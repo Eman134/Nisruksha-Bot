@@ -206,26 +206,6 @@ module.exports = {
 
                 let stopped = false
 
-                const filter = i => i.user.id === msg.author.id;
-
-                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
-
-                collector.on('collect', async (b) => {
-
-                    if (!(b.user.id === msg.author.id)) return
-
-                    if (b.customID == 'stopBtn') {
-                        b.deferUpdate()
-                        stopped = true
-                        btn.setDisabled()
-                        API.cacheLists.waiting.remove(msg.author, 'mining')
-                        const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
-                        await msg.quote({ embeds: [embedtemp], components: [] })
-                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
-                        collector.stop();
-                    }
-                });
-
                 setTimeout(function( ) { 
                     if (!stopped) {
                         edit();
@@ -237,6 +217,27 @@ module.exports = {
                 console.log(err)
             }
         }
+
+        const filter = i => i.user.id === msg.author.id;
+
+        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: timeupdate });
+
+        collector.on('collect', async (b) => {
+
+            if (!(b.user.id === msg.author.id)) return
+
+            if (b.customID == 'stopBtn') {
+                b.deferUpdate()
+                stopped = true
+                btn.setDisabled()
+                API.cacheLists.waiting.remove(msg.author, 'mining')
+                const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
+                await msg.quote({ embeds: [embedtemp], components: [] })
+                await embedmsg.edit({ embeds: [embed], components: [] }).catch()
+                collector.stop();
+            }
+        });
+
         edit();
 	}
 };
