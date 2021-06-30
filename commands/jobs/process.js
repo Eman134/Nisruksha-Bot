@@ -131,6 +131,7 @@ module.exports = {
                 
                 }
             } else {
+                API.cacheLists.waiting.remove(msg.author, 'working');
                 embed.fields = []
                 embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
                 embeds = []
