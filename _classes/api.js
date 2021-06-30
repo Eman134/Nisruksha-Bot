@@ -369,8 +369,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     const totalcmd = await API.getGlobalInfo('totalcmd');
     API.setGlobalInfo('totalcmd', parseInt(totalcmd)+1)
 
-    const check = await API.playerUtils.cooldown.check(msg.author, "mastery");
-    if (!check) API.playerUtils.addMastery(msg.author, maestria + 1)
+    const check25 = await API.playerUtils.cooldown.check(msg.author, "mastery");
+    if (!check25) API.playerUtils.addMastery(msg.author, maestria + 1)
     else API.playerUtils.cooldown.set(msg.author, "mastery", 60);
 
     API.setInfo(msg.author, 'players', 'cmdsexec', parseInt(totalcmdplayer.cmdsexec)+1)
