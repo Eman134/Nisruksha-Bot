@@ -139,7 +139,7 @@ module.exports = {
             embed.setColor('#5bff45');
             embed.addField('✅ Aposta realizada', `
             Você fez uma aposta de \`${API.format(total)} ${API.money}\` ${API.moneyemoji} no cavalo **🏇${reaction.emoji.name}**!\nO resultado final da corrida sairá em **${API.ms2(API.events.race.time-(Date.now()-API.events.race.started))}** e se ganhar o valor será creditado automaticamente em seu banco!`)
-            embedmsg.edit({ embeds: [embed] });
+            await embedmsg.edit({ embeds: [embed], components: [] });
 
         });
         
@@ -149,7 +149,7 @@ module.exports = {
             const embed = API.events.getRaceEmbed(total)
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria realizar uma aposta na corrida de cavalos, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             return;
         });
 
