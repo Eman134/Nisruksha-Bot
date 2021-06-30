@@ -464,7 +464,6 @@ module.exports = {
                         }
                     }, 3000)
                 }
-                lastreacttime = Date.now()
                 fixedembed = embed
 
                 if (dead) {

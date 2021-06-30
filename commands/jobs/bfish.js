@@ -324,15 +324,12 @@ module.exports = {
                 const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: API.company.jobs.fish.update*1000 });
 
                 collector.on('collect', async (b) => {
-
-                    if (!(b.user.id === msg.author.id)) return       
+  
                     if (b.customID == 'stopBtn') {
                         b.deferUpdate().catch()
                         reacted = true;
                         collector.stop();
                     } else if (b.customID == 'downBtn' || b.customID == 'upBtn') {
-                        b.deferUpdate().catch()
-                        lastreacttime = Date.now()
                         
                         if (b.customID == 'downBtn') {
                             header.levels["0"] = (header.levels["0"] == 5 ? 1 : header.levels["0"]+1)
@@ -351,7 +348,9 @@ module.exports = {
                         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
                             await embedmsg.edit({ embeds: [embed], components: reworkBtns() }).catch()
+                            b.deferUpdate().catch()
                         }catch{
+                            b.deferUpdate().catch()
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             API.cacheLists.waiting.remove(msg.author, 'working');
                             return
@@ -366,14 +365,10 @@ module.exports = {
                         await msg.quote({ embeds: [embedtemp], components: [] })
                         API.cacheLists.waiting.remove(msg.author, 'fishing')
                         API.cacheLists.waiting.remove(msg.author, 'working');
-                    }
-                });
-
-                setTimeout(function( ) { 
-                    if (!reacted) {
+                    } else {
                         edit(msg, company);
                     }
-                }, API.company.jobs.fish.update*1000)
+                });
                 
             }catch (err){
                 API.client.emit('error', err)
