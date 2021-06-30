@@ -15,7 +15,7 @@ module.exports = {
         description: 'Selecione uma quantia de fichas para aposta',
         required: true
     }],
-    mastery: 30,
+    mastery: 10,
 	async execute(API, msg) {
 
         const Discord = API.Discord;
