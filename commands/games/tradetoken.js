@@ -11,7 +11,7 @@ module.exports = {
             required: false
         }
     ],
-    mastery: 20,
+    mastery: 10,
 	async execute(API, msg) {
 
         const Discord = API.Discord;
