@@ -27,7 +27,7 @@ module.exports = {
             return reaction.emoji.name === '⏰' && user.id === msg.author.id;
         };
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 20000 });
+        const collector = embedmsg.createReactionCollector({ filter, time: 20000 });
         let reacted = false;
         collector.on('collect', async (reaction, user) => {
             reacted = true;

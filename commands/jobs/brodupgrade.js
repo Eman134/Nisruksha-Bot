@@ -42,7 +42,7 @@ module.exports = {
             return user.id === msg.author.id;
         };
         
-        const collector = embedmsg.createReactionCollector(filter, { time: 30000 });
+        const collector = embedmsg.createReactionCollector({ filter, time: 30000 });
         let reacted = false;
 		let upgraded = false
         collector.on('collect', async (reaction, user) => {
