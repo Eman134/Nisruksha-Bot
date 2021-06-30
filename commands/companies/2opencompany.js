@@ -93,7 +93,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
-            b.deferUpdate()
+            b.deferUpdate().catch()
             reacted = true;
             collector.stop();
 

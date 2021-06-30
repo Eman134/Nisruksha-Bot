@@ -148,7 +148,7 @@ module.exports = {
                 confirm[b.user.id] = '✅'
             }
 
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             const embed = new Discord.MessageEmbed()
             .setTitle('Giro')

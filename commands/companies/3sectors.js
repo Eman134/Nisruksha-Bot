@@ -87,7 +87,7 @@ module.exports = {
             await embedmsg.edit({embeds: [embed], components})
 
             collector.resetTimer()
-            b.deferUpdate()
+            b.deferUpdate().catch()
             
         });
         

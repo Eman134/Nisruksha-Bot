@@ -88,7 +88,7 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
             selected = b.customID;
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             reacted = true
 

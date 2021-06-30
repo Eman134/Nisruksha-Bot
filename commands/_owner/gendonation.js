@@ -35,7 +35,7 @@ module.exports = {
             
             if (b.customID == 'cancel') return collector.stop();
             embed.fields = [];
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             const totaldonates = await API.getGlobalInfo('totaldonates')
             const donates = await API.getGlobalInfo('donates')

@@ -80,7 +80,7 @@ module.exports = {
             reacted = true;
             collector.stop();
             embed.fields = [];
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             const obj2 = await API.getInfo(msg.author, 'storage')
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {

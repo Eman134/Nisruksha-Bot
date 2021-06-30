@@ -121,14 +121,14 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
 
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             if (b.customID == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
                 embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 if (current == 'change' || current == '') {
                     reworkButtons(rankingtype)
-                    b.deferUpdate()
+                    b.deferUpdate().catch()
                     await embedmsg.edit({ embeds: [embed], components })
                     return
                 } 

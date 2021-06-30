@@ -117,7 +117,7 @@ module.exports = {
             if (b.customID == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
-                b.deferUpdate().catch()
+                b.deferUpdate().catch().catch()
                 return;
             }
 
@@ -337,7 +337,7 @@ module.exports = {
                     }, 6000)
                 }
 
-                b.deferUpdate().catch()
+                b.deferUpdate().catch().catch()
 
                 return;
                 
@@ -489,7 +489,7 @@ module.exports = {
 
             collector.resetTimer();
 
-            b.deferUpdate().catch()
+            b.deferUpdate().catch().catch()
 
         });
         

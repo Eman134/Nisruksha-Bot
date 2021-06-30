@@ -121,7 +121,7 @@ module.exports = {
                 embed.setImage(API.frames.get(frames[0]).url)
                 await embedmsg.edit({ embeds: [embed], components: [] });
 
-                b.deferUpdate()
+                b.deferUpdate().catch()
 
                 return collector.stop();
 
@@ -134,7 +134,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embeds: [embed], components: [] });
 
-                b.deferUpdate()
+                b.deferUpdate().catch()
                 
                 return collector.stop();
 
@@ -143,7 +143,7 @@ module.exports = {
                 embed.setImage(frame.url)
                 await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
-                b.deferUpdate()
+                b.deferUpdate().catch()
 
             }
             

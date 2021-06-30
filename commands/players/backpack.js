@@ -158,7 +158,7 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
             
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             if (b.customID == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;

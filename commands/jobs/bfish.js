@@ -327,11 +327,11 @@ module.exports = {
 
                     if (!(b.user.id === msg.author.id)) return       
                     if (b.customID == 'stopBtn') {
-                        b.deferUpdate()
+                        b.deferUpdate().catch()
                         reacted = true;
                         collector.stop();
                     } else if (b.customID == 'downBtn' || b.customID == 'upBtn') {
-                        b.deferUpdate()
+                        b.deferUpdate().catch()
                         lastreacttime = Date.now()
                         
                         if (b.customID == 'downBtn') {

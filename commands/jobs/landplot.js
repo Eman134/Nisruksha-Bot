@@ -170,7 +170,7 @@ module.exports = {
             if (!(b.user.id === msg.author.id)) return
                 reacted = true;
                 collector.stop();
-                b.deferUpdate()
+                b.deferUpdate().catch()
                 embed.fields = [];
 
                 pobj = await API.getInfo(msg.author, 'players')
@@ -246,7 +246,7 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
             reacted = true;
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             collector.resetTimer()
 
