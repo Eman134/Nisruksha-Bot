@@ -93,7 +93,7 @@ module.exports = {
             let xx = await API.company.check.isWorker(usr)
             let vac = await API.company.check.hasVacancies(company.company_id)
 
-            array.splice(index, 1)
+            array.splice(parseInt(args[1])-1, 1)
 
             if (xy || xx) {
                 await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
