@@ -199,7 +199,6 @@ get.company = async function(owner) {
 }
 
 const jobs = { 
-    itens: {},
     explore: {
         mobs: {
             obj: {}
@@ -435,34 +434,6 @@ const jobs = {
             jobs.explore.equips.obj = '`Error on load equip list`';
             API.client.emit('error', err)
         }
-    }
-
-    jobs.itens.get = async function(member, filtered, length) {
-        let obj = API.itemExtension.getObj();
-        let obj2 = obj
-        let res;
-        await API.setPlayer(member, 'storage')
-        const text =  `SELECT * FROM storage WHERE user_id = $1;`,
-        values = [member.id]
-        try {
-            let res2 = await API.db.pool.query(text, values);
-            res = res2.rows[0]
-        } catch (err) {
-            console.log(err.stack)
-            client.emit('error', err)
-        }
-        
-        let arrayitens = []
-        for (const rddd of obj2.drops) {
-            let t1 = rddd
-            let rsize = res[t1.name.replace(/"/g, "")];
-            t1.size = rsize
-            arrayitens.push(t1);
-        }
-
-        if (filtered) arrayitens = arrayitens.filter(x => x.size > 0)
-        if (length) return arrayitens.length
-        return arrayitens
     }
 
 }

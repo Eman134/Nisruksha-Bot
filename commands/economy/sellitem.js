@@ -27,7 +27,7 @@ module.exports = {
             return;
         }
 
-        let armsize = await API.company.jobs.itens.get(msg.author, true, true);
+        let armsize = await API.itemExtension.getInv(msg.author, true, true);
 
         if (armsize <= 0) {
             const embedtemp = await API.sendError(msg, `Você não possui itens na sua mochila para vender!`)
@@ -188,7 +188,7 @@ module.exports = {
             switch (type) {
                 case 0:
 
-                    let armsize2 = await API.company.jobs.itens.get(msg.author, true, true);
+                    let armsize2 = await API.itemExtension.getInv(msg.author, true, true);
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui itens na sua mochila para vender!`)

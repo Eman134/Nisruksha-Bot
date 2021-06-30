@@ -56,7 +56,7 @@ module.exports = {
         let backpackid = utilsobj.backpack;
         let backpack = API.shopExtension.getProduct(backpackid);
 
-        let arrayitens = await API.company.jobs.itens.get(member, true)
+        let arrayitens = await API.itemExtension.getInv(member, true)
 
         let sorter = 0
         let sortermode = 0
@@ -76,7 +76,7 @@ module.exports = {
             
             arrayitens = arrayitens.sort(function(a, b){
 
-                if (sorter == 0) return b.size - a.size
+                if (sorter == 0) return b.qnt - a.qnt
 
                 if (sorter == 1 && a.rarity && b.rarity) {
                     const rarities = {

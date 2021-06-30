@@ -53,7 +53,7 @@ itemExtension.give = async function(msg, dp) {
     
     for (const y of dp) {
         
-        let arrayitens = await API.company.jobs.itens.get(msg.author, true, true)
+        let arrayitens = await API.itemExtension.getInv(msg.author, true, true)
         let curinfo = await API.getInfo(msg.author, 'storage')
         let rsize = curinfo[y.name.replace(/"/g, "")];
         let csize = await API.getInfo(msg.author, 'storage')
@@ -233,6 +233,35 @@ itemExtension.translateRarity = function(rarity) {
         default:
             return "<:comum:852302869889155082>"
     }
+}
+
+itemExtension.getInv = async function(member, filtered, length) {
+  let obj = API.itemExtension.getObj();
+  let obj2 = obj
+  let res;
+  await API.setPlayer(member, 'storage')
+  const text =  `SELECT * FROM storage WHERE user_id = $1;`,
+  values = [member.id]
+  try {
+      let res2 = await API.db.pool.query(text, values);
+      res = res2.rows[0]
+  } catch (err) {
+      console.log(err.stack)
+      client.emit('error', err)
+  }
+  
+  let arrayitens = []
+  for (const rddd of obj2.drops) {
+      let t1 = rddd
+      let rsize = res[t1.name.replace(/"/g, "")];
+      t1.size = rsize
+      t1.qnt = rsize
+      arrayitens.push(t1);
+  }
+
+  if (filtered) arrayitens = arrayitens.filter(x => x.size > 0)
+  if (length) return arrayitens.length
+  return arrayitens
 }
 
 module.exports = itemExtension;
