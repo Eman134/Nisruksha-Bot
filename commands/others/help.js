@@ -21,9 +21,8 @@ Apoie quem te convidou para o bot usando \`${API.prefix}apoiar <código>\`
 Caso não tenha o código, peça para a pessoa utilizar \`${API.prefix}meucodigo\`
 
 <:book:703298827888623647> Para saber mais sobre os comandos, separei algumas categorias para você listar!
-↳ Utilize \`${API.prefix}ajuda <categoria>\`
 
-<:list:736274028179750922> **Categorias** | ex: \`${API.prefix}ajuda economia\`
+<:list:736274028179750922> **Categorias**
 ${API.helpExtension.getCategoryList()}`)
 		}
 
