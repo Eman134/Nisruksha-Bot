@@ -5,10 +5,13 @@ module.exports = {
     description: 'Inicia sua máquina e cava as profundezas encontrando minérios sob a energia solar',
     mastery: 25,
 	async execute(API, msg) {
+        
+        const member = msg.author
 
         const Discord = API.Discord;
-        const isFull = await API.maqExtension.storage.isFull(msg.author);
-        const hasMachine = await API.maqExtension.has(msg.author);
+        const isFull = await API.maqExtension.storage.isFull(member);
+        const hasMachine = await API.maqExtension.has(member);
+
 
         if (!(hasMachine)) {
             const embedtemp = await API.sendError(msg, `Você ainda não possui uma máquina!\nAcesse \`${API.prefix}loja maquinas\` para visualizar as maquinas disponíveis`)
@@ -16,8 +19,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            const embedtemp = await API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})`)
+        if (API.cacheLists.waiting.includes(member, 'mining')) {
+            const embedtemp = await API.sendError(msg, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member, 'mining')})`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
@@ -28,7 +31,7 @@ module.exports = {
             return;
         }
 
-        let playerobj = await API.getInfo(msg.author, 'machines');
+        let playerobj = await API.getInfo(member, 'machines');
         let maqid = playerobj.machine;
 
         let maq = API.shopExtension.getProduct(maqid);
@@ -39,9 +42,9 @@ module.exports = {
             return;
         }
 
-        const eng = await API.maqExtension.getEnergy(msg.author);
+        const eng = await API.maqExtension.getEnergy(member);
 
-        const engmax = await API.maqExtension.getEnergyMax(msg.author);
+        const engmax = await API.maqExtension.getEnergyMax(member);
 
         if (eng < Math.round(15*engmax/100)) {
             const embedtemp = await API.sendError(msg, `Sua máquina precisa de no mínimo ${Math.round(15*engmax/100)} de energia para ligar\nVisualize a energia utilizando \`${API.prefix}energia\``)
@@ -50,15 +53,15 @@ module.exports = {
         }
 
         let init = Date.now();
-        let profundidade = await API.maqExtension.getDepth(msg.author)
+        let profundidade = await API.maqExtension.getDepth(member)
 
-        let energymax = await API.maqExtension.getEnergyMax(msg.author)
-        let progress = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(msg.author), energymax);
+        let energymax = await API.maqExtension.getEnergyMax(member)
+        let progress = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', await API.maqExtension.getEnergy(member), energymax);
 
-        let ep = await API.itemExtension.getEquipedPieces(msg.author);
-        let armazematual = await API.maqExtension.storage.getSize(msg.author);
-        let armazemmax = await API.maqExtension.storage.getMax(msg.author);
-        let obj6 = await API.getInfo(msg.author, "machines");
+        let ep = await API.itemExtension.getEquipedPieces(member);
+        let armazematual = await API.maqExtension.storage.getSize(member);
+        let armazemmax = await API.maqExtension.storage.getMax(member);
+        let obj6 = await API.getInfo(member, "machines");
 
         let timeupdate = API.maqExtension.update*1000
 
@@ -73,20 +76,20 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`${maq.icon} ${maq.name}`).setColor("#36393f")
-        embed.setDescription(`Minerador: ${msg.author}`);
+        embed.setDescription(`Minerador: ${member}`);
         embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${armazematual}/${armazemmax}]g\nTotal coletado: 0g\nColetado neste update: 0g`)
         embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
         embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEnergia: ${progress}`)
-        embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
         let embedmsg
         try {
             embedmsg = await msg.quote({ embeds: [embed] })
         } catch {
-            API.cacheLists.waiting.remove(msg.author, 'mining');
+            API.cacheLists.waiting.remove(member, 'mining');
             return
         }
-        API.cacheLists.waiting.add(msg.author, embedmsg, 'mining');
+        API.cacheLists.waiting.add(member, embedmsg, 'mining');
 
         let totalcoletado = 0;
         let coletadox = new Map();
@@ -95,9 +98,9 @@ module.exports = {
 
             try{
 
-                let profundidade = await API.maqExtension.getDepth(msg.author)
+                let profundidade = await API.maqExtension.getDepth(member)
 
-                let playerobj = await API.getInfo({ id: msg.author.id }, 'machines');
+                let playerobj = await API.getInfo({ id: member.id }, 'machines');
                 let maqid = playerobj.machine;
                 let maq = API.shopExtension.getProduct(maqid);
 
@@ -115,11 +118,11 @@ module.exports = {
                 let round = 0;
                 let xp = API.random(20, 40);
                 xp = await API.playerUtils.execExp(msg, xp);
-                await API.maqExtension.removeEnergy(msg.author, 1);
+                await API.maqExtension.removeEnergy(member, 1);
 				
                 let rd = API.random(1, 16) * (maq.tier+1);
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
-                    API.setInfo(msg.author, 'machines', 'durability', 0)
+                    API.setInfo(member, 'machines', 'durability', 0)
 
                 } else {
                     const array = playerobj.slots == null ? [] : playerobj.slots
@@ -128,7 +131,7 @@ module.exports = {
                         rd -= Math.round(API.shopExtension.getProduct(i).size*rd/100)
                         };
                     }
-                    API.setInfo(msg.author, 'machines', 'durability', playerobj.durability-rd)
+                    API.setInfo(member, 'machines', 'durability', playerobj.durability-rd)
                 }
                 
                 for await (const r of obj2) {
@@ -136,36 +139,36 @@ module.exports = {
 
                     let size = r.size;
 
-                    let arMax = await API.maqExtension.storage.getMax(msg.author);
+                    let arMax = await API.maqExtension.storage.getMax(member);
 
-                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) {
-                        size -= (await API.maqExtension.storage.getSize(msg.author)+size-arMax)
+                    if (await API.maqExtension.storage.getSize(member)+size >= arMax) {
+                        size -= (await API.maqExtension.storage.getSize(member)+size-arMax)
                     }
                     totalcoletado += size;
                     if (coletadox.has(r.name)) coletadox.set(r.name, coletadox.get(r.name)+size)
                     else coletadox.set(r.name, size)
                     sizeMap.set(r.name, size)
-                    API.itemExtension.add(msg.author, r.name, size)
+                    API.itemExtension.add(member, r.name, size)
                     round += size;
 
-                    if (await API.maqExtension.storage.getSize(msg.author)+size >= arMax) break;
+                    if (await API.maqExtension.storage.getSize(member)+size >= arMax) break;
                     
                 }
                 
-                let armazemmax2 = await API.maqExtension.storage.getMax(msg.author);
-                ep = await API.itemExtension.getEquipedPieces(msg.author);
-                let energymax = await API.maqExtension.getEnergyMax(msg.author)
-                const e = await API.maqExtension.getEnergy(msg.author);
+                let armazemmax2 = await API.maqExtension.storage.getMax(member);
+                ep = await API.itemExtension.getEquipedPieces(member);
+                let energymax = await API.maqExtension.getEnergyMax(member)
+                const e = await API.maqExtension.getEnergy(member);
                 let progress2 = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', e+1, energymax);
                 embed.fields = [];
-                const obj6 = await API.getInfo(msg.author, "machines");
-                const arsize = await API.maqExtension.storage.getSize(msg.author);
+                const obj6 = await API.getInfo(member, "machines");
+                const arsize = await API.maqExtension.storage.getSize(member);
                 
-                await embed.setDescription(`Minerador: ${msg.author}`);
+                await embed.setDescription(`Minerador: ${member}`);
                 await embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
                 await embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${Math.round(100*obj6.durability/maq.durability)}%`)
                 await embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEnergia: ${progress2}`)
-                embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                 
                 for await (const r of obj2) {
                     let qnt = sizeMap.get(r.name);
@@ -176,37 +179,36 @@ module.exports = {
                 try{
                     await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] })
                 }catch{
-					API.cacheLists.waiting.remove(msg.author, 'mining')
+					API.cacheLists.waiting.remove(member, 'mining')
                     return
                 }
-                playerobj = await API.getInfo(msg.author, 'machines');
+                playerobj = await API.getInfo(member, 'machines');
                 if (playerobj.durability <= Math.round(maq.durability/100)) {
-                    const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
+                    API.cacheLists.waiting.remove(member, 'mining')
+                    const embedtemp = await API.sendError(msg, `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member, 'mining')})\nUtilize \`${API.prefix}loja reparos\` para visualizar os reparos disponíveis`)
                     await msg.quote({ embeds: [embedtemp], mention: true })
-                    API.cacheLists.waiting.remove(msg.author, 'mining')
                     await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
 
-                if (await API.maqExtension.storage.getSize(msg.author) >= armazemmax2) {
-                    const embedtemp = await API.sendError(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
+                if (await API.maqExtension.storage.getSize(member) >= armazemmax2) {
+                    API.cacheLists.waiting.remove(member, 'mining')
+                    const embedtemp = await API.sendError(msg, `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member, 'mining')})\nUtilize \`${API.prefix}armazém\` para visualizar seus recursos\nUtilize \`${API.prefix}vender\` para vender os recursos`)
                     await msg.quote({ embeds: [embedtemp], mention: true })
-                    API.cacheLists.waiting.remove(msg.author, 'mining')
                     await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
                 if (e+1 < 1) {
-                    const embedtemp = await API.sendError(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(msg.author, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
-                    
+                    API.cacheLists.waiting.remove(member, 'mining')
+                    const embedtemp = await API.sendError(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
                     await msg.quote({ embeds: [embedtemp], mention: true })
-                    API.cacheLists.waiting.remove(msg.author, 'mining')
                     await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
 
                 let stopped = false
 
-                const filter = i => i.user.id === msg.author.id;
+                const filter = i => i.user.id === member.id;
 
                 const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: timeupdate });
 
@@ -216,7 +218,7 @@ module.exports = {
                         b.deferUpdate().catch()
                         stopped = true
                         btn.setDisabled()
-                        API.cacheLists.waiting.remove(msg.author, 'mining')
+                        API.cacheLists.waiting.remove(member, 'mining')
                         await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         collector.stop();
                     }
@@ -224,9 +226,9 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (stopped) {
+                        API.cacheLists.waiting.remove(member, 'mining');
                         const embedtemp = await API.sendError(msg, `Você parou o funcionamento da sua máquina!`)
                         await msg.quote({ embeds: [embedtemp] })
-                        API.cacheLists.waiting.remove(msg.author, 'mining');
                     } else {
                         edit();
                     }
