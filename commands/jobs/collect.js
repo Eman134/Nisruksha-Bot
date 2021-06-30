@@ -148,11 +148,8 @@ module.exports = {
 
                 let reacted = false
                 const filter = i => i.user.id === msg.author.id;
-                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.company.jobs.agriculture.update*1000 });
-                let alerted = false
+                const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: API.company.jobs.agriculture.update*1000 });
                 collector.on('collect', (b) => {
-
-                    if (!(b.user.id === msg.author.id)) return
 
                     if (b.customID == 'stopBtn') {
                         reacted = true;
@@ -162,21 +159,16 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
-                    if (reacted && !alerted) {
-                        alerted = true
+                    if (reacted) {
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                         API.cacheLists.waiting.remove(msg.author, 'working');
                         await embedmsg.edit({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
                         await msg.quote({ embeds: [embedtemp]})
+                    } else {
+                        edit()
                     }
                 });
-
-                setTimeout(function( ) { 
-                    if (!reacted) {
-                        edit();
-                    }
-                }, API.company.jobs.agriculture.update*1000)
 
             }catch (err){
                 API.client.emit('error', err)

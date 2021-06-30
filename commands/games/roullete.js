@@ -81,7 +81,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
             
-        const collector = await embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
+        const collector = await embedmsg.createMessageComponentInteractionCollector({ filter, time: 60000 });
         let selected;
         let reacted = false
         collector.on('collect', async (b) => {

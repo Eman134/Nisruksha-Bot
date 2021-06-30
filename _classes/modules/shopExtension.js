@@ -209,7 +209,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
   let currentpage = page;
   
-  let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
+  let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
   
   collector.on('collect', async(b) => {
 
@@ -335,7 +335,7 @@ shopExtension.execute = async function(msg, p) {
 
   const filter = i => i.user.id === msg.author.id;
 
-  let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
+  let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
   let buyed = false;
 
   collector.on('collect', async(b) => {

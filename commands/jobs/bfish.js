@@ -321,7 +321,7 @@ module.exports = {
                 }
 
                 let reacted = false
-                const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: API.company.jobs.fish.update*1000 });
+                const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: API.company.jobs.fish.update*1000 });
 
                 collector.on('collect', async (b) => {
 

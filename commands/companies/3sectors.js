@@ -61,7 +61,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 30000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
         
         collector.on('collect', async (b) => {
 

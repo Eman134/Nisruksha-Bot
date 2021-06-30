@@ -69,7 +69,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 15000 });
+        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 15000 });
         let selled = false;
         API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
         collector.on('collect', async(b) => {

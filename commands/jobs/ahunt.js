@@ -93,7 +93,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 45000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 45000 });
         let reacted = false;
         let inbattle = false;
         let dead = false;

@@ -133,7 +133,7 @@ module.exports = {
 
         let reacted = {}
         
-        const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
+        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 60000 });
 
         collector.on('collect', async (b) => {
 
