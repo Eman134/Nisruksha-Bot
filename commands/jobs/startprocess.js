@@ -115,7 +115,7 @@ module.exports = {
         function reworkButtons(current, allDisabled) {
             const btn2 = API.createButton('ferr', processjson.tools[0].process.current >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.tools[0].process.current + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.tools[0].process.current >= processjson.tools[0].process.max ? true : false))
             const btn3 = API.createButton('lqd', processjson.tools[1].process.current >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.tools[1].process.current + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.tools[1].process.current >= processjson.tools[1].process.max ? true : false))
-            return [API.rowButton([btn2, btn3])]
+            return [API.rowComponents([btn2, btn3])]
         }
 
         const components = reworkButtons(current)

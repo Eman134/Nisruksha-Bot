@@ -121,7 +121,7 @@ module.exports = {
                     row0.push(API.createButton('upgrade', 'SECONDARY', 'Upgrade', '833837888634486794'))
                 }
                 
-                if (row0.length > 0) components.push(API.rowButton(row0))
+                if (row0.length > 0) components.push(API.rowComponents(row0))
 
                 for (i = 0; i < grow.length; i++) {
                     growBtnList.push(API.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
@@ -137,7 +137,7 @@ module.exports = {
                     if (growBtnList[x]) {
                         const var1 = (x+1)*5-5
                         const var2 = ((x+1)*5)
-                        const rowBtn = API.rowButton(growBtnList.slice(var1, var2))
+                        const rowBtn = API.rowComponents(growBtnList.slice(var1, var2))
                         if (rowBtn.components.length > 0) components.push(rowBtn)
                     } else break
 
@@ -159,7 +159,7 @@ module.exports = {
 
             const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
             
-            const embedmsg = await msg.quote({ embeds: [embedtemp], component: API.rowButton([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')]) } )
+            const embedmsg = await msg.quote({ embeds: [embedtemp], component: API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')]) } )
 
             const filter = i => i.user.id === msg.author.id;
             

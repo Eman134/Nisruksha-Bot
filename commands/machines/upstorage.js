@@ -50,7 +50,7 @@ module.exports = {
 
         const btn0 = API.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0])] });
 
         const filter = i => i.user.id === msg.author.id;
         

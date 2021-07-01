@@ -77,7 +77,7 @@ module.exports = {
         const btn2 = API.createButton('🍐', 'SECONDARY', '', '🍐')
         const btn3 = API.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3])] });
 
         const filter = i => i.user.id === msg.author.id;
             

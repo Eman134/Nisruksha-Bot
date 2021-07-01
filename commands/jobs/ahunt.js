@@ -85,7 +85,7 @@ module.exports = {
 
         if (pobj.mvp != null) rb0.push(btn2)
 
-        const rowButton0 = API.rowButton(rb0)
+        const rowButton0 = API.rowComponents(rb0)
 
         const embedmsg = await msg.quote( { embeds: [embed], components: [ rowButton0 ] } );
 		API.cacheLists.waiting.add(msg.author, embedmsg, 'hunting')
@@ -317,7 +317,7 @@ module.exports = {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
 
-                if (!autohunt) components = [ API.rowButton(equipsBtn) ]
+                if (!autohunt) components = [ API.rowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
 				

@@ -127,7 +127,7 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
 
         const filter = (button) => true
 
@@ -156,7 +156,7 @@ module.exports = {
             .setDescription(`O membro ${msg.author} iniciou uma aposta contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}\nCaso a moeda caia em **CARA**, ${msg.author} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             if (confirm[msg.author.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
                 embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${msg.author} ${confirm[msg.author.id]}\n${member} ${confirm[member.id]}`)
-                return embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn0, btn1])] })
+                return embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
             }
 
             collector.stop()

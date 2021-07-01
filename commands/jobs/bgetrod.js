@@ -40,7 +40,7 @@ module.exports = {
             const btn0 = API.createButton(hasrod ? 'troca' : 'compra', 'SECONDARY', hasrod ? 'Trocar vara' : 'Comprar vara', hasrod ? '🔁' : '✅')
             const btn1 = API.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
-            return [API.rowButton([btn0, btn1])]
+            return [API.rowComponents([btn0, btn1])]
         }
 
         let pobjcheck = await API.getInfo(msg.author, 'players')

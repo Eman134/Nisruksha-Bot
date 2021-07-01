@@ -36,7 +36,7 @@ module.exports = {
         
         let btn = API.createButton('stopBtn', 'DANGER', 'Parar escavação')
 
-        let component = API.rowButton([btn])
+        let component = API.rowComponents([btn])
 
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`🔎 Procurando tesouro`);

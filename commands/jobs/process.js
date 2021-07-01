@@ -155,7 +155,7 @@ module.exports = {
             const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🔨', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
             const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? 'Repor' : 'Líquido de Limpeza', current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? '⚗' : '🧪', (current == 'lqd' && (tool.fuel.current/tool.fuel.max*100).toFixed(2) >= 50 || allDisabled ? true : false))
             
-            components.push(API.rowButton([btn0, btn2, btn3]))
+            components.push(API.rowComponents([btn0, btn2, btn3]))
 
             if (current == 'ferr' || current == 'lqd') {
                 const btn4 = API.createButton('pot1', 'PRIMARY', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
@@ -163,7 +163,7 @@ module.exports = {
                 const btnreset = API.createButton('potreset', 'PRIMARY', '', '🔁', (allDisabled ? true : false))
                 const btn6 = API.createButton('pot3', 'PRIMARY', '+1 Potência', '', ((tool.potency.current+1 > tool.potency.rangemax) || allDisabled ? true : false))
                 const btn7 = API.createButton('pot4', 'PRIMARY', '+5 Potência', '', ((tool.potency.current+5 > tool.potency.rangemax) || allDisabled ? true : false))
-                components.push(API.rowButton([btn4, btn5, btnreset, btn6, btn7]))
+                components.push(API.rowComponents([btn4, btn5, btnreset, btn6, btn7]))
             }
 
             const endprocs = processjson.in.filter(processo => {
@@ -187,7 +187,7 @@ module.exports = {
                 for (x = 0; x < totalcomponents; x++) {
                     const var1 = (x+1)*5-5
                     const var2 = ((x+1)*5)
-                    const rowBtn = API.rowButton(butnList.slice(var1, var2))
+                    const rowBtn = API.rowComponents(butnList.slice(var1, var2))
                     if (rowBtn.components.length > 0) components.push(rowBtn)
 
                 }
@@ -207,8 +207,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
-reacted = true;
+            reacted = true;
             embeds = [embed]
             embed.fields = [];
             let repair = false

@@ -2,7 +2,7 @@ const { prefix, owner, token, ip, app } = require("../_classes/config");
 const db = require('./db.js');
 const serverdb = {};
 const version = require('../package.json').version
-const { MessageActionRow, MessageButton } = require('discord.js')
+const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js')
 
 serverdb.getServerInfo = async function (id) {
     
@@ -751,7 +751,20 @@ API.createButton = function(id, style, label, emoji, disabled) {
     return button
 }
 
-API.rowButton = function(arr) {
+API.createMenu = function({ id, placeholder, min, max }, options) {
+
+    let menu = new MessageSelectMenu()
+    .setCustomID(id)
+    .setPlaceholder(placeholder)
+    .setMinValues(min)
+    .setMaxValues(max)
+    .addOptions(options)
+
+    return menu
+
+}
+
+API.rowComponents = function(arr) {
 
     let btnRow = new MessageActionRow()
 

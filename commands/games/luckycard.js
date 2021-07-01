@@ -84,7 +84,7 @@ module.exports = {
         const btn3 = API.createButton('card4', 'SECONDARY', '', '855906056865316895')
         const btn4 = API.createButton('card5', 'SECONDARY', '', '855906056865316895')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3, btn4])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3, btn4])] });
 
         const filter = i => i.user.id === msg.author.id;
             
@@ -116,7 +116,7 @@ module.exports = {
             const btn3 = API.createButton('card4', (b.customID == 'card4' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card4'].toString(), '855906056865316895', true)
             const btn4 = API.createButton('card5', (b.customID == 'card5' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card5'].toString(), '855906056865316895', true)
             
-            embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn0, btn1, btn2, btn3, btn4])] });
+            embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3, btn4])] });
 
             if (Math.round(aposta*cards[b.customID]) > aposta) {
                 API.eco.addToHistory(msg.author, `Cartas da Sorte | + ${API.format(Math.round(aposta*cards[b.customID])-aposta)} ${API.money3emoji}`);

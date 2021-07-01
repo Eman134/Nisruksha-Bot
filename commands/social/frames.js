@@ -55,8 +55,8 @@ module.exports = {
             btn6.setDisabled(false)
         }
 
-        btnRow0 = API.rowButton([btn1, btn2])
-        btnRow1 = API.rowButton([btn3, btn4, btn5, btn6])
+        btnRow0 = API.rowComponents([btn1, btn2])
+        btnRow1 = API.rowComponents([btn3, btn4, btn5, btn6])
         
 		const embed = new Discord.MessageEmbed()
         .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + API.frames.get(frames[0]).name)
@@ -105,8 +105,8 @@ module.exports = {
                 btn6.setDisabled(false)
             }
 
-            btnRow0 = API.rowButton([btn1, btn2])
-            btnRow1 = API.rowButton([btn3, btn4, btn5, btn6])
+            btnRow0 = API.rowComponents([btn1, btn2])
+            btnRow1 = API.rowComponents([btn3, btn4, btn5, btn6])
 
             const frame = API.frames.get(frames[current-1])
 

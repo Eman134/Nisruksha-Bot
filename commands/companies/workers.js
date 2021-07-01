@@ -96,7 +96,7 @@ module.exports = {
 
         if (maxWorkers >= 8 || company.score.toFixed(2) < price) return await msg.quote({ embeds: [embed] })
 
-        const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowButton([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
+        const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowComponents([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
         
         const filter = i => i.user.id === msg.author.id;
         

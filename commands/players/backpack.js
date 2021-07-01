@@ -132,7 +132,7 @@ module.exports = {
             butnList.push(API.createButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
             butnList.push(API.createButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
 
-            components.push(API.rowButton(butnList))
+            components.push(API.rowComponents(butnList))
       
             return components
       

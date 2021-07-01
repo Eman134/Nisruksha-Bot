@@ -47,7 +47,7 @@ module.exports = {
         embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn])] });
         API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
         API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
         
@@ -124,7 +124,7 @@ module.exports = {
                 }
 
                     try{
-                        await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] })
+                        await embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn])] })
                     }catch{
                         API.cacheLists.waiting.remove(msg.author, 'collecting')
                         API.cacheLists.waiting.remove(msg.author, 'working');

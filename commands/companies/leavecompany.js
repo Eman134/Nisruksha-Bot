@@ -33,7 +33,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
+        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
 
         const filter = i => i.user.id === msg.author.id;
         

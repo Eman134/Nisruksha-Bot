@@ -78,7 +78,7 @@ module.exports = {
             butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
             butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
-            components.push(API.rowButton(butnList))
+            components.push(API.rowComponents(butnList))
       
             return components
       

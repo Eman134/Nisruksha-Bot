@@ -191,7 +191,7 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.name.charAt(0).toUpperCase() + r.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(r.name) == undefined ? '0':coletadox.get(r.name)}g\`\`\``, true)
                 }
                 try{
-                    await embedmsg.edit({ embeds: [embed], components: [API.rowButton([btn])] })
+                    await embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn])] })
                 }catch{
 					API.cacheLists.waiting.remove(member, 'mining')
                     return
@@ -248,9 +248,8 @@ module.exports = {
                     }
                 });
 
-            }catch (err){
-                API.client.emit('error', err)
-                console.log(err)
+            }catch {
+                API.cacheLists.waiting.remove(member, 'mining');
             }
         }
 

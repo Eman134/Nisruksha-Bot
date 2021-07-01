@@ -160,7 +160,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       for (x = 0; x < totalcomponents; x++) {
           const var1 = (x+1)*perRow-perRow
           const var2 = ((x+1)*perRow)
-          const rowBtn = API.rowButton(butnList.slice(var1, var2))
+          const rowBtn = API.rowComponents(butnList.slice(var1, var2))
           if (rowBtn.components.length > 0) components.push(rowBtn)
 
       }
@@ -331,7 +331,7 @@ shopExtension.execute = async function(msg, p) {
   const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
   const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-  let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowButton([btn0, btn1])] });
+  let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
 
   const filter = i => i.user.id === msg.author.id;
 

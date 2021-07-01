@@ -69,7 +69,7 @@ module.exports = {
                 buttons.push(btn2) 
             }
 
-            return [API.rowButton(buttons)]
+            return [API.rowComponents(buttons)]
         }
 
         const embed = new Discord.MessageEmbed();

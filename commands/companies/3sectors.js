@@ -50,7 +50,7 @@ module.exports = {
             for (x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
-                const rowBtn = API.rowButton(butnList.slice(var1, var2))
+                const rowBtn = API.rowComponents(butnList.slice(var1, var2))
                 if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
