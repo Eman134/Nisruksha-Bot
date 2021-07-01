@@ -35,7 +35,7 @@ ores.gen = async function(maq, profundidade, chip) {
     for (i = 0; i < maq.tier+oreobj2nomine; i++) {
         if (oreobj[i]) {
             if (chip && oreobj[i].name.includes('fragmento')) {
-              oreobj[i].size = API.random(1, 4);
+              oreobj[i].size = API.random(2, 4);
               array.push(oreobj[i])
             } else {
               let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);

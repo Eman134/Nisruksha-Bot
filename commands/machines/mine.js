@@ -52,6 +52,20 @@ module.exports = {
             return;
         }
 
+        const check = await API.playerUtils.cooldown.check(msg.author, "mine");
+        if (check) {
+
+            API.playerUtils.cooldown.message(msg, 'mine', 'executar um comando de mineração')
+
+            return;
+        }
+
+        API.playerUtils.cooldown.set(msg.author, "mine", 15);
+
+        if (eng >= engmax) {
+            API.cacheLists.waiting.remove({id: member.id }, 'mining')
+        }
+
         let init = Date.now();
         let profundidade = await API.maqExtension.getDepth(member)
 
