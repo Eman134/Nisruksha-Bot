@@ -90,14 +90,13 @@ module.exports = {
             embed.addField( (func.user.id == msg.author.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : API.ms2(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? API.format(0) : API.format(func.companyact.rend))  + ' ' + API.money + ' ' + API.moneyemoji + '**', false)
         }
 
-        const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowButton([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
-
-        
-        if (!(await API.company.check.hasCompany(msg.author))) return
+        if (!(await API.company.check.hasCompany(msg.author))) return await msg.quote({ embeds: [embed] })
         
         const maxWorkers = await API.company.get.maxWorkers(company.company_id)
 
-        if (maxWorkers >= 8) return
+        if (maxWorkers >= 8 || company.score.toFixed(2) < price) return await msg.quote({ embeds: [embed] })
+
+        const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowButton([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
         
         const filter = i => i.user.id === msg.author.id;
         
