@@ -6,7 +6,7 @@
         "icon": "🐟",
         "profundidade": 0.5,
         "chance": 60,
-        "price": 400
+        "price": 380
     },
     {
         "name": "\"tropfish\"",
@@ -15,7 +15,7 @@
         "icon": "🐠",
         "profundidade": 1,
         "chance": 60,
-        "price": 620
+        "price": 520
     },
     {
         "name": "\"bikcu\"",
@@ -24,7 +24,7 @@
         "icon": "🐡",
         "profundidade": 1.7,
         "chance": 47,
-        "price": 1050
+        "price": 850
     },
     {
         "name": "\"peiza\"",
@@ -42,7 +42,7 @@
         "rarity": "uncommon",
         "profundidade": 3,
         "chance": 50,
-        "price": 2400
+        "price": 1700
     },
     {
         "name": "\"orgh\"",
@@ -51,7 +51,7 @@
         "rarity": "uncommon",
         "profundidade": 3.2,
         "chance": 46,
-        "price": 2680
+        "price": 2450
     },
     {
         "name": "\"lislif\"",
@@ -60,7 +60,7 @@
         "rarity": "uncommon",
         "profundidade": 3.5,
         "chance": 44,
-        "price": 3500
+        "price": 2500
     },
     {
         "name": "\"ahaco\"",
@@ -69,7 +69,7 @@
         "rarity": "uncommon",
         "profundidade": 4.0,
         "chance": 30,
-        "price": 3670
+        "price": 2670
     },
     {
         "name": "\"abehi\"",
@@ -78,7 +78,7 @@
         "rarity": "uncommon",
         "profundidade": 4.5,
         "chance": 35,
-        "price": 4000
+        "price": 2900
     },
     {
         "name": "\"octo\"",
@@ -87,7 +87,7 @@
         "rarity": "rare",
         "profundidade": 5.0,
         "chance": 50,
-        "price": 4300
+        "price": 3000
     },
     {
         "name": "\"codd\"",
@@ -96,7 +96,7 @@
         "rarity": "rare",
         "profundidade": 5.7,
         "chance": 55,
-        "price": 5100
+        "price": 3400
     },
     {
         "name": "\"seem\"",
@@ -105,7 +105,7 @@
         "rarity": "rare",
         "profundidade": 7,
         "chance": 40,
-        "price": 5700
+        "price": 3700
     },
     {
         "name": "\"crab\"",
@@ -114,7 +114,7 @@
         "icon": "🦀",
         "profundidade": 8,
         "chance": 50,
-        "price": 6800
+        "price": 4800
     },
     {
         "name": "\"angler\"",
@@ -123,7 +123,7 @@
         "rarity": "epic",
         "profundidade": 9,
         "chance": 10,
-        "price": 9400
+        "price": 6400
     },
     {
         "name": "\"swe\"",
@@ -132,6 +132,6 @@
         "rarity": "epic",
         "profundidade": 10,
         "chance": 15,
-        "price": 14400
+        "price": 8400
     }
 ]
