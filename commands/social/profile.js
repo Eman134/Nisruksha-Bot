@@ -165,7 +165,7 @@ module.exports = {
         background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', textcolor, 600, 675, 4)
         background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', '#FFFFFF', 600, 705, 4)
 
-        let progress2 = await API.img.generateProgressBar(0, 1200, 10, Math.round(100*obj2.xp/(obj2.level*1980)), 10, 0, colors[perm])
+        let progress2 = await API.img.generateProgressBar(0, 1200, 10, (100*obj2.xp/(obj2.level*1980)).toFixed(2), 10, 0, colors[perm])
         background = await API.img.drawImage(background, progress2, 0, 740)
 
         if (perm > 1 || players_utils.profile_color > 0) {
