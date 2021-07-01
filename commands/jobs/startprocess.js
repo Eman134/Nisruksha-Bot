@@ -58,7 +58,9 @@ module.exports = {
             return;
         }
 
-        if (storage['fragmento'] <= 0) {
+        quantia = API.toNumber(args[0]);
+
+        if (storage['fragmento'] <= quantia) {
             const embedtemp = await API.sendError(msg, `Você não possui ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
             await msg.quote({ embeds: [embedtemp]})
             return;
@@ -69,8 +71,6 @@ module.exports = {
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
-
-        quantia = API.toNumber(args[0]);
         
         /*
 
@@ -159,13 +159,19 @@ module.exports = {
 
             API.playerUtils.stamina.remove(msg.author, custostart)
 
-            if (API.toNumber(args[0]) < Math.round(tool.process.maxfragments*0.15)) {
+            if (quantia < Math.round(tool.process.maxfragments*0.15)) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
                 await embedmsg.edit({ embeds: [embedtemp] })
                 return;
             }
-            if (API.toNumber(args[0]) > tool.process.maxfragments) {
+            if (quantia > tool.process.maxfragments) {
                 const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
+                await embedmsg.edit({ embeds: [embedtemp] })
+                return;
+            }
+
+            if (storage['fragmento'] <= quantia) {
+                const embedtemp = await API.sendError(msg, `Você não possui ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
                 await embedmsg.edit({ embeds: [embedtemp] })
                 return;
             }
@@ -228,11 +234,12 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 score: 0
             }
 
+            API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
+
             processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current += 1
 
             processjson.in.push(defaultjsonprocess)
 
-            API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
 
             API.setInfo(msg.author, 'players_utils', 'process', processjson)
 
