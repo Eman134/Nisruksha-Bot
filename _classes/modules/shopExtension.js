@@ -252,7 +252,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   });
   
   collector.on('end', async collected => {
-    await embedmsg.edit({ embeds: [embed], components: [] });
+    if (components != []) await embedmsg.edit({ embeds: [embed], components: [] });
   });
 
 }
