@@ -105,7 +105,7 @@ module.exports = {
                     if (b.customID == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        b.deferUpdate()
+                        b.deferUpdate().catch() 
                         API.cacheLists.waiting.remove(msg.author,  'digging');
                     }
                 });

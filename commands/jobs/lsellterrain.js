@@ -75,7 +75,7 @@ module.exports = {
         collector.on('collect', async(b) => {
             selled = true;
             collector.stop();
-            b.deferUpdate()
+            b.deferUpdate().catch() 
             embed.fields = [];
             if (b.customID == 'cancel'){
                 embed.setColor('#a60000');

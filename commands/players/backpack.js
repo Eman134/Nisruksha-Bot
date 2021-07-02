@@ -156,7 +156,7 @@ module.exports = {
         
         collector.on('collect', async(b) => {
             
-            b.deferUpdate()
+            b.deferUpdate().catch()
 
             if (b.customID == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;

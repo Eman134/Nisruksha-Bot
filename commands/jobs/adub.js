@@ -70,7 +70,7 @@ module.exports = {
 
             reacted = true;
             collector.stop();
-            b.deferUpdate()
+            b.deferUpdate().catch() 
             
             embed.fields = [];
 

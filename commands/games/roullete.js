@@ -87,7 +87,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             selected = b.customID;
-            b.deferUpdate()
+            b.deferUpdate().catch() 
 
             reacted = true
 

@@ -91,7 +91,7 @@ module.exports = {
         const collector = embedmsg.createMessageComponentInteractionCollector(filter, { time: 60000 });
         let reacted = false;
         collector.on('collect', async (b) => {
-            b.deferUpdate()
+            b.deferUpdate().catch() 
             reacted = true;
             collector.stop();
 

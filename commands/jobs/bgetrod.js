@@ -63,7 +63,7 @@ module.exports = {
             if (pobj2.rod == null) delete pobj2.rod
             let pobj3 = await API.getInfo(msg.author, 'machines')
 
-            b.deferUpdate()
+            b.deferUpdate().catch() 
 
             if (b.customID == 'cancel'){
                 embed.setColor('#a60000');

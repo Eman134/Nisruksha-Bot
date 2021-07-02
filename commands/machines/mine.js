@@ -215,7 +215,7 @@ module.exports = {
 
                 collector.on('collect', (b) => {
                     if (b.customID == 'stopBtn') {
-                        b.deferUpdate()
+                        b.deferUpdate().catch() 
                         stopped = true;
                         collector.stop();
                     }

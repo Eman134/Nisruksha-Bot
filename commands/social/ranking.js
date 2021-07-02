@@ -122,7 +122,7 @@ module.exports = {
                 embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 if (current == 'change' || current == '') {
                     reworkButtons(rankingtype)
-                    b.deferUpdate()
+                    b.deferUpdate().catch() 
                     return await embedmsg.edit({ embeds: [embed], components})
                 } 
                 b.customID = current
@@ -192,7 +192,7 @@ module.exports = {
 
             
             await embedmsg.edit({ embeds: [embed], components})
-            b.deferUpdate()
+            b.deferUpdate().catch() 
             
         });
         

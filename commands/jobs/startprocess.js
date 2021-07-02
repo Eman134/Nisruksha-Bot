@@ -136,7 +136,7 @@ module.exports = {
             embed.setDescription('')
             current = b.customID
 
-            b.deferUpdate()
+            b.deferUpdate().catch() 
 
             collector.stop()
             const storage = await API.getInfo(msg.author, 'storage')

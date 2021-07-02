@@ -325,12 +325,12 @@ module.exports = {
                 let lastreacttime = Date.now()-10000;
                 collector.on('collect', async (b) => {
                     if (b.customID == 'stopBtn') {
-                        b.deferUpdate()
+                        b.deferUpdate().catch() 
                         reacted = true;
                         collector.stop();
                     } else if (b.customID == 'downBtn' || b.customID == 'upBtn') {
                         if (Date.now()-lastreacttime < 2000) return;
-                        b.deferUpdate()
+                        b.deferUpdate().catch() 
                         lastreacttime = Date.now()
                         
                         if (b.customID == 'downBtn') {
