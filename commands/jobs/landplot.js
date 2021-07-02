@@ -159,7 +159,7 @@ module.exports = {
 
             const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
             
-            const embedmsg = await msg.quote({ embeds: [embedtemp], component: API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')]) } )
+            const embedmsg = await msg.quote({ embeds: [embedtemp], components: [API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])] } )
 
             const filter = i => i.user.id === msg.author.id;
             
@@ -180,7 +180,7 @@ module.exports = {
                 if (!(money >= price)) {
                   embed.setColor('#a60000');
                   embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${API.format(money)}/${API.format(price)} ${API.money} ${API.moneyemoji}**`)
-                  await embedmsg.edit({ embeds: [embed] });
+                  await embedmsg.edit({ embeds: [embed], components: [] });
                   return;
                 }
 
@@ -196,7 +196,7 @@ module.exports = {
                   if (Object.keys(plots).includes(townnum.toString())) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`${API.prefix}terrenos\` para visualizar seus terrenos`)
-                    await embedmsg.edit({ embeds: [embed] });
+                    await embedmsg.edit({ embeds: [embed], components: [] });
                     return;
                   }
                 } else {
@@ -210,7 +210,7 @@ module.exports = {
                 embed.setColor('#5bff45');
                 embed.addField('✅ Terreno adquirido', `
                 Você comprou seu terreno na vila **${townname}**\nUtilize \`${API.prefix}terrenoatual\` e \`${API.prefix}terrenos\` para mais informações.`)
-                await embedmsg.edit({ embeds: [embed] });
+                await embedmsg.edit({ embeds: [embed], components: [] });
 
                 API.playerUtils.cooldown.set(msg.author, "landplot", 0);
 
@@ -224,7 +224,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Tempo expirado', `
                 Você iria comprar um terreno, porém o tempo expirou!`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
             });
 
             return;

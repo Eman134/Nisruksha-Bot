@@ -400,6 +400,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
             }
 
+            voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
+
             await msg.quote({ embeds: [voteembed], mention: true})
 			return false;
         });
