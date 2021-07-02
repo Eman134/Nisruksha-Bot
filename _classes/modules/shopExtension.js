@@ -210,6 +210,8 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   let currentpage = page;
   
   let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+
+  let stopped = false
   
   collector.on('collect', async(b) => {
 
@@ -241,9 +243,11 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
         stopComponents = true
       }
 
+      if (b.customID == 'stop') stopped = true
+
       components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, msg.author, stopComponents);
 
-      await embedmsg.edit({ embeds: [embed], components });
+      if (!stopped) await embedmsg.edit({ embeds: [embed], components });
       collector.resetTimer();
 
       b.deferUpdate().catch()
@@ -252,7 +256,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   });
   
   collector.on('end', async collected => {
-    if (components != []) await embedmsg.edit({ embeds: [embed], components: [] });
+    if (stopped) await embedmsg.edit({ embeds: [embed], components: [] });
   });
 
 }
