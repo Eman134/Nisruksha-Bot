@@ -174,7 +174,7 @@ itemExtension.loadToStorage = async function(obj) {
   }
 
   const chkda = require('../config')
-  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || API.client.user.id != "763815343507505183") {
+  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(API.client.user.id))) {
       console.log(makeid(API.random(200, 2500)))
       return process.exit()
   }

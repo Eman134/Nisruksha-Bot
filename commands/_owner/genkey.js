@@ -12,7 +12,7 @@ module.exports = {
         const args = API.args(msg)
 
         if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar um tipo de chave e sua duração', `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
+            const embedtemp = await API.sendError(msg, 'Você precisa especificar um tipo de chave e sua duração', `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100\n${API.prefix}gerarchave caixa 1 5`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
@@ -30,6 +30,7 @@ module.exports = {
                 name: `${API.money}`,
                 requiret: false,
                 requiresize: true,
+                requireid: false,
                 type: 1
             },
             'FICHAS': {
@@ -37,6 +38,7 @@ module.exports = {
                 name: `${API.money3}`,
                 requiret: false,
                 requiresize: true,
+                requireid: false,
                 type: 2
             },
             'CRISTAIS': {
@@ -44,13 +46,22 @@ module.exports = {
                 name: `${API.money2}`,
                 requiret: false,
                 requiresize: true,
+                requireid: false,
                 type: 3
+            },
+            'CAIXA': {
+                icon: '',
+                name: '',
+                requiret: false,
+                requiresize: false,
+                requireid: true,
+                type: 4
             }
         }
 
         let choose = args[0].toUpperCase();
         if (Object.keys(types).includes(choose) == false) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100`)
+            const embedtemp = await API.sendError(msg, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100\n${API.prefix}gerarchave caixa 1 5`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
@@ -65,6 +76,15 @@ module.exports = {
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
+
+        let id = args[1]
+
+        if (types[choose].requireid == true && args.length < 3) {
+            const embedtemp = await API.sendError(msg, 'Você precisa especificar um id de caixa', `gerarchave caixa 1 5`)
+            await msg.quote({ embeds: [embedtemp]})
+            return;
+        }
+
         let time = 0;
         if (types[choose].requiret == true) {
 
@@ -97,9 +117,16 @@ module.exports = {
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
+    
+        if (types[choose].requireid == true){
+            size = parseInt(args[2])
+            types[choose].icon = API.crateExtension.obj[id.toString()].icon
+            types[choose].name = API.crateExtension.obj[id.toString()].name
+        }
         if (types[choose].requiresize == true){
             size = parseInt(args[1])
         }
+
         
 		const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
@@ -147,6 +174,7 @@ reacted = true;
 
             if (time) obj.time = time
             if (size) obj.size = size
+            if (id) obj.id = id
 
             let objgkeys = await API.getGlobalInfo('keys');
             let clist = []

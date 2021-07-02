@@ -79,7 +79,7 @@ b.deferUpdate().catch()
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso de chave cancelado', `
                 Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -102,7 +102,7 @@ b.deferUpdate().catch()
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso de chave cancelado', `
                 Essa chave de ativação é inexistente!`)
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
             
@@ -128,6 +128,8 @@ b.deferUpdate().catch()
                 case 3:
                     API.eco.points.add(msg.author, item.size)
                     break;
+                case 4:
+                    API.crateExtension.give(msg.author, item.id, item.size)
                 default:
                     break;
             }
@@ -135,7 +137,7 @@ b.deferUpdate().catch()
 
             embed.setColor('#5bff45');
             embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
 			let cchannel = await API.client.channels.cache.get(msg.channel.id)
 
@@ -161,7 +163,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
             API.playerUtils.cooldown.set(msg.author, "usekey", 0);
             return;
         });
