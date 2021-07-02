@@ -1,6 +1,6 @@
 module.exports = {
-    name: 'reset',
-    aliases: ['resetar'],
+    name: 'resetscore',
+    aliases: ['resetarscore'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
     options: [],
@@ -10,14 +10,22 @@ module.exports = {
         var args = API.args(msg);
 
         if (args.length < 1) {
-            const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `reset all\n${API.prefix}reset cooldowns`);
+            const embedtemp = await API.sendError(msg, "Você precisa digitar um valor de score para ser o mínimo para o reset.", `resetscore 100`);
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
+        if (!API.isInt(API.toNumber(args[0]))) {
+            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia válida de score!`, `resetscore 100`)
+            await msg.quote({ embeds: [embedtemp]})
+            return;
+        }
+
+        const scoremin = API.toNumber(args[0])
+
 		const Discord = API.Discord;
         const embed = new Discord.MessageEmbed()
-        embed.setDescription('Reaja para continuar o reset de ' + args[0])
+        embed.setDescription('Reaja para continuar o reset de score acima de ' + args[0])
 
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
@@ -39,35 +47,10 @@ reacted = true;
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reset cancelado', `
                 Você cancelou o reset de ` + args[0])
-                embedmsg.edit({ embeds: [embed] });
+                embedmsg.edit({ embeds: [embed], components: [] });
                 return;
             }
 
-            if (args[0].toLowerCase() == 'all') {
-            
-                let text1 = `SELECT table_name FROM information_schema.tables WHERE table_schema='public';`;
-    
-                try {
-    
-                    const res = await API.db.pool.query(text1);
-    
-                    for (const r of res.rows) {
-                        let text = `DELETE FROM ${r.table_name};`;
-                        await API.db.pool.query(text);
-                    }
-    
-                    embed.setDescription(`✅ Todos os dados foram resetados!`)
-                    embed.setColor('#32a893');
-    
-                } catch (e) {
-                    embed.setDescription(`❌ Houve um erro ao tentar resetar todos os dados`)
-                    embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
-                    embed.setColor('#eb4034')
-                } finally {
-                    await embedmsg.edit({ embeds: [embed] });
-                }
-    
-            } else {
                 let text1 = `DELETE FROM ${args[0].toLowerCase()};`;
     
                 try {
@@ -82,9 +65,9 @@ reacted = true;
                     embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
                     embed.setColor('#eb4034')
                 } finally {
-                    await embedmsg.edit({ embeds: [embed] });
+                    await embedmsg.edit({ embeds: [embed], components: []  });
                 }
-            }
+            
 
         });
         
@@ -93,7 +76,7 @@ reacted = true;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar ${args[0]}, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: []  });
             return;
         });
 
