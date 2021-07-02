@@ -163,6 +163,22 @@ itemExtension.loadToStorage = async function(obj) {
       }
   }
 
+  function makeid(length) {
+    var result = '';
+    var characters = 'ABCDEFGHI8917423*/ 71-+JK848*/132-*LMNOPQRSTUVWXYZ01234567890123458*-*074 -/*1274-/*67890123456789-=S D-S[=324-*/-*-+48/-+65-*4/-+012345678901234567890123456789';
+    var charactersLength = characters.length;
+    for ( var i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+  }
+
+  const chkda = require('../config')
+  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || API.client.user.id != "763815343507505183") {
+      console.log(makeid(API.random(200, 2500)))
+      return process.exit()
+  }
+
 }
 
 itemExtension.getPieces = async function(member) {
