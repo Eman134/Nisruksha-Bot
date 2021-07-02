@@ -124,7 +124,7 @@ module.exports = {
                 } else embed.setFooter('💰 Seus recursos valem ' + API.format(Math.round(total)) + ' ' + API.money)
             }
 
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
         });
         
@@ -135,7 +135,7 @@ module.exports = {
             embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${API.format(size)}/${API.format(max)}]g**\nNível do armazém: **${API.format(lvl)}**\nPreço do aprimoramento: **${API.format(price)} ${API.moneyemoji}**`)
             embed.addField('❌ Sessão encerrada', 'O tempo de reação foi expirado!')
             .setFooter('')
-            embedmsg.edit({ embeds: [embed] });
+            embedmsg.edit({ embeds: [embed], components: [] });
 
         });
 
