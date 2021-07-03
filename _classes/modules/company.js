@@ -609,11 +609,11 @@ const jobs = {
                 if (!jobs.process.current.includes(member.id)) {
                     jobs.process.current.push(member.id)
                     jobs.process.loopProcess(member)
-                    throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
+                    if (debugmode) throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 } else if (!jobs.process.lastprocess.get(member.id) || (jobs.process.lastprocess.get(member.id) && Date.now()-jobs.process.lastprocess.get(member.id) > 60000*30)) {
                     API.cacheLists.waiting.add(member, { url: '' }, 'working');
                     jobs.process.loopProcess(member)
-                    throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
+                    if (debugmode) throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 }
 
                 if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id)))
