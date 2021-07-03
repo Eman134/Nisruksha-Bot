@@ -1,7 +1,7 @@
 
 const API = require("../api.js");
 
-const debugmode = true
+const debugmode = false
 
 const stars = {};
 {
