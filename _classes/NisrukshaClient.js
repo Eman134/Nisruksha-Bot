@@ -211,6 +211,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 API.dbl = new Topgg.Api(options.dbl.token)
 
+<<<<<<< Updated upstream
                 /*setInterval(() => {
                     API.dbl.postStats({
                         serverCount: API.client.guilds.cache.size,
@@ -218,6 +219,11 @@ module.exports = class NisrukshaClient extends Discord.Client {
                         shardCount: 0
                     })
                 }, 1800000) // post every 30 minutes*/
+=======
+                const { AutoPoster } = require('topgg-autoposter')
+                
+                AutoPoster(options.dbl.token, API.client)
+>>>>>>> Stashed changes
 
             } catch (err) {
                 API.client.emit('error', err)
