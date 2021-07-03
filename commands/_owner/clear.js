@@ -28,7 +28,7 @@ module.exports = {
 
         try {
             await msg.channel.bulkDelete(arg).catch()
-            await msg.quote({ content: `Você limpou **${arg}** mensagens deste canal!`}).then(ms => setTimeout(() => ms.delete().catch()), 5000).catch()
+            await msg.quote({ content: `Você limpou **${arg}** mensagens deste canal!`})
         } catch{
         }
 

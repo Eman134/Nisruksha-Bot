@@ -1,7 +1,7 @@
 
 const API = require("../api.js");
 
-const debugmode = false
+const debugmode = true
 
 const stars = {};
 {
@@ -224,7 +224,8 @@ const jobs = {
         tools: {
             obj: {}
         },
-        current: []
+        current: [],
+        lastprocess: new Map()
     }
 };
 
@@ -606,12 +607,16 @@ const jobs = {
                 const member = await API.client.users.fetch(list2[xilist])
 
                 if (!jobs.process.current.includes(member.id)) {
-                    jobs.process.loopProcess(member)
                     jobs.process.current.push(member.id)
+                    jobs.process.loopProcess(member)
+                    throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
+                } else if (!jobs.process.lastprocess.get(member.id) || (jobs.process.lastprocess.get(member.id) && Date.now()-jobs.process.lastprocess.get(member.id) > 60000*30)) {
                     API.cacheLists.waiting.add(member, { url: '' }, 'working');
+                    jobs.process.loopProcess(member)
+                    throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 }
 
-                if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id))
+                if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id)))
 
             }
 
@@ -624,154 +629,165 @@ const jobs = {
         if (!await jobs.process.includes(member)) return
 
         async function st() {
-            const players_utils = await API.getInfo(member, 'players_utils')
 
-            let processjson = players_utils.process
+            try {
+                
 
-            if (processjson == null) return jobs.process.remove(member)
+                const players_utils = await API.getInfo(member, 'players_utils')
 
-            const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
+                let processjson = players_utils.process
 
-            if (inprocs.length <= 0) {
+                if (processjson == null) return jobs.process.remove(member)
 
-                jobs.process.remove(member)
+                const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
 
-            } else {
+                if (inprocs.length <= 0) {
 
-                const obj = await API.getInfo(member, "machines")
+                    jobs.process.remove(member)
 
-                let maq = API.shopExtension.getProduct(obj.machine);
+                } else {
 
-                for (inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
+                    const obj = await API.getInfo(member, "machines")
 
-                    const tool = processjson.tools[inprocs[inprocsi].tool]
+                    let maq = API.shopExtension.getProduct(obj.machine);
 
-                    const indexProcess = processjson.in.indexOf(inprocs[inprocsi])
+                    for (inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
 
-                    if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
-                        const percentdurability = Math.round(1*tool.durability.max/100)
-                        if (processjson.tools[inprocs[inprocsi].tool].durability.current - percentdurability <= 0) {
-                            processjson.tools[inprocs[inprocsi].tool].durability.current = 0
-                        } else {
-                            processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
+                        const tool = processjson.tools[inprocs[inprocsi].tool]
+
+                        const indexProcess = processjson.in.indexOf(inprocs[inprocsi])
+
+                        if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
+                            const percentdurability = Math.round(1*tool.durability.max/100)
+                            if (processjson.tools[inprocs[inprocsi].tool].durability.current - percentdurability <= 0) {
+                                processjson.tools[inprocs[inprocsi].tool].durability.current = 0
+                            } else {
+                                processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
+                            }
                         }
-                    }
-                    if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 25) {
-                        if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
-                            processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
-                        } else {
-                            processjson.tools[inprocs[inprocsi].tool].fuel.current -= processjson.tools[inprocs[inprocsi].tool].fuel.consume
+                        if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 25) {
+                            if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
+                                processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
+                            } else {
+                                processjson.tools[inprocs[inprocsi].tool].fuel.current -= processjson.tools[inprocs[inprocsi].tool].fuel.consume
+                            }
                         }
-                    }
 
-                    function sendDrop() {
+                        function sendDrop() {
 
-                        const check0 = API.random(0, 100) < 35
-                        const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
-                        const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
+                            const check0 = API.random(0, 100) < 35
+                            const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
+                            const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
 
-                        if (check0 && check1 && check2) {
+                            if (check0 && check1 && check2) {
+                                    
+                                const gnR = API.random(0, 100, true)
+
+                                let chance = 0
+                                let selectedRarity
+                                for (const ri in tool.drops) {
+                                    chance += tool.drops[ri]
+                                    if (gnR <= chance) {
+                                        selectedRarity = ri
+                                        break;
+                                    }
+                                }
+
+                                if (!selectedRarity) selectedRarity = "common"
+
+                                const drops = API.itemExtension.getObj().drops.filter((r) => r.levelprocess)
+
+                                let filtereddrop = drops.filter((r) => r.rarity == selectedRarity && obj.level+6 >= r.levelprocess)
                                 
-                            const gnR = API.random(0, 100, true)
+                                filtereddrop = filtereddrop.sort(function(a, b){
+                                    return b.levelprocess - a.levelprocess;
+                                }).slice(0, 8)
 
-                            let chance = 0
-                            let selectedRarity
-                            for (const ri in tool.drops) {
-                                chance += tool.drops[ri]
-                                if (gnR <= chance) {
-                                    selectedRarity = ri
-                                    break;
-                                }
-                            }
+                                filtereddrop = filtereddrop[API.random(0, filtereddrop.length-1)]
 
-                            if (!selectedRarity) selectedRarity = "common"
-
-                            const drops = API.itemExtension.getObj().drops.filter((r) => r.levelprocess)
-
-                            let filtereddrop = drops.filter((r) => r.rarity == selectedRarity && obj.level+6 >= r.levelprocess)
-                            
-                            filtereddrop = filtereddrop.sort(function(a, b){
-                                return b.levelprocess - a.levelprocess;
-                            }).slice(0, 8)
-
-                            filtereddrop = filtereddrop[API.random(0, filtereddrop.length-1)]
-
-                            if (filtereddrop) {
-                                const droplist = processjson.in[indexProcess].drops || []
-                                const dropInList = droplist.find((r) => r.name == filtereddrop.name)
-                                if (dropInList) {
-                                    const indexDropInList = processjson.in[indexProcess].drops.indexOf(dropInList)
-                                    if (indexDropInList >= 0) {
-                                        droplist[indexDropInList].quantia += 1
-                                        droplist[indexDropInList].size += 1
-                                    }
-                                } else {
-                                    filtereddrop.size = 1
-                                    filtereddrop.quantia = 1
-                                    droplist.push(filtereddrop)
-                                }
-                                processjson.in[indexProcess].drops = droplist
-                            }
-                            
-                            const xpbase = API.random(6, 25)
-
-                            processjson.in[indexProcess].xpbase += xpbase // ADICIONAR XP BASE
-                            processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
-                            processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
-
-                        }
-
-                    }
-
-                    function processed() {
-                        sendDrop()
-                        processjson.in[indexProcess].fragments.current -= 1
-
-                        processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(30, 130)
-
-                        const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
-
-                        if (processjson.tools[inprocs[inprocsi].tool].toollevel.exp >= maxexp) {
-                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp = 0
-                            if (processjson.tools[inprocs[inprocsi].tool].toollevel.current < processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
-                                processjson.tools[inprocs[inprocsi].tool].toollevel.current += 1
-
-                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
-
-                                    const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
-
-                                    if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
-                                        processjson.tools[inprocs[inprocsi].tool] = newtool
+                                if (filtereddrop) {
+                                    const droplist = processjson.in[indexProcess].drops || []
+                                    const dropInList = droplist.find((r) => r.name == filtereddrop.name)
+                                    if (dropInList) {
+                                        const indexDropInList = processjson.in[indexProcess].drops.indexOf(dropInList)
+                                        if (indexDropInList >= 0) {
+                                            droplist[indexDropInList].quantia += 1
+                                            droplist[indexDropInList].size += 1
+                                        }
                                     } else {
-                                        processjson.tools[inprocs[inprocsi].tool].toollevel.current = Math.round(processjson.tools[inprocs[inprocsi].tool].toollevel.max/2)
+                                        filtereddrop.size = 1
+                                        filtereddrop.quantia = 1
+                                        droplist.push(filtereddrop)
+                                    }
+                                    processjson.in[indexProcess].drops = droplist
+                                }
+                                
+                                const xpbase = API.random(6, 25)
+
+                                processjson.in[indexProcess].xpbase += xpbase // ADICIONAR XP BASE
+                                processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
+                                processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
+
+                            }
+
+                        }
+
+                        function processed() {
+                            sendDrop()
+                            processjson.in[indexProcess].fragments.current -= 1
+
+                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(30, 130)
+
+                            const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
+
+                            if (processjson.tools[inprocs[inprocsi].tool].toollevel.exp >= maxexp) {
+                                processjson.tools[inprocs[inprocsi].tool].toollevel.exp = 0
+                                if (processjson.tools[inprocs[inprocsi].tool].toollevel.current < processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+                                    processjson.tools[inprocs[inprocsi].tool].toollevel.current += 1
+
+                                    if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
+
+                                        const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
+
+                                        if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
+                                            processjson.tools[inprocs[inprocsi].tool] = newtool
+                                        } else {
+                                            processjson.tools[inprocs[inprocsi].tool].toollevel.current = Math.round(processjson.tools[inprocs[inprocsi].tool].toollevel.max/2)
+                                        }
+
                                     }
 
                                 }
-
                             }
+
                         }
 
+                        if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
+                            processed()
+                        } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
+                            processed()
+                        }
+                        
+
                     }
 
-                    if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
-                        processed()
-                    } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
-                        processed()
-                    }
-                    
+                    API.setInfo(member, 'players_utils', 'process', processjson)
+
+                    const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
+
+                    if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
+
+                    jobs.process.lastprocess.set(member.id, Date.now())
+
+                    setTimeout(() => { st( )}, timetoone)
 
                 }
 
-                API.setInfo(member, 'players_utils', 'process', processjson)
 
-                const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
-
-                if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
-
-                setTimeout(() => { st( )}, timetoone)
-
+            } catch (error) {
+                throw error
             }
-
+            
         }
 
         if (!jobs.process.current.includes(member.id)) {

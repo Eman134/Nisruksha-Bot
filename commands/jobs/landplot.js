@@ -371,7 +371,7 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.edit({ embeds: [embed] })
+            embedmsg.edit({ embeds: [embed], components: [] })
         });
 
 	}
