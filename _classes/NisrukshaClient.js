@@ -211,9 +211,9 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 API.dbl = new Topgg.Api(options.dbl.token)
 
-                const AutoPoster = require('topgg-autoposter')
+                const { AutoPoster } = require('topgg-autoposter')
 
-                const ap = AutoPoster(options.dbl.token, API.client)
+                AutoPoster(options.dbl.token, API.client)
 
             } catch (err) {
                 API.client.emit('error', err)
