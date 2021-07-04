@@ -46,7 +46,6 @@ module.exports = {
         let reacted = false;
 		let upgraded = false
         collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
             if (!(['🔼'].includes(reaction.emoji.name))) return;
             reacted = true;
             collector.stop();
@@ -148,7 +147,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted || upgraded) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');

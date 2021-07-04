@@ -304,7 +304,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         
     p.includes('EMBED_LINKS') ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
     p.includes('ATTACH_FILES') ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-    p.includes('MANAGE_MESSAGES') ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
+   // p.includes('MANAGE_MESSAGES') ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
     p.includes('USE_EXTERNAL_EMOJIS') ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
     p.includes('ADD_REACTIONS') ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
     p.includes('READ_MESSAGE_HISTORY') ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')

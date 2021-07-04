@@ -90,7 +90,6 @@ module.exports = {
         const collector = embedmsg.createReactionCollector({ filter, time: 20000 });
         let reacted = false;
         collector.on('collect', async (reaction, user) => {
-            await reaction.users.remove(user.id);
             if (!(['🟧', '🟥', '🟪'].includes(reaction.emoji.name))) return;
             reacted = true;
             collector.stop();
@@ -144,7 +143,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             const embed = API.events.getRaceEmbed(total)
             embed.setColor('#a60000');

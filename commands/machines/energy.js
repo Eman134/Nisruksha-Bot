@@ -63,7 +63,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             let time = await API.maqExtension.getEnergyTime(msg.author);
             perm = await API.getPerm(msg.author);

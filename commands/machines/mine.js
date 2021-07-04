@@ -252,7 +252,10 @@ module.exports = {
                 API.cacheLists.waiting.remove(member, 'mining');
             }
         }
-
-        edit();
+        try {
+            await edit();
+        } catch {
+            API.cacheLists.waiting.remove(member, 'mining');
+        }
 	}
 };

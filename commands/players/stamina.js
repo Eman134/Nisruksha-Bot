@@ -57,7 +57,6 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            embedmsg.reactions.removeAll();
             if (reacted) return;
             let time = await API.playerUtils.stamina.time(msg.author);
             let st = await API.playerUtils.stamina.get(msg.author);
