@@ -66,7 +66,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 15000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -75,7 +75,7 @@ b.deferUpdate().catch()
             reacted = true;
             collector.stop();
             const embed = new API.Discord.MessageEmbed()
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso de chave cancelado', `
                 Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)

@@ -88,7 +88,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 60000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 60000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -97,7 +97,7 @@ module.exports = {
             reacted = true;
             collector.stop();
 
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura cancelada', `
                 Você cancelou a abertura da empresa **${icon} ${name}**.`)
@@ -187,7 +187,6 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria abrir a empresa **${API.company.e[API.company.types[type]].icon} ${name}**, porém o tempo expirou.`)
             embedmsg.edit({ embeds: [embed], components: [] });

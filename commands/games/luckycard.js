@@ -88,7 +88,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
             
-        const collector = await embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = await embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -108,22 +108,22 @@ module.exports = {
                 return;
             }
 
-            embed.addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}\n${Math.round(aposta*cards[b.customID]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customID])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customID])-aposta) } ${API.money3}\` ${API.money3emoji}`, true)
+            embed.addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${API.format(aposta)} ${API.money3}\` ${API.money3emoji}\n${Math.round(aposta*cards[b.customId]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customId])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customId])-aposta) } ${API.money3}\` ${API.money3emoji}`, true)
 
-            const btn0 = API.createButton('card1', (b.customID == 'card1' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card1'].toString(), '855906056865316895', true)
-            const btn1 = API.createButton('card2', (b.customID == 'card2' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card2'].toString(), '855906056865316895', true)
-            const btn2 = API.createButton('card3', (b.customID == 'card3' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card3'].toString(), '855906056865316895', true)
-            const btn3 = API.createButton('card4', (b.customID == 'card4' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card4'].toString(), '855906056865316895', true)
-            const btn4 = API.createButton('card5', (b.customID == 'card5' ? (Math.round(aposta*cards[b.customID]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card5'].toString(), '855906056865316895', true)
+            const btn0 = API.createButton('card1', (b.customId == 'card1' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card1'].toString(), '855906056865316895', true)
+            const btn1 = API.createButton('card2', (b.customId == 'card2' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card2'].toString(), '855906056865316895', true)
+            const btn2 = API.createButton('card3', (b.customId == 'card3' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card3'].toString(), '855906056865316895', true)
+            const btn3 = API.createButton('card4', (b.customId == 'card4' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card4'].toString(), '855906056865316895', true)
+            const btn4 = API.createButton('card5', (b.customId == 'card5' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card5'].toString(), '855906056865316895', true)
             
             embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3, btn4])] });
 
-            if (Math.round(aposta*cards[b.customID]) > aposta) {
-                API.eco.addToHistory(msg.author, `Cartas da Sorte | + ${API.format(Math.round(aposta*cards[b.customID])-aposta)} ${API.money3emoji}`);
-                await API.eco.token.add(msg.author, (Math.round(aposta*cards[b.customID])-aposta));
+            if (Math.round(aposta*cards[b.customId]) > aposta) {
+                API.eco.addToHistory(msg.author, `Cartas da Sorte | + ${API.format(Math.round(aposta*cards[b.customId])-aposta)} ${API.money3emoji}`);
+                await API.eco.token.add(msg.author, (Math.round(aposta*cards[b.customId])-aposta));
             } else {
-                API.eco.addToHistory(msg.author, `Cartas da Sorte | - ${API.format(Math.round(aposta-(aposta*cards[b.customID])))} ${API.money3emoji}`);
-                await API.eco.token.remove(msg.author, Math.round(aposta-(aposta*cards[b.customID])));
+                API.eco.addToHistory(msg.author, `Cartas da Sorte | - ${API.format(Math.round(aposta-(aposta*cards[b.customId])))} ${API.money3emoji}`);
+                await API.eco.token.remove(msg.author, Math.round(aposta-(aposta*cards[b.customId])));
             }
 
         });

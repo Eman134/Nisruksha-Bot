@@ -64,7 +64,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 20000 });
+        let collector = embedmsg.createMessageComponentCollector({ filter, time: 20000 });
 
         let reacted
         let r1 = 1;
@@ -85,7 +85,7 @@ module.exports = {
             embed.fields = [];
             b.deferUpdate().catch()
                 
-            if (b.customID == 'upgrade'){
+            if (b.customId == 'upgrade'){
                 if (price > await API.eco.money.get(msg.author)) {
                     embed.setColor('#a60000')
                     .addField('❌ Aprimoramento mal sucedido!', `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${API.format(await API.eco.money.get(msg.author))}/${API.format(await API.maqExtension.storage.getPrice(member))} ${API.money} ${API.moneyemoji}**`)
@@ -104,7 +104,7 @@ module.exports = {
                     ap = true;
                 }
 
-            } else if (b.customID == 'recursos'){
+            } else if (b.customId == 'recursos'){
                 let obj55 = await API.getInfo(member, 'storage');
                 let lvl55 = obj55.storage;
                 let obj = API.itemExtension.getObj();

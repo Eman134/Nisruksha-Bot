@@ -64,7 +64,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 60000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 60000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -73,7 +73,7 @@ module.exports = {
             reacted = true;
             collector.stop();
 
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Fechamento cancelado', `
                 Você cancelou o fechamento da empresa **${icon} ${name}**.`)

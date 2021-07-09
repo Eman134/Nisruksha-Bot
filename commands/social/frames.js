@@ -67,7 +67,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
 
         collector.on('collect', async (b) => {
 
@@ -76,15 +76,15 @@ module.exports = {
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 30);
 
-            if (b.customID == 'f0Btn'){
+            if (b.customId == 'f0Btn'){
                 if (current < total) current += 1;
-            } if (b.customID == 'b0Btn'){
+            } if (b.customId == 'b0Btn'){
                 if (current > 1) current -= 1;
             }
 
-            if (b.customID == 'f1Btn'){
+            if (b.customId == 'f1Btn'){
                 current = total;
-            } if (b.customID == 'b1Btn'){
+            } if (b.customId == 'b1Btn'){
                 current = 1;
             }
 
@@ -112,7 +112,7 @@ module.exports = {
 
             embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
-            if (b.customID == 'nBtn') {
+            if (b.customId == 'nBtn') {
                 
                 API.frames.reforge(msg.author, 0)
 
@@ -125,7 +125,7 @@ module.exports = {
 
                 return collector.stop();
 
-            } else if (b.customID == 'sBtn'){
+            } else if (b.customId == 'sBtn'){
 
                 API.frames.reforge(msg.author, frame.id)
 

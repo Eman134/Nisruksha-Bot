@@ -69,7 +69,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
             
-        const collector = await embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = await embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -79,7 +79,7 @@ module.exports = {
             reacted = true;
             collector.stop();
 
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`${API.prefix}recc ${id}\``)

@@ -321,17 +321,17 @@ module.exports = {
                 }
 
                 let reacted = false
-                const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: API.company.jobs.fish.update*1000 });
+                const collector = embedmsg.createMessageComponentCollector({ filter, time: API.company.jobs.fish.update*1000 });
 
                 collector.on('collect', async (b) => {
   
-                    if (b.customID == 'stopBtn') {
+                    if (b.customId == 'stopBtn') {
                         b.deferUpdate().catch()
                         reacted = true;
                         collector.stop();
-                    } else if (b.customID == 'downBtn' || b.customID == 'upBtn') {
+                    } else if (b.customId == 'downBtn' || b.customId == 'upBtn') {
                         
-                        if (b.customID == 'downBtn') {
+                        if (b.customId == 'downBtn') {
                             header.levels["0"] = (header.levels["0"] == 5 ? 1 : header.levels["0"]+1)
                         } else {
                             header.levels["0"] = (header.levels["0"] == 1 ? 5 : header.levels["0"]-1)

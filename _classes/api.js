@@ -99,7 +99,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     let globalstatus = await API.getGlobalInfo('status');
     let globalman = await API.getGlobalInfo('man');
 
-	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
+	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true, force: true, cache: true })
 
     const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
 
@@ -747,7 +747,7 @@ API.createButton = function(id, style, label, emoji, disabled) {
     .setLabel(label)
     if (emoji) button.setEmoji(emoji)
     if (style == 'url') button.setURL(id) 
-    else button.setCustomID(id)
+    else button.setCustomId(id)
     if (disabled) button.setDisabled(true);
 
     return button
@@ -756,7 +756,7 @@ API.createButton = function(id, style, label, emoji, disabled) {
 API.createMenu = function({ id, placeholder, min, max }, options) {
 
     let menu = new MessageSelectMenu()
-    .setCustomID(id)
+    .setCustomId(id)
     .setPlaceholder(placeholder)
     .setMinValues(min)
     .setMaxValues(max)
