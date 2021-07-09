@@ -48,20 +48,20 @@ module.exports = {
 
         const newch = await guild.channels.create(`${reaction.emoji.name}-${member.id.slice(0,4)}`, {parent: '745440984476811415'});
 
-        newch.createOverwrite(member, {
+        newch.permissionOverwrites.create(member, {
             VIEW_CHANNEL: true,
             SEND_MESSAGES: true,
             READ_MESSAGE_HISTORY: true,
             ATTACH_FILES: true
         })
 
-        info.edit(`Thread ${newch} criada com sucesso!`)
-
-
+        
+        
         let embed = new API.Discord.MessageEmbed()
         .setDescription(`Olá ${member}, detalhe-nos sobre o bug!`)
         .setColor('#443c3c')
         const embedmsg = await newch.send({ embeds: [embed] })
-
+        
+        info.edit(`Thread ${newch} criada com sucesso!`)
     }
 }
