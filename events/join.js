@@ -25,7 +25,7 @@ module.exports = {
             return;
         }
 
-        let owner = await API.client.users.fetch(guild.ownerID)
+        let owner = await API.client.users.fetch(guild.ownerId)
 
         const embed = new Discord.MessageEmbed();
         embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)

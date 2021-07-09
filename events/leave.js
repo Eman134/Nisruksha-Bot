@@ -13,7 +13,7 @@ module.exports = {
             console.log(err)
         }
 
-        let owner = await API.client.users.fetch(guild.ownerID)
+        let owner = await API.client.users.fetch(guild.ownerId)
 
         const embed = new Discord.MessageEmbed();
         embed.setDescription(`Saiu de um servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})`)//\n🧑🏽 ${guild.members.cache.filter(m => m.user.bot == false).size} | 🤖 ${guild.members.cache.filter(m => m.user.bot == true).size}`)

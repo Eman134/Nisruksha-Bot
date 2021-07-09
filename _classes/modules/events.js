@@ -114,7 +114,7 @@ events.alert = async function(text) {
         await channel.bulkDelete(10).catch()
         let eventmsg 
         await channel.send({ embeds: [embed]}).then((embedmsg) => {
-            if (channel.type == 'news') embedmsg.crosspost()
+            if (channel.type == 'GUILD_NEWS') embedmsg.crosspost()
             eventmsg = embedmsg
         })
 
