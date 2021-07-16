@@ -237,10 +237,11 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
 
-            processjson.tools[(b.customId == 'ferr' ? 0 : 1)].process.current += 1
+            if (processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current < 0) processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current = 0
+
+            processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current += 1
 
             processjson.in.push(defaultjsonprocess)
-
 
             API.setInfo(msg.author, 'players_utils', 'process', processjson)
 
