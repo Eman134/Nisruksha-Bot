@@ -47,6 +47,11 @@ module.exports = {
             API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
         }
 
+        if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
+            await API.cacheLists.waiting.remove(member, 'working');
+            await jobs.process.remove(member)
+        }
+
         let embeds = []
 
         /*
