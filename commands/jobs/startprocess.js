@@ -141,6 +141,7 @@ module.exports = {
             b.deferUpdate().catch()
 
             collector.stop()
+            
             const storage = await API.getInfo(msg.author, 'storage')
             const players_utils = await API.getInfo(msg.author, 'players_utils')
             let processjson = players_utils.process

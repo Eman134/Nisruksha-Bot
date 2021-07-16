@@ -199,7 +199,7 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embeds, components });
+        const embedmsg = await msg.quote({ embeds, components });
 
         const filter = i => i.user.id === msg.author.id;
         
@@ -347,14 +347,15 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                 }
             }
 
-            b.deferUpdate().catch()
-
+            
             collector.resetTimer()
-
+            
             const components = reworkButtons(current)
             
             await embedmsg.edit({ embeds, components })
-
+            
+            b.deferUpdate().catch()
+            
         });
         
         collector.on('end', async collected => {
