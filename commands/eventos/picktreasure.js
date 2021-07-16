@@ -99,13 +99,13 @@ module.exports = {
 
                 let reacted = false
                 const filter = i => i.user.id === msg.author.id;
-                const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: API.events.treasure.update*1000 });
+                const collector = embedmsg.createMessageComponentCollector({ filter, time: API.events.treasure.update*1000 });
 
                 collector.on('collect', (b) => {
 
                     if (!(b.user.id === msg.author.id)) return  
 
-                    if (b.customID == 'stopBtn') {
+                    if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();
                         b.deferUpdate().catch()

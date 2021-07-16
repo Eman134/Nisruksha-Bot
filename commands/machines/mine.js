@@ -224,11 +224,11 @@ module.exports = {
 
                 const filter = i => i.user.id === member.id;
 
-                const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: timeupdate });
+                const collector = embedmsg.createMessageComponentCollector({ filter, time: timeupdate });
 
                 collector.on('collect', async (b) => {
 
-                    if (b.customID == 'stopBtn') {
+                    if (b.customId == 'stopBtn') {
                         b.deferUpdate().catch()
                         stopped = true
                         btn.setDisabled()

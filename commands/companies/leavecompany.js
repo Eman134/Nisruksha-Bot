@@ -37,7 +37,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -47,7 +47,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
             embed.fields = []
             collector.stop();
             
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
                 Você cancelou a própria demissão na empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)

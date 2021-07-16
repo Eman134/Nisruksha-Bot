@@ -209,7 +209,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
   let currentpage = page;
   
-  let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+  let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
 
   let stopped = false
   
@@ -223,11 +223,11 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
       let stopComponents = false
 
-      if (b.customID == 'forward'){
+      if (b.customId == 'forward'){
         if (currentpage < totalpages) currentpage += 1;
-      } if (b.customID == 'backward') {
+      } if (b.customId == 'backward') {
         if (currentpage > 1) currentpage -= 1;
-      } if (b.customID == 'stop') {
+      } if (b.customId == 'stop') {
         collector.stop()
         embed.setColor('#a60000')
         components = []
@@ -236,14 +236,14 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
 
       embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
 
-      if (b.customID != 'stop' && b.customID != 'forward' && b.customID != 'backward') {
+      if (b.customId != 'stop' && b.customId != 'forward' && b.customId != 'backward') {
         collector.stop()
-        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.customID));
+        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.customId));
         components = []
         stopComponents = true
       }
 
-      if (b.customID == 'stop') stopped = true
+      if (b.customId == 'stop') stopped = true
 
       components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, msg.author, stopComponents);
 
@@ -256,7 +256,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   });
   
   collector.on('end', async collected => {
-    if (stopped) await embedmsg.edit({ embeds: [embed], components: [] });
+    await embedmsg.edit({ embeds: [embed], components: [] });
   });
 
 }
@@ -339,7 +339,7 @@ shopExtension.execute = async function(msg, p) {
 
   const filter = i => i.user.id === msg.author.id;
 
-  let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+  let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
   let buyed = false;
 
   collector.on('collect', async(b) => {
@@ -351,7 +351,7 @@ shopExtension.execute = async function(msg, p) {
     embed.fields = [];
     b.deferUpdate().catch()
 
-    if (b.customID == 'confirm'){
+    if (b.customId == 'confirm'){
 
       const money = await API.eco.money.get(msg.author);
       const points = await API.eco.points.get(msg.author);
@@ -510,7 +510,7 @@ shopExtension.execute = async function(msg, p) {
           API.client.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
-    } if (b.customID == 'cancel'){
+    } if (b.customId == 'cancel'){
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)

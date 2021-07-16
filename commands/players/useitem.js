@@ -71,7 +71,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 15000 });
+        let collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async(b) => {
 
@@ -91,7 +91,7 @@ module.exports = {
                 return;
             }
 
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso cancelado', `
                 Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``)

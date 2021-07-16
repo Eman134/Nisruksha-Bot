@@ -768,6 +768,10 @@ const jobs = {
                             processed()
                         }
                         
+                        if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current <= 0 && inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current <= 0) {
+                            jobs.process.remove(member)
+                            return
+                        }
 
                     }
 

@@ -64,7 +64,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 15000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -73,7 +73,7 @@ module.exports = {
             collector.stop();
             embed.fields = []
             b.deferUpdate().catch()
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Equipar cancelado', `
                 Você cancelou a o equipar de **${placa.icon ? placa.icon+' ':''}${placa.name}**.`)

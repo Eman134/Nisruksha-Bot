@@ -14,7 +14,7 @@ module.exports = {
     category: 'none',
     description: 'Inicia uma caçada á monstros ao redor da sua localização',
     options: [],
-    mastery: 18,
+    mastery: 13,
     companytype: 2,
 	async execute(API, msg, company) {
 
@@ -93,7 +93,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 45000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 45000 });
         let reacted = false;
         let inbattle = false;
         let dead = false;
@@ -110,11 +110,11 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return            
-            if (!reactequiplist.includes(b.customID)) return;
+            if (!reactequiplist.includes(b.customId)) return;
 
             reacted = true;
 
-            if (b.customID == 'run' && inbattle == false) {
+            if (b.customId == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
                 b.deferUpdate().catch().catch()
@@ -289,10 +289,10 @@ module.exports = {
 
             }
             
-            if ((b.customID == 'fight' || b.customID == 'autofight') && !inbattle) {
+            if ((b.customId == 'fight' || b.customId == 'autofight') && !inbattle) {
                 
                 
-                if (pobj.mvp && b.customID == 'autofight') {
+                if (pobj.mvp && b.customId == 'autofight') {
                     autohunt = true
                 }
 
@@ -347,7 +347,7 @@ module.exports = {
 
             async function go() {
             
-                let eq = reactequips[b.customID];
+                let eq = reactequips[b.customId];
 
                 let youhasbeencombedmeuamigo = false
 
@@ -356,7 +356,7 @@ module.exports = {
                     eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
                 } else {
                     if (combo.length >= 3) combo = []
-                    combo.push(API.client.emojis.cache.get(b.customID))
+                    combo.push(API.client.emojis.cache.get(b.customId))
 
                     if (combo.length >= 3) {
                         if (combo[0] == combo[1] == combo[2]) {

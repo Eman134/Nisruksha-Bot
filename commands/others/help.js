@@ -67,19 +67,19 @@ ${API.helpExtension.getCategoryList()}`)
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
-			current = b.customID
-            if (b.customID == 'home') {
+			current = b.customId
+            if (b.customId == 'home') {
                 home()
             } else {
 
 				const cmdlist = API.client.commands.filter((cmd) => cmd.category == current )
             
-				embed.setTitle(`<:info:736274028515295262> Categoria ${b.customID.toUpperCase()}`);
+				embed.setTitle(`<:info:736274028515295262> Categoria ${b.customId.toUpperCase()}`);
 				embed.setColor("#03d7fc");
 				embed.setDescription(`${cmdlist.map((cmd) => `\`${API.prefix}${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 
