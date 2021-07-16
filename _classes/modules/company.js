@@ -592,7 +592,6 @@ const jobs = {
             const member = await API.client.users.fetch(list[xilist])
 
             jobs.process.loopProcess(member)
-            API.cacheLists.waiting.add(member, { url: '' }, 'working');
 
             if (debugmode) console.log('Loading: ' + member.id)
 
@@ -764,11 +763,14 @@ const jobs = {
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
                             processed()
+                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
                             processed()
+                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
                         }
                         
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current <= 0 && inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current <= 0) {
+                            API.cacheLists.waiting.remove(member, 'working');
                             jobs.process.remove(member)
                             return
                         }
