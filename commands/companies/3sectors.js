@@ -61,13 +61,13 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
-            current = b.customID
-            if (b.customID == 'home') {
+            current = b.customId
+            if (b.customId == 'home') {
                 home()
             } else {
                 embed.fields = []

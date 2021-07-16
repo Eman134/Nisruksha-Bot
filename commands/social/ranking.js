@@ -65,6 +65,14 @@ module.exports = {
                 },
                 name: API.mastery.name,
                 formated: API.mastery.name + ' ' + API.mastery.emoji
+            },
+            '⚙': {
+                db: {
+                    table: 'players',
+                    column: 'cmdsexec'
+                },
+                name: 'comandos',
+                formated: 'comandos executados ⚙'
             }
         }
 
@@ -113,7 +121,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
 
         let waiting = false
         
@@ -123,7 +131,7 @@ module.exports = {
 
             b.deferUpdate().catch()
 
-            if (b.customID == 'change') {
+            if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
                 embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 if (current == 'change' || current == '') {
@@ -132,14 +140,14 @@ module.exports = {
                     await embedmsg.edit({ embeds: [embed], components })
                     return
                 } 
-                b.customID = current
+                b.customId = current
             }
             
-            current = b.customID
+            current = b.customId
 
-            reworkButtons(rankingtype, b.customID)
+            reworkButtons(rankingtype, b.customId)
             
-            const text =  `SELECT * FROM ${vare[b.customID].db.table};`
+            const text =  `SELECT * FROM ${vare[b.customId].db.table};`
             let array = [];
             try {
                 let res = await API.db.pool.query(text);
@@ -171,7 +179,7 @@ module.exports = {
             }
 
             array.sort(function(c, d){
-                return d[vare[b.customID].db.column] - c[vare[b.customID].db.column];
+                return d[vare[b.customId].db.column] - c[vare[b.customId].db.column];
             });
 
             const obj = array.find((u) => u.user_id == msg.author.id )
@@ -189,11 +197,11 @@ module.exports = {
                 rank++;
             }
 
-            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customID].db.column]} ${vare[b.customID].formated}`).join('\n')
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customId].db.column]} ${vare[b.customId].formated}`).join('\n')
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customID].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
             .setColor('#32a893')
             .setDescription(maparray)
 

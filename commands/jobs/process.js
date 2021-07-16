@@ -4,7 +4,7 @@ module.exports = {
     category: 'none',
     description: 'Veja todos os sistemas de processamentos, ferramentas e as limpezas',
     companytype: 7,
-    mastery: 30,
+    mastery: 15,
 	async execute(API, msg, company) {
 
         const Discord = API.Discord;
@@ -203,7 +203,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 35000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 35000 });
 
         collector.on('collect', async (b) => {
 
@@ -214,10 +214,10 @@ module.exports = {
             let custorepair = 0
             embed.setDescription('')
             embed.setColor('#36393e')
-            if ((b.customID == 'ferr' && current == 'ferr')) repair = true
-            if ((b.customID == 'lqd' && current == 'lqd')) repair = true
+            if ((b.customId == 'ferr' && current == 'ferr')) repair = true
+            if ((b.customId == 'lqd' && current == 'lqd')) repair = true
 
-            current = b.customID
+            current = b.customId
 
             API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 35);
 
@@ -225,37 +225,37 @@ module.exports = {
             const money = await API.eco.money.get(msg.author)
             processjson = players_utils.process
 
-            if (b.customID == 'processos') {
+            if (b.customId == 'processos') {
                 embed.setDescription('')
                 setProcess()
             }
 
-            if (b.customID == 'ferr') tool = processjson.tools[0]
-            if (b.customID == 'lqd') tool = processjson.tools[1]
+            if (b.customId == 'ferr') tool = processjson.tools[0]
+            if (b.customId == 'lqd') tool = processjson.tools[1]
 
-            if (b.customID.startsWith('pot')) {
-                if (b.customID == 'pot1') {
+            if (b.customId.startsWith('pot')) {
+                if (b.customId == 'pot1') {
                     if (tool.potency.current-5 >= tool.potency.rangemin) tool.potency.current -= 5
                 }
-                if (b.customID == 'pot2') {
+                if (b.customId == 'pot2') {
                     if (tool.potency.current-1 >= tool.potency.rangemin) tool.potency.current -= 1
                 }
-                if (b.customID == 'potreset') {
+                if (b.customId == 'potreset') {
                     tool.potency.current = tool.potency.default
                 }
-                if (b.customID == 'pot3') {
+                if (b.customId == 'pot3') {
                     if (tool.potency.current+1 <= tool.potency.rangemax) tool.potency.current += 1
                 }
-                if (b.customID == 'pot4') {
+                if (b.customId == 'pot4') {
                     if (tool.potency.current+5 <= tool.potency.rangemax) tool.potency.current += 5
                 }
                 processjson.tools[tool.type] = tool
                 API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                b.customID = (tool.type == 0 ? 'ferr' : 'lqd')
+                b.customId = (tool.type == 0 ? 'ferr' : 'lqd')
                 current = (tool.type == 0 ? 'ferr' : 'lqd')
             }
             
-            if (b.customID == 'ferr') {
+            if (b.customId == 'ferr') {
 
                 if ((tool.durability.current/tool.durability.max*100).toFixed(2) < 70) {
                     custorepair = (tool.durability.max-tool.durability.current)*200
@@ -272,7 +272,7 @@ Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durabil
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 ${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de reparação atual: \`${custorepair} ${API.money}\` ${API.moneyemoji}` : ''}
 `)
-            } if (b.customID == 'lqd') {
+            } if (b.customId == 'lqd') {
 
                 if ((tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50) {
                     custorepair = (tool.fuel.max-tool.fuel.current)*15
@@ -292,14 +292,14 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
             }  if (repair) {
                 if (money < custorepair) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha ' + (b.customID == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customID == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${API.format(money)}/${API.format(custorepair)} ${API.money} ${API.moneyemoji}**`)
+                    embed.addField('❌ Falha ' + (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customId == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${API.format(money)}/${API.format(custorepair)} ${API.money} ${API.moneyemoji}**`)
                 } else {
 
                     embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso ' +  (b.customID == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${API.format(custorepair)} ${API.money} ${API.moneyemoji}** e ${(b.customID == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
+                    embed.addField('✅ Sucesso ' +  (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${API.format(custorepair)} ${API.money} ${API.moneyemoji}** e ${(b.customId == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
                 
                 
-                    if (b.customID == 'ferr') {
+                    if (b.customId == 'ferr') {
                         processjson.tools[0].durability.current = processjson.tools[0].durability.max
 
                     } else {
@@ -308,12 +308,12 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     await API.eco.money.remove(msg.author, custorepair);
-                    await API.eco.addToHistory(msg.author, `${(b.customID == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
+                    await API.eco.addToHistory(msg.author, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
                 }
                     
             
             }
-            if (b.customID.startsWith('proc:')) {
+            if (b.customId.startsWith('proc:')) {
 
                 let stamina = await API.playerUtils.stamina.get(msg.author)
 
@@ -327,11 +327,11 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                     API.playerUtils.stamina.remove(msg.author, custoretirar)
 
-                    const id = parseInt(b.customID.replace(/proc:/g, ''))
+                    const id = parseInt(b.customId.replace(/proc:/g, ''))
                     const oldproc = processjson.in.find((x) => x.id == id)
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
-                    processjson.tools[oldproc.tool].process.current -= 1
+                    if (processjson.tools[oldproc.tool].process.current > 0) processjson.tools[oldproc.tool].process.current -= 1
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     setProcess()
 

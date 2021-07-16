@@ -34,7 +34,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 15000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -43,7 +43,7 @@ reacted = true;
             collector.stop();
             b.deferUpdate().catch()
             embed.fields = [];
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reset cancelado', `
                 Você cancelou o reset de ` + args[0])

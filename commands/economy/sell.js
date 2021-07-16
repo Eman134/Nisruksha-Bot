@@ -158,7 +158,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         let selled = false;
         collector.on('collect', async(b) => {
 
@@ -168,7 +168,7 @@ module.exports = {
             collector.stop();
             embed.fields = [];
             b.deferUpdate().catch()
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}.`)

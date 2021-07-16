@@ -116,7 +116,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
@@ -126,7 +126,7 @@ module.exports = {
             collector.stop();
             embed.fields = [];
 
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `
                 Você cancelou o envio de currículo para a empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)

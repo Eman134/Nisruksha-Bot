@@ -72,7 +72,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
 
         let reacted = false;
         
@@ -83,7 +83,7 @@ module.exports = {
             b.deferUpdate().catch()
             reacted = true;
             collector.stop();
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 collector.stop();
                 embed.fields = [];
                 embed.setColor('#a60000');

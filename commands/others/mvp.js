@@ -24,6 +24,7 @@ module.exports = {
 \`8.\` Aumenta em 10% a chance de pegar peixes na pescaria
 \`9.\` Opção de subir anzol na pescaria
 \`10.\` Molduras para perfil na ativação
+\`11.\` Taxa de depósito reduzida [5% -> 2%]
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 

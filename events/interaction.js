@@ -1,6 +1,6 @@
 module.exports = {
 
-    name: "interaction",
+    name: "interactionCreate",
     execute: async (API, interaction) => {
 
         const client = API.client;
@@ -56,7 +56,7 @@ module.exports = {
 				.messages['@original'].delete();
 		};
 
-        API.client.emit("message", interaction)
+        API.client.emit("messageCreate", interaction)
 
     }
 }

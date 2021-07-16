@@ -152,7 +152,7 @@ module.exports = {
 
         const filter = i => i.user.id === msg.author.id;
         
-        let collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 30000 });
+        let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
         
         collector.on('collect', async(b) => {
 
@@ -160,19 +160,19 @@ module.exports = {
             
             b.deferUpdate().catch()
 
-            if (b.customID == 'forward'){
+            if (b.customId == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;
-            } else if (b.customID == 'backward') {
+            } else if (b.customId == 'backward') {
                 if (currentpage > 1) currentpage -= 1;
             } 
 
-            if (b.customID.startsWith('sort')) {
-                if (currentsort == parseInt(b.customID.replace('sort', ''))) {
+            if (b.customId.startsWith('sort')) {
+                if (currentsort == parseInt(b.customId.replace('sort', ''))) {
                     sortermode == 0 ? sortermode = 1 : sortermode = 0
                 } else {
                     sortermode = 0
-                    sorter = parseInt(b.customID.replace('sort', ''))
-                    currentsort = parseInt(b.customID.replace('sort', ''))
+                    sorter = parseInt(b.customId.replace('sort', ''))
+                    currentsort = parseInt(b.customId.replace('sort', ''))
                 }
             }
 

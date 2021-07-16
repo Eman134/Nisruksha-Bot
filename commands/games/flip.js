@@ -133,7 +133,7 @@ module.exports = {
 
         let reacted = {}
         
-        const collector = embedmsg.createMessageComponentInteractionCollector({ filter, time: 60000 });
+        const collector = embedmsg.createMessageComponentCollector({ filter, time: 60000 });
 
         collector.on('collect', async (b) => {
 
@@ -142,7 +142,7 @@ module.exports = {
             API.playerUtils.cooldown.set(msg.author, "flip", 60);
             API.playerUtils.cooldown.set(member, "flip", 60);
             reacted[b.user.id] = true
-            if (b.customID == 'cancel'){
+            if (b.customId == 'cancel'){
                 confirm[b.user.id] = '❌'
             } else {
                 confirm[b.user.id] = '✅'
