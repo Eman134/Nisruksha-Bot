@@ -248,7 +248,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
     }
 
-    if (totalcmdplayer.cmdsexec >= 200 || globalstatus == 0) {
+    //if (totalcmdplayer.cmdsexec >= 200 || globalstatus == 0) {
+    if (globalstatus == 0) {
         try {
             const x = await API.client.guilds.cache.get('693150851396796446').members.fetch(msg.author.id, { force: true, cache: true })
 
@@ -383,6 +384,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 		
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `' + API.prefix + 'tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `' + API.prefix + 'apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `' + API.prefix + 'meucodigo`')
+        voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
         await msg.quote({ embeds: [voteembed], mention: true})
 		return false;
 		
@@ -392,12 +394,14 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             if (voted) return
             const check44 = await API.playerUtils.cooldown.check(msg.author, "alertdelay");
             if (check44) return true;
-            API.playerUtils.cooldown.set(msg.author, "alertdelay", 820);
+            API.playerUtils.cooldown.set(msg.author, "alertdelay", 520);
             const voteembed = new API.Discord.MessageEmbed()
             voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
-            
-            if (API.random(0, 100) < 50 && perm < 3) {
+            const rd02 = API.random(0, 100)
+            if (rd02 < 30 && perm < 3) {
                 voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
+            } else if (rd02 < 60 && perm < 3) {
+                voteembed.setDescription('Fique por dentro de **NOVIDADES**, **ANÚNCIOS** e principalmente dentro das **REGRAS** para evitar ser banido e ter um bom uso do bot.\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)')
             }
 
             voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')

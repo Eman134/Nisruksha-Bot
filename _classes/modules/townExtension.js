@@ -109,7 +109,10 @@ townExtension.getTownName = async function(member) {
 }
 
 townExtension.getTownTax = async function(member) {
-    const obj = await API.getInfo(member, 'towns');
+    const obj = await API.getInfo(member, 'players');
+    if (obj.mvp != null || obj.mvp > 0) return 2
+    else return 5
+    /*
     let r
     if (obj.loc == 0) {
         r = API.random(1, 4);
@@ -120,7 +123,7 @@ townExtension.getTownTax = async function(member) {
     }
 
     const taxa = ((150+townExtension.population[API.townExtension.getTownNameByNum(r)])/75);
-    return Math.round(taxa) <= 0 ? 1: Math.round(taxa);
+    return Math.round(taxa) <= 0 ? 1: Math.round(taxa);*/
 }
 
 townExtension.getTownNameByNum = function(r) {

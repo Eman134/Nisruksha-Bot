@@ -128,5 +128,9 @@
         "chn": ["Custo para melhorar a vara de pesca reduzido", "Pequeno aumento no ganho de xp na mineração (Cerca de 10% de aumento)", "Custo de estamina ao mover modificado [150 -> 100]", "Multiplicador da uva na roleta modificado [10x -> 6.5x]", "Dano tomado por monstros na exploração reduzido", "Comandos de trabalhos das empresas movido para n.setores"],
         "fix": ["Top local"],
         "alc": ["versão -> temporada"]
+    },
+    "2.1.8": {
+        "chn": ["Taxa de depósito reduzida para MVP'S [5% -> 2%]"],
+        "rem": ["Limite de comandos e ter que estar no servidor oficial"]
     }
 }

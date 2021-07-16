@@ -331,7 +331,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     const oldproc = processjson.in.find((x) => x.id == id)
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
-                    processjson.tools[oldproc.tool].process.current -= 1
+                    if (processjson.tools[oldproc.tool].process.current > 0) processjson.tools[oldproc.tool].process.current -= 1
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     setProcess()
 
