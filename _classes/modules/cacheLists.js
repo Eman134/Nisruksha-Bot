@@ -104,7 +104,7 @@ const remembermap = new Map();
         break;
     }
 
-    if (from >= eval(to)) {
+    if (from >= to) {
         if (remember.includes(member, type)) {
             channel.send({ content: `🔁 | ${member} Relatório de ${type}: ${from}/${to}` })
             remember.remove(member, type)
@@ -188,6 +188,7 @@ const remembermap = new Map();
 
     if (!this.includes(member, type)) {
       obj[type].active = true
+      obj[type].channelid = channelid
       remembermap.set(member.id, obj)
     }
 
