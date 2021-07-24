@@ -1,7 +1,7 @@
 
 const API = require("../api.js");
 
-const debugmode = false
+const debugmode = true
 
 const stars = {};
 {
@@ -631,18 +631,21 @@ const jobs = {
 
             try {
                 
-
                 const players_utils = await API.getInfo(member, 'players_utils')
 
                 let processjson = players_utils.process
 
-                if (processjson == null) return jobs.process.remove(member)
+                if (processjson == null) {
+                    API.cacheLists.waiting.remove(member, 'working');
+                    return jobs.process.remove(member)
+                }
 
                 const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
 
                 if (inprocs.length <= 0) {
 
                     jobs.process.remove(member)
+                    API.cacheLists.waiting.remove(member, 'working');
 
                 } else {
 
@@ -769,9 +772,9 @@ const jobs = {
                             API.cacheLists.waiting.add(member, { url: '' }, 'working');
                         }
                         
-                        if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current <= 0 && inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current <= 0) {
+                        if ((processjson.tools[0].durability.current <= 0) && (processjson.tools[1].fuel.current <= 0)) {
                             API.cacheLists.waiting.remove(member, 'working');
-                            jobs.process.remove(member)
+                            await jobs.process.remove(member)
                             return
                         }
 
