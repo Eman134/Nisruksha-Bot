@@ -128,7 +128,7 @@ module.exports = {
 
         let reacted = false
 
-        const custostart = 200
+        const custostart = 100
 
         collector.on('collect', async (b) => {
 

@@ -28,7 +28,7 @@ module.exports = {
 
         let processjson = players_utils.process
 
-        const custoretirar = 100
+        const custoretirar = 50
 
         if (players_utils.process == null) {
 
