@@ -155,6 +155,7 @@ module.exports = {
                 
                 const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
                 await msg.quote({ embeds: [embedtemp]})
+                embedmsg.edit({ embeds: [embed], components: [] })
                 return;
 
             }
@@ -253,8 +254,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
         
         collector.on('end', async collected => {
             if (reacted) return
-            const components = reworkButtons(current, true)
-            embedmsg.edit({ embeds: [embed], components })
+            embedmsg.edit({ embeds: [embed], components: [] })
             return;
         });
 
