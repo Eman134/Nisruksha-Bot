@@ -66,7 +66,7 @@ module.exports = {
             return;
         }
 
-        if (processjson.tools[0].process.current >= processjson.tools[0].process.max && processjson.tools[1].process.current >= processjson.tools[1].process.max) {
+        if (processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max && processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max) {
             const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`${API.prefix}processos\` para visualizar seus processos.`)
             await msg.quote({ embeds: [embedtemp]})
             return;
@@ -113,8 +113,8 @@ module.exports = {
         setProcess()
 
         function reworkButtons(current, allDisabled) {
-            const btn2 = API.createButton('ferr', processjson.tools[0].process.current >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.tools[0].process.current + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.tools[0].process.current >= processjson.tools[0].process.max ? true : false))
-            const btn3 = API.createButton('lqd', processjson.tools[1].process.current >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.tools[1].process.current + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.tools[1].process.current >= processjson.tools[1].process.max ? true : false))
+            const btn2 = API.createButton('ferr', processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.in.filter((proca) => proca.tool == 0).length + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? true : false))
+            const btn3 = API.createButton('lqd', processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.in.filter((proca) => proca.tool == 1).length + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? true : false))
             return [API.rowComponents([btn2, btn3])]
         }
 
@@ -147,6 +147,7 @@ module.exports = {
             let processjson = players_utils.process
 
             const tool = (b.customId == 'ferr' ? processjson.tools[0] : processjson.tools[1])
+            const toolid = (b.customId == 'ferr' ? 0 : 1)
 
             let stamina = await API.playerUtils.stamina.get(msg.author)
 
@@ -177,7 +178,7 @@ module.exports = {
                 return;
             }
 
-            if (tool.process.current >= tool.process.max) {
+            if (processjson.in.filter((proca) => proca.tool == toolid).length >= tool.process.max) {
                 const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
                 await embedmsg.edit({ embeds: [embedtemp] })
                 return;
@@ -188,7 +189,7 @@ module.exports = {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
-Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 0).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
@@ -202,7 +203,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
-Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 1).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L (${(tool.fuel.current/tool.fuel.max*100).toFixed(2)}%)
@@ -236,10 +237,6 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             }
 
             API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
-
-            if (processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current < 0) processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current = 0
-
-            processjson.tools[(b.customID == 'ferr' ? 0 : 1)].process.current += 1
 
             processjson.in.push(defaultjsonprocess)
 

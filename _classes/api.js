@@ -360,7 +360,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         const spamcheckmsg = await API.playerUtils.cooldown.message(msg, 'global', 'digitar outro comando')
         setTimeout(() => spamcheckmsg.delete(), 5000)
 
-        API.playerUtils.cooldown.set(msg.author, "antispam", 3);
+        API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
     }
     API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
