@@ -291,6 +291,8 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     await API.eco.money.remove(msg.author, custorepair);
                     await API.eco.addToHistory(msg.author, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
+                    await API.company.jobs.process.add(msg.author)
+                    API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
                 }
                     
             
