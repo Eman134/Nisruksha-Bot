@@ -325,8 +325,8 @@ module.exports = {
 
                 collector.on('collect', async (b) => {
   
+                    b.deferUpdate().catch()
                     if (b.customId == 'stopBtn') {
-                        b.deferUpdate().catch()
                         reacted = true;
                         collector.stop();
                     } else if (b.customId == 'downBtn' || b.customId == 'upBtn') {
@@ -348,9 +348,7 @@ module.exports = {
                         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
                             await embedmsg.edit({ embeds: [embed], components: reworkBtns() }).catch()
-                            b.deferUpdate().catch()
                         }catch{
-                            b.deferUpdate().catch()
                             API.cacheLists.waiting.remove(msg.author, 'fishing')
                             API.cacheLists.waiting.remove(msg.author, 'working');
                             return

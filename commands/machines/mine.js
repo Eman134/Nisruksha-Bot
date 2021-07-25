@@ -173,7 +173,7 @@ module.exports = {
                 ep = await API.itemExtension.getEquipedPieces(member);
                 let energymax = await API.maqExtension.getEnergyMax(member)
                 const e = await API.maqExtension.getEnergy(member);
-                let progress2 = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', e+1, energymax);
+                let progress2 = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', (e+1 < 0 ? 0 : e+1), energymax);
                 embed.fields = [];
                 const obj6 = await API.getInfo(member, "machines");
                 const arsize = await API.maqExtension.storage.getSize(member);
@@ -212,7 +212,7 @@ module.exports = {
                     await embedmsg.edit({ embeds: [embed], components: [], mention: true }).catch()
                     return;
                 }
-                if (e+1 < 1) {
+                if ((e+1 < 0 ? 0 : e+1) <= 0) {
                     API.cacheLists.waiting.remove(member, 'mining')
                     const embedtemp = await API.sendError(msg, `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member, 'mining')})\nVisualize a energia utilizando \`${API.prefix}energia\``)
                     await msg.quote({ embeds: [embedtemp], mention: true })

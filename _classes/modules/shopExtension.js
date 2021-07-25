@@ -256,7 +256,10 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
   });
   
   collector.on('end', async collected => {
-    await embedmsg.edit({ embeds: [embed], components: [] });
+    try {
+      await embedmsg.edit({ embeds: [embed], components: [] });
+    } catch {
+    }
   });
 
 }
@@ -516,9 +519,9 @@ shopExtension.execute = async function(msg, p) {
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
           await embedmsg.edit({ embeds: [embed], components: [] });
           return;
-        }
+    }
       
-      collector.resetTimer();
+    collector.resetTimer();
   });
   
   collector.on('end', collected => {

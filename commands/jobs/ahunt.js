@@ -108,16 +108,17 @@ module.exports = {
         let combo = []
         let session = 0
         collector.on('collect', async (b) => {
-
-            if (!(b.user.id === msg.author.id)) return            
+        
             if (!reactequiplist.includes(b.customId)) return;
+
+            b.deferUpdate().catch()
 
             reacted = true;
 
             if (b.customId == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
-                b.deferUpdate().catch().catch()
+                
                 return;
             }
 
@@ -337,8 +338,6 @@ module.exports = {
                     }, 6000)
                 }
 
-                b.deferUpdate().catch().catch()
-
                 return;
                 
             }
@@ -483,8 +482,6 @@ module.exports = {
             await go()
 
             collector.resetTimer();
-
-            b.deferUpdate().catch().catch()
 
         });
         
