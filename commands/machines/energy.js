@@ -69,7 +69,7 @@ module.exports = {
             embed.fields = []
             embed.setColor('#32a893')
             embed.addField(`<:energia:833370616304369674> Energia de \`${msg.author.tag}\`: **[${energia}/${energiamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\nOBS: A energia não recupera enquanto estiver usando!`)
-            embed.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
+            embed.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter MVP!'}`)
             embedmsg.edit({ embeds: [embed] });
         });
 

@@ -133,9 +133,9 @@ const maqExtension = {
   recoverenergy: {
     1: 60,
     2: 58,
-    3: 56,
-    4: 54,
-    5: 52
+    3: 52,
+    4: 51,
+    5: 50
   },
   recoverstamina: {
     1: 30,
