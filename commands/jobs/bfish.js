@@ -325,7 +325,7 @@ module.exports = {
 
                 collector.on('collect', async (b) => {
   
-                    b.deferUpdate().catch()
+                    if (!b.deferred) b.deferUpdate().then().catch();
                     if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();

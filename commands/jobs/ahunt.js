@@ -111,7 +111,7 @@ module.exports = {
         
             if (!reactequiplist.includes(b.customId)) return;
 
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
 
             reacted = true;
 

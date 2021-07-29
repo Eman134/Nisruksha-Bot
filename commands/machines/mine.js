@@ -229,7 +229,7 @@ module.exports = {
                 collector.on('collect', async (b) => {
 
                     if (b.customId == 'stopBtn') {
-                        b.deferUpdate().catch()
+                        if (!b.deferred) b.deferUpdate().then().catch();
                         stopped = true
                         btn.setDisabled()
                         API.cacheLists.waiting.remove(member, 'mining')

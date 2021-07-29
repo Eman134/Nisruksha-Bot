@@ -71,7 +71,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
             collector.resetTimer();
 
             API.playerUtils.cooldown.set(msg.author, "molduras", 30);

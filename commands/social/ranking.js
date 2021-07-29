@@ -129,7 +129,7 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
 
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
 
             if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
