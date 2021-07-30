@@ -251,7 +251,7 @@ eco.addToHistory = async function (member, arg) {
     eco.createHistoryDir(member);
 
     let fpath = `./_localdata/profiles/${member.id}/history.yml`;
-    let content = `\`<t:${Date.now()}:R>\` ${arg}`
+    let content = `<t:${Math.round((Date.now())/1000)}:R> ${arg}`
 
     insertLine(fpath).content(content).at(1).then((err) => {
         if (err) {

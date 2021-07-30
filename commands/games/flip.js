@@ -212,7 +212,6 @@ module.exports = {
                     let jsonbet = {
                         "flip": []
                     }
-            
                     
                     if (bets != null) {
                         jsonbet = bets
@@ -234,7 +233,7 @@ module.exports = {
 
                 const chances = await applyBet(rd, response) 
                 embed.setColor('#5bff45');
-                embed.addField('✅ Aposta realizada', fresponse + (chances ? `\nChancess: \`${chances} cara/coroa\``:''))
+                embed.addField('✅ Aposta realizada', fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
                 API.playerUtils.cooldown.set(msg.author, "flip", 0);
                 API.playerUtils.cooldown.set(member, "flip", 0);
             }

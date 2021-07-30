@@ -46,16 +46,6 @@ module.exports = {
                 const embedmsg = await msg.quote({ content, embeds: [embed] }).catch(error => {
                 msg.quote({ content: `Ocorreu um erro ao dar eval! ${error.message}`})
                 })
-
-                embedmsg.react('🗑');
-                    
-                embedmsg.awaitReactions((reaction, user) => user.id == msg.author.id && (reaction.emoji.name == '🗑'),
-                            { max: 1, time: 30000 }).then(collected => {
-                                    if (collected.first().emoji.name == '🗑') {
-                                        embedmsg.delete();
-                                    }
-                            }).catch(() => {
-                            });
                 
                 
             }
