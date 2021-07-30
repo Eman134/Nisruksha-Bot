@@ -647,6 +647,8 @@ const jobs = {
 
                 } else {
 
+                    if (!API.shopExtension) return
+
                     const obj = await API.getInfo(member, "machines")
 
                     let maq = API.shopExtension.getProduct(obj.machine);

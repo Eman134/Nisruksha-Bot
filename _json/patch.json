@@ -130,7 +130,8 @@
         "alc": ["versão -> temporada"]
     },
     "2.1.8": {
-        "chn": ["Tempo de recarregamento de energia para MVP's melhorado", "Custo para remover processo [200 -> 100]", "Custo para iniciar processo [100 -> 50]", "Combos na exploração [3 -> 5]", "Taxa de depósito reduzida para MVP'S [5% -> 2%]"],
+        "add": ["Velocidade do n.perfil melhorado em ~350%"],
+        "chn": ["Abertura de caixas simultâneas [10 -> 30]", "Tempo de recarregamento de energia para MVP's melhorado", "Custo para remover processo [200 -> 100]", "Custo para iniciar processo [100 -> 50]", "Combos na exploração [3 -> 5]", "Taxa de depósito reduzida para MVP'S [5% -> 2%]"],
         "rem": ["Limite de comandos e ter que estar no servidor oficial"]
     }
 }

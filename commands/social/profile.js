@@ -21,9 +21,12 @@ module.exports = {
         required: false
     }],
 	async execute(API, msg) {
+
+        const exec = Date.now()
         
         let member;
         let args = API.args(msg)
+
         if (!msg.slash) {
             if (msg.mentions.users.size < 1) {
                 if (args.length == 0) {
@@ -44,7 +47,7 @@ module.exports = {
                 member = msg.mentions.users.first();
             }
         } else {
-            if (msg.options.size == 0) {
+            if (!msg.options.size) {
                 member = msg.author
             } else {
                 member = msg.options.get('membro').user
@@ -65,12 +68,15 @@ module.exports = {
 
         const playerobj = await API.getInfo(member, 'machines')
         const obj = await API.getInfo(member, "players")
+        const players_utils = await API.getInfo(member, "players_utils")
+        const mastery = await API.playerUtils.getMastery(member)
+        const maqimg = API.shopExtension.getProduct(playerobj.machine).img;
 
         let background = bg
         
         // Draw bio
-        let bio = '';
-        let perm = 0;
+        let bio = obj.bio;
+        let perm = obj.perm;
         // Color bord
         let textcolor = '#dedcde'
         let colors = {
@@ -81,113 +87,42 @@ module.exports = {
             5: '#7936ff'
         }
 
-        if (!(obj == undefined)) {
-            bio = obj.bio;
-            perm = obj.perm;
-        }
-        if (obj.bglink != null) {
-            try{
-                background2 = await API.img.loadImage(obj.bglink)
-                res = await API.img.resize(background2, 1200, 750)
-                background = await API.img.drawImage(res, background, 0, 0)
-            }catch(err){
-                API.setInfo(member, 'players', 'bglink', null);
-                const embedtemp = await API.sendError(msg, `Houve um erro ao carregar seu background personalizado! Por favor não apague a mensagem de comando de background!\nEnvie uma nova imagem utilizando \`${API.prefix}background\``)
-                await msg.quote({ embeds: [embedtemp], mention: true } )
-            }
-        }
+        const img = Date.now()
 
-        // user
-        background = await API.img.drawText(background, `${member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim()}.`, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 117,3)
-        background = await API.img.drawText(background, bio.replace(/<prefixo>/g, API.prefix), 27, './resources/fonts/MartelSans-Regular.ttf', textcolor, 400, 181,3)
-        // Mastery
-        const mastery = await API.playerUtils.getMastery(member)
-        background = await API.img.drawText(background, mastery, 24, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 1150, 670,5)
-        // avatar e moldura
+        const profileimage = await API.img.imagegens.get('profile.js')(API, {
 
-        let avatar = await API.img.loadImage(member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        avatar = await API.img.resize(avatar, 180, 180);
+            textcolor: '#dedcde',
+            boxescolor: colors[perm],
+            name: member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim() + '.',
+            bio: bio.replace(/<prefixo>/g, API.prefix),
+            mastery,
+            url: {
+                bg: obj.bglink,
+                avatar: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }),
+                maq: maqimg,
+                badges: (!obj.badges || obj.badges == null || obj.badges.length == 0 ? undefined : obj.badges)
+            },
+            frame: (obj.frames != null && obj.frames[0] != 0 ? API.frames.get(obj.frames[0]) : undefined),
+            reps: obj.reps,
+            level: playerobj.level,
+            xp: playerobj.xp,
+            perm,
+            profile_color: players_utils.profile_color
 
-        if (obj.frames != null && obj.frames[0] != 0) {
-            
-            const frame = API.frames.get(obj.frames[0])
+        })
 
-            if (frame.type == 1) avatar = await API.img.editBorder(avatar, 90, true)
+        console.log((Date.now()-img) + 'ms | Imagem pronta')
 
-            let tempframe = await API.img.loadImage(frame.url);
-            background = await API.img.drawImage(background, avatar, 85, 59)
-            background = await API.img.drawImage(background, tempframe, 50, 24)
-            
-        } else {
-            background = await API.img.drawImage(background, avatar, 85, 59)
-        }
-        
+        const send = Date.now()
 
-        // badges
+        await msg.quote({ files: [profileimage] } );
 
-        let tempx = 0
-        let tempy = 605
-        if (perm > 1) {
-            let tempbadge = await API.img.loadImage(`resources/backgrounds/profile/${perm}.png`)
-            tempbadge = await API.img.resize(tempbadge, 35, 35);
-            background = await API.img.drawImage(background, tempbadge, tempx, tempy)
-            tempx += 45
-        }
+        console.log((Date.now()-send) + 'ms | Envio imagem')
+        todel.delete().catch();
 
-        let maqid = playerobj.machine;
-        let maq = API.shopExtension.getProduct(maqid);
+        console.log((Date.now()-exec) + 'ms | Execução de comando')
 
-        let maqimg = await API.img.loadImage(maq.img)
-        maqimg = await API.img.resize(maqimg, 35, 35);
-
-        background = await API.img.drawImage(background, maqimg, tempx, tempy)
-        tempx += 45
-
-        if (obj.badges != null) {
-            for (i = 0; i < obj.badges.length; i++) {
-                let tempbadge0 = API.badges.get(obj.badges[i])
-                let tempbadge = await API.img.loadImage(tempbadge0.url);
-                tempbadge = await API.img.resize(tempbadge, 35, 35);
-                background = await API.img.drawImage(background, tempbadge, tempx, tempy)
-                if (tempx < 1100) tempx += 45
-                else break
-            }
-        }
-
-        background = await API.img.drawText(background, obj.reps, 30, './resources/fonts/MartelSans-Regular.ttf', textcolor, 1060, 117, 3)
-
-        const obj2 = await API.getInfo(member, "machines")
-        const players_utils = await API.getInfo(member, "players_utils")
-
-        //let progress = await API.img.generateProgressBar(1, 75, 155, Math.round(100*obj2.xp/(obj2.level*1980)), 5, 1, colors[perm])
-        //background = await API.img.drawImage(background, progress, 5, 5)
-
-        background = await API.img.drawText(background, `Nível atual: ${obj2.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', textcolor, 600, 675, 4)
-        background = await API.img.drawText(background, `XP: ${obj2.xp}/${obj2.level*1980} (${Math.round(100*obj2.xp/(obj2.level*1980))}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', '#FFFFFF', 600, 705, 4)
-
-        let progress2 = await API.img.generateProgressBar(0, 1200, 10, (100*obj2.xp/(obj2.level*1980)).toFixed(2), 10, 0, colors[perm])
-        background = await API.img.drawImage(background, progress2, 0, 740)
-
-        if (perm > 1 || players_utils.profile_color > 0) {
-
-            let gradcolor = 0
-
-            if (players_utils.profile_color > 0) gradcolor = players_utils.profile_color
-
-            let colorbord = await API.img.createImage(593, 2, colors[perm], gradcolor)
-            let colorbord2 = await API.img.createImage(163, 2, colors[perm], gradcolor)
-            let colorbord3 = await API.img.createImage(782, 2, colors[perm], gradcolor)
-
-            background = await API.img.drawImage(background, colorbord, 387, 91)
-            background = await API.img.drawImage(background, colorbord2, 1006, 91)
-            background = await API.img.drawImage(background, colorbord3, 387, 154)
-
-        }
-
-        try {
-            await API.img.sendImage(msg.channel, background, msg.id);
-            todel.delete().catch();
-        }catch{}
+        return
 
 	}
 };

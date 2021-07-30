@@ -1,6 +1,11 @@
 
 const img = {};
 const API = require("../api.js");
+const fs = require('fs');
+
+img.Canvas = require("canvas");
+
+img.imagegens = new API.Discord.Collection(undefined, undefined);
 
 img.runColor = function(ctx, width, height, color, type){
     switch (type) {
@@ -32,10 +37,10 @@ img.runColor = function(ctx, width, height, color, type){
 }
 
 img.loadImage = async function (url){
-    const Canvas = require("canvas");
+    
     let result;
-    await Canvas.loadImage(url).then((image) => {
-        const canvas = Canvas.createCanvas(image.width, image.height);
+    await img.Canvas.loadImage(url).then((image) => {
+        const canvas = img.Canvas.createCanvas(image.width, image.height);
         const ctx = canvas.getContext("2d");
         ctx.drawImage(image, 0, 0, image.width, image.height);
         result = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
@@ -45,15 +50,15 @@ img.loadImage = async function (url){
 
 img.sendImage = async function (channel, imagedata, msgidreference, text) {
     const Discord = API.Discord;
-    const Canvas = require("canvas");
+    
 	if(!imagedata) {
         console.log("Unknown image SENDIMAGE");
         return
     };
 	let compress = 10;
-	const image = new Canvas.Image();
+	const image = new img.Canvas.Image();
 	image.src = imagedata;
-	const canvas = Canvas.createCanvas(image.width, image.height);
+	const canvas = img.Canvas.createCanvas(image.width, image.height);
 	const ctx = canvas.getContext("2d");
 	ctx.drawImage(image, 0, 0, image.width, image.height);
 	const name = `image.png`;
@@ -74,15 +79,15 @@ img.sendImage = async function (channel, imagedata, msgidreference, text) {
 
 img.getAttachment = async function (imagedata, name) {
     const Discord = API.Discord;
-    const Canvas = require("canvas");
+    
 	if(!imagedata) {
         console.log("Unknown image GETATTACHMENT");
         return
     };
 	let compress = 10;
-	const image = new Canvas.Image();
+	const image = new img.Canvas.Image();
 	image.src = imagedata;
-	const canvas = Canvas.createCanvas(image.width, image.height);
+	const canvas = img.Canvas.createCanvas(image.width, image.height);
 	const ctx = canvas.getContext("2d");
 	ctx.drawImage(image, 0, 0, image.width, image.height);
 	const buffer = canvas.toBuffer("image/png", { compressionLevel:compress });
@@ -91,12 +96,12 @@ img.getAttachment = async function (imagedata, name) {
 }
 
 img.resize = async function(imagedata, x, y) {
-    const Canvas = require("canvas");
+    
 	if(!imagedata) {
         console.log("Unknown imagedata RESIZE")
 		return;
 	}
-	const image = new Canvas.Image();
+	const image = new img.Canvas.Image();
 	image.src = imagedata;
 	const scalex = x;
 	const scaley = y;
@@ -109,7 +114,7 @@ img.resize = async function(imagedata, x, y) {
 	scale(scalex, scaley);
 	scalew *= mirrorw;
 	scaleh *= mirrorh;
-	const canvas = Canvas.createCanvas(imagew, imageh);
+	const canvas = img.Canvas.createCanvas(imagew, imageh);
 	const ctx = canvas.getContext("2d");
 	ctx.clearRect(0, 0, imagew, imageh);
 	ctx.save();
@@ -129,7 +134,7 @@ img.resize = async function(imagedata, x, y) {
 }
 
 img.drawImage = async function (imagedata, imagedata2, x, y){
-    const Canvas = require("canvas");
+    
     if(!imagedata) {
         return;
     }
@@ -137,11 +142,11 @@ img.drawImage = async function (imagedata, imagedata2, x, y){
         return;
     }
 
-    const image = new Canvas.Image();
+    const image = new img.Canvas.Image();
     image.src = imagedata;
-    const image2 = new Canvas.Image();
+    const image2 = new img.Canvas.Image();
     image2.src = imagedata2;
-    const canvas = Canvas.createCanvas(image.width, image.height);
+    const canvas = img.Canvas.createCanvas(image.width, image.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0, image.width, image.height);
     ctx.drawImage(image2, x, y, image2.width, image2.height);
@@ -150,7 +155,7 @@ img.drawImage = async function (imagedata, imagedata2, x, y){
 }
 
 img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x, y, ad) {
-    const Canvas = require("canvas");
+    
     const opentype = require("opentype.js");
     if(!imagedata) {
         return;
@@ -163,9 +168,9 @@ img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x
     }
     x = parseFloat(x);
     y = parseFloat(y);
-    const image = new Canvas.Image();
+    const image = new img.Canvas.Image();
     image.src = imagedata;
-    const canvas = Canvas.createCanvas(image.width, image.height);
+    const canvas = img.Canvas.createCanvas(image.width, image.height);
     const ctx = canvas.getContext("2d");
     ctx.drawImage(image, 0, 0, image.width, image.height);
     const font = opentype.loadSync(fontPath);
@@ -226,17 +231,17 @@ img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x
 }
 
 img.editBorder = async function (imagedata, radius, circleinfo) {
-    const Canvas = require("canvas");
+    
 
     if(!imagedata) {
         return;
     }
-    const image = new Canvas.Image();
+    const image = new img.Canvas.Image();
     image.src = imagedata;
 
     let imagew = image.width;
     let imageh = image.height;
-    const canvas = Canvas.createCanvas(imagew, imageh);
+    const canvas = img.Canvas.createCanvas(imagew, imageh);
     const ctx = canvas.getContext("2d");
     if (radius > 0) {
         corner(radius);
@@ -272,7 +277,7 @@ img.editBorder = async function (imagedata, radius, circleinfo) {
 
 img.generateProgressBar = async function(type, width, height, percent, lineWidth, lineCap, color) {
 
-    const Canvas = require("canvas");
+    
     let Cap;
     switch(lineCap) {
         case 0:
@@ -284,9 +289,9 @@ img.generateProgressBar = async function(type, width, height, percent, lineWidth
     }
     let canvas;
     if (type == 0) {
-        canvas = Canvas.createCanvas(width, height);
+        canvas = img.Canvas.createCanvas(width, height);
     } else if (type == 1) {
-        canvas = Canvas.createCanvas(height, height);
+        canvas = img.Canvas.createCanvas(height, height);
     }
     const ctx = canvas.getContext("2d");
 
@@ -336,8 +341,8 @@ img.generateProgressBar = async function(type, width, height, percent, lineWidth
 }
 
 img.createImage = async function(width, height, color, type) {
-    const Canvas = require("canvas");
-    const canvas = Canvas.createCanvas(width, height);
+    
+    const canvas = img.Canvas.createCanvas(width, height);
     const ctx = canvas.getContext("2d");
 
     img.runColor(ctx, width, height, color, type)
@@ -347,8 +352,8 @@ img.createImage = async function(width, height, color, type) {
 }
 
 img.rotate = async function(imagedata, degrees) {
-    const Canvas = require("canvas");
-    const image = new Canvas.Image();
+    
+    const image = new img.Canvas.Image();
     image.src = imagedata;
 
     const radian = Math.PI / 180 * degrees;
@@ -364,7 +369,7 @@ img.rotate = async function(imagedata, degrees) {
 
     scalew *= mirrorw;
     scaleh *= mirrorh;
-    const canvas = Canvas.createCanvas(imagew, imageh);
+    const canvas = img.Canvas.createCanvas(imagew, imageh);
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, imagew, imageh);
     ctx.save();
@@ -384,5 +389,14 @@ img.rotate = async function(imagedata, degrees) {
     }
     return result;
 }
+
+fs.readdir("./_classes/packages/imagegens/", (err, files) => {
+    if (err) return console.error(err);
+    files.forEach(file => {
+        let gen = require(`../packages/imagegens/${file}`);
+        img.imagegens.set(file, gen)
+    });
+});
+console.log(`[GENIMAGES] Carregados`.green)
 
 module.exports = img;

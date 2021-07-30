@@ -481,7 +481,7 @@
 		},
 		{
 			"id": 706,
-			"buyable": true,
+			"buyable": false,
 			"name": "Cor RGB no perfil (#1)",
 			"icon": "🎨",
 			"pcolorid": 1,
