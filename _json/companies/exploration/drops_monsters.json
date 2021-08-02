@@ -282,7 +282,7 @@
         "icon": "<:restosdebasg:830608024007344199>",
         "levelprocess": 78,
         "rarity": "lendary",
-        "price": 75000
+        "price": 60000
     },
     {
         "name": "\"corpo de meil\"",
@@ -290,6 +290,6 @@
         "icon": "<:corpomeil:830608595597918208>",
         "levelprocess": 85,
         "rarity": "lendary",
-        "price": 120000
+        "price": 70000
     }
 ]

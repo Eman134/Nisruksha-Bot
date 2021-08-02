@@ -47,30 +47,12 @@ module.exports = {
             API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
         }
 
-        let embeds = []
-
-        /*
-
-        {
-    
-            tools: {},
-
-            in: [
-                {
-                    id: 1,
-                    tool: 0, //Método de limpeza
-                    started: timestamp,
-                    end: timestamp+time,
-                    fragments: {
-                        current: 100,
-                        total: 300
-                    }
-                }
-            ],
-            drops: []
+        if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
+            await API.cacheLists.waiting.remove(member, 'working');
+            await jobs.process.remove(member)
         }
 
-        */
+        let embeds = []
 
         function setProcess() {
             
@@ -199,7 +181,7 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embeds, components });
+        const embedmsg = await msg.quote({ embeds, components });
 
         const filter = i => i.user.id === msg.author.id;
         
@@ -264,7 +246,7 @@ module.exports = {
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
-Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 0).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
@@ -281,7 +263,7 @@ ${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de 
                 embed.setDescription(
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
-Processos simultâneos: ${tool.process.current}/${tool.process.max}
+Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 1).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
 Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L (${(tool.fuel.current/tool.fuel.max*100).toFixed(2)}%)
@@ -309,6 +291,8 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     await API.eco.money.remove(msg.author, custorepair);
                     await API.eco.addToHistory(msg.author, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
+                    await API.company.jobs.process.add(msg.author)
+                    API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
                 }
                     
             
@@ -331,7 +315,6 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     const oldproc = processjson.in.find((x) => x.id == id)
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
-                    if (processjson.tools[oldproc.tool].process.current > 0) processjson.tools[oldproc.tool].process.current -= 1
                     API.setInfo(msg.author, 'players_utils', 'process', processjson)
                     setProcess()
 
@@ -350,11 +333,13 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
             if (!b.deferred) b.deferUpdate().then().catch();
 
             collector.resetTimer()
-
+            
             const components = reworkButtons(current)
             
             await embedmsg.edit({ embeds, components })
-
+            
+            b.deferUpdate().catch()
+            
         });
         
         collector.on('end', async collected => {

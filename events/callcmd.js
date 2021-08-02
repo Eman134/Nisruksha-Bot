@@ -11,7 +11,7 @@ module.exports = {
 
         const mentionRegex = new RegExp(`^<@!?${client.user.id}>$`);
         if (msg.content.match(mentionRegex)) {
-                const embed = new Discord.MessageEmbed()
+                const embed = new API.Discord.MessageEmbed()
                 .setColor('#36393f')
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setDescription(`Olá ${msg.author}` + ', meu prefixo é `' + API.prefix + '`, caso precise de ajuda use `' + API.prefix + 'ajuda`')

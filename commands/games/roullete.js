@@ -88,7 +88,6 @@ module.exports = {
 
             selected = b.customId;
             if (!b.deferred) b.deferUpdate().then().catch();
-
             reacted = true
 
             let array = [];
