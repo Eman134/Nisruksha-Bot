@@ -592,7 +592,6 @@ const jobs = {
             const member = await API.client.users.fetch(list[xilist])
 
             jobs.process.loopProcess(member)
-            API.cacheLists.waiting.add(member, { url: '' }, 'working');
 
             if (debugmode) console.log('Loading: ' + member.id)
 
@@ -632,18 +631,21 @@ const jobs = {
 
             try {
                 
-
                 const players_utils = await API.getInfo(member, 'players_utils')
 
                 let processjson = players_utils.process
 
-                if (processjson == null) return jobs.process.remove(member)
+                if (processjson == null) {
+                    API.cacheLists.waiting.remove(member, 'working');
+                    return jobs.process.remove(member)
+                }
 
                 const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
 
                 if (inprocs.length <= 0) {
 
                     jobs.process.remove(member)
+                    API.cacheLists.waiting.remove(member, 'working');
 
                 } else {
 
@@ -766,12 +768,15 @@ const jobs = {
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
                             processed()
+                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
                             processed()
+                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
                         }
                         
-                        if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current <= 0 && inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current <= 0) {
-                            jobs.process.remove(member)
+                        if ((processjson.tools[0].durability.current <= 0) && (processjson.tools[1].fuel.current <= 0)) {
+                            API.cacheLists.waiting.remove(member, 'working');
+                            await jobs.process.remove(member)
                             return
                         }
 
