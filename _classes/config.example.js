@@ -1,11 +1,7 @@
 module.exports = { // Renomeie para config.js
     prefix: ".",
     owner: ["422002630106152970"],
-
-    ip: "localhost",
-    port: 80, // Padrão 80
-    ssl: false,
-
+    
     db: {
         user: '',
         host: '',
