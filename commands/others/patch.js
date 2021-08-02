@@ -44,8 +44,8 @@ module.exports = {
             patch = API.version
         }
 
-        API.badges.add(msg.author, 2)
-        API.frames.add(msg.author, 13)
+        //API.badges.add(msg.author, 2)
+        //API.frames.add(msg.author, 13)
 
         let getPatch = patchobj[patch] || API.version
 

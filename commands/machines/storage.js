@@ -38,7 +38,7 @@ module.exports = {
             if (!msg.options.size) {
                 member = msg.author
             } else {
-                member = msg.options.get('membro').user
+                member = msg.options.getMember('membro');
             }
         }
 

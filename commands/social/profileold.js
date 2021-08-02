@@ -50,7 +50,7 @@ module.exports = {
             if (!msg.options.size) {
                 member = msg.author
             } else {
-                member = msg.options.get('membro').user
+                member = msg.options.getMember('membro');
             }
         }
 
@@ -189,17 +189,17 @@ module.exports = {
 
         }
 
-        console.log((Date.now()-img) + 'ms | Imagem pronta')
+        if (API.debug) console.log((Date.now()-img) + 'ms | Imagem pronta')
 
         const send = Date.now()
 
         try {
             await API.img.sendImage(msg.channel, background, msg.id);
-            console.log((Date.now()-send) + 'ms | Envio imagem')
+            if (API.debug) console.log((Date.now()-send) + 'ms | Envio imagem')
             todel.delete().catch();
         }catch{}
 
-        console.log((Date.now()-exec) + 'ms | Execução de comando')
+        if (API.debug) console.log((Date.now()-exec) + 'ms | Execução de comando')
 
 	}
 };

@@ -32,7 +32,7 @@ module.exports = {
 
         let member 
         if (msg.slash) {
-            member = msg.options.get('membro').user
+            member = msg.options.getMember('membro');
         } else {
 
             member = msg.mentions.users.first();
