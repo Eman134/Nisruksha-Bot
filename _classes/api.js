@@ -415,7 +415,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         const embedcmd = new API.Discord.MessageEmbed()
         .setColor('#b8312c')
         .setTimestamp()
-		.setTitle('<:staff:788945462206922794> | Log de comando')
+		.setTitle('<:staff:788945462206922794> | Log de comando' + (msg.slash ? " | SLASH" : ""))
 		.addField('<:arrow:737370913204600853> Comando', API.prefix+command)
 		if (arg.length > 0) embedcmd.addField('<:arrow:737370913204600853> Parâmetros', `\`\`\`\n${API.getMultipleArgs(msg, 1).slice(0, 1000)}\`\`\``)
 		embedcmd.addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
@@ -758,6 +758,32 @@ API.createButton = function(id, style, label, emoji, disabled) {
 }
 
 API.createMenu = function({ id, placeholder, min, max }, options) {
+
+/*
+label	
+string 	True		
+The text to be displayed on this option
+
+value	
+string 	True		
+The value to be sent for this option
+
+description	
+string 	True	none	
+Optional description to show for this option
+
+emoji	
+EmojiIdentifierResolvable	True	none	
+Emoji to display for this option
+
+default	
+boolean 	True	none	
+Render this option as the default selection
+
+{ label: 'opção1', value: 'testandoele', description: 'q isso lek tmj', emoji: '847075122778865744', default: true}
+
+*/
+
 
     let menu = new MessageSelectMenu()
     .setCustomId(id)

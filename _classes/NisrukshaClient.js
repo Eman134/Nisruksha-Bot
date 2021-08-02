@@ -171,17 +171,11 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
         const app = express()
 
-        //const http = require("http");
-
-        //const app = http.createServer(express)
-
         if (options.ip != 'localhost') {
             dblCheck(app)
             app.listen(port);
         }
 
-
-        // Upvotes
         function dblCheck(app) {
             try {
 
@@ -215,8 +209,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                 
                 AutoPoster(options.dbl.token, API.client)
 
-            } catch (err) {
-                API.client.emit('error', err)
+            } catch {
             }
         }
     }

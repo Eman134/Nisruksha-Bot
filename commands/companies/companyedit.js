@@ -264,7 +264,7 @@ module.exports = {
 
               if (!(b.user.id === msg.author.id)) return
               
-              b.deferUpdate().catch()
+              if (!b.deferred) b.deferUpdate().then().catch();
               reacted = true;
               collector.stop();
               embed.fields = [];

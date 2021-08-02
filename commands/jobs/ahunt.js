@@ -108,16 +108,17 @@ module.exports = {
         let combo = []
         let session = 0
         collector.on('collect', async (b) => {
-
-            if (!(b.user.id === msg.author.id)) return            
+        
             if (!reactequiplist.includes(b.customId)) return;
+
+            if (!b.deferred) b.deferUpdate().then().catch();
 
             reacted = true;
 
             if (b.customId == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
-                b.deferUpdate().catch().catch()
+                
                 return;
             }
 
@@ -260,7 +261,7 @@ module.exports = {
                 let descartado = []
                 let colocados = []
                 
-                let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*2.5))
+                let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
                 xp = await API.playerUtils.execExp(msg, xp)
                 
                 let retorno = await API.itemExtension.give(msg, drops)
@@ -304,7 +305,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}]**`: ''}`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}]**`: ''}`)
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
@@ -337,8 +338,6 @@ module.exports = {
                     }, 6000)
                 }
 
-                b.deferUpdate().catch().catch()
-
                 return;
                 
             }
@@ -355,15 +354,11 @@ module.exports = {
                     Object.keys(reactequips)
                     eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
                 } else {
-                    if (combo.length >= 3) combo = []
+                    if (combo.length >= 5) combo = []
                     combo.push(API.client.emojis.cache.get(b.customId))
 
-                    if (combo.length >= 3) {
-                        if (combo[0] == combo[1] == combo[2]) {
-                            youhasbeencombedmeuamigo = true
-                        } else if (combo[0] != combo[1] != combo[2]) {
-                            youhasbeencombedmeuamigo = true
-                        }
+                    if (combo.length >= 5) {
+                        youhasbeencombedmeuamigo = true
                     }
 
                 }
@@ -400,7 +395,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                 embed.setTitle(`Caçada`)
                 .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}]${youhasbeencombedmeuamigo ? ' 💥':''}**`: ''}`)
+                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}] ${youhasbeencombedmeuamigo ? ' 💥':''}**`: ''}`)
                     
                 for (const r of equips) {
                     embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
@@ -487,8 +482,6 @@ module.exports = {
             await go()
 
             collector.resetTimer();
-
-            b.deferUpdate().catch().catch()
 
         });
         

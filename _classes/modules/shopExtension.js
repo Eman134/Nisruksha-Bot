@@ -250,13 +250,16 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       if (!stopped) await embedmsg.edit({ embeds: [embed], components });
       collector.resetTimer();
 
-      b.deferUpdate().catch()
+      if (!b.deferred) b.deferUpdate().then().catch();
 
 
   });
   
   collector.on('end', async collected => {
-    await embedmsg.edit({ embeds: [embed], components: [] });
+    try {
+      await embedmsg.edit({ embeds: [embed], components: [] });
+    } catch {
+    }
   });
 
 }
@@ -349,7 +352,7 @@ shopExtension.execute = async function(msg, p) {
     buyed = true;
     collector.stop();
     embed.fields = [];
-    b.deferUpdate().catch()
+    if (!b.deferred) b.deferUpdate().then().catch();
 
     if (b.customId == 'confirm'){
 
@@ -516,9 +519,9 @@ shopExtension.execute = async function(msg, p) {
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
           await embedmsg.edit({ embeds: [embed], components: [] });
           return;
-        }
+    }
       
-      collector.resetTimer();
+    collector.resetTimer();
   });
   
   collector.on('end', collected => {

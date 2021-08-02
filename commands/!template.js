@@ -25,7 +25,7 @@ module.exports = {
             reacted = true;
             collector.stop();
             embed.fields = [];
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `

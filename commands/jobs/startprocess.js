@@ -128,7 +128,7 @@ module.exports = {
 
         let reacted = false
 
-        const custostart = 200
+        const custostart = 100
 
         collector.on('collect', async (b) => {
 
@@ -138,7 +138,7 @@ module.exports = {
             embed.setDescription('')
             current = b.customId
 
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
 
             collector.stop()
             

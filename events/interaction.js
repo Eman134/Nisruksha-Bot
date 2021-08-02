@@ -30,7 +30,7 @@ module.exports = {
 
                 response = true
                 try {
-                    await interaction.defer(true)
+                    if (!interaction.deferred) await interaction.defer(true)
                 } catch {
                     
                 }

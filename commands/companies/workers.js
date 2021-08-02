@@ -108,7 +108,7 @@ module.exports = {
             collector.stop();
             embed.fields = [];
 
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
 
             if ((company.score < price)) {
                 embed.setColor('#a60000');

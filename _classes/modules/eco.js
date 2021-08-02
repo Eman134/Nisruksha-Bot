@@ -218,7 +218,7 @@ eco.getHistory = function (member, n) {
     if (n) {
         return readFileSync(fpath, 'utf8').split('\n')[n];
     } else {
-        let str = readFileSync(fpath, 'utf8').split('\n').slice(0, 5).join("\n");
+        let str = readFileSync(fpath, 'utf8').split('\n').slice(0, 10).join("\n");
         return str.replace(/<nl>/g , "\n");
     }
 }
@@ -251,7 +251,7 @@ eco.addToHistory = async function (member, arg) {
     eco.createHistoryDir(member);
 
     let fpath = `./_localdata/profiles/${member.id}/history.yml`;
-    let content = `\`${API.getFormatedDate()}\` ${arg}`
+    let content = `<t:${Math.round((Date.now())/1000)}:R> ${arg}`
 
     insertLine(fpath).content(content).at(1).then((err) => {
         if (err) {

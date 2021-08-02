@@ -35,7 +35,7 @@ module.exports = {
                 member = msg.mentions.users.first();
             }
         } else {
-            if (msg.options.size == 0) {
+            if (!msg.options.size) {
                 member = msg.author
             } else {
                 member = msg.options.get('membro').user
@@ -83,7 +83,7 @@ module.exports = {
             reacted = true;
             collector.stop()
             embed.fields = [];
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
                 
             if (b.customId == 'upgrade'){
                 if (price > await API.eco.money.get(msg.author)) {

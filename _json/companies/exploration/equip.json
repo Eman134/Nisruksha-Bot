@@ -75,8 +75,8 @@
         "name": "Espada imperial",
         "icon": "<:swords:762798279829749800>",
         "level": 16,
-        "dmg": 25,
-        "chance": 70,
+        "dmg": 20,
+        "chance": 55,
         "crit": 4
     },
     {

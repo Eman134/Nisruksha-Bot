@@ -51,8 +51,8 @@ module.exports = {
         }
         if (!API.isInt(args[1])) boxl = 1
         
-        if (boxl > 10) {
-            const embedtemp = await API.sendError(msg, `Você não pode abrir mais do que 10 caixas simultaneamente!`)
+        if (boxl > 30) {
+            const embedtemp = await API.sendError(msg, `Você não pode abrir mais do que 30 caixas simultaneamente!`)
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
@@ -73,8 +73,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
-            b.deferUpdate().catch()
+            if (!b.deferred) b.deferUpdate().then().catch();
             
             reacted = true;
             collector.stop();

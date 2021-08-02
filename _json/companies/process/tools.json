@@ -338,7 +338,7 @@
             },
             "process": {
                 "current": 0,
-                "max": 3,
+                "max": 2,
                 "maxfragments": 150
             },
             "drops": {
@@ -700,7 +700,7 @@
             },
             "process": {
                 "current": 0,
-                "max": 3,
+                "max": 2,
                 "maxfragments": 310
             },
             "drops": {
