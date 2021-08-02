@@ -16,7 +16,7 @@ module.exports = {
         const tempo = Date.now();
         const args = API.args(msg);
         const query = args.join(' ');
-        const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(API.token, '*').replace(API.ip, '*')
+        const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(API.token, '*').replace(API.db.ip, '*')
 
         if (args.length == 0) {
             const embed = await API.sendError(msg, 'Argumento inexistente')

@@ -1,4 +1,4 @@
-const { prefix, owner, token, ip, app } = require("../_classes/config");
+const { prefix, owner, token, app } = require("../_classes/config");
 const db = require('./db.js');
 const serverdb = {};
 const version = require('../package.json').version
@@ -68,7 +68,6 @@ const API = {
     version,
     token,
     id: app.id,
-    ip,
     lastsave: '',
     cmdsexec: 0,
     // Strings
