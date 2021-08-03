@@ -338,8 +338,6 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
             
             await embedmsg.edit({ embeds, components })
             
-            b.deferUpdate().catch()
-            
         });
         
         collector.on('end', async collected => {
