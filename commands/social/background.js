@@ -12,25 +12,24 @@ module.exports = {
           await msg.quote({ embeds: [embedtemp]})
           return 
         }
-        
-        const attachment = msg.attachments.array()
 
-		    if (attachment.length < 1) {
+		    if (msg.attachments.size < 1) {
             const embedtemp = await API.sendError(msg, 'Você não enviou uma imagem junto do comando!\nRecomendado imagens 1200x750')
             await msg.quote({ embeds: [embedtemp]})
             return;
         }
 
-        let url = attachment[0].url;
+        let attachment = msg.attachments.first()
+        let url = attachment.url;
 
-        if (!attachment[0].name.match(/.(jpg|jpeg|png)$/i)){
-          const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment[0].name.split('.')[attachment[0].name.split('.').length-1]})`)
+        if (!attachment.name.match(/.(jpg|jpeg|png)$/i)){
+          const embedtemp = await API.sendError(msg, `O arquivo que você enviou não é uma imagem!\nFormatos disponíveis: jpg, jpeg, png. (Seu arquivo: ${attachment.name.split('.')[attachment.name.split('.').length-1]})`)
           await msg.quote({ embeds: [embedtemp]})
           return;
         }
 
-        if(attachment[0].size > 1050000) {
-          const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment[0].size/1000000).toFixed(1)}/1 MB**`)
+        if(attachment.size > 1050000) {
+          const embedtemp = await API.sendError(msg, `A imagem que você enviou é muito pesada! Por favor envie uma imagem mais leve.\nTamanho do arquivo: **${(attachment.size/1000000).toFixed(1)}/1 MB**`)
           await msg.quote({ embeds: [embedtemp]})
           return;
         }
