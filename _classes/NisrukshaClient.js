@@ -171,7 +171,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
         const app = express()
 
-        if (options.db.ip != 'localhost') {
+        if (options.db.host != 'localhost') {
             dblCheck(app)
             app.listen(port);
         }

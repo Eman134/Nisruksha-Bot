@@ -2,7 +2,7 @@ const API = require("../api");
 
 module.exports.votos = async (msg) => {
 
-    if (API.db.ip != "localhost" && msg.author.id == '782329664730824784' && msg.channel.id == '761582265741475850') {
+    if (API.db.host != "localhost" && msg.author.id == '782329664730824784' && msg.channel.id == '761582265741475850') {
         try {
 
             const user = await API.client.users.fetch(msg.embeds[0].footer.text.split(' ')[0])
