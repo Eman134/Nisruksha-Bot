@@ -6,7 +6,7 @@ module.exports.votos = async (msg) => {
         try {
 
             if (msg.content.includes('topgg')) {
-                API.client.users.fetch(msg.contet.split(':')[0]).then((user) => {
+                API.client.users.fetch(msg.content.split(':')[0]).then((user) => {
 
                     let size = 1
 
