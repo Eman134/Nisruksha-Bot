@@ -151,7 +151,7 @@ const remembermap = new Map();
 
               }
             }
-          } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
+          } if (keys[i] && (!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
             remembermap.delete(keys[i].memberid)
           }
         }

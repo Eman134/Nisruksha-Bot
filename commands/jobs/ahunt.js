@@ -323,14 +323,16 @@ module.exports = {
 
                 await embedmsg.edit({ embeds: [embed], components, files: [firstbuild.attach] });
 
+                
                 fixedembed = embed
-
+                
                 if (autohunt) {
-
+                    
                     setTimeout(async function(){ 
                         await go() 
                     }, 6000)
                 } else {
+                    if (b && !b.deferred) b.deferUpdate().then().catch();
                     timing = Date.now()
                 }
 
@@ -457,11 +459,6 @@ module.exports = {
                     autohunt = false
                 }
 
-                if (b && !b.deferred) {
-                    b.deferUpdate().then().catch();
-                    b.deferred = true
-                }
-
                 if (autohunt && !dead) {
                     setTimeout(async function(){ 
                         collector.resetTimer();
@@ -472,6 +469,8 @@ module.exports = {
             }
 
             await go()
+
+            if (b && !b.deferred) b.deferUpdate().then().catch();
 
             collector.resetTimer();
 
