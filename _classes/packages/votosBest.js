@@ -1,5 +1,7 @@
 const API = require("../api");
 
+const options = require("../../config");
+
 module.exports.votos = async (msg) => {
 
     if (API.db.host != "localhost" && msg.author.id == '782329664730824784' && msg.channel.id == '761582265741475850') {
