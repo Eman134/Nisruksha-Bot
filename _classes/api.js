@@ -407,7 +407,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
             await msg.quote({ embeds: [voteembed], mention: true})
 			return false;
-        });
+        }).catch();
     }
 	
 	if (API.logs.cmds) {
