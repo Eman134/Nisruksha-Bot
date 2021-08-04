@@ -3,6 +3,9 @@ module.exports = {
     name: "messageCreate",
     execute: async (API, msg) => {
 
+        
+        const channel = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true, force: true, cache: true })
+
         const votosBest = require('../_classes/packages/votosBest.js');
         votosBest.votos(msg)
 
@@ -21,7 +24,7 @@ module.exports = {
                 return await msg.quote({ embeds: [embed]});
         }
 
-        if (!msg.content.toLowerCase().startsWith(prefix) || msg.author.bot || msg.channel.type == "dm") return;
+        if (!msg.content.toLowerCase().startsWith(prefix) || msg.author.bot || channel.type == "dm") return;
 
         const args = msg.content.slice(prefix.length).split(/ +/);
 

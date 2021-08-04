@@ -112,7 +112,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            //if (Date.now()-timing < 0) return
+            if (Date.now()-timing < 0) return
             
             if (!reactequiplist.includes(b.customId)) return;
 

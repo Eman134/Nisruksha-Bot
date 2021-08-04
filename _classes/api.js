@@ -98,7 +98,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     let globalstatus = await API.getGlobalInfo('status');
     let globalman = await API.getGlobalInfo('man');
 
-	let chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true, force: true, cache: true })
+	let chan = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true, force: true, cache: true })
 
     const guild = await API.client.guilds.fetch(msg.guild.id, { force: true, cache: true })
 
@@ -295,10 +295,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     }
     
     let list = [];
-    
-    if (!chan) await API.client.channels.fetch(msg.channel.id, { cache: true, force: true})
-
-    chan = await API.client.channels.cache.get(msg.channel.id, { withOverwrites: true })
 
     const p = chan.permissionsFor(me).toArray()
         
