@@ -5,25 +5,7 @@ module.exports = {
         
         const client = API.client;
 
-        async function pingWebhook() {
-
-
-            const axios = require('axios')
-
-            axios
-            .post('https://daffodil-angry-polonium.glitch.me/onlineporraaaa', {
-                todo: 'Meusovos'
-            })
-            .then(res => {
-            })
-            .catch(error => {
-            })
-
-        }
-
         async function u(){
-
-            pingWebhook()
 
             try{
 
