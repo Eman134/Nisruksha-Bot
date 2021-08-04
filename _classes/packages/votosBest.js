@@ -1,6 +1,6 @@
 const API = require("../api");
 
-const options = require("../../config");
+const options = require("../config");
 
 module.exports.votos = async (msg) => {
 
