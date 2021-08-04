@@ -112,7 +112,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            if (Date.now()-timing < 0) return
+            //if (Date.now()-timing < 0) return
             
             if (!reactequiplist.includes(b.customId)) return;
 
@@ -228,14 +228,7 @@ module.exports = {
                     const attach =  await API.img.getAttachment(background, 'hunt' + session + '.png')
                     return { attach, plost }
                 }
-                
-                let msg2 = await API.img.sendImage(API.client.channels.cache.get('761582265741475850'), background, msg.id);
-                let url = await msg2.attachments.array()[0].url
 
-                try{
-                if (lastmsg) lastmsg.delete()
-                }catch{}
-                lastmsg = msg2
                 return { url, plost };
             }
 
@@ -325,12 +318,9 @@ module.exports = {
                 if (!autohunt) components = [ API.rowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
-				
-                //await embed.setImage(firstbuild.url)
 
                 embed.setImage('attachment://hunt' + session + '.png')
 
-                //await embedmsg.edit({ embeds: [embed], components })//, files: [firstbuild.attach] });
                 await embedmsg.edit({ embeds: [embed], components, files: [firstbuild.attach] });
 
                 fixedembed = embed
@@ -341,7 +331,6 @@ module.exports = {
                         await go() 
                     }, 6000)
                 } else {
-                    if (!b.deferred) b.deferUpdate().then().catch();
                     timing = Date.now()
                 }
 
@@ -410,8 +399,6 @@ module.exports = {
                 
                 let buildlost = await build(lost, true)
                 
-                //await embed.setImage(buildlost.url)
-                //embed.attachFiles([buildlost.attach])
                 embed.setImage('attachment://hunt' + session + '.png')
                 
                 let currmsg = ""
@@ -441,21 +428,16 @@ module.exports = {
 
                 try {
                     if (dead) {
-                        //await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
                         await embedmsg.edit({ embeds: [embed], attachments: [], components: [], files: [buildlost.attach]})
                     } else {
-                        //await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
                         await embedmsg.edit({ embeds: [embed], attachments: [], components, files: [buildlost.attach] })
                     }
-                } catch (err) {
-                    console.log(err)
+                } catch {
                     setTimeout(async function(){
                         try {
                             if (dead) {
-                                //await embedmsg.edit({ embeds: [embed], components: []})//, files: [buildlost.attach]})
                                 await embedmsg.edit({ embeds: [embed], components: [], files: [buildlost.attach]})
                             } else {
-                                //await embedmsg.edit({ embeds: [embed], components})//, files: [buildlost.attach] })
                                 await embedmsg.edit({ embeds: [embed], components, files: [buildlost.attach] })
                             }
                         } catch {
@@ -475,6 +457,11 @@ module.exports = {
                     autohunt = false
                 }
 
+                if (b && !b.deferred) {
+                    b.deferUpdate().then().catch();
+                    b.deferred = true
+                }
+
                 if (autohunt && !dead) {
                     setTimeout(async function(){ 
                         collector.resetTimer();
@@ -489,8 +476,6 @@ module.exports = {
             collector.resetTimer();
 
             timing = Date.now()
-
-            if (!b.deferred) b.deferUpdate().then().catch();
 
         });
         
@@ -508,8 +493,6 @@ module.exports = {
                 embedmsg.edit({ embeds: [fixedembed], components: [] });
                 return;
             
-            } else {
-                
             }
             embed.fields = []
             embed.setTitle(`Oops, o monstro percebeu sua presença!`)

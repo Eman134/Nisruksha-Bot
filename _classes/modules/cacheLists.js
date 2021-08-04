@@ -129,7 +129,7 @@ const remembermap = new Map();
       for (i = 0; i < keys.length; i++) {
         
         if (keys[i]) {
-          if (keys[i]["energia"] && keys[i]["energia"].active){
+          if (keys[i] && keys[i]["energia"] && keys[i]["energia"].active){
             if (keys[i]["energia"] !== undefined) {
               try {
                 const fetched = await API.client.users.fetch(keys[i].memberid)
@@ -140,7 +140,7 @@ const remembermap = new Map();
 
               }
             }
-          } if (keys[i]["estamina"] && keys[i]["estamina"].active){
+          } if (keys[i] && keys[i]["estamina"] && keys[i]["estamina"].active){
             if (keys[i]["estamina"] !== undefined) {
               try {
                 const fetched = await API.client.users.fetch(keys[i].memberid)

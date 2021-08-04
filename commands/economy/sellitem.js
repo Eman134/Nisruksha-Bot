@@ -174,7 +174,7 @@ module.exports = {
             selled = true;
             collector.stop();
             embed.fields = [];
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch();
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `

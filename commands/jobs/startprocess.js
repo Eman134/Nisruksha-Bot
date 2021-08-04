@@ -138,7 +138,7 @@ module.exports = {
             embed.setDescription('')
             current = b.customId
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch();
 
             collector.stop()
             

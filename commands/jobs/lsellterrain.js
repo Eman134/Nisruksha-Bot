@@ -78,7 +78,7 @@ module.exports = {
 
             selled = true;
             collector.stop();
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch();
             embed.fields = [];
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');

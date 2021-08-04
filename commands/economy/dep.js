@@ -75,7 +75,7 @@ module.exports = {
             if (!(b.user.id === msg.author.id)) return
 reacted = true;
             collector.stop();
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch();
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
