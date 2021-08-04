@@ -181,7 +181,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 const Topgg = require("@top-gg/sdk")
 
-                const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
+                /*const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
 
                 app.post("/dblwebhook", webhook.listener(vote => {
 
@@ -201,7 +201,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                     })
 
-                }))
+                }))*/
 
                 API.dbl = new Topgg.Api(options.dbl.token)
 

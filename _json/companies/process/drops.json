@@ -292,7 +292,7 @@
         "displayname": "Dentes de Diamante",
         "icon": "<:diamondtooth:858454474058366986>",
         "rarity": "lendary",
-        "levelprocess": 20,
+        "levelprocess": 25,
         "price": 29000
     },
     {
@@ -300,7 +300,7 @@
         "displayname": "Cabeça de Picareta de Ouro",
         "icon": "<:pickaxehead:858461780141539349>",
         "rarity": "mythic",
-        "levelprocess": 20,
+        "levelprocess": 30,
         "price": 100000
     },
     {
@@ -308,7 +308,7 @@
         "displayname": "Engrenagens Negras",
         "icon": "<:blackgears:858458381467385948>",
         "rarity": "mythic",
-        "levelprocess": 35,
+        "levelprocess": 40,
         "price": 250000
     },
     {
@@ -316,7 +316,7 @@
         "displayname": "Cristal Colorido",
         "icon": "<:colouredcrystal:858459562125426699>",
         "rarity": "mythic",
-        "levelprocess": 40,
-        "price": 500000
+        "levelprocess": 70,
+        "price": 400000
     }
 ]
