@@ -107,18 +107,22 @@ module.exports = {
         let components = []
         let combo = []
         let session = 0
+
+        let timing = Date.now()
+
         collector.on('collect', async (b) => {
-        
+
+            if (Date.now()-timing < 0) return
+            
             if (!reactequiplist.includes(b.customId)) return;
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            timing = Date.now()+5500
 
             reacted = true;
 
             if (b.customId == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
-                
                 return;
             }
 
@@ -336,6 +340,9 @@ module.exports = {
                     setTimeout(async function(){ 
                         await go() 
                     }, 6000)
+                } else {
+                    if (!b.deferred) b.deferUpdate().then().catch();
+                    timing = Date.now()
                 }
 
                 return;
@@ -477,11 +484,13 @@ module.exports = {
 
             }
 
-            //session += 1
-
             await go()
 
             collector.resetTimer();
+
+            timing = Date.now()
+
+            if (!b.deferred) b.deferUpdate().then().catch();
 
         });
         
@@ -499,6 +508,8 @@ module.exports = {
                 embedmsg.edit({ embeds: [fixedembed], components: [] });
                 return;
             
+            } else {
+                
             }
             embed.fields = []
             embed.setTitle(`Oops, o monstro percebeu sua presença!`)
