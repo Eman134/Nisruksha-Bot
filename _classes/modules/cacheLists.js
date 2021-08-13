@@ -133,7 +133,7 @@ const remembermap = new Map();
             if (keys[i]["energia"] !== undefined) {
               try {
                 const fetched = await API.client.users.fetch(keys[i].memberid)
-                const channel = (await API.client.channels.fetch(keys[i]["energia"].channel.id)) || (API.client.channels.cache.get(keys[i]["energia"].channel.id))
+                const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
                 if (!channel) return
                 this.loadold("energia", fetched, channel)
               } catch {
@@ -144,7 +144,7 @@ const remembermap = new Map();
             if (keys[i]["estamina"] !== undefined) {
               try {
                 const fetched = await API.client.users.fetch(keys[i].memberid)
-                const channel = (await API.client.channels.fetch(keys[i]["estamina"].channel.id)) || (API.client.channels.cache.get(keys[i]["estamina"].channel.id))
+                const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
                 if (!channel) return
                 this.loadold("estamina", fetched, channel)
               } catch {
@@ -188,7 +188,7 @@ const remembermap = new Map();
 
     if (!this.includes(member, type)) {
       obj[type].active = true
-      obj[type].channel.id = channelid
+      obj[type].channelid = channelid
       remembermap.set(member.id, obj)
     }
 

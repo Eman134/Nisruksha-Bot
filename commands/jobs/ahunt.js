@@ -112,11 +112,11 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            //if (Date.now()-timing < 0) return
+            if (Date.now()-timing < 0) return
             
             if (!reactequiplist.includes(b.customId)) return;
 
-            timing = Date.now()+5500
+            timing = Date.now()+2500
 
             reacted = true;
 
@@ -339,6 +339,8 @@ module.exports = {
                 return;
                 
             }
+
+            if (b && !b.deferred) b.deferUpdate().then().catch();
             
             if(!inbattle) return
 
@@ -450,7 +452,7 @@ module.exports = {
                         }
                     }, 3000)
                 }
-                if (b && !b.deferred) b.deferUpdate().then().catch();
+                
                 fixedembed = embed
 
                 if (dead) {
