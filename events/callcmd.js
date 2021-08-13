@@ -3,12 +3,8 @@ module.exports = {
     name: "messageCreate",
     execute: async (API, msg) => {
 
-        let channel
-        try {
-        	channel = await API.client.channels.fetch(msg.channel.id, { force: true, cache: true })
-        } catch (e) {
-            API.client.emit('error', e)
-        }
+        
+        const channel = await API.client.channels.fetch(msg.channel.id, { withOverwrites: true, force: true, cache: true })
 
         const votosBest = require('../_classes/packages/votosBest.js');
         votosBest.votos(msg)

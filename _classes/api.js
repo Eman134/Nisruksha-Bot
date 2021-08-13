@@ -384,22 +384,26 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 		return false;
 		
 		
-	} else if (API.client.user.id != '726943606761324645') {
-        const check44 = await API.playerUtils.cooldown.check(msg.author, "alertdelay");
-        if (check44) return true;
-        API.playerUtils.cooldown.set(msg.author, "alertdelay", 500);
+	} else if (API.client.user.id != '726943606761324645' && API.dbl) {
+        API.dbl.hasVoted(msg.author.id).then(async voted => {
+            if (voted) return
+            const check44 = await API.playerUtils.cooldown.check(msg.author, "alertdelay");
+            if (check44) return true;
+            API.playerUtils.cooldown.set(msg.author, "alertdelay", 520);
+            const voteembed = new API.Discord.MessageEmbed()
+            voteembed.setDescription('Olá, vi que você não votou ainda no TOP.GG <:sadpepo:766103572932460585>\nQue tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`')
+            const rd02 = API.random(0, 100)
+            if (rd02 < 30 && perm < 3) {
+                voteembed.setDescription('Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações')
+            } else if (rd02 < 60 && perm < 3) {
+                voteembed.setDescription('Fique por dentro de **NOVIDADES**, **ANÚNCIOS** e principalmente dentro das **REGRAS** para evitar ser banido e ter um bom uso do bot.\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)')
+            }
 
-        const words = [
-            'Que tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`',
-            'Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações',
-            'Fique por dentro de **NOVIDADES**, **ANÚNCIOS** e principalmente dentro das **REGRAS** para evitar ser banido e ter um bom uso do bot.\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)'
-        ]
+            voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
 
-        const alertembed = new API.Discord.MessageEmbed()
-        .setDescription(words[API.random(0, words.length-1)])
-        .setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
-
-        await msg.quote({ embeds: [alertembed], mention: true})
+            await msg.quote({ embeds: [voteembed], mention: true})
+			return false;
+        }).catch();
     }
 	
 	if (API.logs.cmds) {
