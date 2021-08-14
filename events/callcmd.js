@@ -5,7 +5,7 @@ module.exports = {
 
         let channel
         try {
-        	channel = await API.client.channels.fetch(msg.channel.id, { force: true, cache: true })
+        	channel = await API.client.channels.cache.get(msg.channel.id)//fetch(msg.channel.id, { force: true, cache: true })
         } catch (e) {
             API.client.emit('error', e)
         }

@@ -55,8 +55,6 @@ module.exports = {
             ATTACH_FILES: true
         })
 
-        
-        
         let embed = new API.Discord.MessageEmbed()
         .setDescription(`Olá ${member}, detalhe-nos sobre o bug!`)
         .setColor('#443c3c')

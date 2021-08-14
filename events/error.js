@@ -9,7 +9,14 @@ module.exports = {
             .setColor('#b8312c')
             .setTitle('<:error:736274027756388353> Um erro foi encontrado')
             .setDescription(`\`\`\`js\n${err.stack ? err.stack.slice(0, 1000) : err}\`\`\``)
-        if (channel) await channel.send({ embeds: [embed]}).catch();
+
+        if (channel) {
+            try {
+                await channel.send({ embeds: [embed]}).catch();
+            } catch {
+                
+            }
+        }
 
     }
 }

@@ -47,10 +47,10 @@ module.exports = {
                 member = msg.mentions.users.first();
             }
         } else {
-            if (!msg.options.size) {
+            if (msg.options._hoistedOptions.length <= 0) {
                 member = msg.author
             } else {
-                member = msg.options.getMember('membro');
+                member = msg.options._hoistedOptions[0].user;
             }
         }
 

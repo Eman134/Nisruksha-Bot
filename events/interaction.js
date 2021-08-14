@@ -29,18 +29,11 @@ module.exports = {
             if (!response) {
 
                 response = true
-                try {
-                    if (!interaction.deferred) await interaction.defer(true)
-                } catch {
-                    
-                }
+                
+                //if (!interaction.deferred) await interaction.defer(true)
 
-                /*if (Object.keys(x).includes('button') || Object.keys(x).includes('buttons') || Object.keys(x).includes('component') || Object.keys(x).includes('components')) {
-                    const ie = await interaction.editReply('\u200B')
-                    return ie.edit(x)
-                } else {
-                }*/
-                return interaction.editReply(x)
+                return interaction.reply(x)
+
             } else {
                 const message = await interaction.fetchReply();
 
