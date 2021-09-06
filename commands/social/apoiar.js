@@ -67,7 +67,7 @@ module.exports = {
         const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')
           .setTimestamp()
-          .setDescription(`O membro ${msg.author} apoiou ${owner}`)
+          .setDescription(`O membro ${msg.author} apoiou ${owner} (\`${args[0]}\`)`)
           .addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
           .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
           .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))

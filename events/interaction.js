@@ -10,7 +10,7 @@ module.exports = {
 
         interaction.author = interaction.user
 
-        interaction.content = `${API.prefix}${interaction.commandName} ${interaction.options.size > 0 ? interaction.options.map(i => i.value).join(' ') : ''}`.trim()
+        interaction.content = `${API.prefix}${interaction.commandName} ${interaction.options._hoistedOptions.length > 0 ? interaction.options._hoistedOptions.map(i => i.value).join(' ') : ''}`.trim()
 
         interaction.slash = true
 

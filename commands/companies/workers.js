@@ -77,7 +77,7 @@ module.exports = {
         let ownerobj = await API.getInfo(owner, 'players')
         let ownerobj2 = await API.getInfo(owner, 'machines')
 
-        const price = 80
+        const price = 60
         
 		const embed = new Discord.MessageEmbed()
         .setTitle('Score da empresa: ' + company.score.toFixed(2) + ' ⭐')
@@ -94,7 +94,7 @@ module.exports = {
         
         const maxWorkers = await API.company.get.maxWorkers(company.company_id)
 
-        if (maxWorkers >= 8 || company.score.toFixed(2) < price) return await msg.quote({ embeds: [embed] })
+        if (maxWorkers >= 10 || company.score.toFixed(2) < price) return await msg.quote({ embeds: [embed] })
 
         const embedmsg = await msg.quote({ embeds: [embed], components: [ API.rowComponents([API.createButton('up', 'PRIMARY', '', '🔼')]) ] });
         

@@ -135,5 +135,12 @@
         "rem": ["Limite de comandos e ter que estar no servidor oficial"],
         "fix": [],
         "alc": []
+    },
+    "2.1.9": {
+        "add": [],
+        "chn": ["Limite de funcionários máximos [8 -> 10]", "Custo para liberar vaga na empresa [80 -> 60]"],
+        "rem": [],
+        "fix": [],
+        "alc": []
     }
 }

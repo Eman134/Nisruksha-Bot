@@ -58,7 +58,7 @@ module.exports = {
         .addField(`${API.money3emoji} Fichas`, code('js', `${API.format(token)} ${API.money3}`), true)
         .addField(`${API.money2emoji} Cristais`, code('js', `${API.format(points)} ${API.money2}`), true)
         .addField(`${API.tp.emoji} Pontos temporais`, code('js', `${API.format(tp.points)} ${API.tp.name}`), true)
-        .addField('📃 Extrato [5 ações]', `${API.eco.getHistory(member)}`, false)
+        .addField('📃 Extrato [10 ações]', `${API.eco.getHistory(member)}`, false)
         .addField(`📤 Saques`, code('autohotkey', obj.saq), true)
         .addField(`📥 Depósitos`, code('autohotkey', obj.dep), true)
         .addField(`📭 Transferências`, code('autohotkey', obj.tran), true)
