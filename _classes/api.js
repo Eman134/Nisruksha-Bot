@@ -354,6 +354,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.setInfo(msg.author, 'players', 'mvp', null)
         if (perm == 3) API.setPerm(msg.author, 1)
     }
+
+    console.log('6')
     
     const check = await API.playerUtils.cooldown.check(msg.author, "global");
     if (check) {
@@ -367,6 +369,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
     }
+
+    console.log('7')
 
     API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
@@ -385,6 +389,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     API.serverdb.setServerInfo(guild.id, 'cmdsexec', parseInt(totalcmdserver.cmdsexec)+1)
     API.serverdb.setServerInfo(guild.id, 'lastcmd', Date.now())
     
+    console.log('8')
+
 	if (totalcmdplayer.cmdsexec == 0) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
@@ -412,7 +418,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         await msg.quote({ embeds: [alertembed], mention: true})
     }
 
-    console.log('6')
+    console.log('9')
 	
 	if (API.logs.cmds) {
         const embedcmd = new API.Discord.MessageEmbed()
@@ -428,7 +434,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.client.channels.cache.get('768465691547271168').send({ embeds: [embedcmd]});
     }
 
-    console.log('Checando se o comando é de setor')
+    console.log('10')
 
     if (companytype && companytype != 0) {
 
