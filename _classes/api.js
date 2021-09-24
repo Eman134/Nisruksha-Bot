@@ -112,6 +112,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     let arg = API.args(msg);
 
+    console.log('1')
+
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
         const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
         await msg.quote({ embeds: [embedtemp]})
@@ -197,6 +199,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
         
     }
+
+    console.log('2')
     
     
     if (perm == 0) {
@@ -261,6 +265,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
         
     }
+
+    console.log('3')
         
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
@@ -293,6 +299,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             return true;
         }
     }
+
+    console.log('4')
     
     let list = [];
 
@@ -334,6 +342,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             return true;
     }
     
+    console.log('5')
     
     if (pobj.mvp != null && Date.now()-pobj.mvp > 0) {
         const embed = new API.Discord.MessageEmbed()
@@ -358,6 +367,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
     }
+
     API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
     API.cmdsexec++;
@@ -401,6 +411,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
         await msg.quote({ embeds: [alertembed], mention: true})
     }
+
+    console.log('6')
 	
 	if (API.logs.cmds) {
         const embedcmd = new API.Discord.MessageEmbed()
