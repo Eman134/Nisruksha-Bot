@@ -416,6 +416,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.client.channels.cache.get('768465691547271168').send({ embeds: [embedcmd]});
     }
 
+    console.log('Checando se o comando é de setor')
+
     if (companytype && companytype != 0) {
 
         console.log(companytype)
