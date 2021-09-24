@@ -38,17 +38,21 @@ module.exports = {
 
         if (commandfile) {
 
+            console.log('pass1')
+
             try {
                 const boolean = await API.checkAll(msg, { perm: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
                 if (boolean === true) return
                 if (boolean && !commandfile.companytype) return;
-                if (!commandfile.companytype)await commandfile.execute(API, msg, ...args);
+                if (!commandfile.companytype) await commandfile.execute(API, msg, ...args);
                 else await commandfile.execute(API, msg, boolean, ...args);
             } catch (error) {
-                console.error(error);
+                console.log(error);
                 API.client.emit('error', error)
                 await msg.quote({ content: 'Ocorreu um erro ao executar o comando ' + command });
             }
+
+            console.log('pass2')
 
         }
 
