@@ -308,7 +308,7 @@ module.exports = {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
                     if (!autohunt) {
-                        equipsBtn.push(API.createButton(id, 'SECONDARY', r.name, id))
+                        equipsBtn.push(API.createButton(id, 'SECONDARY', '', id))
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
