@@ -38,7 +38,7 @@ module.exports = {
 
         if (commandfile) {
 
-            console.log('pass1')
+            console.log('Executing')
 
             try {
                 const boolean = await API.checkAll(msg, { perm: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
@@ -52,8 +52,6 @@ module.exports = {
                 API.client.emit('error', error)
                 await msg.quote({ content: 'Ocorreu um erro ao executar o comando ' + command });
             }
-
-            console.log('pass2')
 
         }
 

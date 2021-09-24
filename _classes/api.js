@@ -112,11 +112,17 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     let arg = API.args(msg);
 
+    // Verificando o primeiro erro interno
+
+    // Check de canal BETA
+
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
         const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
         await msg.quote({ embeds: [embedtemp]})
         return true
-    }
+    } else console.log('Passed 1')
+
+    // Check se o servidor está banido
     
     if (serverobj.status == 2 && perm < 4) {
         const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
@@ -143,7 +149,9 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
 
         return true;
-    }
+    }  else console.log('Passed 2')
+
+    // Check se o servidor está bloqueado de uso de comandos
 
     if (serverobj.status == 1 && perm < 4) {
         const embed = new API.Discord.MessageEmbed()
@@ -166,8 +174,10 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
 
         return true;
-    }
+    }  else console.log('Passed 3')
     
+    // Check se o bot está em manutenção
+
     if (perm < 4) {
         
         if (globalstatus == 2) {
@@ -196,9 +206,10 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             return true;
         }
         
-    }
+    } else console.log('Passed 4')
     
-    
+    // Check se o membro está banido do bot
+
     if (perm == 0) {
         
         const check = await API.playerUtils.cooldown.check(msg.author, "banned");
@@ -227,7 +238,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
 
         return true;
-    }
+    }  else console.log('Passed 5')
+
     const totalcmdplayer = await API.getInfo(msg.author, 'players');
 
     async function limitedpatrao() {
@@ -247,6 +259,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
     }
 
+    // Checando se o modo de executar comandos está limitado para o membro
     //if (totalcmdplayer.cmdsexec >= 200 || globalstatus == 0) {
     if (globalstatus == 0) {
         try {
@@ -260,8 +273,10 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             if (await limitedpatrao()) return true
         }
         
-    }
+    }  else console.log('Passed 6')
         
+
+    // Checando o tempo de criação da conta do membro < 7 dias
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
         
@@ -280,9 +295,10 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
 
         return true;
-    }
+    } else console.log('Passed 7')
+    
+    // Checando permissão interna de comando
 
-        
     if (req > 1) {
         if (perm < req) {
             const check2 = await API.playerUtils.cooldown.check(msg.author, "antispam");
@@ -291,8 +307,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             const embedtemp = await API.sendError(msg, 'Você não possui permissões necessárias para executar isto.')
             await msg.quote({ embeds: [embedtemp]})
             return true;
-        }
-    }
+        } else console.log('Passed 9')
+    } else console.log('Passed 8')
     
     let list = [];
 
@@ -309,6 +325,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     result = list.join('\n').toString();
 
     //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
+
+    // Checando se o canal possui as permissões para execução
 
     if (result.includes('❌') && perm < 4) {
         try {
@@ -332,8 +350,9 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
             
             return true;
-    }
+    } else console.log('Passed 10')
     
+
     
     if (pobj.mvp != null && Date.now()-pobj.mvp > 0) {
         const embed = new API.Discord.MessageEmbed()
@@ -346,6 +365,9 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         if (perm == 3) API.setPerm(msg.author, 1)
     }
     
+
+    // Antispam de comandos
+
     const check = await API.playerUtils.cooldown.check(msg.author, "global");
     if (check) {
 
@@ -357,7 +379,8 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
         API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
-    }
+    }  else console.log('Passed antispam')
+
     API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
     API.cmdsexec++;
@@ -442,7 +465,9 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
 
         if (company) return company
-    }
+    }  else console.log('Passed 11')
+
+    console.log('Comando executado sem erros')
     
     return false;
 
