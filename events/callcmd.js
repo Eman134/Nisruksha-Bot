@@ -38,12 +38,10 @@ module.exports = {
 
         if (commandfile) {
 
-            console.log('Executing')
-
             try {
                 const boolean = await API.checkAll(msg, { perm: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
-                if (boolean === true) return console.log('returned 1');
-                if (boolean && !commandfile.companytype) return console.log('returned 2');
+                if (boolean === true) return
+                if (boolean && !commandfile.companytype) return
 
                 await commandfile.execute(API, msg, boolean);
 
