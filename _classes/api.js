@@ -112,8 +112,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 
     let arg = API.args(msg);
 
-    console.log('1')
-
     if (API.client.user.id == '726943606761324645' && chan.id !== '703293776788979812' && perm < 4) {
         const embedtemp = await API.sendError(msg, 'Você não pode utilizar o bot BETA neste canal!')
         await msg.quote({ embeds: [embedtemp]})
@@ -199,8 +197,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
         
     }
-
-    console.log('2')
     
     
     if (perm == 0) {
@@ -265,8 +261,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         }
         
     }
-
-    console.log('3')
         
 
     if ((Date.now()-new Date(msg.author.createdAt).getTime()) < 86400000*7) {
@@ -299,8 +293,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             return true;
         }
     }
-
-    console.log('4')
     
     let list = [];
 
@@ -342,7 +334,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
             return true;
     }
     
-    console.log('5')
     
     if (pobj.mvp != null && Date.now()-pobj.mvp > 0) {
         const embed = new API.Discord.MessageEmbed()
@@ -354,8 +345,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.setInfo(msg.author, 'players', 'mvp', null)
         if (perm == 3) API.setPerm(msg.author, 1)
     }
-
-    console.log('6')
     
     const check = await API.playerUtils.cooldown.check(msg.author, "global");
     if (check) {
@@ -369,9 +358,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
     }
-
-    console.log('7')
-
     API.playerUtils.cooldown.set(msg.author, "global", Math.round((4500-(perm*500))/1000));
         
     API.cmdsexec++;
@@ -389,8 +375,6 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
     API.serverdb.setServerInfo(guild.id, 'cmdsexec', parseInt(totalcmdserver.cmdsexec)+1)
     API.serverdb.setServerInfo(guild.id, 'lastcmd', Date.now())
     
-    console.log('8')
-
 	if (totalcmdplayer.cmdsexec == 0) {
 		
 		const voteembed = new API.Discord.MessageEmbed()
@@ -402,23 +386,22 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
 		
 	} else if (API.client.user.id != '726943606761324645') {
         const check44 = await API.playerUtils.cooldown.check(msg.author, "alertdelay");
-        if (check44) return true;
-        API.playerUtils.cooldown.set(msg.author, "alertdelay", 500);
+        if (!check44) {
+            API.playerUtils.cooldown.set(msg.author, "alertdelay", 500);
 
-        const words = [
-            'Que tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`',
-            'Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações',
-            'Fique por dentro de **NOVIDADES**, **ANÚNCIOS** e principalmente dentro das **REGRAS** para evitar ser banido e ter um bom uso do bot.\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)'
-        ]
+            const words = [
+                'Que tal votar para ajudar o bot e ao mesmo tempo receber recompensas?\nUtilize \`' + API.prefix + 'votar\`',
+                'Olá, você sabia que sendo MVP no bot você pode ter diversas vantagens?\nPara adquirir um MVP de forma rápida você pode doar para o bot, assim como ajudar a manter ele online! \nUtilize \`' + API.prefix + 'doar\` e \`' + API.prefix + 'mvp\` para mais informações',
+                'Fique por dentro de **NOVIDADES**, **ANÚNCIOS** e principalmente dentro das **REGRAS** para evitar ser banido e ter um bom uso do bot.\nPara entrar no servidor oficial [CLIQUE AQUI](https://bit.ly/svnisru)'
+            ]
 
-        const alertembed = new API.Discord.MessageEmbed()
-        .setDescription(words[API.random(0, words.length-1)])
-        .setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
+            const alertembed = new API.Discord.MessageEmbed()
+            .setDescription(words[API.random(0, words.length-1)])
+            .setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
 
-        await msg.quote({ embeds: [alertembed], mention: true})
+            await msg.quote({ embeds: [alertembed], mention: true})
+        }
     }
-
-    console.log('9')
 	
 	if (API.logs.cmds) {
         const embedcmd = new API.Discord.MessageEmbed()
@@ -434,17 +417,12 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         API.client.channels.cache.get('768465691547271168').send({ embeds: [embedcmd]});
     }
 
-    console.log('10')
-
     if (companytype && companytype != 0) {
-
-        console.log(companytype)
-
         if (!(await API.company.check.hasCompany(msg.author)) && !(await API.company.check.isWorker(msg.author))) {
             const embedtemp = await API.sendError(msg, `Você deve ser funcionário ou possuir uma empresa de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]} para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
             await msg.quote({ embeds: [embedtemp]})
             return true;
-        } else console.log('passed 1')
+        }
         let company;
         let pobj = await API.getInfo(msg.author, 'players')
         if (await API.company.check.isWorker(msg.author)) {
@@ -453,7 +431,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
                 const embedtemp = await API.sendError(msg, `A empresa onde você trabalha não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\`\nPesquise empresas usando \`${API.prefix}empresas\``)
                 await msg.quote({ embeds: [embedtemp]})
                 return true;
-            } else console.log('passed 2')
+            }
         } else {
             company = await API.company.get.company(msg.author);
             if (company.type != companytype) {
@@ -461,7 +439,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
                 await msg.quote({ embeds: [embedtemp]})
                 return true;
 
-            } else console.log('passed 3')
+            }
         }
 
         if (company) return company
