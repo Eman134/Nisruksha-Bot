@@ -2,6 +2,9 @@ module.exports = {
 
     name: "guildDelete",
     execute: async (API, guild) => {
+
+        if (!guild || !guild.name) return
+
         const client = API.client;
         const Discord = API.Discord;
 
