@@ -157,7 +157,7 @@ module.exports = {
 		background = await API.img.drawText(background, `${res2.name}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 254, 70,3)
 		
         background = await API.img.drawText(background, `Fundador:`, 16, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 213, 185,3)
-		background = await API.img.drawText(background, `@${member.username}`, 16, './resources/fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
+		background = await API.img.drawText(background, `${member.tag} (${member.id})`, 16, './resources/fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
 		
         background = await API.img.drawText(background, `${res2.score.toFixed(2)}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 620, 70,5)
         background = await API.img.drawText(background, `${res2.descr == null ? `Nenhuma descrição da empresa foi definida! ${API.prefix}empresaedit desc`: res2.descr}`, 15, './resources/fonts/Uni-Sans-Light.ttf', '#FFFFFF', 211, 105,3)
