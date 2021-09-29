@@ -40,7 +40,7 @@ async function formatList(API, embed2, page2) {
                 let func = (r.workers == null ? `0/${await API.company.get.maxWorkers(r.company_id)}`: `${r.workers.length}/${await API.company.get.maxWorkers(r.company_id)}`)
                 let locname = API.townExtension.getTownNameByNum(r.loc)
                 let curriculum = r.curriculum == null ? 0 : r.curriculum.length;
-                embed2.addField(`${API.company.e[API.company.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, `Setor: ${API.company.e[API.company.types[r.type]].icon} **${API.company.types[r.type].charAt(0).toUpperCase() + API.company.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`${API.prefix}enviarcurriculo ${r.company_id}\``: `🔴`}`);
+                embed2.addField(`${API.company.e[API.company.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, `Setor: ${API.company.e[API.company.types[r.type]].icon} **${API.company.types[r.type].charAt(0).toUpperCase() + API.company.types[r.type].slice(1)}**\nFundador: \`${owner.tag}\` (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`${API.prefix}enviarcurriculo ${r.company_id}\``: `🔴`}`);
             }
 
         return { totalpages, currentpage: page2 }
