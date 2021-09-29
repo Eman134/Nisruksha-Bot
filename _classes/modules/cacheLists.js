@@ -63,6 +63,8 @@ waiting.remove = function(member, list){
 }
 
 waiting.add = function(member, msg, list) {
+  
+  if (!msg) return
 
   const map = waiting.get(list)
 

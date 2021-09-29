@@ -353,7 +353,7 @@ API.checkAll = async function(msg, { perm: req, mastery: maestria = 0, companyty
         if (check2) return true;
 
         const spamcheckmsg = await API.playerUtils.cooldown.message(msg, 'global', 'digitar outro comando')
-        setTimeout(() => spamcheckmsg.delete(), 5000)
+        setTimeout(() => { if (spamcheckmsg) { spamcheckmsg.delete()} }, 5000)
 
         API.playerUtils.cooldown.set(msg.author, "antispam", 10);
         return true;
