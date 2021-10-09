@@ -1,14 +1,13 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('empresa').setDescription('Digite o código da empresa que deseja enviar o currículo').setRequired(true))
+
 module.exports = {
     name: 'enviarcurriculo',
     aliases: ['enviarcurrículo', 'enviarc'],
     category: 'Empresas',
     description: 'Envia um currículo de trabalho para alguma empresa',
-    options: [{
-        name: 'código-empresa',
-        type: 'STRING',
-        description: 'Digite o código da empresa que deseja enviar o currículo',
-        required: false
-    }],
+    data,
     mastery: 20,
 	async execute(API, msg) {
 

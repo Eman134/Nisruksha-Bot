@@ -3,7 +3,6 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'Veja uma variável e um valor do banco de dados',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

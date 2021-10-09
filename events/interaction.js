@@ -29,6 +29,7 @@ module.exports = {
             if (!response) {
 
                 response = true
+<<<<<<< Updated upstream
                 try {
                     if (!interaction.deferred) await interaction.defer(true)
                 } catch {
@@ -41,6 +42,13 @@ module.exports = {
                 } else {
                 }*/
                 return interaction.editReply(x)
+=======
+                
+                if (!interaction.deferred) await interaction.defer(true)
+
+                return interaction.reply(x)
+
+>>>>>>> Stashed changes
             } else {
                 const message = await interaction.fetchReply();
 

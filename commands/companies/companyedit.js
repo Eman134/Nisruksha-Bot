@@ -1,43 +1,20 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('edição').setDescription('Digite a edição que irá ser realizada')
+  .addChoice('logo', 'logo')
+  .addChoice('desc', 'desc')
+  .addChoice('vagas', 'vagas')
+  .addChoice('nome', 'nome')
+  .addChoice('taxa', 'taxa')
+  .setRequired(true))
+.addStringOption(option => option.setName('valor').setDescription('Digite o valor que a edição necessita').setRequired(true))
+
 module.exports = {
     name: 'empresaedit',
     aliases: ['empresaedit', 'companyedit', 'companyedit'],
     category: 'Empresas',
     description: 'Personalize sua empresa do comando verempresa',
-    options: [{
-      name: 'edição',
-      type: 'STRING',
-      description: 'Digite a edição que irá ser realizada',
-      required: true,
-      choices: [
-          {
-              name: 'logo',
-              value: 'logo'
-          },
-          {
-              name: 'desc',
-              value: 'desc'
-          },
-          {
-              name: 'vagas',
-              value: 'vagas'
-          },
-          {
-              name: 'nome',
-              value: 'nome'
-          },
-          {
-              name: 'taxa',
-              value: 'taxa'
-          }
-      ],
-    },
-    {
-        name: "valor",
-        type: 'STRING',
-        description: 'Digite o valor que a edição necessita',
-        required: false
-    }
-    ],
+    data,
     mastery: 50,
     async execute(API, msg) {
 

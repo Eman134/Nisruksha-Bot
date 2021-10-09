@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['setargstatus', 'gstatus', 'setgs'],
     category: 'none',
     description: 'Modifica o status global do bot',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

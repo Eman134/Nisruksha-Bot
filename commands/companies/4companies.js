@@ -49,17 +49,16 @@ async function formatList(API, embed2, page2) {
 
 }
 
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('página').setDescription('Digite o número da página para pesquisar empresas').setRequired(false))
+
 module.exports = {
     name: 'empresas',
     aliases: ['companies'],
     category: 'Empresas',
     description: 'Visualiza as empresas existentes',
-    options: [{
-        name: 'página',
-        type: 'INTEGER',
-        description: 'Digite o número da página para pesquisar empresas',
-        required: false
-    }],
+    data,
     mastery: 30,
 	async execute(API, msg) {
 

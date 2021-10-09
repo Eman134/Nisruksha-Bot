@@ -1,6 +1,9 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const API = require("./api.js");
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const glob = require('glob');
 
 module.exports = class NisrukshaClient extends Discord.Client {
 
@@ -14,7 +17,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
         this.validate(options)
         this.loadEvents()
         this.loadModules()
-        this.loadCommands()
+        this.loadCommands(options)
         this.loadExpressServer(options)
 
         API.client = this;
@@ -35,18 +38,19 @@ module.exports = class NisrukshaClient extends Discord.Client {
     loadModules() {
 
         API.client = this;
+        API.Discord = Discord;
         require('./packages/quote.js')
 
-        fs.readdir("./_classes/modules/", (err, files) => {
-            if (err) return console.error(err);
-            files.forEach(file => {
-                let eventFunction = require(`./modules/${file}`);
-                API[file.replace('.js', '')] = eventFunction
-            });
+        const files = glob.sync(__dirname + '/modules/*.js')
+        
+        files.forEach(file => {
+            let eventFunction = require(file.replace('.js', ''));
+            const eventName = file.replace('.js', '').replace(__dirname.replace(/\\/g, '/') + '/modules/', "")
+            API[eventName] = eventFunction
         });
 
         API.db = require('./db.js');
-        API.Discord = Discord;
+        
         API.client = this;
 
         console.log(`[MÓDULOS] Carregados`.green)
@@ -64,103 +68,67 @@ module.exports = class NisrukshaClient extends Discord.Client {
         console.log(`[EVENTOS] Carregados`.green)
     }
 
-    loadCommands() {
+    loadCommands(options) {
         const x = new Discord.Collection(undefined, undefined);
         const x2 = new Discord.Collection(undefined, undefined);
 
-        const glob = require('glob');
+        const rest = new REST({ version: '9' }).setToken(this.token);
 
-        glob(__dirname + '/../commands/*/*.js', async function (er, files) {
+        (async () => {
+            try {
+        
+                if (!this.application?.owner) await this.application?.fetch();
 
-            if (!this.application?.owner) await this.application?.fetch();
+                const commandsJson = []
 
-            if (er) {
-                console.log(er)
-                API.client.emit('error', er)
-            }
-            files.forEach(file => {
+                const files = glob.sync(__dirname + '/../commands/*/*.js')
 
-                try {
+                files.forEach(file => {
 
-                    let command = require(file.replace('.js', ''))
+                    try {
 
-                    if (!file.includes('!')) {
-
-                        x.set(command.name, command)
-                        if (!command.aliases) command.aliases = []
-                        for (const r of command.aliases) {
-                            x2.set(r, command)
-                        }
-
-                        API.helpExtension.addCommand(command);
-
-                    };
-
-                } catch (err) {
-                    console.log('Houve um erro ao carregar o comando ' + file)
-                    console.log(err.stack)
-                }
-
-            })
-
-        })
-
-        this.commandsaliases = x2
-
-        this.commands = x
-
-        console.log(`[COMANDOS] Carregados`.green)
-    }
-
-    async loadSlash(log) {
-        const x = new Discord.Collection(undefined, undefined);
-
-        const glob = require('glob');
-
-        let slashc = 0
-
-        glob(__dirname + '/../commands/*/*.js', async function (er, files) {
-
-            if (!this.application?.owner) await this.application?.fetch();
-
-            if (er) {
-                console.log(er)
-                API.client.emit('error', er)
-            }
-           files.forEach(async file => {
-
-                try {
-
-                    let commandfile = require(file.replace('.js', ''))
-
-                    if (!file.includes('!')) {
-
-                        if (commandfile.category != 'none' || commandfile.companytype) {
-                            slashc++
-                            let options = []
-                            if (commandfile.options) options = commandfile.options
-                            let log = true
-                            try {
-                                await API.client.application?.commands.create({ name: commandfile.name, description: commandfile.category + ' | ' + commandfile.description, options }).then((cmd) => { if (log) console.log('reloaded slash ' + cmd.name)})
-                            } catch (error) {
-                                console.log(error)
-                                console.log('Um erro ocorreu ao carregar o comando ' + commandfile.name)
+                        if (!file.includes('!')) {
+                            
+                            let command = require(file.replace('.js', ''))
+                            x.set(command.name, command)
+                            if (!command.aliases) command.aliases = []
+                            for (const r of command.aliases) {
+                                x2.set(r, command)
                             }
-                        }
 
-                    };
+                            API.helpExtension.addCommand(command);
+                            if (command.data && command.category != "none") {
+                                command.data.setName(command.name)
+                                command.data.setDescription(command.category + ' | ' + command.description)
+                                commandsJson.push(command.data.toJSON());
+                            }
 
-                } catch (err) {
-                    console.log('Houve um erro ao carregar o comando slash ' + file)
-                    console.log(err.stack)
-                }
+                        };
 
-            })
+                    } catch (err) {
+                        console.log('Houve um erro ao carregar o comando ' + file)
+                        console.log(err.stack)
+                    }
 
-        })
+                })
 
-        this.commands = x
+                await rest.put(
+                    Routes.applicationCommands(options.app.id),
+                    { body: commandsJson },
+                );
 
+                this.commandsaliases = x2
+
+                this.commands = x
+
+                console.log(`[COMANDOS] Carregados`.green)
+
+            } catch (error) {
+                console.error(error);
+            }
+        })();
+
+        
     }
 
     loadExpressServer(options) {
@@ -220,11 +188,9 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
         process.on("uncaughtException", (err) => {
             API.client.emit('error', err)
-            console.log(err)
         })
         process.on("unhandledRejection", (err) => {
             API.client.emit('error', err)
-            console.log(err)
         })
 
     }

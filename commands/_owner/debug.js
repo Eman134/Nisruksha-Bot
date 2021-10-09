@@ -3,7 +3,6 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'none',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

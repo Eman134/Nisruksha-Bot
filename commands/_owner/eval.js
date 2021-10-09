@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['evaluate', 'ev'],
     category: 'none',
     description: 'Executa um código em javascript',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
         

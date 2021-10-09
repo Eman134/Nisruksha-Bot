@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['limpar', 'purge'],
     category: 'none',
     description: 'none',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

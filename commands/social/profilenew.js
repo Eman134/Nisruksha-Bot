@@ -9,9 +9,9 @@ async function loadbg() {
 }
 
 module.exports = {
-    name: 'perfil',
-    aliases: ['p', 'profile', 'level'],
-    category: 'Social',
+    name: 'pnew',
+    aliases: [],
+    category: 'none',
     description: 'Veja suas informações como nível e tenha um perfil bonito',
     mastery: 6,
     options: [{

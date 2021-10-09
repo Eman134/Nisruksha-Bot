@@ -1,15 +1,13 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para depósito').setRequired(true))
+
 module.exports = {
     name: 'depositar',
     aliases: ['dep'],
     category: 'Economia',
     description: 'Deposita uma quantia de dinheiro no banco central',
-    options: [
-        {
-            name: 'quantia',
-            type: 'STRING',
-            description: 'Selecione uma quantia de dinheiro para depósito',
-            required: true
-        }],
+    data,
     mastery: 20,
 	async execute(API, msg) {
 
@@ -73,7 +71,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
-reacted = true;
+            reacted = true;
             collector.stop();
             if (!b.deferred) b.deferUpdate().then().catch();
             if (b.customId == 'cancel'){

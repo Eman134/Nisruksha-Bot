@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['svar'],
     category: 'none',
     description: 'Seta uma variável e um valor no banco de dados',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

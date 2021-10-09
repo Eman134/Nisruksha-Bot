@@ -1,35 +1,27 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('lista')
+        .setDescription('Veja a lista de currículos atual'))
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('aceitar')
+        .setDescription('Aceita ou nega um currículo na sua empresa')
+        .addIntegerOption(option => option.setName('id-currículo').setDescription('Digite o id do currículo para aceitar ou negar').setRequired(true)))
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('negar')
+        .setDescription('Aceita ou nega um currículo na sua empresa')
+        .addIntegerOption(option => option.setName('id-currículo').setDescription('Digite o id do currículo para aceitar ou negar').setRequired(true)))
+
 module.exports = {
     name: 'currículos',
     aliases: ['curriculos', 'curr', 'vercurri', 'curriculo', 'currículo'],
     category: 'Empresas',
     description: 'Visualiza os currículos pendentes da sua empresa',
-    options: [{
-        name: 'ação',
-        type: 'STRING',
-        description: 'Digite a ação que irá ser realizada',
-        required: true,
-        choices: [
-            {
-                name: 'lista',
-                value: 'lista'
-            },
-            {
-                name: 'aceitar',
-                value: 'aceitar'
-            },
-            {
-                name: 'negar',
-                value: 'negar'
-            }
-        ]
-    },
-    {
-        name: 'id-currículo',
-        type: 'INTEGER',
-        description: 'Digite o id do currículo para aceitar ou negar',
-        required: false
-    }
-    ],
+    data,
     mastery: 50,
 	async execute(API, msg) {
 

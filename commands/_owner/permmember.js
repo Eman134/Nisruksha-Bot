@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['permmember', 'setmperm', 'setmp'],
     category: 'none',
     description: 'Seta a permissão de algum membro',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

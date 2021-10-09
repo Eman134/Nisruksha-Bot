@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['gerarchave', 'gchave', 'gkey', 'genkey'],
     category: 'none',
     description: 'Gera uma chave de ativação com um produto de recompensa',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 

@@ -7,21 +7,19 @@ let bg
 loadbg()
 
 async function loadbg() {
-    bg = await API.img.loadImage(`resources/backgrounds/company/background.png`)
+	bg = await API.img.loadImage(`resources/backgrounds/company/background.png`)
 }
 
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('empresa').setDescription('Digite o código da empresa para ver as informações dela').setRequired(false))
 
 module.exports = {
 	name: 'verempresa',
 	aliases: ['seecompany', 'veremp', 'seecomp'],
     category: 'Empresas',
     description: 'Visualiza as informações da empresa onde você presta serviço ou de alguma existente',
-	options: [{
-        name: 'empresa',
-        type: 'STRING',
-        description: 'Digite o código da empresa para ver as informações dela',
-        required: false
-    }],
+	data,
     mastery: 60,
 	async execute(API, msg) {
 		

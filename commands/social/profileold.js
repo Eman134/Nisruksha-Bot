@@ -9,8 +9,8 @@ async function loadbg() {
 }
 
 module.exports = {
-    name: 'pold',
-    aliases: [],
+    name: 'perfil',
+    aliases: ['p', 'profile', 'level'],
     category: 'Social',
     description: 'Veja suas informações como nível e tenha um perfil bonito',
     mastery: 6,

@@ -1,20 +1,14 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('setor').setDescription('Digite o nome do setor para abrir').setRequired(true))
+.addStringOption(option => option.setName('nome').setDescription('Digite o nome da empresa').setRequired(true))
+
 module.exports = {
     name: 'abrirempresa',
     aliases: ['criarempresa', 'opencompany', 'abrire'],
     category: 'Empresas',
     description: 'Abra uma empresa de algum setor em seu nome e customize-a',
-    options: [{
-        name: 'setor',
-        type: 'STRING',
-        description: 'Digite o nome do setor para abrir',
-        required: false
-    },
-    {
-        name: 'nome',
-        type: 'STRING',
-        description: 'Digite o nome da empresa',
-        required: false
-    }],
+    data,
     mastery: 60,
 	async execute(API, msg) {
 

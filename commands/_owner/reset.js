@@ -3,7 +3,6 @@ module.exports = {
     aliases: ['resetar'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
-    options: [],
     perm: 5,
 	async execute(API, msg) {
 
