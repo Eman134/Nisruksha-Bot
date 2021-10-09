@@ -116,7 +116,6 @@ module.exports = async function execute(API, options) {
     
     // Barras de cores
     
-    ctx.beginPath();
     if (options.perm > 1 || options.profile_color > 0) {
         
         let gradcolor = 0
@@ -128,7 +127,6 @@ module.exports = async function execute(API, options) {
         runColor(387, 154, 782, 2, options.boxescolor, gradcolor)
         
     }
-    ctx.closePath();
 
     // Badges
 
@@ -241,15 +239,16 @@ module.exports = async function execute(API, options) {
                 gradient.addColorStop(0.8484848484848485, "rgb(28, 94, 237)");
                 gradient.addColorStop(0.9545454545454546, "rgb(129, 28, 237)");
                 gradient.addColorStop(1, "rgb(129, 28, 237)");
+                ctx.closePath();
                 ctx.fillStyle = gradient;
                 ctx.fillRect(loc1, loc2, widthw, heightw);
                 break;
             default:
+                ctx.closePath();
                 ctx.fillStyle = color;
                 ctx.fillRect(loc1, loc2, widthw, heightw);
                 break;
         }
-        ctx.closePath();
         
     }
 
