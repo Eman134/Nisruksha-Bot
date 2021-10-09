@@ -154,7 +154,7 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error); 
+                        if (b && !b.deferred) b.deferUpdate().then().catch(console.error); 
                     }
                 });
 

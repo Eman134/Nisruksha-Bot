@@ -330,7 +330,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                 }
             }
 
-            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             collector.resetTimer()
             

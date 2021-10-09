@@ -72,7 +72,7 @@ Você deseja demitir ${member} 🡮 \`${member.tag}\` 🡮 \`${member.id}\` da e
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === msg.author.id)) return
-            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             reacted = true;
             embed.fields = []
             collector.stop();

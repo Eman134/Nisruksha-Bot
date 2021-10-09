@@ -83,7 +83,7 @@ module.exports = {
             reacted = true;
             collector.stop()
             embed.fields = [];
-            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
                 
             if (b.customId == 'upgrade'){
                 if (price > await API.eco.money.get(msg.author)) {

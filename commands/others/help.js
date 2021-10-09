@@ -90,7 +90,7 @@ ${API.helpExtension.getCategoryList()}`)
             await embedmsg.edit({ embeds: [embed], components})
 
             collector.resetTimer()
-            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             
         });
         

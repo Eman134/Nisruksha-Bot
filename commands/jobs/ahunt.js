@@ -332,7 +332,7 @@ module.exports = {
                         await go() 
                     }, 6000)
                 } else {
-                    if (b && !b.deferred) interaction.deferUpdate().then(console.log).catch(console.error);
+                    if (b && !b.deferred) interaction.deferUpdate().then().catch(console.error);
                     timing = Date.now()
                 }
 
@@ -340,7 +340,7 @@ module.exports = {
                 
             }
 
-            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             
             if(!inbattle) return
 

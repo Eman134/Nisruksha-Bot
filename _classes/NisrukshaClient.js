@@ -7,8 +7,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
     constructor(options = {}) {
         super({
             allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
-            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'],
-            restRequestTimeout: 30000
+            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS']
         })
 
         console.log(' ');
