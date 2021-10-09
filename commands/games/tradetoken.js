@@ -80,7 +80,7 @@ module.exports = {
 
             if (!(b.user.id === msg.author.id)) return
 
-            if (b && !b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
             reacted = true;
             collector.stop();
             if (b.customId == 'cancel'){

@@ -145,7 +145,7 @@ module.exports = {
             if (!(b.user.id === msg.author.id)) return
 reacted = true;
             collector.stop();
-            if (b && !b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
             const embed = new API.Discord.MessageEmbed()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');

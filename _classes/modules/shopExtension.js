@@ -250,7 +250,7 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       if (!stopped) await embedmsg.edit({ embeds: [embed], components });
       collector.resetTimer();
 
-      if (b && !b.deferred) b.deferUpdate().then().catch();
+      if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
 
 
   });
@@ -352,7 +352,7 @@ shopExtension.execute = async function(msg, p) {
     buyed = true;
     collector.stop();
     embed.fields = [];
-    if (b && !b.deferred) b.deferUpdate().then().catch();
+    if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
 
     if (b.customId == 'confirm'){
 

@@ -87,7 +87,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             selected = b.customId;
-            if (b && !b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
             reacted = true
 
             let array = [];

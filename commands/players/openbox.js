@@ -73,7 +73,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (b && !b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then(console.log).catch(console.error);
             
             reacted = true;
             collector.stop();
