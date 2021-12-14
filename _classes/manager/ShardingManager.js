@@ -4,7 +4,7 @@ class ShardManager extends ShardingManager {
 
     constructor(options = {}) {
 
-        super('./bot.js', {
+        super('./index.js', {
             totalShards: options.sharding.shardAmount,
             token: options.app.token
         })

@@ -1,12 +1,14 @@
+const ShardingManager = require('./_classes/manager/ShardingManager');
+const config = require('./_classes/config');
+require('colors')
 
-require("colors")
+new ShardingManager(config).connect()
+    .then(() => {
+        console.log('Conectado com sucesso!'.green)
+    })  
 
-// Iniciar client
-const NisrukshaClient = require('./_classes/NisrukshaClient')
-
-const config = require("./_classes/config")
-
-const client = new NisrukshaClient(config)
-
-client.login()
-
+    .catch(err => {             
+        console.log('Erro ao conectar'.red)
+        console.log(err)
+    }
+)

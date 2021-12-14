@@ -175,8 +175,12 @@ module.exports = class NisrukshaClient extends Discord.Client {
     }
 
     async login(token = this.token) {
-        super.login(token)
-        API.client = this
+        try {
+            super.login(token)
+            API.client = this
+        } catch {
+            
+        }
 
         process.on("uncaughtException", (err) => {
             API.client.emit('error', err)
