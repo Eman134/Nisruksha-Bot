@@ -15,19 +15,20 @@ module.exports = {
                 client.emit('error', err)
                 console.log(err)
             }
-            client.sweepMessages(1800);
-            client.emojis.cache.sweep((emoji) => {
-                if (emoji.guild.name.includes('Emotes') || trustedguilds.includes(emoji.guild.id)) {
-                    return false
-                }
-                console.log(`Removendo emoji ${emoji.name}`)
-                return true
-            })
         }
         u()
         setInterval(async() => {
             u()
         }, 60000);
+        setInterval(async() => {
+            client.sweepMessages(1800);
+            client.emojis.cache.sweep((emoji) => {
+                if (emoji.guild.name.includes('Emotes') || trustedguilds.includes(emoji.guild.id)) {
+                    return false
+                }
+                return true
+            })
+        }, 1800000);
         const moment = require('moment')
         moment.suppressDeprecationWarnings = true;
         
