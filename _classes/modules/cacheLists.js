@@ -86,12 +86,12 @@ const remembermap = new Map();
 
     let from
     let to
-    let time = 0
+    var time = 0
 
     switch (type) {
       case "energia":
 
-        const { energia, energiamax, time } = await API.maqExtension.getEnergy(user_id)
+        var { energia, energiamax, time } = await API.maqExtension.getEnergy(user_id)
         
         from = energia
         to = energiamax
