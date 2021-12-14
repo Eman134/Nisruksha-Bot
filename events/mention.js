@@ -16,7 +16,9 @@ module.exports = {
 
             let commandfile = API.client.commands.get(command)
             if (commandfile) {
-                return interaction.channel.send('Os comandos do NISRUKSHA foram migrados para **SLASH (/)**')
+                interaction.commandName = 'MIGRAÇÃO'
+                API.client.emit('fail', { interaction, type: 'Atualização', sendMe: true, desc: 'Os comandos do NISRUKSHA foram migrados para **SLASH (/)**\nMencione o bot para entrar no servidor oficial e tirar suas dúvidas!' })
+                return true;
             }
         }
 

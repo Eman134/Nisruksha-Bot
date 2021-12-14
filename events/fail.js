@@ -6,6 +6,8 @@ module.exports = {
         if (!API.logs.falhas) return
 
         try {
+
+            interaction.author ? interaction.user = interaction.author : null
             
             const embedfail = new API.Discord.MessageEmbed()
             .setColor('#b8312c')
@@ -15,8 +17,8 @@ module.exports = {
             .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
             .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
     
-            if (interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
-    
+            if (!interaction.content && interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
+            
             const failObject = { embeds: [embedfail], ephemeral: true }
     
             API.client.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
