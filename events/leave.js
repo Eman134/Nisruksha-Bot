@@ -8,13 +8,8 @@ module.exports = {
         const client = API.client;
         const Discord = API.Discord;
 
+        DatabaseManager.set(guild.id, 'servers', 'lastcmd', 0, 'server_id')
 
-        try {
-            await DatabaseManager.query(`UPDATE servers SET lastcmd = $1 WHERE server_id=${guild.id};`, [0]);
-        } catch (err) {
-            client.emit('error', err)
-            console.log(err)
-        }
 
         let owner = { id: '0', tag: '0#0'}
         try {

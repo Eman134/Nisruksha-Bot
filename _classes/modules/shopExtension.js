@@ -202,10 +202,6 @@ shopExtension.getShopList = function() {
     return '**' + array.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
 }
 
-shopExtension.setShopObject = function(shop) {
-  shopExtension.obj = shop;
-}
-
 shopExtension.categoryExists = function(cat) {
   const obj = shopExtension.getShopObj();
   let array = Object.keys(obj);
@@ -536,7 +532,7 @@ shopExtension.forceDiscount = async function() {
 
   }
 
-  shopExtension.setShopObj(obj)
+  shopExtension.obj = obj;
 
 }
 
