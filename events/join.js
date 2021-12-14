@@ -1,3 +1,6 @@
+const Database = require("../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
 
     name: "guildCreate",

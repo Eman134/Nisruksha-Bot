@@ -1,8 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja as moedas e o histórico de transação de algum membro'))
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
 
 module.exports = {
     name: 'dinheiro',
