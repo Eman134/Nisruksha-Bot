@@ -62,8 +62,8 @@ module.exports = {
             return;
         }
 
-        if (aposta > 5000) {
-            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `blackjack <aposta>`)
+        if (aposta > 2500) {
+            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 2500 fichas!`, `blackjack <aposta>`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -405,7 +405,7 @@ module.exports = {
 
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
 
-                    if (member == null && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
+                    if (member.id == API.id && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
 
                         function getBotPlay() {
                             const botPlay = {
