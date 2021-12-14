@@ -182,7 +182,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `/tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `/apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `/meucodigo`')
         voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
-        await interaction.followUp({ embeds: [voteembed], mention: true})
+        if (interaction.replied) await interaction.followUp({ embeds: [voteembed], mention: true})
 		return false;
 		
 		
@@ -201,7 +201,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
             .setDescription(words[API.random(0, words.length-1)])
             .setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
 
-            await interaction.followUp({ embeds: [alertembed], mention: true})
+            if (interaction.replied) await interaction.followUp({ embeds: [alertembed], mention: true})
         }
     }
 	
