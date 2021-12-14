@@ -282,7 +282,7 @@ module.exports = {
                     let qnt = sizeMap.get(ore.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
-                    embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
+                    embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring && chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
                     if (chipe7) {
                         const minerioatual = itensObj.minerios.find((i) => i.name == ore.name)
                         const totalchipe7 = Math.round(qnt*(minerioatual.price.min))
