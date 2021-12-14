@@ -32,7 +32,8 @@ module.exports = {
         const moment = require('moment')
         moment.suppressDeprecationWarnings = true;
         
-        console.log(`\n         Bot iniciado.\n`.green);
+        console.log(`\n         Bot iniciado.`.green);
+        console.log(`         Versão ${API.version}\n`.green)
 
         API.cacheLists.remember.load()
         API.company.jobs.process.load()

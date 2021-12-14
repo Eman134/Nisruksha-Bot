@@ -6,6 +6,20 @@ module.exports = {
         const votosBest = require('../_classes/packages/votosBest.js');
         votosBest.votos(interaction)
 
+        const prefix = "n."
+
+        if (interaction.content.startsWith(prefix)) {
+
+            const args = interaction.content.slice(prefix.length).split(/ +/);
+    
+            const command = args.shift().toLowerCase();
+
+            let commandfile = API.client.commands.get(command)
+            if (commandfile) {
+                return interaction.channel.send('Os comandos do NISRUKSHA foram migrados para **SLASH (/)**')
+            }
+        }
+
         const mentionRegex = new RegExp(`^<@!?${API.client.user.id}>$`);
         
         if (interaction.content.match(mentionRegex)) {
