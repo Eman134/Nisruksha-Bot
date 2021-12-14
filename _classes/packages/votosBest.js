@@ -2,7 +2,7 @@ const API = require("../api");
 
 module.exports.votos = async (interaction) => {
 
-    if (API.ip != "localhost" && interaction.user.id == '782329664730824784' && interaction.channel.id == '761582265741475850') {
+    if (API.ip != "localhost" && interaction.author.id == '782329664730824784' && interaction.channel.id == '761582265741475850') {
         try {
 
             const user = await API.client.users.fetch(interaction.embeds[0].footer.text.split(' ')[0])
