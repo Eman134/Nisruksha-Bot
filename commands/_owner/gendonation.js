@@ -37,7 +37,7 @@ module.exports = {
             
             if (b.customId == 'cancel') return collector.stop();
             embed.fields = [];
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             await DatabaseManager.increment(API.id, 'globals', 'totaldonates', donate);
             await DatabaseManager.increment(API.id, 'globals', 'donates', 1);

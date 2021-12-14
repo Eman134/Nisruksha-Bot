@@ -79,7 +79,7 @@ module.exports = {
         let ownerobj = await DatabaseManager.get(owner.id, 'players')
         let ownerobj2 = await DatabaseManager.get(owner.id, 'machines')
 
-        const price = 80
+        const price = 60
         
 		const embed = new Discord.MessageEmbed()
         .setTitle('Score da empresa: ' + company.score.toFixed(2) + ' ⭐')
@@ -110,7 +110,7 @@ module.exports = {
             collector.stop();
             embed.fields = [];
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             if ((company.score < price)) {
                 embed.setColor('#a60000');

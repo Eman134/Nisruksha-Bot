@@ -108,7 +108,7 @@ module.exports = {
 
             if (!(b.user.id === interaction.user.id)) return
             
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             if (b.customId == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;

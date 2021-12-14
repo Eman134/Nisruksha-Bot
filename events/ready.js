@@ -8,6 +8,7 @@ module.exports = {
         const client = API.client;
 
         async function u(){
+
             try{
                 client.user.setActivity(`[${API.version}] Prefixo / | Tempo online: ${API.uptime()}`);
             }catch (err){
@@ -31,7 +32,7 @@ module.exports = {
         moment.suppressDeprecationWarnings = true;
         
         console.log(`\n         Bot iniciado.\n`.green);
-        
+
         API.cacheLists.remember.load()
         API.company.jobs.process.load()
         API.shopExtension.load()

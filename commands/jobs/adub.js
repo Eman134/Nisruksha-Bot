@@ -74,7 +74,7 @@ module.exports = {
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             collector.stop();
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             
             embed.fields = [];
 

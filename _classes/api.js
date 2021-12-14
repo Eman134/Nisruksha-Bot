@@ -21,7 +21,6 @@ const API = {
     version,
     token,
     id: app.id,
-    ip,
     lastsave: '',
     cmdsexec: 0,
     playerscmds: [],

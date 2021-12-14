@@ -90,7 +90,7 @@ ${API.helpExtension.getCategoryList()}`)
             await interaction.editReply({ embeds: [embed], components })
 
             collector.resetTimer()
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             
         });
         

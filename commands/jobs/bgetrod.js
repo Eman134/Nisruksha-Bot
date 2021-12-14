@@ -66,7 +66,7 @@ module.exports = {
             if (pobj2.rod == null) delete pobj2.rod
             let pobj3 = await DatabaseManager.get(interaction.user.id, 'machines')
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');

@@ -107,17 +107,18 @@ module.exports = {
         let components = []
         let combo = []
         collector.on('collect', async (b) => {
-        
+
+            if (Date.now()-timing < 0) return
+            
             if (!reactequiplist.includes(b.customId)) return;
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            timing = Date.now()+2500
 
             reacted = true;
 
             if (b.customId == 'run' && inbattle == false) {
                 reacted = true
                 collector.stop();
-                
                 return;
             }
 
@@ -333,26 +334,30 @@ module.exports = {
                 if (!autohunt) components = [ API.rowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
-				
-                //await embed.setImage(firstbuild.url)
 
                 embed.setImage('attachment://image.png')
 
                 //await interaction.editReply({ embeds: [embed], components })//, files: [firstbuild.attach] });
                 await interaction.editReply({ embeds: [embed], components, files: [firstbuild.attach] });
 
+                
                 fixedembed = embed
-
+                
                 if (autohunt) {
-
+                    
                     setTimeout(async function(){ 
                         await go() 
                     }, 6000)
+                } else {
+                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                    timing = Date.now()
                 }
 
                 return;
                 
             }
+
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             
             if(!inbattle) return
 
@@ -450,8 +455,7 @@ module.exports = {
                         //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
                         await interaction.editReply({ embeds: [embed], attachments: [], components, files: [buildlost.attach] })
                     }
-                } catch (err) {
-                    console.log(err)
+                } catch {
                     setTimeout(async function(){
                         try {
                             if (dead) {
@@ -469,6 +473,7 @@ module.exports = {
                         }
                     }, 3000)
                 }
+                
                 fixedembed = embed
 
                 if (dead) {
@@ -487,11 +492,11 @@ module.exports = {
 
             }
 
-            //session += 1
-
             await go()
 
             collector.resetTimer();
+
+            timing = Date.now()
 
         });
         

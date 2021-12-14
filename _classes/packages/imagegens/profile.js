@@ -103,7 +103,6 @@ module.exports = async function execute(API, options) {
     // Barra de progresso
     ctx.strokeStyle = options.boxescolor;
     ctx.lineWidth = 10;
-    ctx.beginPath();
     ctx.moveTo(0, 745);
     ctx.lineTo(width*percent/100, 745);
     ctx.closePath();
@@ -113,15 +112,15 @@ module.exports = async function execute(API, options) {
     // Barras de cores
     
     if (options.perm > 1 || options.profile_color > 0) {
-
+        
         let gradcolor = 0
-
+        
         if (options.profile_color > 0) gradcolor = options.profile_color
-
+        
         runColor(387, 91, 593, 2, options.boxescolor, gradcolor)
         runColor(1006, 91, 163, 2, options.boxescolor, gradcolor)
         runColor(387, 154, 782, 2, options.boxescolor, gradcolor)
-
+        
     }
 
     // Checando moldura e avatar
@@ -152,6 +151,7 @@ module.exports = async function execute(API, options) {
     return attachment
 
     function runColor(loc1, loc2, widthw, heightw, color, type){
+        ctx.beginPath();
         switch (type) {
             case 1:
                 var gradient = ctx.createLinearGradient(0, 0, 170, 0);
@@ -164,16 +164,14 @@ module.exports = async function execute(API, options) {
                 gradient.addColorStop(0.8484848484848485, "rgb(28, 94, 237)");
                 gradient.addColorStop(0.9545454545454546, "rgb(129, 28, 237)");
                 gradient.addColorStop(1, "rgb(129, 28, 237)");
-                ctx.beginPath();
+                ctx.closePath();
                 ctx.fillStyle = gradient;
                 ctx.fillRect(loc1, loc2, widthw, heightw);
-                ctx.closePath();
                 break;
             default:
-                ctx.beginPath();
+                ctx.closePath();
                 ctx.fillStyle = color;
                 ctx.fillRect(loc1, loc2, widthw, heightw);
-                ctx.closePath();
                 break;
         }
         

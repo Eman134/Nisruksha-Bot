@@ -8,7 +8,7 @@ const data = new SlashCommandBuilder()
 
 module.exports = {
 	name: 'verempresa',
-	aliases: ['seecompany', 'veremp', 'seecomp'],
+	aliases: ['empresa', 'seecompany', 'veremp', 'seecomp'],
     category: 'Empresas',
     description: 'Visualiza as informações da empresa onde você presta serviço ou de alguma existente',
 	data,

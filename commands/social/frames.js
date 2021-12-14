@@ -74,7 +74,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             collector.resetTimer();
 
             API.playerUtils.cooldown.set(interaction.user.id, "molduras", 30);

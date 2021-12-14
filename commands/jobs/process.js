@@ -333,15 +333,13 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                 }
             }
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
             collector.resetTimer()
             
             const components = reworkButtons(current)
             
             await interaction.editReply({ embeds, components })
-            
-            b.deferUpdate().catch()
             
         });
         

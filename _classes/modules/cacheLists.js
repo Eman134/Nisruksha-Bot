@@ -131,7 +131,7 @@ const remembermap = new Map();
       for (i = 0; i < keys.length; i++) {
         
         if (keys[i]) {
-          if (keys[i]["energia"] && keys[i]["energia"].active){
+          if (keys[i] && keys[i]["energia"] && keys[i]["energia"].active){
             if (keys[i]["energia"] !== undefined) {
               try {
                 const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
@@ -141,7 +141,7 @@ const remembermap = new Map();
 
               }
             }
-          } if (keys[i]["estamina"] && keys[i]["estamina"].active){
+          } if (keys[i] && keys[i]["estamina"] && keys[i]["estamina"].active){
             if (keys[i]["estamina"] !== undefined) {
               try {
                 const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
@@ -151,7 +151,7 @@ const remembermap = new Map();
 
               }
             }
-          } if ((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active)) {
+          } if (((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active))) {
             remembermap.delete(keys[i].memberid)
           }
         }

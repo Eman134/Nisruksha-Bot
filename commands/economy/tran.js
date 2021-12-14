@@ -109,7 +109,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === interaction.user.id)) return
-if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().then().catch();
             reacted = true;
             collector.stop();
             if (b.customId == 'cancel'){
