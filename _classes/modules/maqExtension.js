@@ -51,7 +51,7 @@ ores.gen = async function(maq, profundidade, chips) {
             if (oreobj[i].name.includes('fragmento')) {
               if (genchips.chipe5) {
                 oreobj[i].size = API.random(2, 4);
-                array.push({ oreobj: oreobj[i], orechips: { chipe5 } })
+                array.push({ oreobj: oreobj[i], orechips: { chipe5: genchips["chipe5"] } })
               }
             } else {
               let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
