@@ -140,7 +140,7 @@ module.exports = {
 
             const repairBtnText = `${durabilityPercent < 60 ? `Reparar por ${API.format(durabilityPrice)} 💰` : `Reparado`}`
             const repairBtnIcon = getMaintenanceIcon('durability', durabilityPercent)
-            const repairBtn = API.createButton('repair', 'SECONDARY', repairBtnText, repairBtnIcon)
+            const repairBtn = API.createButton('durability', 'SECONDARY', repairBtnText, repairBtnIcon)
             
             if (durabilityPercent >= 60 || disableall) {
                 repairBtn.setDisabled(true)
@@ -303,7 +303,7 @@ module.exports = {
             
             if (b.customId == 'energyBtn') await pressEnergyBtn()
 
-            if (['repair', 'pressure', 'refrigeration', 'pollutants'].includes(b.customId)) {
+            if (['durability', 'pressure', 'refrigeration', 'pollutants'].includes(b.customId)) {
                 await pressRepairBtn(b.customId)
                 await reworkImage()
             }
