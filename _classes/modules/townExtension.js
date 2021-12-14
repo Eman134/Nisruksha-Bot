@@ -1,5 +1,8 @@
 const API = require("../api.js");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 const townExtension = {
 
     population: {
@@ -11,21 +14,16 @@ const townExtension = {
     games: {
         'Nishigami': ['roleta', 'flip', 'luckycards'],
         'Harotec': ['roleta', 'flip', 'luckycards'],
-        'Massibi': ['roleta', 'flip'],
-        'Tyris': ['roleta', 'flip']
+        'Massibi': ['roleta', 'flip', 'blackjack'],
+        'Tyris': ['roleta', 'flip', 'blackjack']
     }
 
 };
 
 (async () => {
     const text =  `SELECT * FROM towns;`;
-    let array = [];
-    try {
-        let res = await API.db.pool.query(text);
-        array = res.rows;
-    } catch (err) {
-        console.log(err.stack)
-    }
+    const res = await DatabaseManager.query(text);
+    let array = res.rows;
 
     for (const r of array) {
         if (!(r.user_id == undefined)) {
@@ -45,13 +43,13 @@ townExtension.getConfig = function() {
     return config
 }
 
-townExtension.getTownNum = async function(member) {
-    const obj = await API.getInfo(member, 'towns');
+townExtension.getTownNum = async function(user_id) {
+    const obj = await DatabaseManager.get(user_id, 'towns');
     let r
     if (obj.loc == 0) {
         r = API.random(1, 4);
-        API.setInfo(member, 'towns', 'loc', r)
-        API.townExtension.population[API.townExtension.getTownNameByNum(r)]++;
+        DatabaseManager.set(user_id, 'towns', 'loc', r)
+        townExtension.population[townExtension.getTownNameByNum(r)]++;
     } else {
         r = obj.loc;
     }
@@ -82,19 +80,19 @@ townExtension.getPosByTownNum = async function(town) {
     return obj;
 }
 
-townExtension.getTownPos = async function(member) {
-    const town = await townExtension.getTownNum(member);
+townExtension.getTownPos = async function(user_id) {
+    const town = await townExtension.getTownNum(user_id);
     const obj = await townExtension.getPosByTownNum(town)
     return obj;
 }
 
-townExtension.getTownName = async function(member) {
-    const obj = await API.getInfo(member, 'towns');
+townExtension.getTownName = async function(user_id) {
+    const obj = await DatabaseManager.get(user_id, 'towns');
     let r
     if (obj.loc == 0) {
         r = API.random(1, 4);
-        API.setInfo(member, 'towns', 'loc', r)
-        API.townExtension.population[API.townExtension.getTownNameByNum(r)]++;
+        DatabaseManager.set(user_id, 'towns', 'loc', r)
+        townExtension.population[townExtension.getTownNameByNum(r)]++;
     } else {
         r = obj.loc;
     }
@@ -108,22 +106,10 @@ townExtension.getTownName = async function(member) {
     return name[r];
 }
 
-townExtension.getTownTax = async function(member) {
-    const obj = await API.getInfo(member, 'players');
+townExtension.getTownTax = async function(user_id) {
+    const obj = await DatabaseManager.get(user_id, 'players');
     if (obj.mvp != null || obj.mvp > 0) return 2
     else return 5
-    /*
-    let r
-    if (obj.loc == 0) {
-        r = API.random(1, 4);
-        API.setInfo(member, 'towns', 'loc', r)
-        API.townExtension.population[API.townExtension.getTownNameByNum(r)]++;
-    } else {
-        r = obj.loc;
-    }
-
-    const taxa = ((150+townExtension.population[API.townExtension.getTownNameByNum(r)])/75);
-    return Math.round(taxa) <= 0 ? 1: Math.round(taxa);*/
 }
 
 townExtension.getTownNameByNum = function(r) {

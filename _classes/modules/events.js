@@ -1,5 +1,7 @@
 const API = require("../api.js");
-const config = require("../../_classes/config").modules;
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+const config = require("../config");
 
 const events = {
 
@@ -11,12 +13,20 @@ const events = {
         picked: false
     },
 
+    duck: {
+        loc: 0,
+        sta: 0,
+        level: 0,
+        pos: {},
+        killed: []
+    },
+
     race: {
-        time: config.events.race.time*60*1000, // Tempo para apostas
+        time: config.modules.events.race.time*60*1000, // Tempo para apostas
         started: 0,
         rodando: false,
 
-        msgid: 0,
+        interactionid: 0,
 
         vencedor: 0,
 
@@ -55,7 +65,7 @@ const events = {
             apostasroxo += events.race.apostas.roxo[i].aposta
         }
 
-        embed.addField('<:info:736274028515295262> Informações', (aposta ? 'Sua aposta: `' + API.format(aposta) + ' ' + API.money + '` ' + API.moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `' + API.prefix + 'apostarcavalo <valor>` para fazer a sua aposta!')
+        embed.addField('<:info:736274028515295262> Informações', (aposta ? 'Sua aposta: `' + API.format(aposta) + ' ' + API.money + '` ' + API.moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta!')
 
         embed.addField(events.race.rodando ? '⏰ Tempo restante: ' + API.ms2(events.race.time-(Date.now()-events.race.started)) : 'Corrida de cavalos finalizada', 
         `
@@ -110,31 +120,45 @@ events.alert = async function(text) {
         embed.setColor('RANDOM')
         embed.setTitle("Siga este canal em seu servidor para avisos de eventos")
         embed.setDescription(text)
-        const channel = API.client.channels.cache.get(config.events.channel)
+        const channel = API.client.channels.cache.get(config.modules.events.channel)
         await channel.bulkDelete(10).catch()
-        let eventmsg 
-        await channel.send({ embeds: [embed]}).then((embedmsg) => {
-            if (channel.type == 'GUILD_NEWS') embedmsg.crosspost()
-            eventmsg = embedmsg
+        let eventinteraction 
+        await channel.send({ embeds: [embed]}).then((embedinteraction) => {
+            if (channel.type == 'GUILD_NEWS') embedinteraction.crosspost()
+            eventinteraction = embedinteraction
         })
 
-        return eventmsg
+        return eventinteraction
 
     } catch (err) {
         API.client.emit('error', err)
     }
-    return "Enviado com sucesso para " + config.events.channel
+    return "Enviado com sucesso para " + config.modules.events.channel
 }
 
-events.forceTreasure = async function() {
-    
-    events.treasure.loc = API.random(1, 4)
+events.forceTreasure = async function(loc) {
+
+    events.treasure.loc = loc || API.random(1, 4)
     const treasurepos = await API.townExtension.getPosByTownNum(events.treasure.loc);
     events.treasure.pos = treasurepos
     events.treasure.profundidade = API.random(15, 45)
     events.treasure.picked = false
 
-    events.alert("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `" + API.prefix + "mapa` e `" + API.prefix + "pegartesouro` respectivamente para procurar e pegar o tesouro.")
+    events.alert("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `/mapa` e `/pegartesouro` respectivamente para procurar e pegar o tesouro.")
+
+}
+
+events.forceDuck = async function(loc) {
+    
+    events.duck.loc = loc || API.random(1, 4)
+    const duckpos = await API.townExtension.getPosByTownNum(events.duck.loc);
+
+    events.duck.pos = duckpos
+    events.duck.level = API.random(30, 50)
+    events.duck.sta = API.random(events.duck.level*16, events.duck.level*22)
+    events.duck.killed = []
+    
+    events.alert("<:pato:919946658941399091> **Um novo pato dourado de nível " + events.duck.level + " apareceu! Procure-o pelas vilas e seja o primeiro a matá-lo**\nUtilize `/mapa` e `/patodourado` respectivamente para procurar e matar o pato.")
 
 }
 
@@ -151,37 +175,39 @@ events.forceRace = async function() {
     events.race.vencedor = 0
 
 
-    const msg = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `" + API.prefix + "apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
+    const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
-    const embedmsg = await msg.quote({ embeds: [events.getRaceEmbed()] })
+    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()] })
 
-    events.race.msgid = embedmsg.id
+    events.race.interactionid = embedinteraction.id
 
-    const globalevents = await API.getGlobalInfo("events")
+    const globalobj = await DatabaseManager.get(API.id, 'globals');
+
+    const globalevents = globalobj.events
 
     if (globalevents == null) {
-        API.setGlobalInfo("events", {
+        DatabaseManager.set(API.id, 'globals', "events", {
             "race": events.race
         })
     } else {
-        API.setGlobalInfo("events", {
+        DatabaseManager.set(API.id, 'globals', "events", {
             ...globalevents,
             "race": events.race
         })
     }
 
-    editRace(embedmsg)
+    editRace(embedinteraction)
 
 }
 
-async function editRace(embedmsg) {
+async function editRace(embedinteraction) {
 
-    if (!embedmsg) return
+    if (!embedinteraction) return
     
     if (events.race.time-(Date.now()-events.race.started) > 0) {
         
-        embedmsg.edit({ embeds: [events.getRaceEmbed()] })
-        setTimeout(function(){editRace(embedmsg)}, 10000)
+        interaction.editReply({ embeds: [events.getRaceEmbed()] })
+        setTimeout(function(){editRace(embedinteraction)}, 10000)
 
     } else {
 
@@ -212,12 +238,12 @@ async function editRace(embedmsg) {
 
         for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             const user = events.race.apostas[vencedorcornome][i]
-            await API.eco.money.add({ id: user.id }, Math.round(user.aposta*1.5))
+            await API.eco.money.add(user.id, Math.round(user.aposta*1.5))
             await API.eco.money.globalremove(Math.round(user.aposta*1.5))
-            await API.eco.addToHistory({ id: user.id }, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
+            await API.eco.addToHistory(user.id, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
         }
         
-        embedmsg.edit({ embeds: [events.getRaceEmbed()] })
+        interaction.editReply({ embeds: [events.getRaceEmbed()] })
 
         events.race.apostas = {
             laranja: [],
@@ -225,14 +251,15 @@ async function editRace(embedmsg) {
             roxo: []
         }
 
+        const globalobj = await DatabaseManager.get(API.id, 'globals');
 
-        const globalevents = await API.getGlobalInfo("events")
+        const globalevents = globalobj.events
 
         let globalevents2 = globalevents
 
         delete globalevents2.race
 
-        API.setGlobalInfo("events", globalevents2)
+        DatabaseManager.set(API.id, 'globals', "events", globalevents2)
 
     }
 
@@ -241,48 +268,47 @@ async function editRace(embedmsg) {
 
 async function loadIntervals() {
 
-    let intervalEvents = (API.random(config.events.minInterval, config.events.maxInterval))*60*1000
+    let intervalEvents = (API.random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
-    const globalevents = await API.getGlobalInfo("events")
+    const globalobj = await DatabaseManager.get(config.app.id, "globals")
+    const globalevents = globalobj.events
 
     if (globalevents != null) {
         if (globalevents.race && globalevents.race.rodando) {
             events.race = globalevents.race
 
-            let msg 
-            let ch = await API.client.channels.fetch(config.events.channel);
+            let interaction 
+            let ch = await API.client.channels.fetch(config.modules.events.channel);
             try{
-                msg = await ch.messages.fetch(events.race.msgid)
+                interaction = await ch.messages.fetch(events.race.interactionid)
             }catch (err) {
                 API.client.emit('error', err)
             }
 
 
-            editRace(msg)
+            editRace(interaction)
         }
     }
     
     setInterval(async () => {
 
-        const event = API.random(0, 2)
+        const event = API.random(0, 3)
 
         switch (event) {
             case 0:
-
                 events.forceTreasure()
-                
                 break;
         
             case 1:
-
                 events.forceRace()
+                break;
 
+            case 2:
+                events.forceDuck()
                 break;
 
             default:
-
-                events.forceTreasure()
-
+                events.forceDuck()
                 break;
         }
     
@@ -296,7 +322,13 @@ async function loadIntervals() {
         API.maqExtension.forceCot()
         API.maqExtension.proxcot = Date.now()
 
-    }, 60000*config.cotacao);
+    }, 60000*config.modules.cotacao);
+
+    setInterval(async () => {
+        
+        API.shopExtension.forceDiscount()
+
+    }, 60000*config.modules.discount);
 
 }
 

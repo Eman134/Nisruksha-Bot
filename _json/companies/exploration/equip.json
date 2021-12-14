@@ -148,7 +148,7 @@
         "icon": "<:nunchakupesado:762798280115486729>",
         "level": 31,
         "dmg": 35,
-        "chance": 80,
+        "chance": 70,
         "crit": 1
     },
     {
@@ -156,29 +156,29 @@
         "icon": "<:kunai:762798278751944705>",
         "level": 33,
         "dmg": 40,
-        "chance": 40,
+        "chance": 65,
         "crit": 5
-    },
-    {
-        "name": "Shuriken de 6 pontas",
-        "icon": "<:shuriken:762798278739230752>",
-        "level": 35,
-        "dmg": 50,
-        "chance": 60,
-        "crit": 10
     },
     {
         "name": "Shuriken de 4 pontas",
         "icon": "<:shuriken:762798311605534732>",
-        "level": 36,
+        "level": 35,
         "dmg": 45,
         "chance": 42,
         "crit": 6
     },
     {
+        "name": "Shuriken de 6 pontas",
+        "icon": "<:shuriken:762798278739230752>",
+        "level": 38,
+        "dmg": 50,
+        "chance": 68,
+        "crit": 10
+    },
+    {
         "name": "Foice de ferro",
         "icon": "<:scythe:762798312368898069>",
-        "level": 38,
+        "level": 43,
         "dmg": 57,
         "chance": 56,
         "crit": 3
@@ -186,17 +186,17 @@
     {
         "name": "Foice com correntes",
         "icon": "<:scythec:762798312604041216>",
-        "level": 41,
-        "dmg": 60,
-        "chance": 50,
+        "level": 48,
+        "dmg": 52,
+        "chance": 64,
         "crit": 5
     },
     {
         "name": "Pergaminho de ataque",
         "icon": "<:pergaminho:762798311484686406>",
-        "level": 50,
+        "level": 55,
         "dmg": 70,
-        "chance": 50,
+        "chance": 60,
         "crit": 10
     }
 ]

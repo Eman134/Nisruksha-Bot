@@ -1,31 +1,30 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de fragmentos para processar').setRequired(true))
+
 module.exports = {
     name: 'iniciarprocesso',
     aliases: ['startprocess', 'sproc', 'inproc'],
     category: 'none',
     description: 'Inicia um processo de limpeza de fragmentos para descobrir itens',
     companytype: 7,
-    options: [
-        {
-            name: 'quantia',
-            type: 'STRING',
-            description: 'Selecione uma quantia de fragmentos para processar',
-            required: true
-        }],
+    data,
     mastery: 30,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
         
 		const embed = new Discord.MessageEmbed()
 
-        const players_utils = await API.getInfo(msg.author, 'players_utils')
+        const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
         let processjson = players_utils.process
-        const machines = await API.getInfo(msg.author, 'machines')
+        const machines = await DatabaseManager.get(interaction.user.id, 'machines')
         const level = machines.level
-        const storage = await API.getInfo(msg.author, 'storage')
+        const storage = await DatabaseManager.get(interaction.user.id, 'storage')
 
-        const args = API.args(msg)
-
+        const quantia = interaction.options.getInteger("quantia")
 
         if (players_utils.process == null) {
 
@@ -41,59 +40,20 @@ module.exports = {
 
             processjson = defaultjson
 
-            API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
+            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', defaultjson)
         }
-
-        let quantia = 0;
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
-            await msg.quote({ embeds: [embedtemp]})
-			return;
-        }
-
-        if (!API.isInt(API.toNumber(args[0]))) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fragmentos para processar!`, `iniciarprocesso <quantia>`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        quantia = API.toNumber(args[0]);
 
         if (storage['fragmento'] <= quantia) {
-            const embedtemp = await API.sendError(msg, `Você não possui ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui ${API.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max && processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max) {
-            const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`${API.prefix}processos\` para visualizar seus processos.`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`/processos\` para visualizar seus processos.`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        
-        /*
-
-        {
-    
-            tools: {},
-
-            in: [
-                {
-                    id: 1,
-                    tool: 0, //Método de limpeza
-                    started: timestamp,
-                    end: timestamp+time,
-                    fragments: {
-                        current: 100,
-                        total: 300
-                    }
-                }
-            ],
-            drops: []
-        }
-
-        */
 
         function setProcess() {
             if (processjson.in.length > 0) {
@@ -120,11 +80,11 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        let embedmsg = await msg.quote({ embeds: [embed], components });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 35000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 35000 });
 
         let reacted = false
 
@@ -132,7 +92,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             embed.fields = [];
             embed.setDescription('')
@@ -142,46 +102,46 @@ module.exports = {
 
             collector.stop()
             
-            const storage = await API.getInfo(msg.author, 'storage')
-            const players_utils = await API.getInfo(msg.author, 'players_utils')
+            const storage = await DatabaseManager.get(interaction.user.id, 'storage')
+            const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
             let processjson = players_utils.process
 
             const tool = (b.customId == 'ferr' ? processjson.tools[0] : processjson.tools[1])
             const toolid = (b.customId == 'ferr' ? 0 : 1)
 
-            let stamina = await API.playerUtils.stamina.get(msg.author)
+            let stamina = await API.playerUtils.stamina.get(interaction.user.id)
 
             if (stamina < custostart) {
                 
-                const embedtemp = await API.sendError(msg, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custostart}]**`)
-                await msg.quote({ embeds: [embedtemp]})
-                embedmsg.edit({ embeds: [embed], components: [] })
+                const embedtemp = await API.sendError(interaction, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)
+                await interaction.reply({ embeds: [embedtemp]})
+                interaction.editReply({ embeds: [embed], components: [] })
                 return;
 
             }
 
-            API.playerUtils.stamina.remove(msg.author, custostart)
+            API.playerUtils.stamina.remove(interaction.user.id, custostart)
 
             if (quantia < Math.round(tool.process.maxfragments*0.15)) {
-                const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
-                await embedmsg.edit({ embeds: [embedtemp] })
+                const embedtemp = await API.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
+                await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
             if (quantia > tool.process.maxfragments) {
-                const embedtemp = await API.sendError(msg, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
-                await embedmsg.edit({ embeds: [embedtemp] })
+                const embedtemp = await API.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
+                await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
 
             if (storage['fragmento'] <= quantia) {
-                const embedtemp = await API.sendError(msg, `Você não possui ${API.format(API.toNumber(args[0]))} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
-                await embedmsg.edit({ embeds: [embedtemp] })
+                const embedtemp = await API.sendError(interaction, `Você não possui ${API.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+                await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
 
             if (processjson.in.filter((proca) => proca.tool == toolid).length >= tool.process.max) {
-                const embedtemp = await API.sendError(msg, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
-                await embedmsg.edit({ embeds: [embedtemp] })
+                const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
+                await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
 
@@ -198,7 +158,7 @@ Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durabil
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
-**Visualize seus processos utilizando \`${API.prefix}processos\`.**
+**Visualize seus processos utilizando \`/processos\`.**
 `)
             } if (b.customId == 'lqd') {
                 embed.setDescription(
@@ -212,7 +172,7 @@ Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)
 Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
-**Visualize seus processos utilizando \`${API.prefix}processos\`.**
+**Visualize seus processos utilizando \`/processos\`.**
 `)
             }
 
@@ -237,24 +197,24 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 score: 0
             }
 
-            API.itemExtension.set(msg.author, 'fragmento', storage['fragmento']-quantia)
+            API.itemExtension.set(interaction.user.id, 'fragmento', storage['fragmento']-quantia)
 
             processjson.in.push(defaultjsonprocess)
 
-            API.setInfo(msg.author, 'players_utils', 'process', processjson)
+            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
 
             const components = reworkButtons(current, true)
 
-            await embedmsg.edit({ embeds: [embed], components })
+            await interaction.editReply({ embeds: [embed], components })
 
-            await API.company.jobs.process.add(msg.author)
-            API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
+            await API.company.jobs.process.add(interaction.user.id)
+            API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return
-            embedmsg.edit({ embeds: [embed], components: [] })
+            interaction.editReply({ embeds: [embed], components: [] })
             return;
         });
 

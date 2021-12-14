@@ -1,57 +1,45 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('chave').setDescription('Coloque a chave para resgatar a recompensa da mesma').setRequired(true))
+
 module.exports = {
     name: 'usarchave',
     aliases: ['ativarchave', 'usarkey', 'usekey'],
     category: 'Outros',
     description: 'Resgata um produto de uma chave de ativação',
-    options: [{
-        name: 'chave',
-        type: 'STRING',
-        description: 'Coloque a chave para resgatar a recompensa da mesma',
-        required: true
-    }],
+    data,
     mastery: 15,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
-        const client = API.client;
-        const args = API.args(msg)
+
+        async function getItem() {
+            const globalobj = await DatabaseManager.get(API.id, 'globals')
+                
+            const objgkeys = globalobj.keys || [];
         
-        let objgkeys = await API.getGlobalInfo('keys') || [];
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você precisa digitar um código de chave para a ativação', `usarkey 000-000-000-000-N`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        let key = args[0]
-        console.log(key)
-        let exists = false;
-        let item;
-        for (const r of objgkeys) {
-            let _key = r.key;
-            if (key == _key) {
-              if (API.debug)console.log(r)
-              item = r;
-              exists = true
-              break;
+            const key = interaction.options.getString('chave')
+            const item = objgkeys.find(x => x.key == key)
+        
+            if (!item) {
+                const embedtemp = await API.sendError(interaction, 'Essa chave de ativação é inexistente!')
+                return await interaction.reply({ embeds: [embedtemp]})
             }
+
+            return { item, objgkeys }
         }
 
-        if (!exists) {
-            const embedtemp = await API.sendError(msg, 'Essa chave de ativação é inexistente!')
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
+        const { item, objgkeys } = await getItem()
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "usekey");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "usekey");
         if (check) {
-
-            API.playerUtils.cooldown.message(msg, 'usekey', 'usar uma chave')
-
+            API.playerUtils.cooldown.message(interaction, 'usekey', 'usar uma chave')
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "usekey", 30);
+        API.playerUtils.cooldown.set(interaction.user.id, "usekey", 30);
 
         let size = item.size || 0
         let time = item.time || 0
@@ -62,16 +50,16 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
-if (!b.deferred) b.deferUpdate().then().catch();
+            if (!(b.user.id === interaction.user.id)) return
+            if (!b.deferred) b.deferUpdate().then().catch();
             reacted = true;
             collector.stop();
             const embed = new API.Discord.MessageEmbed()
@@ -79,72 +67,52 @@ if (!b.deferred) b.deferUpdate().then().catch();
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso de chave cancelado', `
                 Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-                embedmsg.edit({ embeds: [embed], components: [] });
-                return;
-            }
-
-            objgkeys = await API.getGlobalInfo('keys') || [];
-
-            let key2 = args[0]
-            let exists2 = false;
-
-            for (const r of objgkeys) {
-                let _key2 = r.key;
-                if (key2 == _key2) {
-                if (API.debug)console.log(r)
-                item = r;
-                exists2 = true
-                break;
-                }
-            }
-
-            if (!exists2) {
-                embed.setColor('#a60000');
-                embed.addField('❌ Uso de chave cancelado', `
-                Essa chave de ativação é inexistente!`)
-                embedmsg.edit({ embeds: [embed], components: [] });
+                interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
             
+            const { item, objgkeys } = await getItem()
+            
             if (API.debug)console.log(`Index of key ${objgkeys.indexOf(item)}`)
             objgkeys.splice(objgkeys.indexOf(item), 1)
-            API.setGlobalInfo('keys', objgkeys)
-    
-            let pobj = await API.getInfo(msg.author, 'players')
+            
             switch (item.form.type) {
                 case 0:
-                    API.badges.add(msg.author, 1)
-                    await API.frames.add(msg.author, 3)
-                    await API.frames.add(msg.author, 4)
-                    API.setInfo(msg.author, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
-                    if (await API.getPerm(msg.author) == 1) API.setPerm(msg.author, 3)
+                    const pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                    const perm = pobj.perm
+                    API.badges.add(interaction.user.id, 1)
+                    await API.frames.add(interaction.user.id, 3)
+                    await API.frames.add(interaction.user.id, 4)
+                    DatabaseManager.set(interaction.user.id, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
+                    if (perm == 1) DatabaseManager.set(interaction.user.id, 'players', 'perm', 3)
                     break;
                 case 1:
-                    API.eco.money.add(msg.author, item.size)
+                    API.eco.money.add(interaction.user.id, item.size)
                     break;
                 case 2:
-                    API.eco.token.add(msg.author, item.size)
+                    API.eco.token.add(interaction.user.id, item.size)
                     break;
                 case 3:
-                    API.eco.points.add(msg.author, item.size)
+                    API.eco.points.add(interaction.user.id, item.size)
                     break;
                 case 4:
-                    API.crateExtension.give(msg.author, item.id, item.size)
+                    API.crateExtension.give(interaction.user.id, item.id, item.size)
                 default:
                     break;
             }
 
+            await DatabaseManager.set(API.id, 'globals', 'keys', objgkeys)
 
             embed.setColor('#5bff45');
             embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
-            embedmsg.edit({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] });
 
-			let cchannel = await API.client.channels.cache.get(msg.channel.id)
+			let cchannel = await API.client.channels.cache.get(interaction.channel.id)
 
             const embed2 = new API.Discord.MessageEmbed()
             .setTitle(`✅ Chave usada`)
-            .setDescription(`Quem usou: ${msg.author} \`${msg.author.id}\`
-Local em que usou: #${cchannel.name} 🡮 ${msg.guild.name} 🡮 \`${msg.guild.id}\`
+            .setDescription(`Quem usou: ${interaction.user} \`${interaction.user.id}\`
+Local em que usou: #${cchannel.name} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
 Chave usada: **${item.key}**
 
 Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração do ${item.form.name}: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
@@ -154,7 +122,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
             let ch = await API.client.channels.cache.get('758711135284232263')
             ch.send({ embeds: [embed2] });
 
-            API.playerUtils.cooldown.set(msg.author, "usekey", 0);
+            API.playerUtils.cooldown.set(interaction.user.id, "usekey", 0);
 
         });
         
@@ -163,8 +131,8 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-            embedmsg.edit({ embeds: [embed], components: [] });
-            API.playerUtils.cooldown.set(msg.author, "usekey", 0);
+            interaction.editReply({ embeds: [embed], components: [] });
+            API.playerUtils.cooldown.set(interaction.user.id, "usekey", 0);
             return;
         });
 

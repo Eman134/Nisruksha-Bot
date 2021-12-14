@@ -2,10 +2,36 @@
 const img = {};
 const API = require("../api.js");
 const fs = require('fs');
-
+const opentype = require("opentype.js");
 img.Canvas = require("canvas");
 
 img.imagegens = new API.Discord.Collection(undefined, undefined);
+
+img.circle = function(ctx, imagew, imageh) {
+    ctx.beginPath();
+    ctx.arc(imagew/2, imageh/2, (imagew+imageh)/4, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.clip();
+}
+img.corner = function(ctx, r, imagew, imageh) {
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(imagew-r, 0);
+    ctx.quadraticCurveTo(imagew, 0, imagew, r);
+    ctx.lineTo(imagew, imageh-r);
+    ctx.quadraticCurveTo(imagew, imageh, imagew-r, imageh);
+    ctx.lineTo(r, imageh);
+    ctx.quadraticCurveTo(0, imageh, 0, imageh-r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.clip();
+}
+
+img.radius = function(ctx, imagew, imageh) {
+    img.corner(ctx, (imagew+imageh)/4, imagew, imageh);
+    img.circle(ctx, imagew, imageh);
+}
 
 img.runColor = function(ctx, width, height, color, type){
     switch (type) {
@@ -48,7 +74,7 @@ img.loadImage = async function (url){
     return result;
 }
 
-img.sendImage = async function (channel, imagedata, msgidreference, text) {
+img.sendImage = async function (channel, imagedata, interactionidreference, text) {
     const Discord = API.Discord;
     
 	if(!imagedata) {
@@ -64,17 +90,17 @@ img.sendImage = async function (channel, imagedata, msgidreference, text) {
 	const name = `image.png`;
 	const buffer = canvas.toBuffer("image/png", { compressionLevel:compress });
     const attachment = new Discord.MessageAttachment(buffer, name);
-    let msg
+    let interaction
 	try {
         if (text) {
-            msg = await channel.send({ content: text, files: [attachment]})//, reply: { messageReference: msgidreference }});
-        } else msg = await channel.send({ files: [attachment] } );
+            interaction = await channel.send({ content: text, files: [attachment]})//, reply: { messageReference: interactionidreference }});
+        } else interaction = await channel.send({ files: [attachment] } );
 	} catch (err) {
-		msg = await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' })
+		interaction = await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' })
         API.client.emit('error', err)
         console.log(err)
 	}
-    return msg
+    return interaction
 }
 
 img.getAttachment = async function (imagedata, name) {
@@ -95,14 +121,8 @@ img.getAttachment = async function (imagedata, name) {
     return attachment
 }
 
-img.resize = async function(imagedata, x, y) {
-    
-	if(!imagedata) {
-        console.log("Unknown imagedata RESIZE")
-		return;
-	}
-	const image = new img.Canvas.Image();
-	image.src = imagedata;
+img.resize = async function(image, x, y) {
+
 	const scalex = x;
 	const scaley = y;
 	let imagew = image.width;
@@ -122,7 +142,7 @@ img.resize = async function(imagedata, x, y) {
 	ctx.scale(scalew, scaleh);
 	ctx.drawImage(image, -image.width/2, -image.height/2);
 	ctx.restore();
-	const result = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+	const result = canvas
 	return result;
     
 		function scale(w, h) {
@@ -154,12 +174,8 @@ img.drawImage = async function (imagedata, imagedata2, x, y){
     return result;
 }
 
-img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x, y, ad) {
+img.drawText = function (ctx, text, fontSize, fontPath, fontColor, x, y, ad) {
     
-    const opentype = require("opentype.js");
-    if(!imagedata) {
-        return;
-    }
     if (fontColor.startsWith("#") == false) {
         fontColor = "#"+fontColor;
     }
@@ -168,11 +184,7 @@ img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x
     }
     x = parseFloat(x);
     y = parseFloat(y);
-    const image = new img.Canvas.Image();
-    image.src = imagedata;
-    const canvas = img.Canvas.createCanvas(image.width, image.height);
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(image, 0, 0, image.width, image.height);
+
     const font = opentype.loadSync(fontPath);
     let textpath = font.getPath(text, 0, 0, fontSize);
     var bounder = textpath.getBoundingBox();
@@ -181,13 +193,13 @@ img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x
     let align = 0;
     if (ad) align = ad;
     /*<option value="0" selected>Top Left</option>
-		<option value="1">Top Center</option>
-		<option value="2">Top Right</option>
-		<option value="3">Middle Left</option>
-		<option value="4">Middle Center</option>
-		<option value="5">Middle Right</option>
-		<option value="6">Bottom Left</option>
-		<option value="7">Bottom Center</option>
+        <option value="1">Top Center</option>
+        <option value="2">Top Right</option>
+        <option value="3">Middle Left</option>
+        <option value="4">Middle Center</option>
+        <option value="5">Middle Right</option>
+        <option value="6">Bottom Left</option>
+        <option value="7">Bottom Center</option>
         <option value="8">Bottom Right</option>
         */
     switch(align) {
@@ -226,18 +238,9 @@ img.drawText = async function (imagedata, text, fontSize, fontPath, fontColor, x
     const Path = font.getPath(text, x, y, fontSize);
     Path.fill = fontColor;
     Path.draw(ctx);
-    const result = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-    return result;
 }
 
-img.editBorder = async function (imagedata, radius, circleinfo) {
-    
-
-    if(!imagedata) {
-        return;
-    }
-    const image = new img.Canvas.Image();
-    image.src = imagedata;
+img.editBorder = async function (image, radius, circleinfo) {
 
     let imagew = image.width;
     let imageh = image.height;
@@ -250,7 +253,7 @@ img.editBorder = async function (imagedata, radius, circleinfo) {
         circle();
     }
     ctx.drawImage(image, 0, 0);
-    const result = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+    const result = canvas;
     return result;
 
     function circle() {

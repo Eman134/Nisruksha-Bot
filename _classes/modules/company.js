@@ -1,14 +1,17 @@
 
 const API = require("../api.js");
 
-const debugmode = false
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
+const debugmode = true
 
 const stars = {};
 {
-    stars.add = async function(member, company_id, options) {
+    stars.add = async function(user_id, company_id, options) {
         
         let owner = await get.ownerById(company_id)
-        let memberobj = await API.getInfo(member, 'players')
+        let memberobj = await DatabaseManager.get(user_id, 'players')
         let company = await get.companyById(company_id)
         
         let obj = (memberobj.companyact != null ? memberobj.companyact : {
@@ -21,7 +24,7 @@ const stars = {};
 
             options.score = parseFloat(options.score).toFixed(2)
             
-            API.setCompanieInfo(owner, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
+            API.setCompanieInfo(user_id, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
             obj.score = (parseFloat(obj.score) + parseFloat(options.score)).toFixed(2)
             obj.score = parseFloat(obj.score).toFixed(2)
             
@@ -37,7 +40,7 @@ const stars = {};
         obj.score = parseFloat(obj.score).toFixed(2)
         obj.rend = Math.round(parseInt(obj.rend))
         
-        API.setInfo(member, 'players', 'companyact', obj)
+        DatabaseManager.set(user_id, 'players', 'companyact', obj)
     }
 
     stars.gen = function() {
@@ -52,24 +55,14 @@ const stars = {};
 
 const check = {};
 {
-check.hasCompany = async function(member){
-
-
+check.hasCompany = async function(user_id){
     let cont = false;
     try {
-        let res = await API.db.pool.query(`SELECT * FROM companies;`);
+        let res = await DatabaseManager.query(`SELECT * FROM companies;`);
         for (const r of res.rows) {
-
-            
-            if (r.user_id == member.id) {
-
-                if (r.type != 0) {
-
-                    cont = true;
-                    break;
-
-                }
-
+            if (r.user_id == user_id && r.type != 0) {
+                cont = true;
+                break;
             }
         }
     }catch (err) { 
@@ -78,11 +71,10 @@ check.hasCompany = async function(member){
     }
 
     return cont
-    //return obj.type != 0;
 }
 
-check.isWorker = async function(member) {
-    const obj = await API.getInfo(member, 'players') 
+check.isWorker = async function(user_id) {
+    const obj = await DatabaseManager.get(user_id, 'players') 
     return obj.company != null;
 }
 
@@ -91,9 +83,23 @@ check.hasVacancies = async function(company_id) {
 
     try {
         const owner = await API.company.get.ownerById(company_id)
-        const res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
-        if (res.rows[0].workers != null && res.rows[0].workers != undefined && res.rows[0].workers.length >= (await API.company.get.maxWorkers(company_id))) result = false;
+        const res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
+        if (res.rows[0].workers != null && res.rows[0].workers != undefined && res.rows[0].workers.length >= res.rows[0].funcmax) result = false;
         if (res.rows[0].openvacancie == false) result = false;
+
+    }catch (err){
+        API.client.emit('error', err)
+        throw err
+    }
+
+    return result
+}
+check.hasVacanciesByCompany = async function(company) {
+    let result = true;
+
+    try {
+        if (company.workers != null && company.workers != undefined && company.workers.length >= company.funcmax) result = false;
+        if (company.openvacancie == false) result = false;
 
     }catch (err){
         API.client.emit('error', err)
@@ -127,7 +133,9 @@ get.companyById = async function(company_id) {
         
         const owner = await API.company.get.ownerById(company_id)
 
-        res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
+        if (owner == null) return undefined
+
+        res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
 
         res = res.rows[0];
 
@@ -136,8 +144,6 @@ get.companyById = async function(company_id) {
         throw err
     }
 
-    if (res == undefined) return null
-
     return res;
 }
 
@@ -145,7 +151,7 @@ get.ownerById = async function(company_id) {
     let res
     try {
         
-        res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1;`, [company_id]);
+        res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1;`, [company_id]);
 
         res = res.rows[0];
 
@@ -161,11 +167,11 @@ get.ownerById = async function(company_id) {
     return result;
 }
 
-get.idByOwner = async function(owner) {
+get.idByOwner = async function(user_id) {
     let res
     try {
 
-        res = await API.db.pool.query(`SELECT * FROM companies WHERE user_id=$1;`, [owner.id]);
+        res = await DatabaseManager.query(`SELECT * FROM companies WHERE user_id=$1;`, [user_id]);
 
         res = res.rows[0];
 
@@ -181,11 +187,11 @@ get.idByOwner = async function(owner) {
     return result;
 }
 
-get.company = async function(owner) {
+get.companyByOwnerId = async function(user_id) {
     let res
     try {
 
-        res = await API.db.pool.query(`SELECT * FROM companies WHERE user_id=$1;`, [owner.id]);
+        res = await DatabaseManager.query(`SELECT * FROM companies WHERE user_id=$1;`, [user_id]);
 
         res = res.rows[0];
 
@@ -194,7 +200,11 @@ get.company = async function(owner) {
         throw err
     }
 
-    return res
+    if (res == undefined) return null
+
+    let result = res
+
+    return result;
 }
 }
 
@@ -294,6 +304,9 @@ const jobs = {
 
         filteredmobs = filteredmobs.slice(0, 6)
 
+        filteredmobs.sort(function(a, b){
+            return a.level - b.level;
+        });
         
         var generateProportion = function() {
             var max = 100,
@@ -346,6 +359,8 @@ const jobs = {
         filteredmobs.sort(function(a, b){
             return a.chance - b.chance;
         });
+
+        if (API.debug) console.log(filteredmobs)
 
         let resultmob
         let cr = API.random(0, 100)
@@ -403,8 +418,7 @@ const jobs = {
         for (const r of filteredequips) {
 
             if(!r.dmg) r.dmg = r.level+1*((120-(r.chance*1.13))*0.75/2)
-            let x = r.dmg;
-            r.dmg = Math.round(x);
+            r.dmg = Math.round(r.dmg);
 
         }
 
@@ -589,11 +603,9 @@ const jobs = {
 
         for (xilist = 0; xilist < list.length; xilist++) {
 
-            const member = await API.client.users.fetch(list[xilist])
+            jobs.process.loopProcess(list[xilist])
 
-            jobs.process.loopProcess(member)
-
-            if (debugmode) console.log('Loading: ' + member.id)
+            if (debugmode) console.log('Loading: ' + list[xilist])
 
         }
 
@@ -607,11 +619,11 @@ const jobs = {
 
                 if (!jobs.process.current.includes(member.id)) {
                     jobs.process.current.push(member.id)
-                    jobs.process.loopProcess(member)
+                    jobs.process.loopProcess(member.id)
                     if (debugmode) throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 } else if (!jobs.process.lastprocess.get(member.id) || (jobs.process.lastprocess.get(member.id) && Date.now()-jobs.process.lastprocess.get(member.id) > 60000*30)) {
-                    API.cacheLists.waiting.add(member, { url: '' }, 'working');
-                    jobs.process.loopProcess(member)
+                    API.cacheLists.waiting.add(member.id, { url: '' }, 'working');
+                    jobs.process.loopProcess(member.id)
                     if (debugmode) throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 }
 
@@ -623,35 +635,35 @@ const jobs = {
         
     }
 
-    jobs.process.loopProcess = async function(member) {
+    jobs.process.loopProcess = async function(user_id) {
 
-        if (!await jobs.process.includes(member)) return
+        if (!await jobs.process.includes(user_id)) return
 
         async function st() {
 
             try {
                 
-                const players_utils = await API.getInfo(member, 'players_utils')
+                const players_utils = await DatabaseManager.get(user_id, 'players_utils')
 
                 let processjson = players_utils.process
 
                 if (processjson == null) {
-                    API.cacheLists.waiting.remove(member, 'working');
-                    return jobs.process.remove(member)
+                    API.cacheLists.waiting.remove(user_id, 'working');
+                    return jobs.process.remove(user_id)
                 }
 
                 const inprocs = processjson.in.filter(processo => processo.fragments.current > 0)
 
                 if (inprocs.length <= 0) {
 
-                    jobs.process.remove(member)
-                    API.cacheLists.waiting.remove(member, 'working');
+                    jobs.process.remove(user_id)
+                    API.cacheLists.waiting.remove(user_id, 'working');
 
                 } else {
 
                     if (!API.shopExtension) return
 
-                    const obj = await API.getInfo(member, "machines")
+                    const obj = await DatabaseManager.get(user_id, "machines")
 
                     let maq = API.shopExtension.getProduct(obj.machine);
 
@@ -768,27 +780,27 @@ const jobs = {
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
                             processed()
-                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
+                            API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
                             processed()
-                            API.cacheLists.waiting.add(member, { url: '' }, 'working');
+                            API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         }
                         
                         if ((processjson.tools[0].durability.current <= 0) && (processjson.tools[1].fuel.current <= 0)) {
-                            API.cacheLists.waiting.remove(member, 'working');
-                            await jobs.process.remove(member)
+                            API.cacheLists.waiting.remove(user_id, 'working');
+                            await jobs.process.remove(user_id)
                             return
                         }
 
                     }
 
-                    API.setInfo(member, 'players_utils', 'process', processjson)
+                    DatabaseManager.set(user_id, 'players_utils', 'process', processjson)
 
                     const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
 
-                    if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + member.id + ' | ' + API.ms2(timetoone))
+                    if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + user_id + ' | ' + API.ms2(timetoone))
 
-                    jobs.process.lastprocess.set(member.id, Date.now())
+                    jobs.process.lastprocess.set(user_id, Date.now())
 
                     setTimeout(() => { st( )}, timetoone)
 
@@ -801,9 +813,9 @@ const jobs = {
             
         }
 
-        if (!jobs.process.current.includes(member.id)) {
-            jobs.process.current.push(member.id)
-            if (debugmode) console.log('Starting: ' + member.id)
+        if (!jobs.process.current.includes(user_id)) {
+            jobs.process.current.push(user_id)
+            if (debugmode) console.log('Starting: ' + user_id)
         }
 
         st()
@@ -812,7 +824,8 @@ const jobs = {
 
     jobs.process.get = async function() {
 
-        const processinglist = await API.getGlobalInfo('processing')
+        const globalobj = await DatabaseManager.get(API.id, 'globals');
+        const processinglist = globalobj.processing
         
         if (processinglist == null) return []
     
@@ -820,37 +833,37 @@ const jobs = {
     
     }
     
-    jobs.process.includes = async function(member){
+    jobs.process.includes = async function(user_id){
     
         const list = await jobs.process.get()
     
-        return list.includes(member.id)
+        return list.includes(user_id)
     }
     
-    jobs.process.remove = async function(member){
+    jobs.process.remove = async function(user_id){
     
       const list = await jobs.process.get()
     
-      const index = list.indexOf(member.id);
+      const index = list.indexOf(user_id);
       if (index > -1) {
         list.splice(index, 1);
-        await API.setGlobalInfo('processing', list)
+        await DatabaseManager.set(API.id, 'globals', 'processing', list)
       }
 
-      if (jobs.process.current.indexOf(member.id) > -1) {
-        jobs.process.current.splice(jobs.process.current.indexOf(member.id), 1);
+      if (jobs.process.current.indexOf(user_id) > -1) {
+        jobs.process.current.splice(jobs.process.current.indexOf(user_id), 1);
       }
     
     }
     
-    jobs.process.add = async function(member) {
+    jobs.process.add = async function(user_id) {
     
       const list = await jobs.process.get()
     
-      if (!(list.includes(member.id))) {
-        list.push(member.id)
-        await API.setGlobalInfo('processing', list)
-        jobs.process.loopProcess(member)
+      if (!(list.includes(user_id))) {
+        list.push(user_id)
+        await DatabaseManager.set(API.id, 'globals', 'processing', list)
+        jobs.process.loopProcess(user_id)
       } 
     
     }
@@ -980,21 +993,21 @@ company.create = async function(member, ob) {
         let code = `${makeid(6)}`;
         
         try {
-            let res = await API.db.pool.query(`SELECT * FROM companies WHERE company_id=$1;`, [code]);
+            let res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1;`, [code]);
             const embed = new API.Discord.MessageEmbed();
             if (res.rows[0] == undefined) {
                 try {
-                    townnum = await API.townExtension.getTownNum(member);
-                    townname = await API.townExtension.getTownName(member);
+                    townnum = await API.townExtension.getTownNum(member.id);
+                    townname = await API.townExtension.getTownName(member.id);
                     embed.setTitle(`Nova empresa!`) 
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.tipo.charAt(0).toUpperCase() + ob.tipo.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
-                    await API.db.pool.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
-                    await API.setCompanieInfo(member, code, 'company_id', code)
-                    await API.setCompanieInfo(member, code, 'type', ob.type)
-                    await API.setCompanieInfo(member, code, 'name', ob.name)
-                    await API.setCompanieInfo(member, code, 'loc', townnum)
+                    await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
+                    await API.setCompanieInfo(member.id, code, 'company_id', code)
+                    await API.setCompanieInfo(member.id, code, 'type', ob.type)
+                    await API.setCompanieInfo(member.id, code, 'name', ob.name)
+                    await API.setCompanieInfo(member.id, code, 'loc', townnum)
 
                     return code;
                 }catch (err){

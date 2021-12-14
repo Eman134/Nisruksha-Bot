@@ -1,113 +1,118 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
+const { readFileSync } = require('fs')
+
+const jsonStringores = readFileSync('./_json/ores.json', 'utf8')
+const customerores = JSON.parse(jsonStringores);
+
+const minérios = customerores
+
+const options = (option) => {
+    option.setName('minério').setDescription('Selecione um minério para venda')
+    minérios.map(key => {
+        option.addChoice(key.name, key.name)
+    })
+    return option.setRequired(false)
+}
+
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de algum minério ou "tudo" para vender').setRequired(true))
+.addStringOption(options)
+
 module.exports = {
     name: 'vender',
     aliases: ['sell', 'v', 's'],
     category: 'Economia',
     description: 'Vende todos os recursos ou específicos do seu armazém',
-    options: [
-        {
-            name: 'quantia',
-            type: 'STRING',
-            description: 'Selecione uma quantia de algum minério ou selecione tudo para vender',
-            required: false
-        },
-        {
-            name: 'minério',
-            type: 'STRING',
-            description: 'Selecione um minério para vender',
-            required: false
-        }],
+    data,
     mastery: 50,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const Discord = API.Discord;
-        const client = API.client;
-        const args = API.args(msg);
+        let minério = interaction.options.getString('minério')
+        let quantia = interaction.options.getString('quantia')
 
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let armsize = await API.maqExtension.storage.getSize(msg.author);
+        const armsize = await API.maqExtension.storage.getSize(interaction.user.id);
 
         if (armsize <= 0) {
-            const embedtemp = await API.sendError(msg, `Você não possui recursos no seu armazém para vender!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui recursos no seu armazém para vender!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-
-        if (args.length >= 2 && (!API.itemExtension.exists(args[1]))) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`${API.prefix}armazém\``)
-            await msg.quote({ embeds: [embedtemp]})
+        if (minério != null && (!API.itemExtension.exists(minério))) {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (minério != null) minério = minério.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+        quantia = quantia.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+        if ((API.isInt(quantia) == false) && quantia != 'tudo') {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (API.isInt(arg0) && args.length == 1) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n${API.prefix}vender tudo\n${API.prefix}vender tudo cobre\n${API.prefix}vender 500 pedra`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (API.isInt(quantia) && minério == null) {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         let type;
         let id = '';
-        if (args.length > 1) id = args[1].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        if (minério != null) id = minério
 
-        if (arg0 == 'tudo' && args.length == 1) {
+        if (quantia == 'tudo' && minério == null) {
             type = 0;
         }
 
         let obj = API.itemExtension.getObj();
-        const obj2 = await API.getInfo(msg.author, 'storage')
+        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
 
-        if (arg0 == 'tudo' && args.length >= 2) {
+        if (quantia == 'tudo' && minério != null) {
 
             if (obj2[id] <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
             type = 1;
         }
 
-        if (API.isInt(arg0) && args.length >= 2) {
+        if (API.isInt(quantia) && minério != null) {
             type = 2;
-            if (parseInt(arg0) <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (parseInt(quantia) <= 0) {
+                const embedtemp = await API.sendError(interaction, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             if (obj2[id] <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (parseInt(arg0) > obj2[id]) {
-                const embedtemp = await API.sendError(msg, `Você não possui **${arg0}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (parseInt(quantia) > obj2[id]) {
+                const embedtemp = await API.sendError(interaction, `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
         }
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "venda");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "venda");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'venda', 'vender minérios novamente')
+            API.playerUtils.cooldown.message(interaction, 'venda', 'vender minérios novamente')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "venda", 35);
+        API.playerUtils.cooldown.set(interaction.user.id, "venda", 35);
 
         let total = 0;
         let totalsize = 0;
@@ -138,15 +143,15 @@ module.exports = {
                         if (id == _id) caseprice = r.price.atual;
                     }
                 //}
-                totalsize = parseInt(arg0);
-                total += parseInt(arg0)*caseprice;
+                totalsize = parseInt(quantia);
+                total += parseInt(quantia)*caseprice;
                 break;
         }
         total = Math.round(total);
 
         const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}?`)
@@ -154,15 +159,15 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         let selled = false;
         collector.on('collect', async(b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 
             selled = true;
             collector.stop();
@@ -172,26 +177,26 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}.`)
-                embedmsg.edit({ embeds: [embed], components: [] });
+                interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            let obj3 = await API.getInfo(msg.author, 'storage')
+            let obj3 = await DatabaseManager.get(interaction.user.id, 'storage')
 
             switch (type) {
                 case 0:
 
-                    let armsize2 = await API.maqExtension.storage.getSize(msg.author);
+                    let armsize2 = await API.maqExtension.storage.getSize(interaction.user.id);
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui recursos no seu armazém para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
                     //for (const key in obj) {
                         for (const r of obj.minerios) {
-                            API.itemExtension.set(msg.author, r.name, 0)
+                            API.itemExtension.set(interaction.user.id, r.name, 0)
                         }
                     //}
                     break;
@@ -199,27 +204,27 @@ module.exports = {
 
                     if (obj3[id] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    API.itemExtension.set(msg.author, id, 0)
+                    API.itemExtension.set(interaction.user.id, id, 0)
                     break;
                 case 2:
 
                     if (obj3[id] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    if (parseInt(arg0) > obj3[id]) {
-                        embed.addField('❌ Venda cancelada', `Você não possui **${arg0}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                    if (parseInt(quantia) > obj3[id]) {
+                        embed.addField('❌ Venda cancelada', `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    API.itemExtension.set(msg.author, id, obj2[id]-parseInt(arg0))
+                    API.itemExtension.set(interaction.user.id, id, obj2[id]-parseInt(quantia))
                     break;
             }
             
@@ -227,20 +232,20 @@ module.exports = {
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
             Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}.`)
-            if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
-            embedmsg.edit({ embeds: [embed], components: [] });
-            API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
-            API.eco.money.add(msg.author, total)
+            if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+            interaction.editReply({ embeds: [embed], components: [] });
+            API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
+            API.eco.money.add(interaction.user.id, total)
         });
         
         collector.on('end', collected => {
-            API.playerUtils.cooldown.set(msg.author, "venda", 0);
+            API.playerUtils.cooldown.set(interaction.user.id, "venda", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] });
             return;
         });
 

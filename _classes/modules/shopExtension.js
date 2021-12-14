@@ -1,4 +1,6 @@
 const API = require("../api.js");
+const Database = require("../manager/DatabaseManager.js");
+const DatabaseManager = new Database();
 
 const shopExtension = {
 
@@ -87,24 +89,28 @@ shopExtension.getShopObj = function() {
     return shopExtension.obj;
 }
 
-shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, member, stopComponents) {
-  let playerobj = await API.getInfo(member, 'machines');
+shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
+  const playerobj = await DatabaseManager.get(user_id, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
   const productscurrentpage = []
 
   const perRow = 3
 
+  let pobj = await DatabaseManager.get(user_id, 'players')
+  
   for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
     let p = product[i];
     if (!p) break;
-    let price = p.price;
+    let discountmvp = Math.round(pobj.mvp ? 5 : 0);
+    let discount = Math.round(p.discount + discountmvp);
+    let price = Math.round(discount > 0 ? p.price*(100-discount)/100 : p.price);
     if (p.type == 4){price=Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1));}
         
-    let formated = `Preço: ${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' ' + API.tp.name + '` ' + API.tp.emoji : ''}`
+    let formated = `Preço: ${discount > 0 ? `~~\`${API.format(p.price)}\`~~ ` : ''}${price > 0 ? `\`${API.format(price)} ${API.money}\` ${API.moneyemoji}` : ''}${p.price2 ? ' e `' + p.price2 + ' ' + API.money2 + '` ' + API.money2emoji : ''}${p.price3 ? '`' + p.price3 + ' ' + API.tp.name + '` ' + API.tp.emoji : ''}`
 
     if (p.buyable) {
-      formated += `\nUtilize ${API.prefix}comprar ${p.id}`
+      formated += `\nUtilize /comprar ${p.id}`
     }
     if (p.token) {
       formated += '\nQuantia: ' + p.token + ' fichas'
@@ -129,7 +135,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
     if (p.info) {
       formated += '\n' + p.info
     }
-    embed.addField(`${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}`, formated, false)
+    embed.addField(`${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}${discount > 0 ? ` ┆ Desconto: ${discount}%` : ''}`, formated, false)
     productscurrentpage.push(p)
   }
 
@@ -196,6 +202,9 @@ shopExtension.getShopList = function() {
     return '**' + array.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
 }
 
+shopExtension.setShopObject = function(shop) {
+  shopExtension.shop = shop;
+}
 
 shopExtension.categoryExists = function(cat) {
   const obj = shopExtension.getShopObj();
@@ -203,19 +212,19 @@ shopExtension.categoryExists = function(cat) {
   return array.includes(cat);
 }
 
-shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, page, totalpages) {
+shopExtension.editPage = async function(cat, interaction, embedinteraction, products, embed, page, totalpages) {
   
-  const filter = i => i.user.id === msg.author.id;
+  const filter = i => i.user.id === interaction.user.id;
 
   let currentpage = page;
   
-  let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+  let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
 
   let stopped = false
   
   collector.on('collect', async(b) => {
 
-      if (!(b.user.id === msg.author.id)) return
+      if (!(b.user.id === interaction.user.id)) return
       
       embed.fields = [];
 
@@ -228,38 +237,36 @@ shopExtension.editPage = async function(cat, msg, embedmsg, products, embed, pag
       } if (b.customId == 'backward') {
         if (currentpage > 1) currentpage -= 1;
       } if (b.customId == 'stop') {
-        collector.stop()
         embed.setColor('#a60000')
         components = []
         stopComponents = true
+        stopped = true
+        collector.stop()
       }
 
       embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
 
-      if (b.customId != 'stop' && b.customId != 'forward' && b.customId != 'backward') {
-        collector.stop()
-        await API.shopExtension.execute(msg, API.shopExtension.getProduct(b.customId));
-        components = []
-        stopComponents = true
-      }
-
-      if (b.customId == 'stop') stopped = true
-
-      components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, msg.author, stopComponents);
-
-      if (!stopped) await embedmsg.edit({ embeds: [embed], components });
-      collector.resetTimer();
-
+      const product = API.shopExtension.getProduct(b.customId)
+      
+      if (product) stopComponents = true
+      components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, interaction.user.id, stopComponents);
+      
       if (!b.deferred) b.deferUpdate().then().catch();
 
+      if (product) {
+        collector.stop()
+        await API.shopExtension.execute(interaction, product);
+        return
+      }
+
+      await interaction.editReply({ embeds: [embed], components });
+      collector.resetTimer();
 
   });
   
   collector.on('end', async collected => {
-    try {
-      await embedmsg.edit({ embeds: [embed], components: [] });
-    } catch {
-    }
+    if (stopped) return
+    await interaction.editReply({ embeds: [embed], components: [] });
   });
 
 }
@@ -277,24 +284,7 @@ shopExtension.checkIdExists = function(id) {
 }
 
 shopExtension.getProduct = function(id) {
-  let obj
-
-  const { readFileSync } = require('fs')
-  const path = './_json/shop.json'
-  try {
-    if (path) {
-      const jsonString = readFileSync(path, 'utf8')
-      const customer = JSON.parse(jsonString);
-      obj = customer;
-    } else {
-      console.log('File path is missing from shopExtension!')
-      shopExtension.obj = '`Error on load shop list`';
-    }
-  } catch (err) {
-      console.log('Error parsing JSON string:', err);
-      shopExtension.obj = '`Error on load shop list`';
-      API.client.emit('error', err)
-  }
+  let obj = shopExtension.getShopObj();
 
   let array = Object.keys(obj);
   let product;
@@ -310,25 +300,27 @@ shopExtension.getProduct = function(id) {
   return product;
 }
 
-shopExtension.execute = async function(msg, p) {
+shopExtension.execute = async function(interaction, p) {
 
   if (!p.buyable) {
     let obj = API.shopExtension.getShopObj();
     let array = Object.keys(obj);
-    const embedtemp = await API.sendError(msg, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-    await msg.quote({ embeds: [embedtemp]})
+    const embedtemp = await API.sendError(interaction, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+    if (interaction.replied) await interaction.editReply({ embeds: [embedtemp]})
+    else await interaction.reply({ embeds: [embedtemp]})
     return;
   }
 
   const embed = new API.Discord.MessageEmbed();
   embed.setColor('#606060');
-  embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-  let price = p.price;
-  let torp = 0;
-  let playerobj = await API.getInfo(msg.author, 'machines');
-  let maqid = playerobj.machine;
-  let maq = API.shopExtension.getProduct(maqid);
-  if (p.type == 4){torp=price;price = Math.round(((price * maq.durability/100)*0.45)*(maq.tier+1))}
+  embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+  
+  let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
+  let pobj = await DatabaseManager.get(interaction.user.id, 'players');
+  
+  let discountmvp = Math.round(pobj.mvp ? 5 : 0);
+  let discount = Math.round(p.discount + discountmvp);
+  let price = Math.round(discount > 0 ? p.price*(100-discount)/100 : p.price);
 
   const formatprice = `${price > 0 ? API.format(price)  +  ' ' + API.money + ' ' + API.moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${API.money2} ${API.money2emoji}`:''}${p.price3 > 0 ? `${p.price3} ${API.tp.name} ${API.tp.emoji}`:''}`
 
@@ -338,51 +330,60 @@ shopExtension.execute = async function(msg, p) {
   const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
   const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-  let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+  const alltoedit = { embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true }
 
-  const filter = i => i.user.id === msg.author.id;
+  let embedinteraction
 
-  let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+  if (interaction.replied) {
+    embedinteraction = await interaction.followUp(alltoedit)
+  } else {
+    embedinteraction = await interaction.reply(alltoedit)
+  }
+
+  const filter = i => i.user.id === interaction.user.id;
+
+  let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
   let buyed = false;
 
   collector.on('collect', async(b) => {
 
-    if (!(b.user.id === msg.author.id)) return
+    if (!(b.user.id === interaction.user.id)) return
 
     buyed = true;
     collector.stop();
     embed.fields = [];
+
     if (!b.deferred) b.deferUpdate().then().catch();
 
     if (b.customId == 'confirm'){
 
-      const money = await API.eco.money.get(msg.author);
-      const points = await API.eco.points.get(msg.author);
-      const obj2 = await API.getInfo(msg.author, "machines")
+      const money = await API.eco.money.get(interaction.user.id);
+      const points = await API.eco.points.get(interaction.user.id);
+      const obj2 = await DatabaseManager.get(interaction.user.id, "machines")
 
-      const convites = await API.eco.tp.get(msg.author)
+      const convites = await API.eco.tp.get(interaction.user.id)
 
       if (!(money >= price)) {
         embed.setColor('#a60000');
         embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${API.format(money)}/${API.format(price)} ${API.money} ${API.moneyemoji}**`)
-        await embedmsg.edit({ embeds: [embed], components: [] });
+        await embedinteraction.edit({ embeds: [embed], components: [] });
 			  return;
 
       }if(p.price2 > 0 && !(points >= p.price2)){
         embed.setColor('#a60000');
         embed.addField('❌ Falha na compra', `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${API.format(points)}/${API.format(p.price2)} ${API.money2} ${API.money2emoji}**`)
-        await embedmsg.edit({ embeds: [embed], components: [] });
+        await embedinteraction.edit({ embeds: [embed], components: [] });
         return;
 
       }if(p.price3 > 0 && !(convites.points >= p.price3)){
-          embed.setColor('#a60000');
-          embed.addField('❌ Falha na compra', `Você não possui ${API.tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${API.tp.name} atuais: **${API.format(convites.points)}/${API.format(p.price3)} ${API.tp.name} ${API.tp.emoji}**`)
-          await embedmsg.edit({ embeds: [embed], components: [] });
-          return; 
+        embed.setColor('#a60000');
+        embed.addField('❌ Falha na compra', `Você não possui ${API.tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${API.tp.name} atuais: **${API.format(convites.points)}/${API.format(p.price3)} ${API.tp.name} ${API.tp.emoji}**`)
+        await embedinteraction.edit({ embeds: [embed], components: [] });
+        return; 
       }if (p.level > 0 && obj2.level < p.level) {
         embed.setColor('#a60000');
-        embed.addField('❌ Falha na compra', `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-        await embedmsg.edit({ embeds: [embed], components: [] });
+        embed.addField('❌ Falha na compra', `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`/perfil\``)
+        await embedinteraction.edit({ embeds: [embed], components: [] });
         return;
       }
 
@@ -391,19 +392,20 @@ shopExtension.execute = async function(msg, p) {
 
         case 1:
 
-          if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
+          if (API.cacheLists.waiting.includes(interaction.user.id, 'mining')) {
             embed.setColor('#a60000');
             embed.addField('❌ Falha na compra', `Você não pode realizar uma compra de uma máquina enquanto estiver minerando!`)
-            await embedmsg.edit({ embeds: [embed], components: [] });
+            await embedinteraction.edit({ embeds: [embed], components: [] });
             return;
           }
 
-          let cmaq = await API.maqExtension.get(msg.author)
+          let cmaq = await API.maqExtension.get(interaction.user.id)
 
           if (p.id > cmaq+1) {
+            const proxmaq = API.shopExtension.getProduct(cmaq+1)
             embed.setColor('#a60000');
-            embed.addField('❌ Falha na compra', `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${API.shopExtension.getProduct(cmaq+1).name}**`)
-            await embedmsg.edit({ embeds: [embed], components: [] });
+            embed.addField('❌ Falha na compra', `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**`)
+            await embedinteraction.edit({ embeds: [embed], components: [] });
             return;
           }
 
@@ -414,66 +416,45 @@ shopExtension.execute = async function(msg, p) {
             }
           }
 
-          let pieces = await API.itemExtension.getEquipedPieces(msg.author);
-
-          for (i = 0; i < pieces.length; i++){
-              const pic = await API.getInfo(msg.author, 'storage')
-              await API.setInfo(msg.author, 'storage', `"piece:${pieces[i]}"`, pic[`piece:${pieces[i]}`]+1)
-          }
-
-          API.setInfo(msg.author, 'machines', `slots`, [])
-          API.setInfo(msg.author, 'machines', 'machine', p.id);
-          API.setInfo(msg.author, 'machines', 'durability', p.durability)
-			    API.setInfo(msg.author, 'machines', 'energy', 0)
+          DatabaseManager.set(interaction.user.id, 'machines', 'machine', p.id);
+          DatabaseManager.set(interaction.user.id, 'machines', 'durability', p.durability)
+          DatabaseManager.set(interaction.user.id, 'machines', 'pressure', Math.round(p.pressure/2))
+          DatabaseManager.set(interaction.user.id, 'machines', 'refrigeration', p.refrigeration)
+          DatabaseManager.set(interaction.user.id, 'machines', 'pollutants', 0)
+			    DatabaseManager.set(interaction.user.id, 'machines', 'energy', 0)
+          API.itemExtension.unequipAllChips(interaction.user.id);
 
           break;
 
         case 2:
-          API.eco.token.add(msg.author, p.token)
+          API.eco.token.add(interaction.user.id, p.token)
           break;
 
         case 3:
-          API.setInfo(msg.author, 'players_utils', 'backpack', p.id)
+          DatabaseManager.set(interaction.user.id, 'players_utils', 'backpack', p.id)
           break;
         
         case 4:
-
-          if (API.cacheLists.waiting.includes(msg.author, 'mining')) {
-            embed.setColor('#a60000');
-            embed.addField('❌ Falha na compra', `Você não pode realizar reparos de uma máquina enquanto estiver minerando!`)
-            await embedmsg.edit({ embeds: [embed], components: [] });
-            return;
-          }
-
-          playerobj = await API.getInfo(msg.author, 'machines');
-          maqid = playerobj.machine;
-          maq = API.shopExtension.getProduct(maqid);
-
-          if ((playerobj.durability + (torp*maq.durability/100)) > maq.durability) {
-            API.setInfo(msg.author, 'machines', 'durability', maq.durability)
-          } else {
-            API.setInfo(msg.author, 'machines', 'durability', playerobj.durability + (torp*maq.durability/100))
-          }
 
           break;
         
         case 5:
 
-          playerobj = await API.getInfo(msg.author, 'storage');
-          API.setInfo(msg.author, 'storage', `"piece:${p.id}"`, playerobj[`piece:${p.id}`] + 1)
+          playerobj = await DatabaseManager.get(interaction.user.id, 'storage');
+          DatabaseManager.set(interaction.user.id, 'storage', `"piece:${p.id}"`, playerobj[`piece:${p.id}`] + 1)
 
           break;
             
         case 6:
-          API.frames.add(msg.author, p.frameid)
+          API.frames.add(interaction.user.id, p.frameid)
           break;
         
         case 7:
-          API.eco.points.add(msg.author, p.size)
+          API.eco.points.add(interaction.user.id, p.size)
           break;
 
         case 8:
-          API.setInfo(msg.author, 'players_utils', 'profile_color', p.pcolorid)
+          DatabaseManager.set(interaction.user.id, 'players_utils', 'profile_color', p.pcolorid)
           break;
 
         default:
@@ -482,34 +463,34 @@ shopExtension.execute = async function(msg, p) {
       }
           
       embed.setColor('#5bff45');
-      embed.addField('✅ Sucesso na compra', `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${API.format(cashback)} ${API.money}** ${API.moneyemoji})` : ''}${p.type == 5?`\nUtilize \`${API.prefix}máquina\` para visualizar seus chipes!`:''}`)
-      
-      if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
+      embed.addField('✅ Sucesso na compra', `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${API.format(cashback)} ${API.money}** ${API.moneyemoji})` : ''}${p.type == 5?`\nUtilize \`/maquina\` para visualizar seus chipes!`:''}`)
+
+      if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+
+      embedinteraction.edit({ embeds: [embed], components: [] });
           
-      await embedmsg.edit({ embeds: [embed], components: [] });
+      await API.eco.money.remove(interaction.user.id, price);
           
-      await API.eco.money.remove(msg.author, price);
+      API.eco.points.remove(interaction.user.id, p.price2);
           
-      API.eco.points.remove(msg.author, p.price2);
-          
-      if (p.price3 > 0) API.eco.tp.remove(msg.author, p.price3)
+      if (p.price3 > 0) API.eco.tp.remove(interaction.user.id, p.price3)
           
       if (cashback > 0) {
-        await API.eco.money.add(msg.author, cashback);
-        await API.eco.addToHistory(msg.author, `Cashback | + ${API.format(cashback)} ${API.moneyemoji}`)
+        await API.eco.money.add(interaction.user.id, cashback);
+        await API.eco.addToHistory(interaction.user.id, `Cashback | + ${API.format(cashback)} ${API.moneyemoji}`)
       }
       
-      await API.eco.addToHistory(msg.author, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
+      await API.eco.addToHistory(interaction.user.id, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
 
       const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')
           .setTimestamp()
           .setTitle('🛒 | Loja')
           .addField('Produto', `**${p.icon + ' ' + p.name}**\n${formatprice}`)
-          .addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
-          .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
-          .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-          .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+          .addField('<:mention:788945462283075625> Membro', `${interaction.user.tag} (\`${interaction.user.id}\`)`)
+          .addField('<:channel:788949139390988288> Canal', `\`${interaction.channel.name} (${interaction.channel.id})\``)
+          .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+          .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
           API.client.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
@@ -517,7 +498,7 @@ shopExtension.execute = async function(msg, p) {
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
-          await embedmsg.edit({ embeds: [embed], components: [] });
+          await interaction.edit({ embeds: [embed], components: [] });
           return;
     }
       
@@ -531,10 +512,31 @@ shopExtension.execute = async function(msg, p) {
     embed.setColor('#a60000');
     embed.addField('❌ Tempo expirado', `
     Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!`)
-    embedmsg.edit({ embeds: [embed], components: [] });
+    embedinteraction.edit({ embeds: [embed], components: [] });
     return;
 
   });
+
+}
+
+shopExtension.forceDiscount = async function() {
+
+  const obj = shopExtension.getShopObj()
+
+  let array = Object.keys(obj);
+
+  for (i = 0; i < array.length; i++) {
+
+    const discountpercategory = API.random(0, Math.round(obj[array[i]].length/4))
+
+    for (let discounti = 0; discounti < discountpercategory; discounti++) {
+      const discount = API.random(0, obj[array[i]].length)
+      obj[array[i]][discount].discount = API.random(1, 10)
+    }
+
+  }
+
+  shopExtension.setShopObj(obj)
 
 }
 

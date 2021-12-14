@@ -1,51 +1,61 @@
+let patch = ''
+let patchobj
+
+const { readFileSync } = require('fs')
+const path = './_json/patch.json'
+try {
+  if (path) {
+    const jsonString = readFileSync(path, 'utf8')
+    const customer = JSON.parse(jsonString);
+    patchobj = customer;
+  } else {
+    console.log('File path is missing from patchobj!')
+    if (API.debug) console.log(`Error on load patch obj`);
+  }
+} catch (err) {
+    console.log('Error parsing JSON string:', err);
+    if (API.debug) console.log(`Error on load patch obj`);
+    client.emit('error', err)
+}
+
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+
+const options = (option) => {
+    option.setName('versão').setDescription('Digite uma versão para visualizar as modificações que ocorreram nela')
+    Object.keys(patchobj).forEach(key => {
+        option.addChoice(key, key)
+    })
+    return option.setRequired(false)
+}
+
+data.addStringOption(options)
+
 module.exports = {
     name: 'versão',
     aliases: ['versao', 'patch', 'att', 'temporada'],
     category: 'Outros',
     description: 'Visualize o último patch de atualizações do bot',
-    options: [{
-        name: 'versão',
-        type: 'STRING',
-        description: 'Digite uma versão para visualizar as modificações que ocorreram nela',
-        required: false
-    }],
+    data,
     mastery: 20,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const args = API.args(msg);
+        const version = interaction.options.getString('versão')
 
-        let patch = ''
-        let patchobj
+        let patch
 
-        const { readFileSync } = require('fs')
-        const path = './_json/patch.json'
-        try {
-          if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            patchobj = customer;
-          } else {
-            console.log('File path is missing from patchobj!')
-            if (API.debug) console.log(`Error on load patch obj`);
-          }
-        } catch (err) {
-            console.log('Error parsing JSON string:', err);
-            if (API.debug) console.log(`Error on load patch obj`);
-            client.emit('error', err)
-        }
-
-        if (args.length == 0) {
+        if (version == null) {
             patch = API.version
         } else {
-            patch = args[0]
+            patch = version
         }
 
         if (!Object.keys(patchobj).includes(patch)) {
             patch = API.version
         }
 
-        API.badges.add(msg.author, 2)
-        API.frames.add(msg.author, 13)
+        const frameadded = await API.frames.add(interaction.user.id, 15)
+        const badgeadded = await API.badges.add(interaction.user.id, 3)
 
         let getPatch = patchobj[patch] || API.version
 
@@ -58,30 +68,25 @@ module.exports = {
         embed.addField('(' + getPatch.chn.length + `) \`Mudanças\``, getPatch.chn.length == 0 ? '**Não ocorreu mudanças**' : getPatch.chn.map(i => `<:changed:762022788038525008> ${i}`).join('\n'))
         embed.addField('(' + getPatch.add.length + `) \`Adições\``, getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.map(i => `<:added:762022787773759498> ${i}`).join('\n'))
         embed.addField('(' + getPatch.rem.length + `) \`Remoções\``, getPatch.rem.length == 0 ? '**Não ocorreu remoções**' : getPatch.rem.map(i => `<:removed:762022787954245642> ${i}`).join('\n'))
-        if (getPatch.alc.length > 0) embed.addField('(' + getPatch.alc.length + `) \`Novas alcunhas\``, getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n'))
-        if (getPatch.fix.length > 0) embed.addField('(' + getPatch.fix.length + `) \`Bugs fixados\``, getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n'))
+        if (getPatch.alc && getPatch.alc.length > 0) embed.addField('(' + getPatch.alc.length + `) \`Novas alcunhas\``, getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n'))
+        if (getPatch.fix && getPatch.fix.length > 0) embed.addField('(' + getPatch.fix.length + `) \`Bugs fixados\``, getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n'))
 
-        .setFooter(`A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando ${API.prefix}versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
-        if (!API.owner.includes(msg.author.id)) {
-            await msg.quote({ embeds: [embed] });
-            return;
+        .setFooter(`A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
+        if (!API.owner.includes(interaction.user.id)) {
+            await interaction.reply({ embeds: [embed] });
         } else {
-            
-            let embedmsg
-            if (!msg.slash) embedmsg = await msg.channel.send({ embeds: [embed]});
-            else embedmsg = await msg.quote({ embeds: [embed] })
-
-            try {
-
-                if (!msg.slash)await msg.delete()
-                
-            } catch {
-                
-            }
-            embedmsg.react('762018420370833488');
-            embedmsg.react('👍🏽');
-            embedmsg.react('👎🏽');
+            interaction.reply({ content: 'loading'}).then(async () => {
+                await interaction.deleteReply()
+                const embedinteraction = await interaction.channel.send({ embeds: [embed], fetchReply: true })
+                embedinteraction.react('762018420370833488');
+                embedinteraction.react('👍🏽');
+                embedinteraction.react('👎🏽');
+            })
         }
 
+        if (frameadded.includes('Added') || badgeadded.includes('Added')) {
+            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, ephemeral: true })
+        }
+        
 	}
 };

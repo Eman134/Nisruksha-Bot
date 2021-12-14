@@ -1,17 +1,20 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'info',
     aliases: [],
     category: 'none',
     description: 'Veja uma variável e um valor do banco de dados',
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        send(API, msg)
+        send(API, interaction)
 
 	}
 };
 
-async function sendCmdsExec(API, msg, array) {
+async function sendCmdsExec(API, interaction, array) {
 
     if (array.length == 0 || array == null) {
         return;
@@ -23,11 +26,11 @@ async function sendCmdsExec(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`📕 Comandos executados`, `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`)
         .setTimestamp()
- await msg.quote({ embeds: [embed] })
+ await interaction.channel.send({ embeds: [embed] })
 
 }
 
-async function sendInative(API, msg, array) {
+async function sendInative(API, interaction, array) {
 
     if (array.length == 0 || array == null) {
         return;
@@ -39,22 +42,22 @@ async function sendInative(API, msg, array) {
         .setColor(`RANDOM`)
         .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-s.lastcmd))}\``).join('\n')}`)
         .setTimestamp()
- await msg.quote({ embeds: [embed] })
+ await interaction.channel.send({ embeds: [embed] })
 
 }
 
-async function send(API, msg) {
+async function send(API, interaction) {
 
     try {
 
         const text =  `SELECT * FROM servers;`
         let array = [];
         try {
-            let res = await API.db.pool.query(text);
+            let res = await DatabaseManager.query(text);
             array = res.rows;
         } catch (err) {
             console.log(err.stack)
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
 
         array = array.filter((sv) => sv.lastcmd !== 0)
@@ -80,7 +83,7 @@ async function send(API, msg) {
                 const text =  `UPDATE servers SET lastcmd = $2 WHERE server_id=$1;`,
                 values = [array1[i].server_id, 0]
                 try {
-                    await API.db.pool.query(text, values);
+                    await DatabaseManager.query(text, values);
                 } catch (err) {
                     console.log(err.stack)
                     client.emit('error', err)
@@ -110,7 +113,7 @@ async function send(API, msg) {
                 const text =  `UPDATE servers SET lastcmd = $2 WHERE server_id=$1;`,
                 values = [array2[i].server_id, 0]
                 try {
-                    await API.db.pool.query(text, values);
+                    await DatabaseManager.query(text, values);
                 } catch (err) {
                     console.log(err.stack)
                     API.client.emit('error', err)
@@ -130,10 +133,10 @@ async function send(API, msg) {
 📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
 💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (API.ms2(Date.now()-array2[0].lastcmd))}\``)
         .setTimestamp()
-        await msg.quote({ embeds: [embed] })
+        await interaction.reply({ embeds: [embed] })
 
-        await sendCmdsExec(API, msg, array1)
-        await sendInative(API, msg, array2)
+        await sendCmdsExec(API, interaction, array1)
+        await sendInative(API, interaction, array2)
 
         if (array.length == 0) return
 

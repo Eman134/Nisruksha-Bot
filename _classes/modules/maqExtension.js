@@ -1,17 +1,31 @@
 const API = require("../api.js");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 const ores = {};
 
-ores.gen = async function(maq, profundidade, chip) {
+ores.gen = async function(maq, profundidade, chips) {
 
-    let oreobj = API.itemExtension.getObj().minerios;
+    const oreobj = API.itemExtension.getObj().minerios;
 
     let oreobj2nomine = 1
 
-    if (!chip) {
+    if (!5) {
       oreobj = oreobj.filter((ore) => !ore.nomine )
     } else {
       oreobj2nomine = 2
+    }
+
+    const genchips = { }
+    
+    for (const i of chips){
+      
+      const productchip = API.shopExtension.getProduct(i.id)
+      if (productchip.type == 5 && productchip.typeeffect) {
+        genchips["chipe" + productchip.typeeffect] = { ...i, icon: productchip.icon, genchipid: "chipe" + productchip.typeeffect }
+      }
+
     }
 
     let gtotal = calcGTotal(profundidade)
@@ -34,18 +48,55 @@ ores.gen = async function(maq, profundidade, chip) {
     let array = [];
     for (i = 0; i < maq.tier+oreobj2nomine; i++) {
         if (oreobj[i]) {
-            if (chip && oreobj[i].name.includes('fragmento')) {
-              oreobj[i].size = API.random(2, 4);
-              array.push(oreobj[i])
+            if (oreobj[i].name.includes('fragmento')) {
+              if (genchips.chipe5) {
+                oreobj[i].size = API.random(2, 4);
+                array.push({ oreobj: oreobj[i], orechips: { chipe5 } })
+              }
             } else {
               let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
               t += Math.round(((por/(i+1))/2)*gtotal/100);
               t *= 23/100;
               t = Math.round((oreobj[i].name == 'pedra' ? t * ((maq.tier+1)*1.9):t)/2);
-              oreobj[i].size = t;
-              array.push(oreobj[i])
+
+              const activechips = []
+
+              if (genchips.chipe6 && API.random(0, 100) < API.random(1, 10)) {
+                t *= 2
+                activechips.push(genchips.chipe6)
+              }
+              if (genchips.chipe7 && API.random(0, 100) < API.random(1, 10)) {
+                t /= 2
+                activechips.push(genchips.chipe7)
+              }
+              if (genchips.chipe8 && API.random(0, 100) < API.random(1, 20)) {
+                
+                if (oreobj[i].name == 'pedra') {
+                  if (API.random(0, 100) < API.random(40, 80)) {
+                    t /= 4
+                    activechips.push(genchips.chipe8)
+                  }
+                } else {
+                  if (API.random(0, 100) < API.random(5, 15)) {
+                    t /= 2
+                    activechips.push(genchips.chipe8)
+                  }
+                }
+
+              }
+
+              oreobj[i].size = Math.round(t);
+
+              const chipsstring = []
+              const orechips = {}
+
+              for (const chip of activechips) {
+                chipsstring.push(chip.icon)
+                orechips[chip.genchipid] = chip
+              }
+
+              array.push({ oreobj: oreobj[i], orechips, chipsstring })
             }
-            
         } else {
           break;
         }
@@ -61,41 +112,32 @@ const storage = {
 
 };
 
-storage.getMax = async function(member) {
-  const obj = await API.getInfo(member, 'storage');
+storage.getMax = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'storage');
   let sizeperlevel = storage.sizeperlevel;
   let x = obj.storage * sizeperlevel;
   return x;
 }
 
-storage.getSize = async function(member) {
+storage.getSize = async function(user_id) {
   let size = 0;
   const obj = API.itemExtension.getObj();
-  await API.setPlayer(member, 'storage')
-  let res;
-  const text =  `SELECT * FROM storage WHERE user_id = $1;`,
-  values = [member.id]
-  try {
-    res2 = await API.db.pool.query(text, values);
-    res = res2.rows[0]
-  } catch (err) {
-    console.log(err.stack)
-    client.emit('error', err)
+  await DatabaseManager.setIfNotExists(user_id, 'storage')
+  const text =  `SELECT * FROM storage WHERE user_id = $1;`, values = [user_id]
+  let res = await DatabaseManager.query(text, values)
+  res = res.rows[0]
+  for (const r of obj.minerios) {
+    size += res[r.name];
   }
-  //for (const key in obj) {
-    for (const r of obj.minerios) {
-      size += res[r.name];
-    }
-  //}
   return size;
 }
 
-storage.getPrice = async function(member, level, max2) {
-  const obj = await API.getInfo(member, 'storage');
+storage.getPrice = async function(user_id, level, max2) {
+  const obj = await DatabaseManager.get(user_id, 'storage');
   let max
   let pricetotal = 0
   if (!level) {
-    max = await maqExtension.storage.getMax(member);
+    max = await maqExtension.storage.getMax(user_id);
     if (max2) max = max2
     max += (max*7.8/50)*5.15
     pricetotal = max
@@ -118,16 +160,16 @@ storage.getPrice = async function(member, level, max2) {
   return Math.round(pricetotal);
 }
 
-storage.isFull = async function(member) {
-  const max = await storage.getMax(member);
-  const size = await storage.getSize(member);
+storage.isFull = async function(user_id) {
+  const max = await storage.getMax(user_id);
+  const size = await storage.getSize(user_id);
   return size >= max;
 }
 
 const maqExtension = {
   ores: ores, 
   storage,
-  update: 20,
+  update: 12,
   lastcot: "",
   proxcot: 0,
   recoverenergy: {
@@ -184,90 +226,78 @@ maqExtension.forceCot = async function() {
   }
 }
 
-maqExtension.get = async function(member) {
-  const obj = await API.getInfo(member, 'machines')
+maqExtension.get = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'machines')
   return obj.machine;
 }
 
-maqExtension.has = async function(member) {
-  const obj = await API.getInfo(member, 'machines')
+maqExtension.has = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'machines')
   return obj.machine != 0;
 }
 
-maqExtension.getEnergy = async function(member) {
+maqExtension.getEnergy = async function(user_id) {
 
-  const obj = await API.getInfo(member, 'machines')
+  const obj = await DatabaseManager.get(user_id, 'machines')
+  const obj2 = await DatabaseManager.get(user_id, 'players')
+
   let energia = obj.energy;
+
+  let r = 0;
+
+  const array = obj.slots == null ? [] : obj.slots
+  for (const i of array){
+    if (API.shopExtension.getProduct(i.id).typeeffect == 1) {
+      r += API.shopExtension.getProduct(i.id).size
+    };
+  }
+
+  const energiamax = obj.energymax+r;
   
-  let energiamax = await maqExtension.getEnergyMax(member);
-  
-  let res = (Date.now()/1000)-(energia/1000);
-  
-  const obj2 = await API.getInfo(member, 'players')
   let recover = maqExtension.recoverenergy[obj2.perm]
 
-  let time = energiamax*recover - res;
-  time = Math.round(time)
+  function getEnergyTime() {
+    let res = (Date.now()/1000)-(energia/1000);
+    let time = energiamax*recover - res;
+    time = Math.round(time)
+    return time;
+  }
+
+  let time = getEnergyTime()
   if (time < 1){ 
     energia = energiamax;
   } else {
     energia = (energiamax-((time-(time%recover))/recover))-1;
   }
 
-  if (!energia || energia == null || energia == NaN) return 0
+  if (!energia || energia == null || energia == NaN) energia = 0
 
-  return energia;
+  time *= 1000
+
+  return { energia, energiamax, time };
 }
 
-maqExtension.getEnergyTime = async function(member) {
-  const obj = await API.getInfo(member, 'machines')
-  let energia = obj.energy;
-  let energiamax = await maqExtension.getEnergyMax(member);
-
-  const obj2 = await API.getInfo(member, 'players')
-  let recover = maqExtension.recoverenergy[obj2.perm]
-
-  let res = (Date.now()/1000)-(energia/1000);
-  let time = energiamax*recover - res;
-  time = Math.round(time)
-  return time*1000;
-}
-
-maqExtension.getEnergyMax = async function(member) {
-
-  const obj = await API.getInfo(member, 'machines')
-
-  let r = 0;
-
-  const array = obj.slots == null ? [] : obj.slots
-  for (const i of array){
-    if (API.shopExtension.getProduct(i).typeeffect == 1) {
-      r += API.shopExtension.getProduct(i).size
-    };
-  }
-
-  return obj.energymax+r;
-}
-
-maqExtension.setEnergy = async function(member, valor) {
+maqExtension.setEnergy = async function(user_id, valor) {
 
   if (valor == null) valor = 0
 
-  API.setInfo(member, 'machines', 'energy', valor)
+  DatabaseManager.set(user_id, 'machines', 'energy', valor)
 }
 
-maqExtension.removeEnergy = async function(member, valor) {
+maqExtension.removeEnergy = async function(user_id, valor) {
   let r = 0;
 
-  const obj2 = await API.getInfo(member, 'players')
+  const obj2 = await DatabaseManager.get(user_id, 'players')
   let recover = maqExtension.recoverenergy[obj2.perm]
 
-  let f = Date.now()-((await API.maqExtension.getEnergy(member)-r-valor)*(recover*1000));
-  await API.maqExtension.setEnergy(member, f);
+  const energyobj = await API.maqExtension.getEnergy(user_id)
+
+  let f = Date.now()-((energyobj.energia-r-valor)*(recover*1000));
+  await API.maqExtension.setEnergy(user_id, f);
 }
 
-maqExtension.setEnergyMax = async function(member, valor) {
-  API.setInfo(member, 'machines', 'energymax', valor)
+maqExtension.setEnergyMax = async function(user_id, valor) {
+  DatabaseManager.set(user_id, 'machines', 'energymax', valor)
 }
 
 maqExtension.getSlotMax = function(level, mvp) {
@@ -282,16 +312,48 @@ maqExtension.getSlotMax = function(level, mvp) {
   return res;
 }
 
-maqExtension.getDepth = async function(member) {
-  let playerobj = await API.getInfo(member, 'machines');
+maqExtension.getDepth = async function(user_id) {
+  let playerobj = await DatabaseManager.get(user_id, 'machines');
   let maqid = playerobj.machine;
   let maq = API.shopExtension.getProduct(maqid);
   let r = 0;
-  const array = await API.itemExtension.getEquipedPieces(member);
+  const array = await API.itemExtension.getEquippedChips(user_id);
   for (const i of array){
-    if (API.shopExtension.getProduct(i).typeeffect == 2) r = r+API.shopExtension.getProduct(i).size;
+    if (API.shopExtension.getProduct(i.id).typeeffect == 2) r = r+API.shopExtension.getProduct(i.id).size;
   }
   return maq.profundidade+r
+}
+
+maqExtension.getMaintenance = async function(user_id, getDefault) {
+
+  const machinesobj = await DatabaseManager.get(user_id, 'machines')
+  const machineproduct = API.shopExtension.getProduct(machinesobj.machine);
+
+  function genMaintenance(name, pricemultiplier, defaultValue, invert) {
+    if (!getDefault) {
+      var user_maintenance = machinesobj[name] == 0 ? Math.round(defaultValue/100*machineproduct[name]) : machinesobj[name];
+    } else {
+      var user_maintenance = machinesobj[name]
+    }
+    const max_maintenance = machineproduct[name]
+    const maintenance_percent = parseFloat((user_maintenance / max_maintenance * 100).toFixed(2))
+    const percenttemp = name == 'pressure' && maintenance_percent < 20 ? 100-maintenance_percent : (invert ? (100-maintenance_percent) : maintenance_percent)
+    const maintenance_price = Math.round(((percenttemp/100*max_maintenance)*pricemultiplier)*(machineproduct.tier+1))
+    return [user_maintenance, max_maintenance, maintenance_percent, maintenance_price]
+  }
+
+  const durability = genMaintenance("durability", 0.45, 100, false)
+  const pressure = genMaintenance("pressure", 0.00245, 50, false)
+  const pollutants = genMaintenance("pollutants", 0.00545, 0, false)
+  const refrigeration = genMaintenance("refrigeration", 0.00445, 100, true)
+
+  return { 
+    durability,
+    pressure,
+    pollutants,
+    refrigeration,
+  }
+
 }
 
 module.exports = maqExtension;

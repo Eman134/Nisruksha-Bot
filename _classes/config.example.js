@@ -3,8 +3,11 @@ module.exports = { // Renomeie para config.js
     owner: ["422002630106152970"],
 
     ip: "localhost",
-    port: 80, // Padrão 80
-    ssl: false,
+    port: 80,
+
+    sharding: {
+        shardAmount: 'auto'
+    },
 
     db: {
         user: '',
@@ -40,6 +43,7 @@ module.exports = { // Renomeie para config.js
     modules: {
 
         cotacao: 20, // em minutos
+        discount: 60, // em minutos
 
         events: {
             channel: "",

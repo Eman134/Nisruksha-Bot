@@ -626,5 +626,191 @@
                 "chance": 100
             }
         ]
+    },
+    {
+        "name": "Zopts eyes",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919439971646079016/35.png",
+        "level": 45,
+        "sta": 350,
+        "drops": [{
+            "name": "\"sobras de zopt\"",
+            "maxdrops": 3,
+            "chance": 100
+        }]
+    },
+    {
+        "name": "Princeps Maria",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919440516725235712/36.png",
+        "level": 48,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"carola de maria\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"maria corazon\"",
+                "maxdrops": 1,
+                "chance": 30
+            }
+        ]
+    },
+    {
+        "name": "Cogumigo",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919441203597025320/37.png",
+        "level": 50,
+        "sta": 350,
+        "drops": [{
+            "name": "\"sobras de cogumigo\"",
+            "maxdrops": 1,
+            "chance": 100
+        }]
+    },
+    {
+        "name": "Publes N",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919441860995481600/38.png",
+        "level": 53,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"olho de publes n\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"pernas de publes n\"",
+                "maxdrops": 2,
+                "chance": 70
+            },
+            {
+                "name": "\"publes corazon\"",
+                "maxdrops": 1,
+                "chance": 10
+            }
+        ]
+    },
+    {
+        "name": "Deadly Colus",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919442432964304917/39.png",
+        "level": 55,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"coluna de deadly\"",
+                "maxdrops": 1,
+                "chance": 90
+            },
+            {
+                "name": "\"pernas de deadly\"",
+                "maxdrops": 1,
+                "chance": 55
+            }
+        ]
+    },
+    {
+        "name": "Poison Deadly Colus",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919442443093557278/40.png",
+        "level": 60,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"coluna de poison deadly\"",
+                "maxdrops": 1,
+                "chance": 95
+            },
+            {
+                "name": "\"pernas de deadly\"",
+                "maxdrops": 1,
+                "chance": 40
+            },
+            {
+                "name": "\"veneno de poison deadly\"",
+                "maxdrops": 2,
+                "chance": 20
+            }
+        ]
+    },
+    {
+        "name": "Corrumpitur Equus",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919443267685335100/41.png",
+        "level": 64,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"carola de equus\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"pernas de equus\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Cristalmelo",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919443623613956126/42.png",
+        "level": 68,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"cristal de cristalmelo\"",
+                "maxdrops": 1,
+                "chance": 100
+            },
+            {
+                "name": "\"cristalmelo limpo\"",
+                "maxdrops": 1,
+                "chance": 50
+            }
+        ]
+    },
+    {
+        "name": "Antereia",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919444013839441920/43.png",
+        "level": 70,
+        "sta": 350,
+        "drops": [
+            {
+                "name": "\"superior de antereia\"",
+                "maxdrops": 1,
+                "chance": 90
+            },
+            {
+                "name": "\"inferior de antereia\"",
+                "maxdrops": 1,
+                "chance": 70
+            }
+        ]
+    },
+    {
+        "name": "Morcores",
+        "image": "https://cdn.discordapp.com/attachments/764111274756931625/919444293477867550/44.png",
+        "level": 75,
+        "sta": 400,
+        "drops": [
+            {
+                "name": "\"olho\"",
+                "maxdrops": 2,
+                "chance": 60
+            },
+            {
+                "name": "\"asa de morcores\"",
+                "maxdrops": 2,
+                "chance": 50
+            },
+            {
+                "name": "\"carola de morcores\"",
+                "maxdrops": 1,
+                "chance": 90
+            }
+        ]
     }
 ]

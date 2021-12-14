@@ -4,14 +4,17 @@ const API = require("./api.js");
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const glob = require('glob');
+const { SlashCommandBuilder } = require('@discordjs/builders');
 
 module.exports = class NisrukshaClient extends Discord.Client {
 
     constructor(options = {}) {
         super({
             allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
-            intents: ['GUILDS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS'] 
+            intents: ['GUILDS', 'GUILD_MESSAGE_REACTIONS', 'GUILD_MESSAGES'] 
         })
+
+        this.options
 
         console.log(' ');
         this.validate(options)
@@ -39,15 +42,14 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
         API.client = this;
         API.Discord = Discord;
-        require('./packages/quote.js')
 
         const files = glob.sync(__dirname + '/modules/*.js')
-        
-        files.forEach(file => {
+
+        for (const file of files) {
             let eventFunction = require(file.replace('.js', ''));
             const eventName = file.replace('.js', '').replace(__dirname.replace(/\\/g, '/') + '/modules/', "")
             API[eventName] = eventFunction
-        });
+        }
 
         API.db = require('./db.js');
         
@@ -69,57 +71,16 @@ module.exports = class NisrukshaClient extends Discord.Client {
     }
 
     loadCommands(options) {
-        const x = new Discord.Collection(undefined, undefined);
-        const x2 = new Discord.Collection(undefined, undefined);
-
-        const rest = new REST({ version: '9' }).setToken(this.token);
 
         (async () => {
             try {
         
                 if (!this.application?.owner) await this.application?.fetch();
 
-                const commandsJson = []
+                const commandsObject = await this.getCommandsJson()
+                this.commands = commandsObject.commandsCollection
 
-                const files = glob.sync(__dirname + '/../commands/*/*.js')
-
-                files.forEach(file => {
-
-                    try {
-
-                        if (!file.includes('!')) {
-                            
-                            let command = require(file.replace('.js', ''))
-                            x.set(command.name, command)
-                            if (!command.aliases) command.aliases = []
-                            for (const r of command.aliases) {
-                                x2.set(r, command)
-                            }
-
-                            API.helpExtension.addCommand(command);
-                            if (command.data && command.category != "none") {
-                                command.data.setName(command.name)
-                                command.data.setDescription(command.category + ' | ' + command.description)
-                                commandsJson.push(command.data.toJSON());
-                            }
-
-                        };
-
-                    } catch (err) {
-                        console.log('Houve um erro ao carregar o comando ' + file)
-                        console.log(err.stack)
-                    }
-
-                })
-
-                await rest.put(
-                    Routes.applicationCommands(options.app.id),
-                    { body: commandsJson },
-                );
-
-                this.commandsaliases = x2
-
-                this.commands = x
+                await this.loadSlashCommands({ id: options.app.id })
 
                 console.log(`[COMANDOS] Carregados`.green)
 
@@ -127,8 +88,79 @@ module.exports = class NisrukshaClient extends Discord.Client {
                 console.error(error);
             }
         })();
-
         
+    }
+
+    getCommandsJson() {
+        const files = glob.sync(__dirname + '/../commands/*/*.js')
+        const commandsCollection = new Discord.Collection();
+        const globalCommandsJson = []
+        const serverCommandsJson = []
+        for (const file of files) {
+
+            try {
+
+                if (!file.includes('!')) {
+                    
+                    let command = require(file.replace('.js', ''))
+                    commandsCollection.set(command.name, command)
+
+                    API.helpExtension.addCommand(command);
+                    if (!command.data){
+                        command.data = new SlashCommandBuilder()
+                    }
+                    command.data.setName(command.name)
+                    let categorystring 
+                    if (command.category == 'none' && !command.companytype) categorystring = 'STAFF'
+                    else if (command.category == 'none' && command.companytype > 0) categorystring = 'TRABALHO'
+                    else if (command.category == 'none' && command.companytype == -1) categorystring = 'EVENTO'
+                    else categorystring = command.category
+                    command.data.setDescription(categorystring + (command.description == 'none' ? '' : ' | ' + command.description))
+                    if (categorystring == 'STAFF') serverCommandsJson.push(command.data.toJSON());
+                    else globalCommandsJson.push(command.data.toJSON());
+
+                };
+
+            } catch (err) {
+                console.log('Houve um erro ao carregar o comando ' + file)
+                console.log(err.stack)
+            }
+        }
+
+        return { globalCommandsJson, serverCommandsJson, commandsCollection }
+    }
+
+    async loadSlashCommands({ force = false, id }) {
+        const rest = new REST({ version: '9' }).setToken(this.token);
+        const { globalCommandsJson, serverCommandsJson } = await this.getCommandsJson()
+
+        console.log(force ? 'Forçando atualização de comandos' : 'Carregando comandos')
+        rest.get(Routes.applicationCommands(id)).then(async (cmds) => {
+
+            if ((globalCommandsJson.length != cmds.length) || force) {
+
+                console.log('Atualizando comandos')
+
+                try {
+                    await rest.put(
+                        Routes.applicationGuildCommands(id, '693150851396796446'),
+                        { body: serverCommandsJson },
+                    );
+    
+                    await rest.put(
+                        Routes.applicationCommands(id),
+                        { body: globalCommandsJson },
+                    )
+                } catch (error) {
+                    console.log(error)
+                }
+
+
+                console.log(globalCommandsJson.length + ' Slash reiniciados' + (force ? ' (FORCE)' : ''))
+
+            }
+
+        })
     }
 
     loadExpressServer(options) {
@@ -159,7 +191,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                         const embed = new Discord.MessageEmbed()
                             .setColor('RANDOM')
-                            .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
+                            .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`/votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
                             .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
                         API.client.channels.cache.get(options.dbl.voteLogs_channel).send({ embeds: [embed]});

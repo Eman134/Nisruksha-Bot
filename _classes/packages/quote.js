@@ -1,6 +1,6 @@
 const { Message } = require("discord.js");
 
-Message.prototype.quote = async function (x) {
+async function quote(x) {
 
   x.allowedMentions = { repliedUser: false}
 
@@ -8,16 +8,16 @@ Message.prototype.quote = async function (x) {
   
   x.reply = { messageReference: this.id }
 
-  let msg 
+  let interaction 
   try {
   
-    msg = await this.channel.send(x);
+    interaction = await this.channel.send(x);
     
   } catch {
 
   }
     
-  return msg
+  return interaction
 }
 
 //module.exports = replyQuote

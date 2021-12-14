@@ -66,8 +66,8 @@
         "por": 60
     },
     {
-        "name": "manganes",
-        "icon": "<:manganes:737383544447303731>",
+        "name": "pirita",
+        "icon": "<:pirita:919781180260384798>",
         "price": {
             "min": 19.5,
             "default": 25,
@@ -76,11 +76,11 @@
             "ultimoupdate": "",
             "updates": []
         },
-        "por": 56
+        "por": 53
     },
     {
-        "name": "niobio",
-        "icon": "<:niobio:739967867805761556>",
+        "name": "manganes",
+        "icon": "<:manganes:737383544447303731>",
         "price": {
             "min": 33,
             "default": 36,
@@ -92,8 +92,8 @@
         "por": 46
     },
     {
-        "name": "ouro",
-        "icon": "<:ouro:739969415382171831>",
+        "name": "niobio",
+        "icon": "<:niobio:739967867805761556>",
         "price": {
             "min": 48,
             "default": 55,
@@ -105,8 +105,8 @@
         "por": 30
     },
     {
-        "name": "rubi",
-        "icon": "<:rubi:739972116149174392>",
+        "name": "ouro",
+        "icon": "<:ouro:739969415382171831>",
         "price": {
             "min": 287,
             "default": 300,
@@ -118,8 +118,8 @@
         "por": 28
     },
     {
-        "name": "ametista",
-        "icon": "<:ametista:739972116455096341>",
+        "name": "rubi",
+        "icon": "<:rubi:739972116149174392>",
         "price": {
             "min": 460,
             "default": 480,
@@ -131,8 +131,8 @@
         "por": 8
     },
     {
-        "name": "diamante",
-        "icon": "<:diamante:739972116811612201>",
+        "name": "ametista",
+        "icon": "<:ametista:739972116455096341>",
         "price": {
             "min": 890,
             "default": 1300,
@@ -144,8 +144,8 @@
         "por": 5
     },
     {
-        "name": "jade",
-        "icon": "<:jade:739972115943653376>",
+        "name": "diamante",
+        "icon": "<:diamante:739972116811612201>",
         "price": {
             "min": 3400,
             "default": 3800,
@@ -157,8 +157,8 @@
         "por": 3
     },
     {
-        "name": "safira",
-        "icon": "<:safira:851945445915230210>",
+        "name": "jade",
+        "icon": "<:jade:739972115943653376>",
         "price": {
             "min": 9400,
             "default": 12800,
@@ -168,5 +168,18 @@
             "updates": []
         },
         "por": 2
+    },
+    {
+        "name": "safira",
+        "icon": "<:safira:851945445915230210>",
+        "price": {
+            "min": 12400,
+            "default": 16800,
+            "max": 25100,
+            "atual": 16800,
+            "ultimoupdate": "",
+            "updates": []
+        },
+        "por": 1
     }
 ]

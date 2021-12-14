@@ -1,40 +1,45 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('categoria').setDescription('Digite uma categoria de loja para visualizar os produtos')
+.addChoice('MAQUINAS', 'MAQUINAS')
+.addChoice('FICHAS', 'FICHAS')
+.addChoice('CHIPES', 'CHIPES')
+.addChoice('TEMPORAL', 'TEMPORAL')
+.addChoice('MOCHILAS', 'MOCHILAS')
+.setRequired(false))
+
 module.exports = {
     name: 'loja',
     aliases: ['shop', 'l'],
     category: 'Economia',
     description: 'Veja os produtos disponíveis para venda',
-    options: [{
-        name: 'categoria',
-        type: 'STRING',
-        description: 'Digite uma categoria de loja para visualizar os produtos',
-        required: false
-    }],
+    data,
     mastery: 10,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
-        const args = API.args(msg);
-        if (args.length == 0) {
+        const optioncategoria = interaction.options.getString('categoria')
+        if (optioncategoria == null) {
             const embed = new Discord.MessageEmbed()
             .setColor('#811e99')
             .setDescription(`
             <:shop:736274027919966269> Veja abaixo produtos das categorias e divirta-se!
-            ↳ Utilize \`${API.prefix}loja <categoria>\` para visualizar uma categoria
-            ↳ Utilize \`${API.prefix}comprar <id>\` para realizar uma compra
+            ↳ Utilize \`/loja <categoria>\` para visualizar uma categoria
+            ↳ Utilize \`/comprar <id>\` para realizar uma compra
             `)
             .addField('<:list:736274028179750922> Categorias', API.shopExtension.getShopList())
-            await msg.quote({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
             return;
         }
-        let categoria = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        const categoria = optioncategoria.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
         if (categoria == 'maq') {
             categoria = 'maquinas';
         }
         let obj = API.shopExtension.getShopObj();
         let array = Object.keys(obj);
         if (!API.shopExtension.categoryExists(categoria)){
-            const embedtemp = await API.sendError(msg, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
+            await interaction.reply({ embeds: [embedtemp]})
 			return;
         }
         var product = obj[categoria];
@@ -51,20 +56,20 @@ module.exports = {
 
         embed.setTitle(`${categoria.toUpperCase()} ${currentpage}/${totalpages}`);
         embed.setColor('#bf772a');
-        embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        embed.setDescription(`Utilize \`${API.prefix}comprar <id>\` para realizar uma compra`);
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setDescription(`Utilize \`/comprar <id>\` para realizar uma compra`);
 
         let stopComponents = false
 
         if (currentpage == totalpages || totalpages == 0) stopComponents = true
 
-        const components = await API.shopExtension.formatPages(embed, { currentpage, totalpages }, product, msg.author, stopComponents);
+        const components = await API.shopExtension.formatPages(embed, { currentpage, totalpages }, product, interaction.user.id, stopComponents);
 
-        let embedmsg = await msg.quote({ embeds: [embed], components });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
         if (stopComponents) return
 
-        API.shopExtension.editPage(categoria.toUpperCase(), msg, embedmsg, product, embed, currentpage, totalpages);
+        API.shopExtension.editPage(categoria.toUpperCase(), interaction, embedinteraction, product, embed, currentpage, totalpages);
 
 	}
 };

@@ -4,12 +4,12 @@ module.exports = {
     category: 'Outros',
     description: 'Vote para ajudar no crescimento do bot e resgate recompensas',
     mastery: 10,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
 
         let votedtopgg = false
-        const check1 = await API.playerUtils.cooldown.check(msg.author, "votetopgg");
+        const check1 = await API.playerUtils.cooldown.check(interaction.user.id, "votetopgg");
         if (check1) votedtopgg = true
 
         const { best } = require("../../_classes/config");
@@ -18,7 +18,7 @@ module.exports = {
         const options = {
             hostname: 'bestlist.online',
             port: 443,
-            path: '/api/users/voted/' + msg.author.id,
+            path: '/api/users/voted/' + interaction.user.id,
             method: 'GET',
             headers: {
             'Content-Type': 'application/json',
@@ -35,11 +35,11 @@ module.exports = {
                 votedbest = false
                 const embed = new Discord.MessageEmbed()
                 .setColor('#36393f')
-                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
                 .addField( (votedbest ? '🔴' : '🟢') + ' **Best**', `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`)
                 .addField( (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${API.money2} ${API.money2emoji}`)
-                msg.quote({ embeds: [embed]});
+                interaction.reply({ embeds: [embed]});
 
             } else {
 
@@ -48,11 +48,11 @@ module.exports = {
                     votedbest = d.votedToday
                     const embed = new Discord.MessageEmbed()
                     .setColor('#36393f')
-                    .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                    .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                     .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
                     .addField( (votedbest ? '🔴' : '🟢') + ' **Best**', `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`)
                     .addField( (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${API.money2} ${API.money2emoji}`)
-                    msg.quote({ embeds: [embed]});
+                    interaction.reply({ embeds: [embed]});
 
                 })
 

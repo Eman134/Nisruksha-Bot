@@ -1,45 +1,47 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'pescar',
     aliases: ['fish'],
     category: 'none',
     description: 'Inicie uma pesca, pegue os melhores peixes e venda-os',
-    options: [],
     mastery: 30,
     companytype: 6,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
         const client = API.client;
         
-        let pobj = await API.getInfo(msg.author, 'players')
-        let pobj2 = await API.getInfo(msg.author, 'machines')
+        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (!pobj.rod) {
-            const embedtemp = await API.sendError(msg, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`${API.prefix}pegarvara\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
         if (pobj2.level < 3) {
-            const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (API.cacheLists.waiting.includes(msg.author, 'fishing')) {
-            const embedtemp = await API.sendError(msg, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let stamina = await API.playerUtils.stamina.get(msg.author)
+        let stamina = await API.playerUtils.stamina.get(interaction.user.id)
         let staminamax = 1000;
         let cost = pobj.rod.sta * 5
 
         if (stamina < cost) {
             
-            const embedtemp = await API.sendError(msg, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${cost}]**`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
             
         }
@@ -74,19 +76,19 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Pescando`)
-        embed.setDescription(`Pescador: ${msg.author}`);
-        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
+        embed.setDescription(`Pescador: ${interaction.user}`);
+        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote({ embeds: [embed], components: reworkBtns() }).catch();
+        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), fetchReply: true }).catch();
         
-        API.cacheLists.waiting.add(msg.author, embedmsg, 'fishing');
-        API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
+        API.cacheLists.waiting.add(interaction.user.id, interaction, 'fishing');
+        API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
 
         let coletados = new Map()
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
 
         function duplicateElements(array, times) {
 
@@ -178,7 +180,7 @@ module.exports = {
 
                             const capturado = fish.find((fsh) => fsh.icon == levels[xi.toString()].waterarray[0])
 
-                            retorno = await API.itemExtension.give(msg, [capturado])
+                            retorno = await API.itemExtension.give(interaction, [capturado])
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 
@@ -249,7 +251,7 @@ module.exports = {
             
         }
 
-        async function edit(msg, company) {
+        async function edit(interaction, company) {
 
             header = await gen(pobj, header)
             body = header.levels
@@ -276,52 +278,52 @@ module.exports = {
                 if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
 
                 let xp = API.random(1, 3);
-                xp = await API.playerUtils.execExp(msg, xp);
+                xp = await API.playerUtils.execExp(interaction, xp);
 
-                await API.playerUtils.stamina.remove(msg.author, gastosta);
+                await API.playerUtils.stamina.remove(interaction.user.id, gastosta);
 
-                pobj = await API.getInfo(msg.author, 'players')
+                pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-                stamina = await API.playerUtils.stamina.get(msg.author)
+                stamina = await API.playerUtils.stamina.get(interaction.user.id)
 
-                if (header.stars > 0 ) API.company.stars.add(msg.author, company.company_id, { score: header.stars })
+                if (header.stars > 0 ) API.company.stars.add(interaction.user.id, company.company_id, { score: header.stars })
 
                 embed.fields = [];
-                const obj6 = await API.getInfo(msg.author, "machines");
-                let sta2 = await API.playerUtils.stamina.get(msg.author);
-                embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
+                const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                let sta2 = await API.playerUtils.stamina.get(interaction.user.id);
+                embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
                 embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``)
                 embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px).join(inv))
-                embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
-                    await embedmsg.edit({ embeds: [embed], components: reworkBtns() })
+                    await interaction.editReply({ embeds: [embed], components: reworkBtns() })
                 }catch{
-                    API.cacheLists.waiting.remove(msg.author, 'fishing')
-                    API.cacheLists.waiting.remove(msg.author, 'working');
+                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return
                 }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
-                    const embedtemp = await API.sendError(msg, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(msg.author, 'fishing')
-                    API.cacheLists.waiting.remove(msg.author, 'working');
+                    const embedtemp = await API.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
+                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
-                    const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(msg.author, 'fishing')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(msg.author, 'fishing')
-                    API.cacheLists.waiting.remove(msg.author, 'working');
+                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 let reacted = false
-                const collector = embedmsg.createMessageComponentCollector({ filter, time: API.company.jobs.fish.update*1000 });
+                const collector = embedinteraction.createMessageComponentCollector({ filter, time: API.company.jobs.fish.update*1000 });
 
                 collector.on('collect', async (b) => {
   
@@ -341,16 +343,16 @@ module.exports = {
                         pd = header.profundidades
 
                         embed.fields = [];
-                        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`${API.prefix}uparvara\``)
+                        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${API.company.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
                         embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
                         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                         await embed.addField(`➰ Coletados`, ccmap)
-                        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                        embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            await embedmsg.edit({ embeds: [embed], components: reworkBtns() }).catch()
+                            await interaction.editReply({ embeds: [embed], components: reworkBtns() }).catch()
                         }catch{
-                            API.cacheLists.waiting.remove(msg.author, 'fishing')
-                            API.cacheLists.waiting.remove(msg.author, 'working');
+                            API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                            API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             return
                         }
                     }
@@ -358,13 +360,13 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
-                        const embedtemp = await API.sendError(msg, `Você parou a pesca!`)
-                        await msg.quote({ embeds: [embedtemp], components: [] })
-                        API.cacheLists.waiting.remove(msg.author, 'fishing')
-                        API.cacheLists.waiting.remove(msg.author, 'working');
+                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                        const embedtemp = await API.sendError(interaction, `Você parou a pesca!`)
+                        await interaction.reply({ embeds: [embedtemp], components: [] })
+                        API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                        API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     } else {
-                        edit(msg, company);
+                        edit(interaction, company);
                     }
                 });
                 
@@ -373,7 +375,7 @@ module.exports = {
             }
         }
 
-        edit(msg, company);
+        edit(interaction, company);
 
 	}
 };

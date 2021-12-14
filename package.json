@@ -1,6 +1,6 @@
 {
   "name": "nisruksha",
-  "version": "2.1.8",
+  "version": "2.1.9",
   "description": "",
   "main": "bot.js",
   "scripts": {},
@@ -10,14 +10,11 @@
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "@top-gg/sdk": "^3.1.2",
+    "ascii-table": "^0.0.9",
     "canvas": "^2.8.0",
     "colors": "^1.4.0",
-<<<<<<< Updated upstream
-    "discord.js": "^13.0.0-dev.d310e4f.1627560163",
-=======
     "discord-api-types": "^0.23.1",
-    "discord.js": "^13.1.0",
->>>>>>> Stashed changes
+    "discord.js": "^13.3.1",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
     "happycalculator": "^1.3.6",

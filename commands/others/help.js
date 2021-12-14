@@ -4,7 +4,7 @@ module.exports = {
     category: 'Outros',
     description: 'Visualiza os comandos disponíveis do bot',
 	mastery: 10,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
 		const categorylist = API.helpExtension.getCategoryListObj()
 		const Discord = API.Discord;
@@ -12,13 +12,13 @@ module.exports = {
 		function home() {
 			embed.setColor('#32a893')
 			.setTitle('Olá, meu nome é Nisruksha!')
-			.setDescription(`<:info:736274028515295262> Olá ${msg.author}, sou o **Nisruksha**.
-↳ Para me convidar para seu servidor ou entrar no meu, basta usar \`${API.prefix}convite\`
+			.setDescription(`<:info:736274028515295262> Olá ${interaction.user}, sou o **Nisruksha**.
+↳ Para me convidar para seu servidor ou entrar no meu, basta usar \`/convite\`
 
-Acesse o tutorial do bot para saber a história e como usá-lo (Em construção) \`${API.prefix}tutorial\`
+Acesse o tutorial do bot para saber a história e como usá-lo (Em construção) \`/tutorial\`
 
-Apoie quem te convidou para o bot usando \`${API.prefix}apoiar <código>\`
-Caso não tenha o código, peça para a pessoa utilizar \`${API.prefix}meucodigo\`
+Apoie quem te convidou para o bot usando \`/apoiar <código>\`
+Caso não tenha o código, peça para a pessoa utilizar \`/meucodigo\`
 
 <:book:703298827888623647> Para saber mais sobre os comandos, separei algumas categorias para você listar!
 
@@ -63,31 +63,31 @@ ${API.helpExtension.getCategoryList()}`)
 
         }
 
-		let embedmsg = await msg.quote({ embeds: [embed], components });
+		const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 			current = b.customId
             if (b.customId == 'home') {
                 home()
             } else {
 
 				const cmdlist = API.client.commands.filter((cmd) => cmd.category == current )
-            
+                const cmdmap = cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${'\n › Maestria média: \`🔰\ ' + (cmd.mastery || 1) + '\`\n'}`).join('\n')
 				embed.setTitle(`<:info:736274028515295262> Categoria ${b.customId.toUpperCase()}`);
 				embed.setColor("#03d7fc");
-				embed.setDescription(`${cmdlist.map((cmd) => `\`${API.prefix}${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
-
+				embed.setDescription(cmdmap);
+				//embed.setDescription(`${cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 			}
         
             reworkButtons(current)
 
-            await embedmsg.edit({ embeds: [embed], components})
+            await interaction.editReply({ embeds: [embed], components })
 
             collector.resetTimer()
             if (!b.deferred) b.deferUpdate().then().catch();
@@ -96,7 +96,7 @@ ${API.helpExtension.getCategoryList()}`)
         
         collector.on('end', collected => {
 			reworkButtons(current, true)
-            embedmsg.edit({ embeds: [embed], components })
+            interaction.editReply({ embeds: [embed], components })
         });
 		
 	}

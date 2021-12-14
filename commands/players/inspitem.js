@@ -1,48 +1,43 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database()
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('item').setDescription('Escreva o nome do item que você deseja inspecionar').setRequired(true))
+
 module.exports = {
     name: 'inspecionaritem',
     aliases: ['veritem', 'insi', 'inspitem'],
     category: 'Players',
     description: 'Inspeciona algum item da sua mochila',
-    options: [{
-        name: 'item',
-        type: 'STRING',
-        description: 'Escreva o nome do item que você deseja usar',
-        required: false
-    }],
+    data,
     mastery: 25,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const args = API.args(msg);
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para inspecionar!`, `inspecionaritem <nome do item>`)
-            await msg.quote({ embeds: [embedtemp]})
+        let id = interaction.options.getString('item');
+        
+        if ((API.itemExtension.exists(id, 'drops') == false)) {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar um item EXISTENTE para inspecionar!\nVerifique os itens disponíveis utilizando \`/mochila\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
+        id = id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
-        if (args.length >= 1 && (API.itemExtension.exists(API.getMultipleArgs(msg, 1), 'drops') == false)) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para inspecionar!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let id = API.getMultipleArgs(msg, 1).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); 
         const drop = API.itemExtension.get(id)
         
-        const obj2 = await API.getInfo(msg.author, 'storage')
+        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-            const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para inspecionar!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para inspecionar!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         embed.addField('🔎 Inspeção', `Nome: **${drop.icon} ${drop.displayname}**\nValor: \`${drop.price} ${API.money}\` ${API.moneyemoji}\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? API.itemExtension.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}`)
         if (drop.icon.includes('>')) embed.setImage('https://cdn.discordapp.com/emojis/' + drop.icon.split(':')[2].replace('>', '') + '.png?v=1')
-        await msg.quote({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
 
 	}
 };

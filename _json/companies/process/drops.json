@@ -32,6 +32,14 @@
         "price": 500
     },
     {
+        "name": "\"fragmento de pirita\"",
+        "displayname": "Fragmento de Pirita",
+        "icon": "<:pifragment:919781611791347753>",
+        "rarity": "uncommon",
+        "levelprocess": 9,
+        "price": 650
+    },
+    {
         "name": "\"fragmento de manganes\"",
         "displayname": "Fragmento de Manganes",
         "icon": "<:mgfragment:858469766398214184>",

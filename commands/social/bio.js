@@ -1,37 +1,35 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('bio').setDescription('Escreva uma pequena biografia sobre você').setRequired(true))
+
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'sobremim',
     aliases: ['biografia', 'biography', 'sobre', 'bio', 'sobre-mim'],
     category: 'Social',
     description: 'Defina a sua biografia que aparece no perfil',
-    options: [{
-        name: 'texto',
-        type: 'STRING',
-        description: 'Escreva uma pequena biografia sobre você',
-        required: true
-    }],
+    data,
     mastery: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
         const Discord = API.Discord;
 
-        const args = API.args(msg);
+        let bio = interaction.options.getString('bio');
 
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você não definiu um texto sobre você', 'sobremim <texto>')
-            await msg.quote({ embeds: [embedtemp]})
+        if (bio.length > 50) {
+            const embedtemp = await API.sendError(interaction, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + bio.length + '/50', 'sobremim <texto>')
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.getMultipleArgs(msg, 1).length > 50) {
-            const embedtemp = await API.sendError(msg, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50', 'sobremim <texto>')
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        API.setInfo(msg.author, "players", "bio", API.getMultipleArgs(msg, 1))
+
+        DatabaseManager.set(interaction.user.id, "players", "bio", bio)
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#8adb5e')
         .setDescription(`Sua biografia foi definida para:
-        \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
-        .setFooter('Quantia de caracteres da sua biografia: ' + API.getMultipleArgs(msg, 1).length + '/50')
-     await msg.quote({ embeds: [embed] });
+        \`\`\`${bio}\`\`\``)
+        .setFooter('Quantia de caracteres da sua biografia: ' + bio.length + '/50')
+        await interaction.reply({ embeds: [embed] });
 
 	}
 };

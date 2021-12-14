@@ -1,29 +1,31 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'terrenoatual',
     aliases: ['landplot', 'terrain', 'lote', 'plot'],
     category: 'none',
     description: 'Visualiza as informações da plantação e terreno',
-    options: [],
     mastery: 18,
     companytype: 1,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
 
-        let pobj = await API.getInfo(msg.author, 'players')
+        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "landplot");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "landplot");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'landplot', 'executar outro comando de terreno')
+            API.playerUtils.cooldown.message(interaction, 'landplot', 'executar outro comando de terreno')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "landplot", 20);
+        API.playerUtils.cooldown.set(interaction.user.id, "landplot", 20);
 
-        const townnum = await API.townExtension.getTownNum(msg.author);
-        const townname = await API.townExtension.getTownName(msg.author);
+        const townnum = await API.townExtension.getTownNum(interaction.user.id);
+        const townname = await API.townExtension.getTownName(interaction.user.id);
 
         function hasTerrain(plots, townnum) {
             let contains = false
@@ -107,7 +109,7 @@ module.exports = {
                     x++
                 }
             } else {
-                embed.addField(`❌ Não possui plantações`, `Utilize \`${API.prefix}coletar\` para coletar plantas ou sementes e começar a plantar`)
+                embed.addField(`❌ Não possui plantações`, `Utilize \`/coletar\` para coletar plantas ou sementes e começar a plantar`)
             }
 
             function reworkButtons(grow) {
@@ -157,34 +159,34 @@ module.exports = {
 
             const price = 100000
 
-            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
+            const embedtemp = await API.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
             
-            const embedmsg = await msg.quote({ embeds: [embedtemp], components: [API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])] } )
+            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], fetchReply: true } )
 
-            const filter = i => i.user.id === msg.author.id;
+            const filter = i => i.user.id === interaction.user.id;
             
-            const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+            const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
             let reacted = false;
             collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
                 reacted = true;
                 collector.stop();
                 if (!b.deferred) b.deferUpdate().then().catch();
                 embed.fields = [];
 
-                pobj = await API.getInfo(msg.author, 'players')
+                pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-                const money = await API.eco.money.get(msg.author);
+                const money = await API.eco.money.get(interaction.user.id);
       
                 if (!(money >= price)) {
                   embed.setColor('#a60000');
                   embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${API.format(money)}/${API.format(price)} ${API.money} ${API.moneyemoji}**`)
-                  await embedmsg.edit({ embeds: [embed], components: [] });
+                  await interaction.editReply({ embeds: [embed], components: [] });
                   return;
                 }
 
-                let townnum = await API.townExtension.getTownNum(msg.author);
+                let townnum = await API.townExtension.getTownNum(interaction.user.id);
                 let plot = {
                   loc: townnum,
                   area: 10,
@@ -195,8 +197,8 @@ module.exports = {
                 if (plots) {
                   if (Object.keys(plots).includes(townnum.toString())) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`${API.prefix}terrenos\` para visualizar seus terrenos`)
-                    await embedmsg.edit({ embeds: [embed], components: [] });
+                    embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`/terrenos\` para visualizar seus terrenos`)
+                    await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                   }
                 } else {
@@ -205,17 +207,17 @@ module.exports = {
   
                 plots[townnum] = plot
   
-                API.setInfo(msg.author, 'players', 'plots', plots)
+                DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
     
                 embed.setColor('#5bff45');
                 embed.addField('✅ Terreno adquirido', `
-                Você comprou seu terreno na vila **${townname}**\nUtilize \`${API.prefix}terrenoatual\` e \`${API.prefix}terrenos\` para mais informações.`)
-                await embedmsg.edit({ embeds: [embed], components: [] });
+                Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.`)
+                await interaction.editReply({ embeds: [embed], components: [] });
 
-                API.playerUtils.cooldown.set(msg.author, "landplot", 0);
+                API.playerUtils.cooldown.set(interaction.user.id, "landplot", 0);
 
-                await API.eco.money.remove(msg.author, price);
-                await API.eco.addToHistory(msg.author, `Compra <:terreno:765944910179336202> | - ${API.format(price)}`)
+                await API.eco.money.remove(interaction.user.id, price);
+                await API.eco.addToHistory(interaction.user.id, `Compra <:terreno:765944910179336202> | - ${API.format(price)}`)
     
             });
             
@@ -224,7 +226,7 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Tempo expirado', `
                 Você iria comprar um terreno, porém o tempo expirou!`)
-                embedmsg.edit({ embeds: [embed], components: [] });
+                interaction.editReply({ embeds: [embed], components: [] });
             });
 
             return;
@@ -236,21 +238,21 @@ module.exports = {
 
         const components = plotReturns.components
 
-        const embedmsg = await msg.quote({ embeds: [embed], components });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
 
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             if (!b.deferred) b.deferUpdate().then().catch();
 
             collector.resetTimer()
 
-            let pobj = await API.getInfo(msg.author, 'players')
+            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
             let plotReturns = await makeEmbed(pobj)
 
             let plot = plotReturns.plot
@@ -259,33 +261,33 @@ module.exports = {
 
             if (b.customId == 'upgrade') {
 
-                const points = await API.eco.points.get(msg.author);
+                const points = await API.eco.points.get(interaction.user.id);
 
                 if (!(points >= priceupgrade)) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${API.format(points)}/${API.format(priceupgrade)} ${API.money2} ${API.money2emoji}**`)
-                    embedmsg.edit({ embeds: [embed], components });
+                    interaction.editReply({ embeds: [embed], components });
                     return;
                 }
 
                 if (plot.area+10 > 100) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no upgrade', `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!`)
-                    embedmsg.edit({ embeds: [embed], components });
+                    interaction.editReply({ embeds: [embed], components });
                     return;
                 }
 
                 let plots = pobj.plots
                 plots[townnum].area = plot.area+10
 
-                await API.setInfo(msg.author, 'players', 'plots', plots)
+                await DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
 
-                API.playerUtils.cooldown.set(msg.author, "landplot", 0);
+                API.playerUtils.cooldown.set(interaction.user.id, "landplot", 0);
 
-                API.eco.points.remove(msg.author, priceupgrade);
-                await API.eco.addToHistory(msg.author, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${API.money2emoji}`)
+                API.eco.points.remove(interaction.user.id, priceupgrade);
+                await API.eco.addToHistory(interaction.user.id, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${API.money2emoji}`)
 
-                pobj = await API.getInfo(msg.author, 'players')
+                pobj = await DatabaseManager.get(interaction.user.id, 'players')
                 plotReturns = await makeEmbed(pobj)
                 components = plotReturns.components
 
@@ -293,7 +295,7 @@ module.exports = {
                 embed.addField('✅ Upgrade realizado', `
                 Você pagou \`${priceupgrade} ${API.money2}\` ${API.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
                 
-                await embedmsg.edit({ embeds: [embed], components });
+                await interaction.editReply({ embeds: [embed], components });
 
                 return
 
@@ -302,26 +304,26 @@ module.exports = {
                 let selectedplant = plot.plants[parseInt(b.customId)-1]
 
                 if (selectedplant.percent < 100) {
-                    embed.addField('❌ Falha na colheita', `Esta plantação ainda não está crescida!\nUtilize \`${API.prefix}terrenoatual\` para visualizar seus lotes`)
-                    await embedmsg.edit({ embeds: [embed], components })
+                    embed.addField('❌ Falha na colheita', `Esta plantação ainda não está crescida!\nUtilize \`/terrenoatual\` para visualizar seus lotes`)
+                    await interaction.editReply({ embeds: [embed], components })
                     return;
                 }
 
-                let pobj2 = await API.getInfo(msg.author, 'machines')
+                let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
                 allplots[townnum].plants.splice([parseInt(b.customId)-1], 1)
                 if (allplots[townnum].plants.length == 0) {
                     delete allplots[townnum].plants
                 }
 
-                await API.setInfo(msg.author, 'players', 'plots', allplots)
+                await DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
 
                 let total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level*1.5)
                 
-                if (await API.company.check.isWorker(msg.author)) {
+                if (await API.company.check.isWorker(interaction.user.id)) {
                     company = await API.company.get.companyById(pobj.company);
                 } else {
-                    company = await API.company.get.company(msg.author);
+                    company = await API.company.get.companyByOwnerId(interaction.user.id);
                 }
                 let owner = await API.company.get.ownerById(company.company_id);
 
@@ -331,47 +333,47 @@ module.exports = {
                 let totalantes = total
                 total = Math.round(total-totaltaxa)
 
-                if (msg.author.id == owner.id) {
+                if (interaction.user.id == owner.id) {
                     total = totalantes
                 }
 
                 let xp = API.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
-                xp = await API.playerUtils.execExp(msg, xp);
+                xp = await API.playerUtils.execExp(interaction, xp);
                 
                 let score = ((API.company.stars.gen()*2.5).toFixed(2)) 
 
-                pobj = await API.getInfo(msg.author, 'players')
+                pobj = await DatabaseManager.get(interaction.user.id, 'players')
                 plotReturns = await makeEmbed(pobj)
                 components = plotReturns.components
 
                 embed.setColor('#5bff45')
-                embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
+                embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
                 
-                await embedmsg.edit({ embeds: [embed], components })
+                await interaction.editReply({ embeds: [embed], components })
 
-                API.eco.addToHistory(msg.author, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
+                API.eco.addToHistory(interaction.user.id, `Colheita ${selectedplant.seed.icon} | + ${API.format(total)} ${API.moneyemoji}`)
 
-                API.eco.money.add(msg.author, total)
+                API.eco.money.add(interaction.user.id, total)
 
-                await API.company.stars.add(msg.author, company.company_id, { score })
+                await API.company.stars.add(interaction.user.id, company.company_id, { score })
                 
-                if (company == undefined || msg.author.id == owner.id) return
+                if (company == undefined || interaction.user.id == owner.id) return
                 let rend = company.rend || []
                 rend.unshift(totaltaxa)
                 rend = rend.slice(0, 10)
                 
-                API.setCompanieInfo(owner, company.company_id, 'rend', rend)
+                API.setCompanieInfo(owner.id, company.company_id, 'rend', rend)
 
-                API.company.stars.add(msg.author, company.company_id, { rend: totaltaxa })
+                API.company.stars.add(interaction.user.id, company.company_id, { rend: totaltaxa })
                 
-                API.eco.bank.add(owner, totaltaxa)
+                API.eco.bank.add(owner.id, totaltaxa)
 
             }
 
         });
         
         collector.on('end', async collected => {
-            embedmsg.edit({ embeds: [embed], components: [] })
+            interaction.editReply({ embeds: [embed], components: [] })
         });
 
 	}

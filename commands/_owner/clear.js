@@ -1,33 +1,27 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia para limpar').setRequired(true))
+
 module.exports = {
     name: 'clear',
     aliases: ['limpar', 'purge'],
     category: 'none',
     description: 'none',
+    data,
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        let args = API.args(msg)
-		if (!args){
-            const embedtemp = await API.sendError(msg, "Digite um número de mensagens para dar purge", `limpar 10`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
+        const quantia = interaction.options.getInteger('quantia');
 
-        if (!API.isInt(args[0])) {
-            const embedtemp = await API.sendError(msg, "Você precisa digitar um NÚMERO!", `limpar 10`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        let arg = parseInt(args[0])
-        if (arg < 1 || arg > 100) {
-            const embedtemp = await API.sendError(msg, "Você precisa digitar um número maior do que 0 e menor ou igual á 100!", `limpar 10`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (quantia < 1 || quantia > 100) {
+            const embedtemp = await API.sendError(interaction, "Você precisa digitar um número maior do que 0 e menor ou igual á 100!", `limpar 10`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         try {
-            await msg.channel.bulkDelete(arg).catch()
-            await msg.quote({ content: `Você limpou **${arg}** mensagens deste canal!`})
+            await interaction.channel.bulkDelete(quantia).catch()
+            await interaction.reply({ content: `Você limpou **${quantia}** mensagens deste canal!`})
         } catch{
         }
 

@@ -1,64 +1,48 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addUserOption(option => option.setName('membro').setDescription('Mencione o membro que deseja dar a reputação').setRequired(true))
+
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'rep',
     aliases: ['addrep'],
     category: 'Social',
     description: 'Dê uma reputação a um amigo',
-    options: [{
-        name: 'membro',
-        type: 'USER',
-        description: 'Mencione o membro que deseja dar a reputação',
-        required: true
-    }],
+    data,
     mastery: 5,
-    async execute(API, msg) {
+    async execute(API, interaction) {
         
-        let member;
-        let args = API.args(msg)
-        if (!msg.slash) {
-            if (msg.mentions.users.size < 1) {
-                const embedtemp = await API.sendError(msg, 'Você precisa mencionar um membro para dar reputação', 'rep @membro')
-                await msg.quote({ embeds: [embedtemp]})
-                return
-            } else {
-                member = msg.mentions.users.first();
-            }
-        } else {
-            if (!msg.options.size) {
-                member = msg.author
-            } else {
-                member = msg.options.get('membro').user
-            }
-        }
+        let member = interaction.options.getUser('membro') || interaction.user
 
-        if (member.id == msg.author.id) {
-            const embedtemp = await API.sendError(msg, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
-            await msg.quote({ embeds: [embedtemp]})
+        if (member.id == interaction.user.id) {
+            const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "rep");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "rep");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'rep', 'dar outra reputação')
+            API.playerUtils.cooldown.message(interaction, 'rep', 'dar outra reputação')
 
             return;
         }
 
-        let cmaq = await API.maqExtension.get(msg.author)
+        let cmaq = await API.maqExtension.get(interaction.user.id)
 
         if (cmaq < 102) {
-            const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
-
-        let { reps } = await API.getInfo(member, "players")
         
-        API.playerUtils.cooldown.set(msg.author, "rep", 43200)
+        API.playerUtils.cooldown.set(interaction.user.id, "rep", 43200)
 
-        API.setInfo(member, "players", "reps", parseInt(reps)+1)
+        DatabaseManager.increment(member.id, "players", "reps", 1)
 
-        await msg.quote({ content: 'Você deu **+1 REP** para **' + member.tag + '**!' })
+        await interaction.reply({ content: 'Você deu **+1 REP** para **' + member.tag + '**!' })
 
     },
 };

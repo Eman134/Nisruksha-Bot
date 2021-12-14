@@ -1,35 +1,36 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela').setRequired(true))
+
 module.exports = {
     name: 'reset',
     aliases: ['resetar'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
+    data,
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        var args = API.args(msg);
-
-        if (args.length < 1) {
-            const embedtemp = await API.sendError(msg, "Você precisa digitar um parâmetro.", `reset all\n${API.prefix}reset cooldowns`);
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
+        const tabela = interaction.options.getString('tabela');
 		const Discord = API.Discord;
         const embed = new Discord.MessageEmbed()
-        embed.setDescription('Reaja para continuar o reset de ' + args[0])
+        embed.setDescription('Reaja para continuar o reset de ' + tabela)
 
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 reacted = true;
             collector.stop();
             if (!b.deferred) b.deferUpdate().then().catch();
@@ -37,22 +38,22 @@ reacted = true;
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reset cancelado', `
-                Você cancelou o reset de ` + args[0])
-                embedmsg.edit({ embeds: [embed] });
+                Você cancelou o reset de ` + tabela)
+                interaction.editReply({ embeds: [embed] });
                 return;
             }
 
-            if (args[0].toLowerCase() == 'all') {
+            if (tabela.toLowerCase() == 'all') {
             
                 let text1 = `SELECT table_name FROM information_schema.tables WHERE table_schema='public';`;
     
                 try {
     
-                    const res = await API.db.pool.query(text1);
+                    const res = await DatabaseManager.query(text1);
     
                     for (const r of res.rows) {
                         let text = `DELETE FROM ${r.table_name};`;
-                        await API.db.pool.query(text);
+                        await DatabaseManager.query(text);
                     }
     
                     embed.setDescription(`✅ Todos os dados foram resetados!`)
@@ -63,25 +64,25 @@ reacted = true;
                     embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
                     embed.setColor('#eb4034')
                 } finally {
-                    await embedmsg.edit({ embeds: [embed] });
+                    await interaction.editReply({ embeds: [embed] });
                 }
     
             } else {
-                let text1 = `DELETE FROM ${args[0].toLowerCase()};`;
+                let text1 = `DELETE FROM ${tabela.toLowerCase()};`;
     
                 try {
     
-                    await API.db.pool.query(text1);
+                    await DatabaseManager.query(text1);
     
-                    embed.setDescription(`✅ Dados da tabela \`${args[0].toLowerCase()}\` foram resetados!`)
+                    embed.setDescription(`✅ Dados da tabela \`${tabela.toLowerCase()}\` foram resetados!`)
                     embed.setColor('#32a893');
     
                 } catch (e) {
-                    embed.setDescription(`❌ Houve um erro ao tentar resetar os dados de \`${args[0].toLowerCase()}\``)
+                    embed.setDescription(`❌ Houve um erro ao tentar resetar os dados de \`${tabela.toLowerCase()}\``)
                     embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
                     embed.setColor('#eb4034')
                 } finally {
-                    await embedmsg.edit({ embeds: [embed] });
+                    await interaction.editReply({ embeds: [embed] });
                 }
             }
 
@@ -91,8 +92,8 @@ reacted = true;
             if (reacted) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
-            embed.setDescription('❌ Tempo expirado', `Você iria resetar ${args[0]}, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed] });
+            embed.setDescription('❌ Tempo expirado', `Você iria resetar ${tabela}, porém o tempo expirou.`)
+            interaction.editReply({ embeds: [embed] });
             return;
         });
 

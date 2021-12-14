@@ -8,5 +8,15 @@
         "id": 2,
         "name": "Recompensa EP0",
         "url": "https://cdn.discordapp.com/attachments/859113005396262968/859113025717927946/badge.png"
+    },
+    {
+        "id": 3,
+        "name": "Recompensa EP1",
+        "url": "https://cdn.discordapp.com/attachments/859113005396262968/915060306194087967/badge.png"
+    },
+    {
+        "id": 4,
+        "name": "Caça aos patos",
+        "url": "https://cdn.discordapp.com/emojis/919946658941399091.png?size=44"
     }
 ]

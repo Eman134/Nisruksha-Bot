@@ -1,10 +1,13 @@
 const API = require("../api.js");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 const tp = {};
 
-tp.get = async function (member) {
+tp.get = async function (user_id) {
     
-    const utilsobj = await API.getInfo(member, 'players_utils')
+    const utilsobj = await DatabaseManager.get(user_id, 'players_utils')
     
     let invitejson = {
         code: String,
@@ -35,7 +38,7 @@ tp.get = async function (member) {
         invitejson.points = 0
         invitejson.usedinvite = false
     
-        API.setInfo(member, 'players_utils', 'invite', invitejson)
+        DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson)
     
     } else invitejson = utilsobj.invite
     
@@ -46,13 +49,8 @@ tp.get = async function (member) {
 tp.check = async function (code) {
 
     const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
-    let array = Array
-    try {
-        let res = await API.db.pool.query(text);
-        array = res.rows
-    } catch (err) {
-        API.client.emit('error', err)
-    }
+    const res = await DatabaseManager.query(text);
+    const array = res.rows
 
     let exists = false
 
@@ -76,129 +74,121 @@ tp.check = async function (code) {
 
 }
 
-tp.add = async function (member, po) {
+tp.add = async function (user_id, po) {
 
-  const invitejson1 = await tp.getn(member)
+  const invitejson1 = await tp.getn(user_id)
 
   invitejson1.points += po
 
-  API.setInfo(member, 'players_utils', 'invite', invitejson1)
+  DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
 
 }
 
-tp.remove = async function (member, po) {
-  const invitejson1 = await tp.get(member)
+tp.remove = async function (user_id, po) {
+  const invitejson1 = await tp.get(user_id)
 
   invitejson1.points -= po
 
-  API.setInfo(member, 'players_utils', 'invite', invitejson1)
+  DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
 }
 
-tp.set = async function (member, po) {
-    const invitejson1 = await tp.get(member)
+tp.set = async function (user_id, po) {
+    const invitejson1 = await tp.get(user_id)
 
     invitejson1.points = po
   
-    API.setInfo(member, 'players_utils', 'invite', invitejson1)
+    DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
 }
 
 const bank = {};
 
-bank.get = async function (member) {
-    let { bank } = await API.getInfo(member, "players");
+bank.get = async function (user_id) {
+    let { bank } = await DatabaseManager.get(user_id, "players");
     return bank;
 }
 
-bank.add = async function (member, money) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "bank", Math.round(parseInt(obj["bank"]) + parseInt(money)));
+bank.add = async function (user_id, money) {
+    DatabaseManager.increment(user_id, "players", "bank", money);
 }
 
-bank.remove = async function (member, money) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "bank", Math.round(parseInt(obj["bank"]) - parseInt(money)));
+bank.remove = async function (user_id, money) {
+    DatabaseManager.increment(user_id, "players", "bank", -money);
 }
 
-bank.set = async function (member, money) {
-    API.setInfo(member, "players", "bank", parseInt(money));
+bank.set = async function (user_id, money) {
+    DatabaseManager.set(user_id, "players", "bank", parseInt(money));
 }
 
 const points = {};
 
-points.get = async function (member) {
+points.get = async function (user_id) {
     let result
-    let obj = await API.getInfo(member, "players");
+    let obj = await DatabaseManager.get(user_id, "players");
     result = obj["points"];
     return result;
 }
 
-points.add = async function (member, points) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "points", obj["points"] + points);
+points.add = async function (user_id, points) {
+    DatabaseManager.increment(user_id, "players", "points", points);
 }
 
-points.remove = async function (member, points) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "points", obj["points"] - points);
+points.remove = async function (user_id, points) {
+    DatabaseManager.increment(user_id, "players", "points", -points);
 }
 
-points.set = async function (member, points) {
-    API.setInfo(member, "players", "points", points);
+points.set = async function (user_id, points) {
+    DatabaseManager.set(user_id, "players", "points", points);
 }
 
 const money = {};
 
-money.get = async function (member) {
-    let { money } = await API.getInfo(member, "players");
+money.get = async function (user_id) {
+    let { money } = await DatabaseManager.get(user_id, "players");
     return parseInt(money);
 }
 
-money.add = async function (member, money) {
-    let obj = await API.getInfo(member, "players");
-    await API.setInfo(member, "players", "money", Math.round(parseInt(obj["money"]) + parseInt(money)));
+money.add = async function (user_id, money) {
+    DatabaseManager.increment(user_id, "players", "money", money);
 }
 money.globaladd = async function (money) {
-    API.eco.money.add({ id: API.id}, money)
+    API.eco.money.add(API.id, money)
 }
 
-money.remove = async function (member, money) {
-    let obj = await API.getInfo(member, "players");
-    await API.setInfo(member, "players", "money", Math.round(parseInt(obj["money"]) - parseInt(money)));
+money.remove = async function (user_id, money) {
+    DatabaseManager.increment(user_id, "players", "money", -money);
 }
 
 money.globalremove = async function (money) {
-    API.eco.money.remove({ id: API.id}, money)
+    API.eco.money.remove(API.id, money)
 }
 
-money.set = async function (member, money) {
-    await API.setInfo(member, "players", "money", parseInt(Math.round(money)));
+money.set = async function (user_id, money) {
+    await DatabaseManager.set(user_id, "players", "money", parseInt(Math.round(money)));
 }
 
-money.set = async function (member, points) {
-    API.setInfo(member, "players", "points", points);
+money.set = async function (user_id, points) {
+    DatabaseManager.set(user_id, "players", "points", points);
 }
 
 const token = {};
 
-token.get = async function (member) {
+token.get = async function (user_id) {
     //let result
-    let { token } = await API.getInfo(member, "players");
+    let { token } = await DatabaseManager.get(user_id, "players");
     //result = obj["money"];
     return token;
 }
 
-token.add = async function (member, token) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "token", obj["token"] + token);
+token.add = async function (user_id, token) {
+    DatabaseManager.increment(user_id, "players", "token", token);
 }
 
-token.remove = async function (member, token) {
-    let obj = await API.getInfo(member, "players");
-    API.setInfo(member, "players", "token", obj["token"] - token);
+token.remove = async function (user_id, token) {
+    DatabaseManager.increment(user_id, "players", "token", -token);
 }
 
-token.set = async function (member, token) {
-    API.setInfo(member, "players", "token", token);
+token.set = async function (user_id, token) {
+    DatabaseManager.set(user_id, "players", "token", token);
 }
 
 const eco = {
@@ -209,27 +199,27 @@ const eco = {
     tp
 };
 
-eco.getHistory = function (member, n) {
+eco.getHistory = function (user_id, n) {
 
     const { readFileSync } = require('fs')
-    let fpath = `./_localdata/profiles/${member.id}/history.yml`;
-    eco.createHistoryDir(member);
+    let fpath = `./_localdata/profiles/${user_id}/history.yml`;
+    eco.createHistoryDir(user_id);
 
     if (n) {
         return readFileSync(fpath, 'utf8').split('\n')[n];
     } else {
-        let str = readFileSync(fpath, 'utf8').split('\n').slice(0, 10).join("\n");
+        let str = readFileSync(fpath, 'utf8').split('\n').slice(0, 5).join("\n");
         return str.replace(/<nl>/g , "\n");
     }
 }
 
-eco.createHistoryDir = function(member) {
+eco.createHistoryDir = function(user_id) {
 
     const fs = require('fs')
     let dir0 = `./_localdata/`;
     let dir = `./_localdata/profiles/`;
-    let dir2 = `./_localdata/profiles/${member.id}/`;
-    let fpath = `./_localdata/profiles/${member.id}/history.yml`;
+    let dir2 = `./_localdata/profiles/${user_id}/`;
+    let fpath = `./_localdata/profiles/${user_id}/history.yml`;
     let strin = `\`${API.getFormatedDate()}\` Conta criada`
     if (!fs.existsSync(dir0)) { fs.mkdirSync(dir0);} 
     if (!fs.existsSync(dir)) { fs.mkdirSync(dir);} 
@@ -245,12 +235,12 @@ eco.createHistoryDir = function(member) {
     }
 }
 
-eco.addToHistory = async function (member, arg) {
+eco.addToHistory = async function (user_id, arg) {
     const insertLine = require('insert-line');
 
-    eco.createHistoryDir(member);
+    eco.createHistoryDir(user_id);
 
-    let fpath = `./_localdata/profiles/${member.id}/history.yml`;
+    let fpath = `./_localdata/profiles/${user_id}/history.yml`;
     let content = `<t:${Math.round((Date.now())/1000)}:R> ${arg}`
 
     insertLine(fpath).content(content).at(1).then((err) => {

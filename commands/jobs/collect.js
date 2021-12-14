@@ -1,34 +1,36 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'coletar',
     aliases: ['col', 'collect'],
     category: 'none',
     description: 'Coleta diferente sementes e flores para plantação',
-    options: [],
     mastery: 30,
     companytype: 1,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
 
-        let pobj2 = await API.getInfo(msg.author, 'machines')
+        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (pobj2.level < 3) {
-            const embedtemp = await API.sendError(msg, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`${API.prefix}perfil\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (API.cacheLists.waiting.includes(msg.author, 'collecting')) {
-            const embedtemp = await API.sendError(msg, `Você já encontra-se coletando no momento! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (API.cacheLists.waiting.includes(interaction.user.id, 'collecting')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const sta = await API.playerUtils.stamina.get(msg.author);
+        const sta = await API.playerUtils.stamina.get(interaction.user.id);
 
         if (sta < 40) {
-            const embedtemp = await API.sendError(msg, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`${API.prefix}estamina\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`/estamina\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
@@ -37,19 +39,20 @@ module.exports = {
         let init = Date.now();
 
         let seedobj = API.itemExtension.getObj().drops.filter(i => i.type == "seed");
-        let loc = await API.townExtension.getTownNum(msg.author)
+        let loc = await API.townExtension.getTownNum(interaction.user.id)
         seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
         if (API.debug) console.log(seedobj)
 
-        let obj6 = await API.getInfo(msg.author, "machines");
+        let obj6 = await DatabaseManager.get(interaction.user.id, "machines");
         const embed = new Discord.MessageEmbed();
         embed.setTitle(`Coletando`)
-        embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
+        embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
-        embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn])] });
-        API.cacheLists.waiting.add(msg.author, embedmsg, 'collecting');
-        API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
+        embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn])], fetchReply: true });
+
+        API.cacheLists.waiting.add(interaction.user.id, interaction, 'collecting');
+        API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
         
         function gen(){
             let por = 6;
@@ -83,10 +86,11 @@ module.exports = {
                 let sizeMap = new Map();
                 let round = 0;
                 let xp = API.random(2, 6);
-                xp = await API.playerUtils.execExp(msg, xp);
-                await API.playerUtils.stamina.remove(msg.author, 30);
+                xp = await API.playerUtils.execExp(interaction, xp);
+                const gastoestamina = API.random(20, 40)
+                await API.playerUtils.stamina.remove(interaction.user.id, gastoestamina);
                 
-                let retorno = await API.itemExtension.give(msg, obj2)
+                let retorno = await API.itemExtension.give(interaction, obj2)
                 let descartados = retorno.descartados
                 let colocados = retorno.colocados
 
@@ -102,12 +106,12 @@ module.exports = {
                 }
 
                 embed.fields = [];
-                const obj6 = await API.getInfo(msg.author, "machines");
-                let sta2 = await API.playerUtils.stamina.get(msg.author);
-                embed.setDescription(`Agricultor: ${msg.author}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.playerUtils.stamina.get(msg.author)}/1000 🔸 \`(-30)\``)
-                embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-                
+                const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                let sta2 = await API.playerUtils.stamina.get(interaction.user.id);
+                embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
+                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await API.playerUtils.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\``)
+                embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+
                 for await (const r of colocados) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
@@ -123,32 +127,32 @@ module.exports = {
                     embed.addField(`${r.icon} ${r.displayname} -${r.size}`, `\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``, true)
                 }
 
-                    try{
-                        await embedmsg.edit({ embeds: [embed], components: [API.rowComponents([btn])] })
-                    }catch{
-                        API.cacheLists.waiting.remove(msg.author, 'collecting')
-                        API.cacheLists.waiting.remove(msg.author, 'working');
-                    }
+                try{
+                    await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])] })
+                }catch{
+                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                }
 
                 if (descartados.length == seedobj.length) {
-                    const embedtemp = await API.sendError(msg, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a mochila utilizando \`${API.prefix}mochila\``)
-                    await msg.quote({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(msg.author, 'collecting')
-                    API.cacheLists.waiting.remove(msg.author, 'working');
+                    const embedtemp = await API.sendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
+                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
-                if (sta2 < 30) {
-                    const embedtemp = await API.sendError(msg, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(msg.author, 'collecting')})\nVisualize a sua estamina utilizando \`${API.prefix}estamina\``)
-                    await msg.quote({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(msg.author, 'collecting')
-                    API.cacheLists.waiting.remove(msg.author, 'working');
+                if (sta2 < gastoestamina) {
+                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 let reacted = false
-                const filter = i => i.user.id === msg.author.id;
-                const collector = embedmsg.createMessageComponentCollector({ filter, time: API.company.jobs.agriculture.update*1000 });
+                const filter = i => i.user.id === interaction.user.id;
+                const collector = embedinteraction.createMessageComponentCollector({ filter, time: API.company.jobs.agriculture.update*1000 });
                 collector.on('collect', (b) => {
 
                     if (b.customId == 'stopBtn') {
@@ -160,11 +164,11 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        API.cacheLists.waiting.remove(msg.author, 'collecting')
-                        API.cacheLists.waiting.remove(msg.author, 'working');
-                        await embedmsg.edit({ embeds: [embed], components: [] }).catch()
-                        const embedtemp = await API.sendError(msg, `Você parou a coleta!`)
-                        await msg.quote({ embeds: [embedtemp]})
+                        API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                        API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                        const embedtemp = await API.sendError(interaction, `Você parou a coleta!`)
+                        await interaction.followUp({ embeds: [embedtemp]})
                     } else {
                         edit()
                     }

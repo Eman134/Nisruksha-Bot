@@ -1,56 +1,49 @@
 const API = require("../../_classes/api");
 
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('código').setDescription('Escreva um código de apoiador').setRequired(true))
+
 module.exports = {
     name: 'apoiar',
     aliases: ['usereferral', 'usarref'],
     category: 'Social',
     description: 'Utiliza um código de referência para apoiar seu amigo',
-    options: [{
-        name: 'código',
-        type: 'STRING',
-        description: 'Escreva um código de apoiador',
-        required: true
-    }],
+    data,
     mastery: 20,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
         
-        const args = API.args(msg)
-        
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você precisa pedir ao seu amigo o código de convite dele!', 'usarcodigo <codigo>')
-            await msg.quote({ embeds: [embedtemp]})
-            return
-        }
+        const codigo = interaction.options.getString('código')
 
-        const check = await API.eco.tp.check(args[0])
+        const check = await API.eco.tp.check(codigo)
 
         if (!check.exists) {
-            const embedtemp = await API.sendError(msg, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        if (check.owner == msg.author.id) {
-            const embedtemp = await API.sendError(msg, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
-            await msg.quote({ embeds: [embedtemp]})
+        if (check.owner == interaction.user.id) {
+            const embedtemp = await API.sendError(interaction, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        const invitejson = await API.eco.tp.get(msg.author)
+        const invitejson = await API.eco.tp.get(interaction.user.id)
 
         if (invitejson.usedinvite) {
-            const embedtemp = await API.sendError(msg, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `' + API.prefix + 'convite` e veja as instruções.')
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `/convite` e veja as instruções.')
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        let cmaq = await API.maqExtension.get(msg.author)
+        let cmaq = await API.maqExtension.get(interaction.user.id)
 
         if (cmaq < 102) {
-            const embedtemp = await API.sendError(msg, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para apoiar alguém!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
@@ -61,37 +54,39 @@ module.exports = {
         .setTitle('💚 Código de convite utilizado com sucesso!')
         .setColor('#5bff45')
         .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + API.tp.name + ' ' + API.tp.emoji + ', enquanto seu amigo recebeu 1 ' + API.tp.name + ' ' + API.tp.emoji)
-        .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize ' + API.prefix + 'convite para mais informações')
-        await msg.quote({ embeds: [embed] })
+        .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize /convite para mais informações')
+        await interaction.reply({ embeds: [embed] })
 
         const embedcmd = new API.Discord.MessageEmbed()
           .setColor('#b8312c')
           .setTimestamp()
-          .setDescription(`O membro ${msg.author} apoiou ${owner}`)
-          .addField('<:mention:788945462283075625> Membro', `${msg.author.tag} (\`${msg.author.id}\`)`)
-          .addField('<:channel:788949139390988288> Canal', `\`${msg.channel.name} (${msg.channel.id})\``)
-          .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-          .setFooter(msg.guild.name + " | " + msg.guild.id, msg.guild.iconURL())
+          .setDescription(`O membro ${interaction.user} apoiou ${owner}`)
+          .addField('<:mention:788945462283075625> Membro', `${interaction.user.tag} (\`${interaction.user.id}\`)`)
+          .addField('<:channel:788949139390988288> Canal', `\`${interaction.channel.name} (${interaction.channel.id})\``)
+          .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+          .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
           API.client.channels.cache.get('826184097814020116').send({ embeds: [embedcmd]});
 
-        updateInviteJson(msg.author, owner)
+        updateInviteJson(interaction.user, owner)
 
 	}
 };
 
 async function updateInviteJson(member, owner) {
 
-    const invitejson1 = await API.eco.tp.get(member)
+    const invitejson1 = await API.eco.tp.get(member.id)
     
     invitejson1.points += 5
     invitejson1.usedinvite = true
 
-    const invitejson2 = await API.eco.tp.get(owner)
+    const invitejson2 = await API.eco.tp.get(owner.id)
 
     invitejson2.points += 1
     invitejson2.qnt += 1
 
-    API.setInfo(member, 'players_utils', 'invite', invitejson1)
-    API.setInfo(owner, 'players_utils', 'invite', invitejson2)
+    API.frames.add(owner.id, 14)
+
+    DatabaseManager.set(member.id, 'players_utils', 'invite', invitejson1)
+    DatabaseManager.set(owner.id, 'players_utils', 'invite', invitejson2)
 
 }
