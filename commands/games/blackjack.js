@@ -15,7 +15,8 @@ module.exports = {
         const Discord = API.Discord;
 
         const aposta = interaction.options.getInteger('fichas')
-        const member = interaction.options.getUser('membro')
+        let member = interaction.options.getUser('membro')
+        member == null ? member = API.client.users.cache.get(API.id) : null
 
         const check = await API.playerUtils.cooldown.check(interaction.user.id, "blackjack");
 
@@ -32,7 +33,7 @@ module.exports = {
             return;
         }
 
-        if (member != null) {
+        if (member.id != API.id) {
 
             if (member.id == interaction.user.id) {
                 const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
@@ -75,7 +76,7 @@ module.exports = {
             return;
         }
 
-        if (member != null) {
+        if (member.id != API.id) {
 
             const tokenmember = await API.eco.token.get(member.id)
 
@@ -85,7 +86,7 @@ module.exports = {
                 return;
             }
             
-        }   
+        }
 
         API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 60);
 
@@ -231,6 +232,9 @@ module.exports = {
                     break;
                 case 'stand':
                     setStand()
+                    if (players[(game.current + 1) % players.length].cartas.length >= 5) {
+                        setStand()
+                    }
                     break;
                 case 'double':
                     giveCard()
@@ -289,7 +293,7 @@ module.exports = {
             API.eco.token.remove(loser.id, loser.fichas);
 
             API.eco.addToHistory(winner.id, `Blackjack <@${loser.id}> | + ${API.format(winner.fichas)} ${API.money3emoji}`);
-            API.eco.addToHistory(loser.id, `Blackjack <@${winner.user}> | - ${API.format(loser.fichas)} ${API.money3emoji}`);
+            API.eco.addToHistory(loser.id, `Blackjack <@${winner.id}> | - ${API.format(loser.fichas)} ${API.money3emoji}`);
 
         }
 
@@ -435,6 +439,7 @@ module.exports = {
         })
 
         collector.on('end', async() => {
+            API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 0);
             if (['bust', 'blackjack', 'draw', 'lost'].includes(game.status)) return
             players[game.current].status = 'off'
             game.status = 'timeout'
