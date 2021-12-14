@@ -165,11 +165,12 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
     loadExpressServer(options) {
 
-        API.dbl = new Topgg.Api(options.dbl.token)
+        if (options.ip != 'localhost') {
+            const { AutoPoster } = require('topgg-autoposter')
+                    
+            AutoPoster(options.dbl.token, API.client)
+        }
 
-        const { AutoPoster } = require('topgg-autoposter')
-                
-        AutoPoster(options.dbl.token, API.client)
         
     }
 
