@@ -54,7 +54,7 @@ reacted = true;
                         if (mastery <= 1000) return;
                         const finalmastery = mastery > 10000 ? mastery/10000 : 1
                         await API.eco.tp.add(user_id, finalmastery)
-                        console.log('add tp ' + finalmastery + ' to ' + user_id)
+                        if (API.debug) console.log('add tp ' + finalmastery + ' to ' + user_id)
                     } catch (error) {
                         console.log(error)
                     }
