@@ -446,6 +446,7 @@ module.exports = {
             game.current = (game.current + 1) % players.length
             game.winner = game.current
             await blackjack()
+            sendWinner()
         })
     
     }
