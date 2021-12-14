@@ -4,7 +4,7 @@ const API = require("../api.js");
 const Database = require('../manager/DatabaseManager');
 const DatabaseManager = new Database();
 
-const debugmode = true
+const debugmode = false
 
 const stars = {};
 {
