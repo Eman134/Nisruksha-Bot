@@ -3,8 +3,8 @@ module.exports = {
     name: "messageCreate",
     execute: async (API, interaction) => {
 
-        const votosBest = require('../_classes/packages/votosBest.js');
-        votosBest.votos(interaction)
+        const votos = require('../_classes/packages/votos.js');
+        votos.check(interaction)
 
         const prefix = "n."
 

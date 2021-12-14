@@ -203,7 +203,7 @@ shopExtension.getShopList = function() {
 }
 
 shopExtension.setShopObject = function(shop) {
-  shopExtension.shop = shop;
+  shopExtension.obj = shop;
 }
 
 shopExtension.categoryExists = function(cat) {
