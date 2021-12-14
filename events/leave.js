@@ -10,7 +10,7 @@ module.exports = {
 
 
         try {
-            await API.db.pool.query(`UPDATE servers SET lastcmd = $1 WHERE server_id=${guild.id};`, [0]);
+            await DatabaseManager.query(`UPDATE servers SET lastcmd = $1 WHERE server_id=${guild.id};`, [0]);
         } catch (err) {
             client.emit('error', err)
             console.log(err)

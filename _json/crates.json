@@ -89,5 +89,75 @@
 		"name": "Tesouro",
 		"icon": "<:treasure:807671407160197141>",
 		"rewards": "RANDOM"
+	},
+	"4": {
+		"name": "Ovo de pato dourado",
+		"icon": "<:mystegg:919946658886864916>",
+		"rewards": [
+			{
+				"name": "20000x Moedas",
+				"chance": 29,
+				"icon": "<:moneybag:736290479406317649>",
+				"type": 0,
+				"size": 20000
+			},
+			{
+				"name": "30x Fichas",
+				"chance": 20,
+				"icon": "<:ficha:741827151879471115>",
+				"type": 1,
+				"size": 30
+			},
+			{
+				"name": "5x Pontos Temporais",
+				"chance": 15,
+				"icon": "<:tp:841870541274087455>",
+				"type": 4,
+				"size": 5
+			},
+			{
+				"name": "3x Dinamite Pequena",
+				"chance": 14,
+				"icon": "🧨",
+				"type": 5,
+				"size": 3
+			},
+			{
+				"name": "5x Café",
+				"chance": 13,
+				"icon": "☕",
+				"type": 5,
+				"size": 5
+			},
+			{
+				"name": "5x Frasco de EXP Pequeno",
+				"chance": 5,
+				"icon": "<:frasco:846496717251018752>",
+				"type": 5,
+				"size": 5
+			},
+			{
+				"name": "6x Cristais",
+				"chance": 2,
+				"icon": "<:estilhas:743176785986060390>",
+				"type": 2,
+				"size": 6
+			},
+			{
+				"name": "Badge Caça aos Patos",
+				"chance": 1,
+				"icon": "<:pato:919946658941399091>",
+				"type": 6,
+				"size": 4
+			},
+			{
+				"name": "1x Chipe Explosão",
+				"chance": 1,
+				"icon": "<:chip:916438678098804736>",
+				"pid": 407,
+				"type": 3,
+				"size": 1
+			}
+		]
 	}
 }

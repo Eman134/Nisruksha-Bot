@@ -5,6 +5,9 @@ const crateExtension = {
 };
 const API = require("../api.js");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
   
@@ -43,11 +46,7 @@ crateExtension.load = async function() {
     let obj = crateExtension.obj;
     for (const key in obj) {
         const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "crate:${key}" double precision NOT NULL DEFAULT 0;`
-        try {
-            await API.db.pool.query(text);
-        } catch (err) {
-            console.log(err.stack)
-        }
+        DatabaseManager.query(text).then().catch(console.error)
     }
 
     function makeid(length) {
@@ -67,26 +66,17 @@ crateExtension.load = async function() {
     }
 }
 
-crateExtension.getCrates = async function(member) {
+crateExtension.getCrates = async function(user_id) {
 
     let obj = crateExtension.obj;
-    const text =  `SELECT * FROM storage WHERE user_id=${member.id};`
-    let res;
+    const text =  `SELECT * FROM storage WHERE user_id=${user_id};`
+    let res = await DatabaseManager.query(text)
+    res = res.rows[0];
     let array = [];
-    try {
-        res = await API.db.pool.query(text);
-        res = res.rows[0];
-    } catch (err) {
-        console.log(err.stack)
-        client.emit('error', err)
-    }
+
     if (res) {
         for (const key in obj) {
-            try{
             array.push(`${key};${res[`crate:${key}`]}`)
-            }catch (err){
-                client.emit('error', err)
-            }
         }
     }
     return array;
@@ -98,7 +88,7 @@ crateExtension.getReward = function(id, size) {
     if (!size || size == 1) {
         let cr = API.random(0, 100)
         
-        let crateobj = API.crateExtension.obj[id.toString()]
+        let crateobj = crateExtension.obj[id.toString()]
         
         let array2 = crateobj.rewards;
         
@@ -108,8 +98,11 @@ crateExtension.getReward = function(id, size) {
             let droparray = droparr
 
             array2 = shuffle(droparray)
+
+            const randomdrop = array2[API.random(0, array2.length-1)]
+            randomdrop.type = 5
             
-            arr.push(array2[API.random(0, array2.length-1)]);
+            arr.push(randomdrop);
             
         } else {
             
@@ -136,9 +129,9 @@ crateExtension.getReward = function(id, size) {
     return arr;
 }
 
-crateExtension.give = async function(member, id, quantia) {
-    let obj = await API.getInfo(member, "storage");
-    API.setInfo(member, "storage", `"crate:${id}"`, obj[`crate:${id}`] + quantia);
+crateExtension.give = async function(user_id, id, quantia) {
+    let obj = await DatabaseManager.get(user_id, "storage");
+    DatabaseManager.set(user_id, "storage", `"crate:${id}"`, obj[`crate:${id}`] + quantia);
 }
 
 crateExtension.load();

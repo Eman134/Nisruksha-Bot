@@ -1,21 +1,24 @@
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'molduras',
     aliases: ["frames"],
     category: 'Social',
     description: 'Faça a escolha da moldura que será apresentada em seu perfil',
     mastery: 2,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
         const client = API.client;
 
-        const obj = await API.getInfo(msg.author, "players")
+        const obj = await DatabaseManager.get(interaction.user.id, "players")
 
         let frames = obj.frames
 
         if (frames == null || frames.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você não possui molduras disponíveis para serem apresentadas.')
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, 'Você não possui molduras disponíveis para serem apresentadas.')
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
@@ -24,15 +27,15 @@ module.exports = {
         const total = frames.length
         let current = 1
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "molduras");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "molduras");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'molduras', 'visualizar suas molduras')
+            API.playerUtils.cooldown.message(interaction, 'molduras', 'visualizar suas molduras')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "molduras", 30);
+        API.playerUtils.cooldown.set(interaction.user.id, "molduras", 30);
 
         let btn1 = API.createButton('sBtn', 'SECONDARY', 'Equipar', '✅')
         let btn2 = API.createButton('nBtn', 'SECONDARY', 'Desequipar', '❌')
@@ -63,18 +66,18 @@ module.exports = {
         .setImage(API.frames.get(frames[0]).url)
         .setColor('#60ced6')
         
-        const embedmsg = await msg.quote({ embeds: [embed], components: [ btnRow0, btnRow1] });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
 
         collector.on('collect', async (b) => {
 
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             collector.resetTimer();
 
-            API.playerUtils.cooldown.set(msg.author, "molduras", 30);
+            API.playerUtils.cooldown.set(interaction.user.id, "molduras", 30);
 
             if (b.customId == 'f0Btn'){
                 if (current < total) current += 1;
@@ -114,30 +117,30 @@ module.exports = {
 
             if (b.customId == 'nBtn') {
                 
-                API.frames.reforge(msg.author, 0)
+                API.frames.reforge(interaction.user.id, 0)
 
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
                 embed.setImage(API.frames.get(frames[0]).url)
-                await embedmsg.edit({ embeds: [embed], components: [] });
+                await interaction.editReply({ embeds: [embed], components: [] });
 
                 return collector.stop();
 
             } else if (b.customId == 'sBtn'){
 
-                API.frames.reforge(msg.author, frame.id)
+                API.frames.reforge(interaction.user.id, frame.id)
 
                 embed.setColor('#5bff45');
                 embed.setDescription('✅ Moldura equipada')
                 embed.setImage(frame.url)
-                await embedmsg.edit({ embeds: [embed], components: [] });
+                await interaction.editReply({ embeds: [embed], components: [] });
                 
                 return collector.stop();
 
             } else {
                 
                 embed.setImage(frame.url)
-                await embedmsg.edit({ embeds: [embed], components: [ btnRow0, btnRow1] });
+                await interaction.editReply({ embeds: [embed], components: [ btnRow0, btnRow1] });
 
             }
             
@@ -145,7 +148,7 @@ module.exports = {
         
         collector.on('end', b => {
 
-            API.playerUtils.cooldown.set(msg.author, "molduras", 0);
+            API.playerUtils.cooldown.set(interaction.user.id, "molduras", 0);
 
         });
 

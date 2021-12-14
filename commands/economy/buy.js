@@ -1,41 +1,28 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('produto').setDescription('Especifique um id de produto').setRequired(true))
+
 module.exports = {
     name: 'comprar',
     aliases: ['buy', 'c'],
     category: 'Economia',
     description: 'Faz a compra de um item da loja',
-    options: [{
-            name: 'produto',
-            type: 'STRING',
-            description: 'Selecione um id de produto para a compra',
-            required: false
-    }],
+    data,
     mastery: 20,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const args = API.args(msg);
         let obj = API.shopExtension.getShopObj();
         let array = Object.keys(obj);
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-			await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
 
-        if (!API.isInt(args[0])) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item (número)!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let id = parseInt(args[0]);
+        let id = interaction.options.getInteger('produto')
 
         if (!API.shopExtension.checkIdExists(id)) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de item existente para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa especificar um id de item existente para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-		API.shopExtension.execute(msg, API.shopExtension.getProduct(id));
+		API.shopExtension.execute(interaction, API.shopExtension.getProduct(id));
 
 	}
 };

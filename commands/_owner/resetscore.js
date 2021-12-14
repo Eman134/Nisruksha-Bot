@@ -1,3 +1,6 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'resetscore',
     aliases: ['resetarscore'],
@@ -5,40 +8,26 @@ module.exports = {
     description: 'Executa um reset do banco de dados',
     options: [],
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        var args = API.args(msg);
-
-        if (args.length < 1) {
-            const embedtemp = await API.sendError(msg, "Você precisa digitar um valor de score para ser o mínimo para o reset.", `resetscore 100`);
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        if (!API.isInt(API.toNumber(args[0]))) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia válida de score!`, `resetscore 100`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        const scoremin = API.toNumber(args[0])
+        const scoremin = 80
 
 		const Discord = API.Discord;
         const embed = new Discord.MessageEmbed()
-        embed.setDescription('Reaja para continuar o reset de score acima de ' + args[0])
+        embed.setDescription('Reaja para continuar o reset de temporada')
 
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 reacted = true;
             collector.stop();
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
@@ -47,36 +36,48 @@ reacted = true;
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Reset cancelado', `
                 Você cancelou o reset de ` + args[0])
-                embedmsg.edit({ embeds: [embed], components: [] });
+                interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-                let text1 = `DELETE FROM ${args[0].toLowerCase()};`;
+            let text0 = `SELECT * FROM players WHERE mastery > 0;`;
+            let text1 = `UPDATE companies SET score = ${scoremin} WHERE score > ${scoremin}; UPDATE players SET mastery = 0 WHERE mastery > 0;`;
     
-                try {
+            try {
     
-                    await API.db.pool.query(text1);
-    
-                    embed.setDescription(`✅ Dados da tabela \`${args[0].toLowerCase()}\` foram resetados!`)
-                    embed.setColor('#32a893');
-    
-                } catch (e) {
-                    embed.setDescription(`❌ Houve um erro ao tentar resetar os dados de \`${args[0].toLowerCase()}\``)
-                    embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
-                    embed.setColor('#eb4034')
-                } finally {
-                    await embedmsg.edit({ embeds: [embed], components: []  });
-                }
-            
+                const res0 = await DatabaseManager.query(text0);
 
+                async function addTp(user_id, mastery) {
+                    if (mastery <= 1000) return;
+                    const finalmastery = mastery > 10000 ? mastery/10000 : 1
+                    await API.eco.tp.add(user_id, finalmastery)
+                }
+                
+                res0.rows.forEach(async (row) => {
+                    addTp(row.user_id, parseInt(row.mastery))
+                });
+
+                await DatabaseManager.query(text1);
+    
+                embed.setDescription(`✅ Temporada foi resetada!`)
+                embed.setColor('#32a893');
+    
+            } catch (e) {
+                embed.setDescription(`❌ Houve um erro ao tentar resetar os scores`)
+                embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
+                embed.setColor('#eb4034')
+            } finally {
+                await interaction.editReply({ embeds: [embed], components: []  });
+            }
+            
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
-            embed.setDescription('❌ Tempo expirado', `Você iria resetar ${args[0]}, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed], components: []  });
+            embed.setDescription('❌ Tempo expirado', `Você iria resetar a temporada, porém o tempo expirou.`)
+            interaction.editReply({ embeds: [embed], components: []  });
             return;
         });
 

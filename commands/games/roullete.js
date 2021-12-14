@@ -1,60 +1,45 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
+
 module.exports = {
     name: 'roleta',
     aliases: ['roullete'],
     category: 'Jogos',
     description: 'Aposte em frutas e multiplique sua aposta',
-    options: [{
-        name: 'fichas',
-        type: 'INTEGER',
-        description: 'Selecione uma quantia de fichas para aposta',
-        required: true
-    }],
+    data,
     mastery: 3,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
-        const client = API.client;
-        const args = API.args(msg);
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "roullete");
+        const aposta = interaction.options.getInteger('fichas');
+
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "roullete");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'roullete', 'girar a roleta')
+            API.playerUtils.cooldown.message(interaction, 'roullete', 'girar a roleta')
 
             return;
         }
 
-        if (!(API.townExtension.games[await API.townExtension.getTownName(msg.author)].includes('roleta'))) {
-            const embedtemp = await API.sendError(msg, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(msg.author)].join(', ')}.**`)
-			await msg.quote({ embeds: [embedtemp]})
+        if (!(API.townExtension.games[await API.townExtension.getTownName(interaction.user.id)].includes('roleta'))) {
+            const embedtemp = await API.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(interaction.user.id)].join(', ')}.**`)
+			await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas para aposta!`, `roleta 5`)
-			await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        if (!API.isInt(args[0])) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de fichas (NÚMERO) para aposta!`, `roleta 5`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let aposta = parseInt(args[0]);
 
         if (aposta < 5) {
-            const embedtemp = await API.sendError(msg, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const token = await API.eco.token.get(msg.author)
+        const token = await API.eco.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await API.sendError(msg, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`${API.prefix}loja fichas\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
@@ -67,21 +52,21 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed()
         .setColor('#4e5052')
-        .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setTitle(`⭕ Roleta`)
         .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
-        .setFooter(`⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setFooter(`⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         const btn0 = API.createButton('🍊', 'SECONDARY', '', '🍊')
         const btn1 = API.createButton('🍓', 'SECONDARY', '', '🍓')
         const btn2 = API.createButton('🍐', 'SECONDARY', '', '🍐')
         const btn3 = API.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1, btn2, btn3])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
             
-        const collector = await embedmsg.createMessageComponentCollector({ filter, time: 60000 });
+        const collector = await embedinteraction.createMessageComponentCollector({ filter, time: 60000 });
         let selected;
         let reacted = false
         collector.on('collect', async (b) => {
@@ -125,7 +110,7 @@ module.exports = {
                 }
                 
                 const embed2 = new Discord.MessageEmbed()
-                .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setColor('#4e5052')
                 .setTitle(`⭕ Roleta`)
                 .addField(`Sua aposta`, `Aposta: ${API.format(aposta)} ${API.money3} ${API.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)`, true)
@@ -139,18 +124,18 @@ module.exports = {
                     let title
                     let emote
                     if (selected == array[5]) {
-                        API.eco.addToHistory(msg.author, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);
+                        API.eco.addToHistory(interaction.user.id, `Roleta | + ${API.format(Math.round(aposta*multiplier[selected])-aposta)} ${API.money3emoji}`);
                         embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; 
-                        await API.eco.token.add(msg.author, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(msg.author, "roullete", 0);
+                        await API.eco.token.add(interaction.user.id, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);
                     }
-                    else {API.eco.addToHistory(msg.author, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(msg.author, aposta);API.playerUtils.cooldown.set(msg.author, "roullete", 0);}
+                    else {API.eco.addToHistory(interaction.user.id, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(interaction.user.id, aposta);API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);}
                     embed2.fields = [];
                     embed2.addField(`Sua aposta`, `Aposta: ${API.format(aposta)} ${API.money3} ${API.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${API.money3} ${API.money3emoji}`, true)
                     .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
                     .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
-                    
+                    API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);
                 }
-                embedmsg.edit({ embeds: [embed2], components: [] });
+                interaction.editReply({ embeds: [embed2], components: [] });
             }
 
             roll();
@@ -160,16 +145,14 @@ module.exports = {
 
         collector.on('end', async collected => {
 
-            API.playerUtils.cooldown.set(msg.author, "roullete", 0);
-
             if (reacted) return
 
-            embedmsg.edit({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] });
 
             return;
         });
 
-        API.playerUtils.cooldown.set(msg.author, "roullete", 60);
+        API.playerUtils.cooldown.set(interaction.user.id, "roullete", 60);
     
     }
 };

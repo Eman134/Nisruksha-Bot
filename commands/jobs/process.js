@@ -1,3 +1,6 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'processos',
     aliases: ['menuprocessos', 'procs', 'processamentos'],
@@ -5,24 +8,24 @@ module.exports = {
     description: 'Veja todos os sistemas de processamentos, ferramentas e as limpezas',
     companytype: 7,
     mastery: 15,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
         
 		const embed = new Discord.MessageEmbed()
 
-        const players_utils = await API.getInfo(msg.author, 'players_utils')
-        const machines = await API.getInfo(msg.author, 'machines')
+        const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+        const machines = await DatabaseManager.get(interaction.user.id, 'machines')
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "verprocessamentos");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "verprocessamentos");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'verprocessamentos', 'ver outra mensagem de processamentos')
+            API.playerUtils.cooldown.message(interaction, 'verprocessamentos', 'ver outra mensagem de processamentos')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 35);
+        API.playerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 35);
 
         const level = machines.level
 
@@ -44,12 +47,12 @@ module.exports = {
 
             processjson = defaultjson
 
-            API.setInfo(msg.author, 'players_utils', 'process', defaultjson)
+            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', defaultjson)
         }
 
         if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
-            await API.cacheLists.waiting.remove(member, 'working');
-            await jobs.process.remove(member)
+            await API.cacheLists.waiting.remove(member.id, 'working');
+            await jobs.process.remove(member.id)
         }
 
         let embeds = []
@@ -113,9 +116,9 @@ module.exports = {
                 
                 }
             } else {
-                API.cacheLists.waiting.remove(msg.author, 'working');
+                API.cacheLists.waiting.remove(interaction.user.id, 'working');
                 embed.fields = []
-                embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`${API.prefix}iniciarprocesso\` para começar a processar fragmentos.`, true)
+                embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`/iniciarprocesso\` para começar a processar fragmentos.`, true)
                 embeds = []
                 embeds.push(embed)
             }
@@ -134,7 +137,7 @@ module.exports = {
 
             const btn0 = API.createButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
             //const btn1 = API.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🔨', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
+            const btn2 = API.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🛠', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
             const btn3 = API.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? 'Repor' : 'Líquido de Limpeza', current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? '⚗' : '🧪', (current == 'lqd' && (tool.fuel.current/tool.fuel.max*100).toFixed(2) >= 50 || allDisabled ? true : false))
             
             components.push(API.rowComponents([btn0, btn2, btn3]))
@@ -152,7 +155,7 @@ module.exports = {
                 return processo.fragments.current == 0
             })
 
-            if (endprocs.length > 0) {
+            if (endprocs.length > 0 && !['ferr', 'lqd'].includes(current)) {
 
                 let butnList = []
 
@@ -181,11 +184,11 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        const embedmsg = await msg.quote({ embeds, components });
+        const embedinteraction = await interaction.reply({ embeds, components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 35000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 35000 });
 
         collector.on('collect', async (b) => {
 
@@ -201,10 +204,10 @@ module.exports = {
 
             current = b.customId
 
-            API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 35);
+            API.playerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 35);
 
-            const players_utils = await API.getInfo(msg.author, 'players_utils')
-            const money = await API.eco.money.get(msg.author)
+            const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+            const money = await API.eco.money.get(interaction.user.id)
             processjson = players_utils.process
 
             if (b.customId == 'processos') {
@@ -232,7 +235,7 @@ module.exports = {
                     if (tool.potency.current+5 <= tool.potency.rangemax) tool.potency.current += 5
                 }
                 processjson.tools[tool.type] = tool
-                API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
                 b.customId = (tool.type == 0 ? 'ferr' : 'lqd')
                 current = (tool.type == 0 ? 'ferr' : 'lqd')
             }
@@ -288,41 +291,41 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                         processjson.tools[1].fuel.current = processjson.tools[1].fuel.max
                     }
                     
-                    API.setInfo(msg.author, 'players_utils', 'process', processjson)
-                    await API.eco.money.remove(msg.author, custorepair);
-                    await API.eco.addToHistory(msg.author, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
-                    await API.company.jobs.process.add(msg.author)
-                    API.cacheLists.waiting.add(msg.author, embedmsg, 'working');
+                    DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
+                    await API.eco.money.remove(interaction.user.id, custorepair);
+                    await API.eco.addToHistory(interaction.user.id, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
+                    await API.company.jobs.process.add(interaction.user.id)
+                    API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
                 }
                     
             
             }
             if (b.customId.startsWith('proc:')) {
 
-                let stamina = await API.playerUtils.stamina.get(msg.author)
+                let stamina = await API.playerUtils.stamina.get(interaction.user.id)
 
                 if (stamina < custoretirar) {
                     
                     setProcess()
-                    embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${msg.author.tag}\`: **[${stamina}/${custoretirar}]**`)
+                    embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custoretirar}]**`)
                     if (processjson.in.length > 0) embeds.push(embed)
 
                 } else {
 
-                    API.playerUtils.stamina.remove(msg.author, custoretirar)
+                    API.playerUtils.stamina.remove(interaction.user.id, custoretirar)
 
                     const id = parseInt(b.customId.replace(/proc:/g, ''))
                     const oldproc = processjson.in.find((x) => x.id == id)
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
-                    API.setInfo(msg.author, 'players_utils', 'process', processjson)
+                    DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
                     setProcess()
 
-                    let xp = await API.playerUtils.execExp(msg, oldproc.xpbase)
+                    let xp = await API.playerUtils.execExp(interaction, oldproc.xpbase)
                     let score = parseFloat(oldproc.score)
-                    API.company.stars.add(msg.author, company.company_id, { score })
+                    API.company.stars.add(interaction.user.id, company.company_id, { score })
 
-                    const retorno = await API.itemExtension.give(msg, oldproc.drops || [])
+                    const retorno = await API.itemExtension.give(interaction, oldproc.drops || [])
                     
                     embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
                     if (processjson.in.length > 0) embeds.push(embed)
@@ -336,14 +339,14 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
             
             const components = reworkButtons(current)
             
-            await embedmsg.edit({ embeds, components })
+            await interaction.editReply({ embeds, components })
             
         });
         
         collector.on('end', async collected => {
             const components = reworkButtons(current, true)
-            embedmsg.edit({ embeds, components })
-            API.playerUtils.cooldown.set(msg.author, "verprocessamentos", 0);
+            interaction.editReply({ embeds, components })
+            API.playerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 0);
             return;
         });
 

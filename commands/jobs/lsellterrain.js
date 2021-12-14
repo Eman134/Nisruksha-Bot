@@ -1,30 +1,32 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'venderterreno',
     aliases: ['sellterrain', 'venderlote', 'vendlote', 'sellplot'],
     category: 'none',
     description: 'Faça a venda do seu terreno atual',
-    options: [],
     mastery: 30,
     companytype: 1,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
         const client = API.client;
 
-        let pobj = await API.getInfo(msg.author, 'players')
+        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "sellterrain");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "sellterrain");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'sellterrain', 'usar este comando')
+            API.playerUtils.cooldown.message(interaction, 'sellterrain', 'usar este comando')
 
             return;
         }
 
 
         let plot = {}
-        let townnum = await API.townExtension.getTownNum(msg.author);
-        let townname = await API.townExtension.getTownName(msg.author);
+        let townnum = await API.townExtension.getTownNum(interaction.user.id);
+        let townname = await API.townExtension.getTownName(interaction.user.id);
         let contains = false
         let allplots = pobj.plots
         if (pobj.plots) {
@@ -49,8 +51,8 @@ module.exports = {
         }
 
         if (!contains) {
-            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual para realizar a venda!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui terrenos na sua vila atual para realizar a venda!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
@@ -65,16 +67,16 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        let collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        let collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let selled = false;
-        API.playerUtils.cooldown.set(msg.author, "sellterrain", 20);
+        API.playerUtils.cooldown.set(interaction.user.id, "sellterrain", 20);
         collector.on('collect', async(b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 
             selled = true;
             collector.stop();
@@ -84,18 +86,18 @@ module.exports = {
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
                 Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**.`)
-                embedmsg.edit({ embeds: [embed], components: [] });
-                API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
+                interaction.editReply({ embeds: [embed], components: [] });
+                API.playerUtils.cooldown.set(interaction.user.id, "sellterrain", 0);
                 return;
             }
 
             let company;
-            let pobj = await API.getInfo(msg.author, 'players')
+            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
             
-            if (await API.company.check.isWorker(msg.author)) {
+            if (await API.company.check.isWorker(interaction.user.id)) {
                 company = await API.company.get.companyById(pobj.company);
             } else {
-                company = await API.company.get.company(msg.author);
+                company = await API.company.get.companyByOwnerId(interaction.user.id);
             }
             let owner = await API.company.get.ownerById(company.company_id);
 
@@ -105,31 +107,31 @@ module.exports = {
             let totalantes = total
             total = Math.round(total-totaltaxa)
 
-            if (msg.author.id == owner.id) {
+            if (interaction.user.id == owner.id) {
                 total = totalantes
             }
             
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
-            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}** ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`)
-            embedmsg.edit({ embeds: [embed], components: [] });
-            API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
+            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}** ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`)
+            interaction.editReply({ embeds: [embed], components: [] });
+            API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
-            API.eco.money.add(msg.author, total)
-            API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
+            API.eco.money.add(interaction.user.id, total)
+            API.playerUtils.cooldown.set(interaction.user.id, "sellterrain", 0);
 
             delete allplots[townnum.toString()]
-            API.setInfo(msg.author, 'players', 'plots', allplots)
+            DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
             
-            if (company == undefined || msg.author.id == owner.id) return
+            if (company == undefined || interaction.user.id == owner.id) return
             let rend = company.rend || []
             rend.unshift(totaltaxa)
             rend = rend.slice(0, 10)
 
-            API.setCompanieInfo(owner, company.company_id, 'rend', rend)
+            API.setCompanieInfo(owner.id, company.company_id, 'rend', rend)
 
-            API.eco.bank.add(owner, totaltaxa)
+            API.eco.bank.add(owner.id, totaltaxa)
             
         });
         
@@ -139,8 +141,8 @@ module.exports = {
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${API.format(total)} ${API.money} ${API.moneyemoji}**, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed], components: [] });
-            API.playerUtils.cooldown.set(msg.author, "sellterrain", 0);
+            interaction.editReply({ embeds: [embed], components: [] });
+            API.playerUtils.cooldown.set(interaction.user.id, "sellterrain", 0);
             return;
         });
 

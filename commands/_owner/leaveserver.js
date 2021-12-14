@@ -1,23 +1,22 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('server_id').setDescription('Selecione um id de servidor').setRequired(true))
+
 module.exports = {
     name: 'sairsv',
     aliases: ['leaveserver'],
     category: 'none',
     description: 'Faz com que o bot saia de algum servidor',
-    options: [],
+    data,
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        let args = API.args(msg);
+        const server_id = interaction.options.getString('server_id');
 
-        if (args.length == 0) {
-            await msg.quote({ content: `${API.prefix}sairsv <id>` })
-            return;
-        }
+        if (API.client.guilds.cache.get(server_id) == undefined) return await interaction.reply({ content: 'invalid server' })
 
-        if (API.client.guilds.cache.get(args[0]) == undefined) return await msg.quote({ content: 'invalid server' })
+        API.client.guilds.cache.get(server_id).leave();
 
-        API.client.guilds.cache.get(args[0]).leave();
-
-        await msg.quote({ content: 'SUCCESS'})
+        await interaction.reply({ content: 'SUCCESS'})
     }
 }

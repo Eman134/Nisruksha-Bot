@@ -1,7 +1,14 @@
 module.exports = { // Renomeie para config.js
     prefix: ".",
     owner: ["422002630106152970"],
-    
+
+    ip: "localhost",
+    port: 80,
+
+    sharding: {
+        shardAmount: 'auto'
+    },
+
     db: {
         user: '',
         host: '',
@@ -36,6 +43,7 @@ module.exports = { // Renomeie para config.js
     modules: {
 
         cotacao: 20, // em minutos
+        discount: 60, // em minutos
 
         events: {
             channel: "",

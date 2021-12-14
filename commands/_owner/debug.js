@@ -3,11 +3,10 @@ module.exports = {
     aliases: [],
     category: 'none',
     description: 'none',
-    options: [],
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        await msg.quote({ content: `Debug foi setado para ${!API.debug}` })
+        await interaction.reply({ content: `Debug foi setado para ${!API.debug}` })
         
         API.debug = !API.debug
 

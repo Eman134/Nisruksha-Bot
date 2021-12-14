@@ -1,57 +1,48 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de algum item ou "tudo" para vender').setRequired(true))
+.addStringOption(option => option.setName('item').setDescription('Selecione um item para venda').setRequired(false))
+
 module.exports = {
     name: 'venderitem',
     aliases: ['sellitem', 'vitem', 'vi', 'si', 'venderi'],
     category: 'Economia',
     description: 'Vende tods os ítens ou específicos da sua mochila',
-    options: [
-    {
-        name: 'quantia',
-        type: 'STRING',
-        description: 'Selecione uma quantia de algum item ou selecione tudo para vender',
-        required: false
-    },
-    {
-        name: 'item',
-        type: 'STRING',
-        description: 'Selecione um item para vender',
-        required: false
-    }],
+    data,
     mastery: 50,
-	async execute(API, msg) {
-        
-        const args = API.args(msg);
+	async execute(API, interaction) {
 
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
+        let item = interaction.options.getString('item')
+        let quantia = interaction.options.getString('quantia')
 
-        let armsize = await API.itemExtension.getInv(msg.author, true, true);
+        const armsize = await API.itemExtension.getInv(interaction.user.id, true, true);
 
         if (armsize <= 0) {
-            const embedtemp = await API.sendError(msg, `Você não possui itens na sua mochila para vender!`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui itens na sua mochila para vender!`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let arg0 = args[0].normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-
-        if (args.length >= 2 && (API.itemExtension.exists(API.getMultipleArgs(msg, 2), 'drops') == false)) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`${API.prefix}mochila\``)
-            await msg.quote({ embeds: [embedtemp]})
+        if (item != null && !API.itemExtension.exists(item, 'drops')) {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`/mochila\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if ((API.isInt(arg0) == false) && arg0 != 'tudo') {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar uma quantia para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (item != null) item = item.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+        quantia = quantia.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+
+        if ((API.isInt(quantia) == false) && quantia != 'tudo') {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar uma quantia para venda!`, `venderitem <tudo | quantia> [nome do item]\n/venderitem tudo\n/venderitem tudo olho\n/venderitem 10 Carne de monstro`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (API.isInt(arg0) && args.length == 1) {
-            const embedtemp = await API.sendError(msg, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n${API.prefix}venderitem tudo\n${API.prefix}venderitem tudo olho\n${API.prefix}venderitem 10 Carne de monstro`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (API.isInt(quantia) && item == null) {
+            const embedtemp = await API.sendError(interaction, `Você precisa identificar um item para venda!`, `venderitem <tudo | quantia> [nome do item]\n/venderitem tudo\n/venderitem tudo olho\n/venderitem 10 Carne de monstro`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
@@ -59,55 +50,53 @@ module.exports = {
         let id = '';
         let drop
         let realname = ""
-        if (args.length > 1) {id = API.getMultipleArgs(msg, 2).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); drop = API.itemExtension.get(id)}
+        if (item != null) {id = item; drop = API.itemExtension.get(id) }
         if (drop) realname = drop.name
-        if (arg0 == 'tudo' && args.length == 1) {
+        if (quantia == 'tudo' && item == null) {
             type = 0;
         }
 
         let obj = API.itemExtension.getObj();
-        const obj2 = await API.getInfo(msg.author, 'storage')
+        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
 
-        if (arg0 == 'tudo' && args.length >= 2) {
+        if (quantia == 'tudo' && item != null) {
 
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
             type = 1;
         }
 
-        if (API.isInt(arg0) && args.length >= 2) {
+        if (API.isInt(quantia) && item != null) {
             type = 2;
-            if (parseInt(arg0) <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (parseInt(quantia) <= 0) {
+                const embedtemp = await API.sendError(interaction, `Você não pode vender essa quantia de ${drop.icon} \`${drop.displayname}\`!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-                const embedtemp = await API.sendError(msg, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (parseInt(arg0) > obj2[drop.name.replace(/"/g, '')]) {
-                const embedtemp = await API.sendError(msg, `Você não possui **${arg0}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (parseInt(quantia) > obj2[drop.name.replace(/"/g, '')]) {
+                const embedtemp = await API.sendError(interaction, `Você não possui **${quantia}x** ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
         }
 
-        const check = await API.playerUtils.cooldown.check(msg.author, "vendaitem");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "vendaitem");
         if (check) {
-
-            API.playerUtils.cooldown.message(msg, 'vendaitem', 'vender itens novamente')
-
+            API.playerUtils.cooldown.message(interaction, 'vendaitem', 'vender itens novamente')
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "vendaitem", 35);
+        API.playerUtils.cooldown.set(interaction.user.id, "vendaitem", 35);
 
         let total = 0;
         let totalsize = 0;
@@ -127,19 +116,19 @@ module.exports = {
                 break;
             case 2:
 
-                totalsize = parseInt(arg0);
-                total += parseInt(arg0)*drop.price;
+                totalsize = parseInt(quantia);
+                total += parseInt(quantia)*drop.price;
                 break;
         }
         total = Math.round(total);
 
         let company;
-        let pobj = await API.getInfo(msg.author, 'players')
+        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         
-        if (await API.company.check.isWorker(msg.author)) {
+        if (await API.company.check.isWorker(interaction.user.id)) {
             company = await API.company.get.companyById(pobj.company);
         } else {
-            company = await API.company.get.company(msg.author);
+            company = await API.company.get.companyByOwnerId(interaction.user.id);
         }
 
         let owner
@@ -153,23 +142,23 @@ module.exports = {
         
         const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}?`)
+        Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}?`)
         
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        let collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         let selled = false;
         collector.on('collect', async(b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 
             selled = true;
             collector.stop();
@@ -178,27 +167,27 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
-                embedmsg.edit({ embeds: [embed], components: [] });
+                Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
+                interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            let obj3 = await API.getInfo(msg.author, 'storage')
+            let obj3 = await DatabaseManager.get(interaction.user.id, 'storage')
 
             switch (type) {
                 case 0:
 
-                    let armsize2 = await API.itemExtension.getInv(msg.author, true, true);
+                    let armsize2 = await API.itemExtension.getInv(interaction.user.id, true, true);
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui itens na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
                     //for (const key in obj) {
                         for (const r of obj.drops) {
-                            API.itemExtension.set(msg.author, r.name, 0)
+                            API.itemExtension.set(interaction.user.id, r.name, 0)
                         }
                     //}
                     break;
@@ -206,37 +195,37 @@ module.exports = {
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    API.itemExtension.set(msg.author, realname, 0)
+                    API.itemExtension.set(interaction.user.id, realname, 0)
                     break;
                 case 2:
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    if (parseInt(arg0) > obj3[drop.name.replace(/"/g, '')]) {
-                        embed.addField('❌ Venda cancelada', `Você não possui **${arg0}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
-                        embedmsg.edit({ embeds: [embed], components: [] })
+                    if (parseInt(quantia) > obj3[drop.name.replace(/"/g, '')]) {
+                        embed.addField('❌ Venda cancelada', `Você não possui **${quantia}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                        interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
-                    API.itemExtension.set(msg.author, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(arg0))
+                    API.itemExtension.set(interaction.user.id, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(quantia))
                     break;
             }
 
             
-            pobj = await API.getInfo(msg.author, 'players')
+            pobj = await DatabaseManager.get(interaction.user.id, 'players')
             
-            if (await API.company.check.isWorker(msg.author)) {
+            if (await API.company.check.isWorker(interaction.user.id)) {
                 company = await API.company.get.companyById(pobj.company);
             } else {
-                company = await API.company.get.company(msg.author);
+                company = await API.company.get.companyByOwnerId(interaction.user.id);
             }
             if (company) owner = await API.company.get.ownerById(company.company_id);
 
@@ -246,41 +235,41 @@ module.exports = {
             totalantes = total
             total = Math.round(total-totaltaxa)
 
-            if (owner && msg.author.id == owner.id) {
+            if (owner && interaction.user.id == owner.id) {
                 total = totalantes
             }
             
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
-            Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(totalantes)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
-            if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-msg.createdTimestamp}ms\`\`\``)
-            embedmsg.edit({ embeds: [embed], components: [] });
-            API.eco.addToHistory(msg.author, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
+            Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(totalantes)} ${API.money}** ${API.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}.`)
+            if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+            interaction.editReply({ embeds: [embed], components: [] });
+            API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
 
-            API.eco.money.add(msg.author, total)
+            API.eco.money.add(interaction.user.id, total)
             
-            if (!company || (owner && msg.author.id == owner.id)) return
+            if (!company || (owner && interaction.user.id == owner.id)) return
             let rend = company.rend || []
             rend.unshift(totaltaxa)
             rend = rend.slice(0, 10)
 
-            API.setCompanieInfo(owner, company.company_id, 'rend', rend)
+            API.setCompanieInfo(owner.id, company.company_id, 'rend', rend)
 
-            API.eco.bank.add(owner, totaltaxa)
+            API.eco.bank.add(owner.id, totaltaxa)
 
-            API.company.stars.add(msg.author, company.company_id, { rend: totaltaxa })
+            API.company.stars.add(interaction.user.id, company.company_id, { rend: totaltaxa })
 
         });
         
         collector.on('end', collected => {
-            API.playerUtils.cooldown.set(msg.author, "vendaitem", 0);
+            API.playerUtils.cooldown.set(interaction.user.id, "vendaitem", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || msg.author.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!`)
-            embedmsg.edit({ embeds: [embed], components: [] });
+            Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!`)
+            interaction.editReply({ embeds: [embed], components: [] });
             return;
         });
 

@@ -1,87 +1,121 @@
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
+const API = require('../../_classes/api');
+
+const vare = {
+    '736290479406317649': {
+        db: {
+            table: 'players',
+            column: 'money'
+        },
+        name: API.money,
+        formated: API.money + ' ' + API.moneyemoji,
+        global: [],
+    },
+    '741827151879471115': {
+        db: {
+            table: 'players',
+            column: 'points'
+        },
+        name: API.money2,
+        formated: API.money2 + ' ' + API.money2emoji,
+        global: [],
+    },
+    '741827151879471115': {
+        db: {
+            table: 'players',
+            column: 'token'
+        },
+        name: API.money3,
+        formated: API.money3 + ' ' + API.money3emoji,
+        global: [],
+    },
+    '👍🏽': {
+        db: {
+            table: 'players',
+            column: 'reps'
+        },
+        name: 'reputação',
+        formated: 'reps 👍🏽',
+        global: [],
+    },
+    '833363716615307324': {
+        db: {
+            table: 'machines',
+            column: 'level'
+        },
+        name: 'níveis',
+        formated: 'níveis',
+        global: [],
+    },
+    '💥': {
+        db: {
+            table: 'players',
+            column: 'streak'
+        },
+        name: 'streak',
+        formated: 'streak',
+        global: [],
+    },
+    '🔰': {
+        db: {
+            table: 'players',
+            column: 'mastery'
+        },
+        name: API.mastery.name,
+        formated: API.mastery.name + ' ' + API.mastery.emoji,
+        global: [],
+    },
+    '⚙': {
+        db: {
+            table: 'players',
+            column: 'cmdsexec'
+        },
+        name: 'comandos',
+        formated: 'comandos executados ⚙',
+        global: [],
+    }
+}
+
+async function setRankCache() {
+    for (let i = 0; i < Object.keys(vare).length; i++) {
+        const data = Object.values(vare)[i];
+        data.emoji = Object.keys(vare)[i];
+
+        const text =  `SELECT * FROM ${data.db.table};`
+        let array = [];
+        try {
+            let res = await DatabaseManager.query(text);
+            array = res.rows;
+        } catch (err) {
+            console.log(err.stack)
+            API.client.emit('error', err)
+        }
+        vare[data.emoji].global = array.sort((a, b) => b[data.db.column] - a[data.db.column]);
+    }
+}
+
+setRankCache()
+setInterval(setRankCache, 360000)
+
 module.exports = {
     name: 'ranking',
     aliases: ['top', 'rank', 'rankglobal'],
     category: 'Social',
     description: 'Visualiza o ranking GLOBAL de alguma categoria',
     mastery: 3,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
         const client = API.client;
-
-        let vare = {
-            '736290479406317649': {
-                db: {
-                    table: 'players',
-                    column: 'money'
-                },
-                name: API.money,
-                formated: API.money + ' ' + API.moneyemoji
-            },
-            '741827151879471115': {
-                db: {
-                    table: 'players',
-                    column: 'points'
-                },
-                name: API.money2,
-                formated: API.money2 + ' ' + API.money2emoji
-            },
-            '741827151879471115': {
-                db: {
-                    table: 'players',
-                    column: 'token'
-                },
-                name: API.money3,
-                formated: API.money3 + ' ' + API.money3emoji
-            },
-            '👍🏽': {
-                db: {
-                    table: 'players',
-                    column: 'reps'
-                },
-                name: 'reputação',
-                formated: 'reps 👍🏽'
-            },
-            '833363716615307324': {
-                db: {
-                    table: 'machines',
-                    column: 'level'
-                },
-                name: 'níveis',
-                formated: 'níveis'
-            },
-            '💥': {
-                db: {
-                    table: 'players',
-                    column: 'streak'
-                },
-                name: 'streak',
-                formated: 'streak'
-            },
-            '🔰': {
-                db: {
-                    table: 'players',
-                    column: 'mastery'
-                },
-                name: API.mastery.name,
-                formated: API.mastery.name + ' ' + API.mastery.emoji
-            },
-            '⚙': {
-                db: {
-                    table: 'players',
-                    column: 'cmdsexec'
-                },
-                name: 'comandos',
-                formated: 'comandos executados ⚙'
-            }
-        }
 
         let rankingtype = 0
         let current = ''
 
 		const embed = new Discord.MessageEmbed()
         .setColor('#32a893')
-        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
 
         .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!API.client.emojis.cache.get(key) ? key : API.client.emojis.cache.get(key)}`).join('\n'))
 
@@ -95,7 +129,7 @@ module.exports = {
 
             components = []
 
-            butnList.push(API.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
+            //butnList.push(API.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
             for (i = 0; i < Object.keys(vare).length; i++) {
                 butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
@@ -117,45 +151,31 @@ module.exports = {
 
         }
 
-        let embedmsg = await msg.quote({ embeds: [embed], components });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id
+        const filter = i => i.user.id === interaction.user.id
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
 
         let waiting = false
         
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
-
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            b.deferUpdate()
 
             if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
-                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
-                if (current == 'change' || current == '') {
-                    reworkButtons(rankingtype)
-                    await embedmsg.edit({ embeds: [embed], components })
-                    return
-                } 
+                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
                 b.customId = current
             }
             
             current = b.customId
+            
+            let array = vare[b.customId].global
 
             reworkButtons(rankingtype, b.customId)
-            
-            const text =  `SELECT * FROM ${vare[b.customId].db.table};`
-            let array = [];
-            try {
-                let res = await API.db.pool.query(text);
-                array = res.rows;
-            } catch (err) {
-                console.log(err.stack)
-                API.client.emit('error', err)
-            }
 
+            /*
             if (rankingtype == 1 && !waiting) {
 
                 waiting = true
@@ -163,57 +183,49 @@ module.exports = {
                 const arr2check = []
 
                 for (i = 0; i < array.length; i++) {
-                    let x1
+
                     try {
-                        const x = await msg.guild.members.fetch(array[i].user_id)
-                        if (x) x1 = true
-                        else x1 = false
+                        const x = await interaction.guild.members.fetch(array[i].user_id)
+                        arr2check.push(array[i])
                     } catch {
-                        x1 = false
                     }
-                    if (x1) arr2check.push(array[i])
+
                 }
 
                 array = arr2check
-            }
+            }*/
 
-            array.sort(function(c, d){
-                return d[vare[b.customId].db.column] - c[vare[b.customId].db.column];
-            });
-
-            const obj = array.find((u) => u.user_id == msg.author.id )
+            const obj = array.find((u) => u.user_id == interaction.user.id )
             const pos = array.indexOf(obj)+1
 
             array = array.slice(0, 10)
 
-            var rank = 1;
             for (var i = 0; i < array.length; i++) {
 
                 let member = await client.users.fetch(`${array[i].user_id}`);
 
                 array[i].tag = member.tag;
-                array[i].rank = rank;
-                rank++;
+                array[i].rank = i+1;
             }
 
             const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customId].db.column]} ${vare[b.customId].formated}`).join('\n')
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? msg.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
             .setColor('#32a893')
             .setDescription(maparray)
 
             collector.resetTimer()
 
-            await embedmsg.edit({ embeds: [embed], components })
+            await interaction.editReply({ embeds: [embed], components })
 
             waiting = false
             
         });
         
         collector.on('end', collected => {
-            embedmsg.edit({ embeds: [embed], components: [] })
+            interaction.editReply({ embeds: [embed], components: [] })
         });
 
 	}

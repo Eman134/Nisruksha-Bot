@@ -76,6 +76,18 @@
         "type": 0,
         "name": "Recompensa EP0",
         "url": "https://cdn.discordapp.com/attachments/846503913918169110/859112996387291157/moldura.png"
+    },
+    {
+        "id": 14,
+        "type": 0,
+        "name": "Recompensa Tiktok",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/915045592059740190/moldura.png"
+    },
+    {
+        "id": 15,
+        "type": 0,
+        "name": "Recompensa EP1",
+        "url": "https://cdn.discordapp.com/attachments/846503913918169110/915053007153008690/moldura.png"
     }
 
 ]

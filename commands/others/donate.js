@@ -1,19 +1,24 @@
+const Database = require("../../_classes/manager/DatabaseManager")
+const DatabaseManager = new Database()
+
 module.exports = {
     name: 'doar',
     aliases: ['donate'],
     category: 'Outros',
     description: 'Veja as informações necessárias para realizar uma doação',
     mastery: 20,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
                 const Discord = API.Discord;
                 const client = API.client;
 
-                let donates = await API.getGlobalInfo('donates');
-                let totaldonates = await API.getGlobalInfo('totaldonates');
+                const globalobj = await DatabaseManager.get(API.id, 'globals')
+
+                const donates = globalobj.donates
+                const totaldonates = globalobj.totaldonates
                 
                 const embed = new Discord.MessageEmbed()
-                .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setTitle(`Doe para o nosso projeto`)
                 .setThumbnail(client.user.displayAvatarURL())
                 .setFooter(`Nisruksha agradece :)`, client.user.displayAvatarURL())
@@ -23,7 +28,7 @@ module.exports = {
 \`2.\` Cargo Doador no servidor principal
 \`3.\` Acesso a sorteios exclusivos para Doadores
 \`4.\` Acesso ao desenvolvimento de novas versões
-\`5.\` Chave de ativação de MVP com duração de 15 dias (\`${API.prefix}mvp\`)
+\`5.\` Chave de ativação de MVP com duração de 15 dias (\`/mvp\`)
 Para cada \`R$1,00\` = 25 ${API.money2} ${API.money2emoji}
 
 OBS: As vantagens são ativadas por cada doação
@@ -45,7 +50,8 @@ Total de doações: ${donates}
 Total em doações: R$${(totaldonates + "").replace('.', ',')}
 
 `).setTimestamp()
-             await msg.quote({ embeds: [embed] });
+            if (interaction.replied) return interaction.channel.send({ embeds: [embed]})
+            await interaction.reply({ embeds: [embed] });
         
 	}
 };

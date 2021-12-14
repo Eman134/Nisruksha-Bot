@@ -1,17 +1,19 @@
+const Database = require("../../_classes/manager/DatabaseManager")
+const DatabaseManager = new Database()
+
 module.exports = {
     name: 'pegarperm',
     aliases: ['getperm'],
     category: 'none',
     description: 'none',
-    options: [],
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        if (API.owner.includes(msg.author.id)) {
-            API.setPerm(msg.author, 5)
-            await msg.quote({ content: 'SUCCESS' })
+        if (API.owner.includes(interaction.user.id)) {
+            DatabaseManager.set(interaction.user.id, 'players', 'perm', 5)
+            await interaction.reply({ content: 'SUCCESS' })
         
         } else {
-            await msg.quote({ content: 'insufficient perms' })
+            await interaction.reply({ content: 'insufficient perms' })
         }
     }
 }

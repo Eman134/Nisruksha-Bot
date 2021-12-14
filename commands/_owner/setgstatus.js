@@ -1,37 +1,31 @@
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('status').setDescription('Selecione o status')
+  .addChoice('Comandos somente se o membro tiver no servidor oficial', '0')
+  .addChoice('Uso liberado para qualquer membro', '1')
+  .addChoice('Manutenção ligada', '2')
+.setRequired(true))
+.addStringOption(option => option.setName('motivo').setDescription('Selecione um motivo para a manutenção').setRequired(true))
+
 module.exports = {
     name: 'setgstatus',
     aliases: ['setargstatus', 'gstatus', 'setgs'],
     category: 'none',
     description: 'Modifica o status global do bot',
-    options: [],
+    data,
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const Discord = API.Discord;
-        const client = API.client;
-        let args = API.args(msg)
+        const status = parseInt(interaction.options.getString('status'));
+        const motivo = interaction.options.getString('motivo');
 
-        if (!args) {
-            const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (status == 2 && motivo == null) {
+            const embedtemp = await API.sendError(interaction, `Você precisa especificar um motivo para a manutenção!`, "setgstatus 2 <motivo>")
+            await interaction.reply({ embeds: [embedtemp]})
             return;
-        }
-        
-        if (!API.isInt(args[0])) {
-            const embedtemp = await API.sendError(msg, `Digite um status global para aplicar no bot!\n \n**Informações de global status:**\n\`0\` Comandos somente se o membro tiver no servidor oficial\n\`1\` Uso liberado para qualquer membro\n\`2\` Manutenção ligada`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let sl = parseInt(args[0])
-        let m = ""
-        if (sl == 2) {
-            if (args.length == 1) {
-                const embedtemp = await API.sendError(msg, `Você precisa especificar um motivo para a manutenção!`, "setgs 2 <motivo>")
-                await msg.quote({ embeds: [embedtemp]})
-                return;
-            }
-            m = API.getMultipleArgs(msg, 2)
         }
 
         let ob = {
@@ -40,10 +34,10 @@ module.exports = {
             2: "Manutenção ligada"
         }
 
-        msg.quote({ content: `O status global do bot foi modificado para: \`${sl}\` ${ob[sl]}` })
+        interaction.reply({ content: `O status global do bot foi modificado para: \`${status}\` ${ob[status]}` })
 
-        API.setGlobalInfo('status', sl)
-        API.setGlobalInfo('man', m)
+        DatabaseManager.set(API.id, 'globals', 'status', status)
+        DatabaseManager.set(API.id, 'globals', 'man', motivo)
 
 	}
 };

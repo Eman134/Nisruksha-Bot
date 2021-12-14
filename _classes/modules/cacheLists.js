@@ -1,5 +1,7 @@
 const API = require("../api");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
 
 const waiting = {}
 const waitingmap = new Map();
@@ -35,25 +37,23 @@ waiting.update = function(list, value) {
 
 }
 
-waiting.includes = function(member, list){
+waiting.includes = function(user_id, list){
 
     const map = waiting.get(list)
 
-    return map.current.includes(member.id)
+    return map.current.includes(user_id)
 }
 
-waiting.getLink = function(member, list) {
-
+waiting.getLink = function(user_id, list) {
     const map = waiting.get(list)
-
-    return map.links.get(member.id)
+    return map.links.get(user_id)
 }
 
-waiting.remove = function(member, list){
+waiting.remove = function(user_id, list){
 
   const map = waiting.get(list)
 
-  const index = map.current.indexOf(member.id);
+  const index = map.current.indexOf(user_id);
   if (index > -1) {
     map.current.splice(index, 1);
   }
@@ -62,15 +62,13 @@ waiting.remove = function(member, list){
 
 }
 
-waiting.add = function(member, msg, list) {
-  
-  if (!msg) return
+waiting.add = function(user_id, interaction, list) {
 
   const map = waiting.get(list)
 
-  if (!(map.current.includes(member.id))) {
-    map.current.push(member.id)
-    map.links.set(member.id, msg.url)
+  if (!(map.current.includes(user_id))) {
+    map.current.push(user_id)
+    map.links.set(user_id, interaction.url)
   }
 
   waiting.update(list, map)
@@ -84,48 +82,50 @@ const remembermap = new Map();
 
   remember.get = function(){return remembermap}
 
-  remember.loadold = async function(type, member, channel){
+  remember.loadold = async function(type, user_id, channel){
 
     let from
     let to
-    let time
+    let time = 0
 
     switch (type) {
       case "energia":
+
+        const { energia, energiamax, time } = await API.maqExtension.getEnergy(user_id)
         
-        from = await API.maqExtension.getEnergy(member)
-        to = await API.maqExtension.getEnergyMax(member)
-        time = await API.maqExtension.getEnergyTime(member)+1000
+        from = energia
+        to = energiamax
+        if (time > 0) time = time+1000
 
         break;
       case "estamina":
-        from = await API.playerUtils.stamina.get(member)
+        from = await API.playerUtils.stamina.get(user_id)
         to = 1000
-        time = await API.playerUtils.stamina.time(member)+1000
+        time = await API.playerUtils.stamina.time(user_id)+1000
       default:
         break;
     }
 
     if (from >= to) {
-        if (remember.includes(member, type)) {
-            channel.send({ content: `🔁 | ${member} Relatório de ${type}: ${from}/${to}` })
-            remember.remove(member, type)
+        if (remember.includes(user_id, type)) {
+            channel.send({ content: `🔁 | <@${user_id}> Relatório de ${type}: ${from}/${to}` })
+            remember.remove(user_id, type)
         }
         return;
     } else {
-        setTimeout(async function(){remember.loadold(type, member, channel)}, time)
+        setTimeout(async function(){remember.loadold(type, user_id, channel)}, time)
     }
 
   }
 
   remember.load = async function(){
-    let globalremember = await API.getGlobalInfo('remember');
+    const globalobj = await DatabaseManager.get(API.id, 'globals');
+    const globalremember = globalobj.remember
     if (globalremember == null) return
     for (const b of globalremember) {
       if (b != null) remembermap.set(b.memberid, b)
     }
 
-    
     let keys = Array.from( remembermap.values());
 
       for (i = 0; i < keys.length; i++) {
@@ -134,10 +134,9 @@ const remembermap = new Map();
           if (keys[i] && keys[i]["energia"] && keys[i]["energia"].active){
             if (keys[i]["energia"] !== undefined) {
               try {
-                const fetched = await API.client.users.fetch(keys[i].memberid)
                 const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
                 if (!channel) return
-                this.loadold("energia", fetched, channel)
+                this.loadold("energia", keys[i].memberid, channel)
               } catch {
 
               }
@@ -145,10 +144,9 @@ const remembermap = new Map();
           } if (keys[i] && keys[i]["estamina"] && keys[i]["estamina"].active){
             if (keys[i]["estamina"] !== undefined) {
               try {
-                const fetched = await API.client.users.fetch(keys[i].memberid)
                 const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
                 if (!channel) return
-                this.loadold("estamina", fetched, channel)
+                this.loadold("estamina", keys[i].memberid, channel)
               } catch {
 
               }
@@ -166,21 +164,21 @@ const remembermap = new Map();
 
   remember.save = async function(){
     let keys = Array.from( remembermap.values() );
-    API.setGlobalInfo('remember', keys)
+    DatabaseManager.set(API.id, 'globals', 'remember', keys)
   }
 
-  remember.includes = function(member, type) {
-    return remembermap.has(member.id) && remembermap.get(member.id)[type] && remembermap.get(member.id)[type].active
+  remember.includes = function(user_id, type) {
+    return remembermap.has(user_id) && remembermap.get(user_id)[type] && remembermap.get(user_id)[type].active
   }
 
-  remember.add = function(member, channelid, type) {
+  remember.add = function(user_id, channelid, type) {
 
     let obj = {
-      memberid: member.id
+      memberid: user_id
     }
 
-    if (remembermap.has(member.id)) {
-      obj = remembermap.get(member.id)
+    if (remembermap.has(user_id)) {
+      obj = remembermap.get(user_id)
     }
 
     obj[type] = {
@@ -188,27 +186,27 @@ const remembermap = new Map();
       active: false
     }
 
-    if (!this.includes(member, type)) {
+    if (!this.includes(user_id, type)) {
       obj[type].active = true
       obj[type].channelid = channelid
-      remembermap.set(member.id, obj)
+      remembermap.set(user_id, obj)
     }
 
     this.save()
   }
 
-  remember.remove = function(member, type) {
+  remember.remove = function(user_id, type) {
     
-    if (this.includes(member, type)) {
-      let obj = remembermap.get(member.id)
+    if (this.includes(user_id, type)) {
+      let obj = remembermap.get(user_id)
       obj[type].active = false
-      remembermap.set(member.id, obj)
+      remembermap.set(user_id, obj)
     }
 
-    const mapped = remembermap.get(member.id)
+    const mapped = remembermap.get(user_id)
 
     if ((!mapped["energia"] || !mapped["energia"].active) && (!mapped["estamina"] || !mapped["estamina"].active)) {
-      remembermap.delete(member.id)
+      remembermap.delete(user_id)
     }
 
     this.save()

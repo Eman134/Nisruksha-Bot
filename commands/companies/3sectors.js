@@ -3,9 +3,8 @@ module.exports = {
     aliases: ['sectors'],
     category: 'Empresas',
     description: 'Visualiza os setores de empresas e os comandos de cada um',
-    options: [],
     mastery: 30,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
 		const Discord = API.Discord;
 
@@ -57,15 +56,15 @@ module.exports = {
 
         }
 
-		let embedmsg = await msg.quote({ embeds: [embed], components });
+		let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 30000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
             current = b.customId
             if (b.customId == 'home') {
                 home()
@@ -78,13 +77,13 @@ module.exports = {
             
 				embed.setTitle(`<:info:736274028515295262> Comandos de ${API.company.types[type]} ${API.company.e[API.company.types[type]].icon}`);
                 embed.setColor("#03d7fc");
-                embed.setDescription(`${cmdlist.map((cmd) => `\`${API.prefix}${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
+                embed.setDescription(`${cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 
 			}
         
             reworkButtons(current)
 
-            await embedmsg.edit({embeds: [embed], components})
+            await interaction.editReply({embeds: [embed], components})
 
             collector.resetTimer()
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
@@ -93,7 +92,7 @@ module.exports = {
         
         collector.on('end', collected => {
 			reworkButtons(current, true)
-            embedmsg.edit({ embeds: [embed], components })
+            interaction.editReply({ embeds: [embed], components })
         });
 
 	}

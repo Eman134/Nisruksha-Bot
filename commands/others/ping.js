@@ -3,7 +3,7 @@ module.exports = {
     category: 'Outros',
     description: 'Veja a latência atual do bot',
     mastery: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
         
         const Discord = API.Discord;
         const client = API.client;
@@ -12,7 +12,7 @@ module.exports = {
 	    .setColor('#32a893')
         .setDescription('🏓 Latência: ' + client.ws.ping + ' ms')
 
-        await msg.quote({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
 
 	}
 };

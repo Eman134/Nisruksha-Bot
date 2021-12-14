@@ -13,11 +13,15 @@
 			"profundidade": 15,
 			"tier": 0,
 			"price": 300,
-			"price2": 0
+			"price2": 0,
+			"pressure": 150000,
+			"pollutants": 150000,
+			"refrigeration": 150000
 		},
 		{
 			"id": 101,
 			"buyable": true,
+            "discount": 0,
 			"name": "Máquina de Cobre",
 			"icon": "<:maq1:833363716615307324>",
 			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364523179573318/maq1.png",
@@ -27,11 +31,15 @@
 			"profundidade": 20,
 			"tier": 1,
 			"price": 1500,
-			"price2": 0
+			"price2": 0,
+			"pressure": 4500,
+			"pollutants": 4500,
+			"refrigeration": 4500
 		},
 		{
 			"id": 102,
 			"buyable": true,
+            "discount": 0,
 			"name": "Máquina de Ferro",
 			"icon": "<:maq2:833363716744675348>",
 			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364525314474044/maq2.png",
@@ -41,11 +49,15 @@
 			"profundidade": 25,
 			"tier": 2,
 			"price": 15000,
-			"price2": 0
+			"price2": 0,
+			"pressure": 20000,
+			"pollutants": 20000,
+			"refrigeration": 20000
 		},
 		{
 			"id": 103,
 			"buyable": true,
+            "discount": 0,
 			"name": "Máquina de Bauxita",
 			"icon": "<:maq3:833363716719378432>",
 			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364527990702080/maq3.png",
@@ -55,167 +67,179 @@
 			"profundidade": 30,
 			"tier": 3,
 			"price": 90000,
-			"price2": 0
+			"price2": 0,
+			"pressure": 60000,
+			"pollutants": 60000,
+			"refrigeration": 60000
 		},
 		{
 			"id": 104,
 			"buyable": true,
-			"name": "Máquina de Manganês",
-			"icon": "<:maq4:833363716527489035>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364530842304542/maq4.png",
+            "discount": 0,
+			"name": "Máquina de Pirita",
+			"icon": "<:piritamaquina:919787769054756864>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/919782480813363200/piritamaquina.png",
 			"type": 1,
 			"level": 12,
 			"durability": 30000,
 			"profundidade": 35,
 			"tier": 4,
 			"price": 330000,
-			"price2": 0
+			"price2": 0,
+			"pressure": 300000,
+			"pollutants": 300000,
+			"refrigeration": 300000
 		},
 		{
 			"id": 105,
 			"buyable": true,
-			"name": "Máquina de Nióbio",
-			"icon": "<:maq5:833363716833673246>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364532826210334/maq5.png",
+            "discount": 0,
+			"name": "Máquina de Manganês",
+			"icon": "<:maq4:833363716527489035>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364530842304542/maq4.png",
 			"type": 1,
 			"level": 16,
 			"durability": 40000,
 			"profundidade": 40,
 			"tier": 5,
 			"price": 600000,
-			"price2": 0
+			"price2": 0,
+			"pressure": 850000,
+			"pollutants": 850000,
+			"refrigeration": 850000
 		},
 		{
 			"id": 106,
 			"buyable": true,
-			"name": "Máquina de Ouro",
-			"icon": "<:maq6:833363716526833716>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364535229677638/maq6.png",
+            "discount": 0,
+			"name": "Máquina de Nióbio",
+			"icon": "<:maq5:833363716833673246>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364532826210334/maq5.png",
 			"type": 1,
 			"level": 22,
 			"durability": 70000,
 			"profundidade": 45,
 			"tier": 6,
 			"price": 2000000,
-			"price2": 0
+			"price2": 0,
+			"pressure": 1500000,
+			"pollutants": 1500000,
+			"refrigeration": 1500000
 		},
 		{
 			"id": 107,
 			"buyable": true,
-			"name": "Máquina de Rubi",
-			"icon": "<:maq7:833363716665376859>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364536630837328/maq7.png",
+            "discount": 0,
+			"name": "Máquina de Ouro",
+			"icon": "<:maq6:833363716526833716>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364535229677638/maq6.png",
 			"type": 1,
 			"level": 28,
 			"durability": 100000,
 			"profundidade": 50,
 			"tier": 7,
 			"price": 5000000,
-			"price2": 25
+			"price2": 25,
+			"pressure": 5000000,
+			"pollutants": 5000000,
+			"refrigeration": 5000000
 		},
 		{
 			"id": 108,
 			"buyable": true,
-			"name": "Máquina de Ametista",
-			"icon": "<:maq8:833363716870242344>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364538929184828/maq8.png",
+            "discount": 0,
+			"name": "Máquina de Rubi",
+			"icon": "<:maq7:833363716665376859>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364536630837328/maq7.png",
 			"type": 1,
 			"level": 37,
 			"durability": 500000,
 			"profundidade": 55,
 			"tier": 8,
 			"price": 10000000,
-			"price2": 50
+			"price2": 50,
+			"pressure": 15000000,
+			"pollutants": 15000000,
+			"refrigeration": 15000000
 		},
 		{
 			"id": 109,
 			"buyable": true,
-			"name": "Máquina de Diamantes",
-			"icon": "<:maq9:833363716627890176>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364541215211530/maq9.png",
+            "discount": 0,
+			"name": "Máquina de Ametista",
+			"icon": "<:maq8:833363716870242344>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364538929184828/maq8.png",
 			"type": 1,
 			"level": 50,
 			"durability": 1000000,
 			"profundidade": 60,
 			"tier": 9,
 			"price": 40000000,
-			"price2": 100
+			"price2": 100,
+			"pressure": 25000000,
+			"pollutants": 25000000,
+			"refrigeration": 25000000
 		},
 		{
 			"id": 110,
 			"buyable": true,
-			"name": "Máquina de Jades",
-			"icon": "<:maq10:852242655856295996>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/852243049274802297/maq10.png",
+            "discount": 0,
+			"name": "Máquina de Diamantes",
+			"icon": "<:maq9:833363716627890176>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/833364541215211530/maq9.png",
 			"type": 1,
 			"level": 65,
 			"durability": 3500000,
 			"profundidade": 70,
 			"tier": 10,
 			"price": 150000000,
-			"price2": 250
+			"price2": 150,
+			"pressure": 40000000,
+			"pollutants": 40000000,
+			"refrigeration": 40000000
 		},
 		{
 			"id": 111,
 			"buyable": true,
-			"name": "Máquina de Safira",
-			"icon": "<:maq11:852242635384946728>",
-			"img": "https://cdn.discordapp.com/attachments/833364501549809664/852243080669167676/maq11.png",
+            "discount": 0,
+			"name": "Máquina de Jades",
+			"icon": "<:maq10:852242655856295996>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/852243049274802297/maq10.png",
 			"type": 1,
 			"level": 85,
 			"durability": 5000000,
 			"profundidade": 100,
 			"tier": 11,
 			"price": 500000000,
-			"price2": 250
-		}
-	],
-	"reparos": [
-	{
-			"id": 200,
-			"buyable": true,
-			"info": "**É usado para reparar as máquinas**",
-			"name": "Retirar Ferrujens (25%)",
-			"icon": "🔧",
-			"type": 4,
-			"price": 25,
-			"price2": 0
+			"price2": 200,
+			"pressure": 50000000,
+			"pollutants": 50000000,
+			"refrigeration": 50000000
 		},
 		{
-			"id": 201,
+			"id": 112,
 			"buyable": true,
-			"info": "**É usado para reparar as máquinas**",
-			"name": "Trocar Parafusos (50%)",
-			"icon": "🔩",
-			"type": 4,
-			"price": 50,
-			"price2": 0
-		},
-		{
-			"id": 202,
-			"buyable": true,
-			"info": "**É usado para reparar as máquinas**",
-			"name": "Trocar Engrenagens (75%)",
-			"icon": "⚙",
-			"type": 4,
-			"price": 75,
-			"price2": 0
-		},
-		{
-			"id": 203,
-			"buyable": true,
-			"info": "**É usado para reparar as máquinas**",
-			"name": "Kit de Reparo (100%)",
-			"icon": "🧰",
-			"type": 4,
-			"price": 100,
-			"price2": 0
+            "discount": 0,
+			"name": "Máquina de Safira",
+			"icon": "<:maq11:852242635384946728>",
+			"img": "https://cdn.discordapp.com/attachments/833364501549809664/852243080669167676/maq11.png",
+			"type": 1,
+			"level": 100,
+			"durability": 8000000,
+			"profundidade": 130,
+			"tier": 12,
+			"price": 1000000000,
+			"price2": 250,
+			"pressure": 80000000,
+			"pollutants": 80000000,
+			"refrigeration": 80000000
 		}
 	],
 	"fichas": [
 		{
 			"id": 300,
 			"buyable": true,
+            "discount": 0,
 			"info": "**Fichas são gastas em jogos**",
 			"name": "1x Ficha",
 			"icon": "<:ficha:741827151879471115>",
@@ -227,6 +251,7 @@
 		{
 			"id": 301,
 			"buyable": true,
+            "discount": 0,
 			"name": "10x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -237,6 +262,7 @@
 		{
 			"id": 302,
 			"buyable": true,
+            "discount": 0,
 			"name": "20x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -247,6 +273,7 @@
 		{
 			"id": 303,
 			"buyable": true,
+            "discount": 0,
 			"name": "50x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -257,6 +284,7 @@
 		{
 			"id": 304,
 			"buyable": true,
+            "discount": 0,
 			"name": "100x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -267,6 +295,7 @@
 		{
 			"id": 305,
 			"buyable": true,
+            "discount": 0,
 			"name": "500x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -277,6 +306,7 @@
 		{
 			"id": 306,
 			"buyable": true,
+            "discount": 0,
 			"name": "1000x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -287,6 +317,7 @@
 		{
 			"id": 307,
 			"buyable": true,
+            "discount": 0,
 			"name": "2000x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -297,6 +328,7 @@
 		{
 			"id": 308,
 			"buyable": true,
+            "discount": 0,
 			"name": "3000x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -307,6 +339,7 @@
 		{
 			"id": 309,
 			"buyable": true,
+            "discount": 0,
 			"name": "5000x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -317,6 +350,7 @@
 		{
 			"id": 310,
 			"buyable": true,
+            "discount": 0,
 			"name": "10000x Fichas",
 			"icon": "<:ficha:741827151879471115>",
 			"type": 2,
@@ -329,6 +363,8 @@
 		{
 			"id": 400,
 			"buyable": true,
+            "discount": 0,
+			"durability": 4000,
 			"name": "Chipe de Energia Máxima (+5)",
 			"icon": "<:chip2:833804232795619379>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833804901930893372/chip2.png",
@@ -343,6 +379,8 @@
 		{
 			"id": 401,
 			"buyable": true,
+            "discount": 0,
+			"durability": 2000,
 			"name": "Chipe de Profundidade (+20m)",
 			"icon": "<:chip1:833803786022682636>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833804900093526106/chip.png",
@@ -357,6 +395,8 @@
 		{
 			"id": 402,
 			"buyable": true,
+            "discount": 0,
+			"durability": 5000,
 			"name": "Chipe de Antidesgaste (-10%)",
 			"icon": "<:chip5:833809980779397171>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833809957908250705/chip5.png",
@@ -371,6 +411,8 @@
 		{
 			"id": 403,
 			"buyable": true,
+            "discount": 0,
+			"durability": 4000,
 			"name": "Chipe de Aceleração (-1s)",
 			"icon": "<:chip6:834232446312251403>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/834232514285010955/chip6.png",
@@ -385,6 +427,8 @@
 		{
 			"id": 404,
 			"buyable": true,
+            "discount": 0,
+			"durability": 5000,
 			"name": "Chipe de Fragmento",
 			"icon": "<:chip7:844385824728678430>",
 			"img": "https://cdn.discordapp.com/emojis/844385824728678430.png?v=1",
@@ -392,15 +436,68 @@
 			"type": 5,
 			"size": 1,
 			"typeeffect": 5,
-			"info": "Este chipe faz com que sua máquina passe a coletar os fragmentos que antes eram descartados\nOBS: O valor não é multiplicado pela quantidade de chipes, apenas 1 deste já basta.",
+			"chiptype": "one",
+			"info": "Este chipe faz com que sua máquina passe a coletar os fragmentos que antes eram descartados.",
 			"price": 5000,
 			"price2": 0
+		},
+		{
+			"id": 405,
+			"buyable": true,
+            "discount": 0,
+			"durability": 8000,
+			"name": "Chipe Duplicator",
+			"icon": "<:chip:914919602461478923>",
+			"img": "https://cdn.discordapp.com/attachments/833804748813238292/914919409456414730/chip.png",
+			"level": 20,
+			"type": 5,
+			"size": 1,
+			"typeeffect": 6,
+			"chiptype": "one",
+			"info": "Este chipe faz com que sua máquina passe duplicar minérios a cada alguns ciclos.",
+			"price": 1000000,
+			"price2": 10
+		},
+		{
+			"id": 406,
+			"buyable": true,
+            "discount": 0,
+			"durability": 12000,
+			"name": "Chipe Seller",
+			"icon": "<:chip:916423648959660082>",
+			"img": "https://cdn.discordapp.com/attachments/833804748813238292/916423730467581952/chip.png",
+			"level": 30,
+			"type": 5,
+			"size": 1,
+			"typeeffect": 7,
+			"chiptype": "one",
+			"info": "Este chipe faz com que sua máquina venda alguns minérios pela cotação mínima.",
+			"price": 5000000,
+			"price2": 10
+		},
+		{
+			"id": 407,
+			"buyable": true,
+            "discount": 0,
+			"durability": 10000,
+			"name": "Chipe Explosão",
+			"icon": "<:chip:916438678098804736>",
+			"img": "https://cdn.discordapp.com/attachments/833804748813238292/916438647509766174/chip.png",
+			"level": 40,
+			"type": 5,
+			"size": 1,
+			"typeeffect": 8,
+			"chiptype": "one",
+			"info": "Este chipe faz com que sua máquina descarte poucos minérios, pedra em maior quantidade.",
+			"price": 15000000,
+			"price2": 10
 		}
 	],
 	"temporal": [
 		{
 			"id": 700,
 			"buyable": true,
+            "discount": 0,
 			"info": "**Utilize o comando \"pontostemp\" para ver seus pontos temporais**",
 			"name": "10x Ficha",
 			"icon": "<:ficha:741827151879471115>",
@@ -413,6 +510,8 @@
 		{
 			"id": 701,
 			"buyable": true,
+            "discount": 0,
+			"durability": 5000,
 			"name": "Chipe de Energia Máxima (+6)",
 			"icon": "<:chip3:833805243538997268>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833805217807204403/chip3.png",
@@ -427,6 +526,7 @@
 		{
 			"id": 702,
 			"buyable": true,
+            "discount": 0,
 			"name": "10x Cristais",
 			"icon": "<:estilhas:743176785986060390>",
 			"type": 7,
@@ -438,6 +538,7 @@
 		{
 			"id": 703,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila Atemporal",
 			"icon": "<:bp9:846480723044073543>",
 			"customitem": {
@@ -453,6 +554,7 @@
 		{
 			"id": 704,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila Cronos",
 			"icon": "<:bp10:846480723124289546>",
 			"customitem": {
@@ -468,6 +570,8 @@
 		{
 			"id": 705,
 			"buyable": true,
+            "discount": 0,
+			"durability": 5000,
 			"name": "Chipe de Energia Máxima (+8)",
 			"icon": "<:chip4:833805243733114900>",
 			"img": "https://cdn.discordapp.com/attachments/833804748813238292/833805222161678407/chip4.png",
@@ -494,6 +598,7 @@
 		{
 			"id": 707,
 			"buyable": true,
+            "discount": 0,
 			"name": "Moldura Quadrada RGB",
 			"icon": "🖼",
 			"type": 6,
@@ -506,6 +611,7 @@
 		{
 			"id": 708,
 			"buyable": true,
+            "discount": 0,
 			"name": "Moldura Redonda RGB",
 			"icon": "🖼",
 			"type": 6,
@@ -534,6 +640,7 @@
 		{
 			"id": 801,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila de Couro",
 			"icon": "<:bp0:846474491823783976>",
 			"customitem": {
@@ -548,6 +655,7 @@
 		{
 			"id": 802,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila Reforçada",
 			"icon": "<:bp1:846476751219064873>",
 			"customitem": {
@@ -562,6 +670,7 @@
 		{
 			"id": 803,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila de Pedra Azul",
 			"icon": "<:bp2:846477397615181867>",
 			"customitem": {
@@ -576,6 +685,7 @@
 		{
 			"id": 804,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila de Fibra de Carbono",
 			"icon": "<:bp3:846477582303232011>",
 			"customitem": {
@@ -590,6 +700,7 @@
 		{
 			"id": 805,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila de Rosaris",
 			"icon": "<:bp4:846478634298507295>",
 			"customitem": {
@@ -604,6 +715,7 @@
 		{
 			"id": 806,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila Encantada",
 			"icon": "<:bp5:846479638284468294>",
 			"customitem": {
@@ -618,6 +730,7 @@
 		{
 			"id": 807,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila do Grande Viajante",
 			"icon": "<:bp6:846480008780054549>",
 			"customitem": {
@@ -632,6 +745,7 @@
 		{
 			"id": 808,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila Xenon",
 			"icon": "<:bp7:846480108713541662>",
 			"customitem": {
@@ -646,16 +760,77 @@
 		{
 			"id": 809,
 			"buyable": true,
+            "discount": 0,
 			"name": "Mochila de Fibra de Cristal",
 			"icon": "<:bp8:846480387374448640>",
+			"customitem": {
+				"typesmax": 25,
+				"itensmax": 50
+			},
+			"type": 3,
+			"level": 30,
+			"price": 50000000,
+			"price2": 50
+		},
+		{
+			"id": 810,
+			"buyable": true,
+            "discount": 0,
+			"name": "Mochila naturaX",
+			"icon": "<:bp11:917087272476737536>",
 			"customitem": {
 				"typesmax": 25,
 				"itensmax": 60
 			},
 			"type": 3,
-			"level": 30,
-			"price": 150000000,
-			"price2": 100
+			"level": 40,
+			"price": 75000000,
+			"price2": 50
+		},
+		{
+			"id": 811,
+			"buyable": true,
+            "discount": 0,
+			"name": "Mochila do viajante desconhecido",
+			"icon": "<:bp12:917087272476737567>",
+			"customitem": {
+				"typesmax": 30,
+				"itensmax": 75
+			},
+			"type": 3,
+			"level": 45,
+			"price": 200000000,
+			"price2": 50
+		},
+		{
+			"id": 812,
+			"buyable": true,
+            "discount": 0,
+			"name": "Mochila alta safira",
+			"icon": "<:bp13:917087272501923870>",
+			"customitem": {
+				"typesmax": 30,
+				"itensmax": 100
+			},
+			"type": 3,
+			"level": 50,
+			"price": 450000000,
+			"price2": 50
+		},
+		{
+			"id": 813,
+			"buyable": true,
+            "discount": 0,
+			"name": "Mochila do grande cientista",
+			"icon": "<:bp14:917087272627761254>",
+			"customitem": {
+				"typesmax": 35,
+				"itensmax": 110
+			},
+			"type": 3,
+			"level": 60,
+			"price": 650000000,
+			"price2": 50
 		}
 	]
 }

@@ -1,33 +1,28 @@
 const API = require("../api.js");
 
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 const playerUtils = {
   cooldown: {},
   stamina: {}
 }
 
-let bglevelup
+playerUtils.execExp = async function(interaction, xpp, pure) {
 
-loadbg()
-
-async function loadbg() {
-    bglevelup = await API.img.loadImage(`resources/backgrounds/profile/levelup.png`)
-}
-
-playerUtils.execExp = async function(msg, xpp) {
-
-    if (!msg || xpp == null || xpp == undefined) return
+    if (!interaction || xpp == null || xpp == undefined) return
 
     const Discord = API.Discord;
-    const obj = await API.getInfo(msg.author, "machines")
+    const obj = await DatabaseManager.get(interaction.user.id, "machines")
 
-    let maq = API.shopExtension.getProduct(obj.machine);
+    const maq = API.shopExtension.getProduct(obj.machine);
 
-    let xp = Math.round((xpp * (maq.tier+1))/1.35)
+    const xp = (pure ? xpp : Math.round((xpp * (maq.tier+1))/1.35))
   
     if (obj.xp + xp >= (obj.level*1980)) {
   
-      API.setInfo(msg.author, "machines", "level", obj.level+1)
-      API.setInfo(msg.author, "machines", "xp", 0);
+      DatabaseManager.set(interaction.user.id, "machines", "level", obj.level+1)
+      DatabaseManager.set(interaction.user.id, "machines", "xp", 0);
   
       let slot = false;
       if ((obj.level+1)%6 == 0) {
@@ -36,52 +31,47 @@ playerUtils.execExp = async function(msg, xpp) {
           }
       }
 
-      let background = bglevelup
+      const levelupimage = await API.img.imagegens.get('levelup.js')(API, {
 
-      // Draw username
-      background = await API.img.drawText(background, obj.level + '', 60, './resources/fonts/Uni-Sans-Thin.ttf', '#ffffff', 35, 75, 4)
-      background = await API.img.drawText(background, (obj.level+1) + '', 60, './resources/fonts/Uni-Sans-Thin.ttf', '#ffffff', 365, 75, 4)
-      // Draw avatar
-      let avatar = await API.img.loadImage(msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-      avatar = await API.img.resize(avatar, 100, 100);
-      background = await API.img.drawImage(background, avatar, 150, 25)
+          level: obj.level,
+          avatar: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }),
 
-      const attachment = await API.img.getAttachment(background, 'levelup.png')
-  
+      })
+
       const embed = new Discord.MessageEmbed();
-      embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-      embed.setImage('attachment://levelup.png')
+      embed.setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+      embed.setImage('attachment://image.png')
       embed.addField(`🥇 Recompensas`, `**3x <:caixaup:782307290295435304> Caixa up**!
-Utilize \`${API.prefix}mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVocê liberou acesso ao sistema de **EMPRESAS** do bot e a partir daqui você já pode trabalhar em alguma empresa!`:''}${obj.level+1 == 10 ? `\n \nVocê liberou acesso a **CRIAÇÃO DE EMPRESAS**, utilize \`${API.prefix}abrirempresa\` para mais informações.`:''}${slot ? `\n \nVocê recebeu **+1 Slot de Aprimoramento para máquinas**!\nUtilize \`${API.prefix}maquina\` para visualizar seus slots.\nUtilize \`${API.prefix}loja chipes\` para comprar chipes para seus slots.` : ''}`)
+Utilize \`/mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVocê liberou acesso ao sistema de **EMPRESAS** do bot e a partir daqui você já pode trabalhar em alguma empresa!`:''}${obj.level+1 == 10 ? `\n \nVocê liberou acesso a **CRIAÇÃO DE EMPRESAS**, utilize \`/abrirempresa\` para mais informações.`:''}${slot ? `\n \nVocê recebeu **+1 Slot de Aprimoramento para máquinas**!\nUtilize \`/maquina\` para visualizar seus slots.\nUtilize \`/loja chipes\` para comprar chipes para seus slots.` : ''}`)
       embed.setFooter(`Você evoluiu do nível ${obj.level} para o nível ${obj.level+1}`)
       embed.setColor('RANDOM');
   
-      API.crateExtension.give(msg.author, 2, 3)
+      API.crateExtension.give(interaction.user.id, 2, 3)
   
-      await msg.quote({ embeds: [embed], mention: true, files: [attachment]});
+      await interaction.reply({ embeds: [embed], mention: true, files: [levelupimage]});
   
-    } else API.setInfo(msg.author, "machines", "xp", obj.xp+xp);
+    } else DatabaseManager.increment(interaction.user.id, "machines", "xp", xp);
   
-    API.setInfo(msg.author, "machines", "totalxp", obj.totalxp+xp);
+    DatabaseManager.increment(interaction.user.id, "machines", "totalxp", xp);
 
     return xp
   
 }
 
-playerUtils.cooldown.check = async function(member, string) {
-  let time = await API.playerUtils.cooldown.get(member, string)
+playerUtils.cooldown.check = async function(user_id, string) {
+  let time = await API.playerUtils.cooldown.get(user_id, string)
   if (time < 1 ) return false;
   return true;
 }
 
-playerUtils.cooldown.get = async function(member, string) { 
+playerUtils.cooldown.get = async function(user_id, string) { 
 
   const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-  await API.db.pool.query(text);
+  await DatabaseManager.query(text);
 
-  const obj = await API.getInfo(member, "cooldowns");
+  const obj = await DatabaseManager.get(user_id, "cooldowns");
   if (obj == null || obj == "0;0" || obj == undefined) {
-      API.playerUtils.cooldown.set(member, string, 0);
+      API.playerUtils.cooldown.set(user_id, string, 0);
       return 0;
   }
   let cooldown = obj[string];
@@ -91,38 +81,35 @@ playerUtils.cooldown.get = async function(member, string) {
   return time;
 }
 
-playerUtils.cooldown.set = async function(member, string, ms) {
-
+playerUtils.cooldown.set = async function(user_id, string, ms) {
   const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-  await API.db.pool.query(text);
-
-  API.setInfo(member, "cooldowns", string, `${Date.now()};${ms}`);
+  await DatabaseManager.query(text);
+  DatabaseManager.set(user_id, "cooldowns", string, `${Date.now()};${ms}`);
 }
 
-playerUtils.cooldown.message = async function(msg, vare, text) {
-  let cooldown = await API.playerUtils.cooldown.get(msg.author, vare);
+playerUtils.cooldown.message = async function(interaction, vare, text) {
+  let cooldown = await API.playerUtils.cooldown.get(interaction.user.id, vare);
   const embed = new API.Discord.MessageEmbed()
   .setColor('#b8312c')
   .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para ' + text + '.')
-  .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-  const embedmsg = await msg.quote({ embeds: [embed] });
-  return embedmsg;
+  .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+  const embedinteraction = await interaction.reply({ embeds: [embed] });
+  return embedinteraction;
 }
 
-playerUtils.addMastery = async function(member, value) {
-  let obj = await API.getInfo(member, "players");
-  API.setInfo(member, "players", "mastery", parseInt(obj.mastery) + parseInt(value));
+playerUtils.addMastery = async function(user_id, value) {
+  DatabaseManager.increment(user_id, 'players', 'mastery', value)
 }
 
-playerUtils.getMastery = async function (member) {
+playerUtils.getMastery = async function (user_id) {
   let result
-  let obj = await API.getInfo(member, "players");
+  let obj = await DatabaseManager.get(user_id, "players");
   result = obj["mastery"];
   return result;
 }
 
-playerUtils.stamina.get = async function(member) {
-  const obj = await API.getInfo(member, 'players')
+playerUtils.stamina.get = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'players')
   let stamina = obj.stamina;
 
   let res = (Date.now()/1000)-(stamina/1000);
@@ -136,8 +123,8 @@ playerUtils.stamina.get = async function(member) {
   return stamina;
 }
 
-playerUtils.stamina.time = async function(member) {
-  const obj = await API.getInfo(member, 'players')
+playerUtils.stamina.time = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'players')
   let stamina = obj.stamina;
   let res = (Date.now()/1000)-(stamina/1000);
   let time = 1000*30 - res;
@@ -145,21 +132,21 @@ playerUtils.stamina.time = async function(member) {
   return time*1000;
 }
 
-playerUtils.stamina.set = async function(member, valor) {
-  API.setInfo(member, 'players', 'stamina', valor)
+playerUtils.stamina.set = async function(user_id, valor) {
+  DatabaseManager.set(user_id, 'players', 'stamina', valor)
 }
-playerUtils.stamina.subset = async function(member, valor) {
-  API.playerUtils.stamina.set(member, Date.now()-(30000*(valor)))
-}
-
-playerUtils.stamina.remove = async function(member, valor) {
-  const get = await playerUtils.stamina.get(member)
-  playerUtils.stamina.subset(member, get-valor)
+playerUtils.stamina.subset = async function(user_id, valor) {
+  API.playerUtils.stamina.set(user_id, Date.now()-(30000*(valor)))
 }
 
-playerUtils.stamina.add = async function(member, valor) {
-  const get = await playerUtils.stamina.get(member)
-  playerUtils.stamina.subset(member, get+valor)
+playerUtils.stamina.remove = async function(user_id, valor) {
+  const get = await playerUtils.stamina.get(user_id)
+  playerUtils.stamina.subset(user_id, get-valor)
+}
+
+playerUtils.stamina.add = async function(user_id, valor) {
+  const get = await playerUtils.stamina.get(user_id)
+  playerUtils.stamina.subset(user_id, get+valor)
 }
 
 module.exports = playerUtils

@@ -1,21 +1,27 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('tipochave').setDescription('Digite o tipo de chave que deseja gerar')
+  .addChoice('MVP', 'MVP')
+  .addChoice('MOEDAS', 'MOEDAS')
+  .addChoice('FICHAS', 'FICHAS')
+  .addChoice('CRISTAIS', 'CRISTAIS')
+  .addChoice('CAIXA', 'CAIXA')
+.setRequired(true))
+.addStringOption(option => option.setName('durqnt').setDescription('Digite a quantidade ou duração da chave').setRequired(false))
+.addStringOption(option => option.setName('args2').setDescription('Caixa').setRequired(false))
+
 module.exports = {
     name: 'gerarkey',
     aliases: ['gerarchave', 'gchave', 'gkey', 'genkey'],
     category: 'none',
     description: 'Gera uma chave de ativação com um produto de recompensa',
-    options: [],
+    data,
     perm: 5,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
-        const client = API.client;
-        const args = API.args(msg)
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar um tipo de chave e sua duração', `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100\n${API.prefix}gerarchave caixa 1 5`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
 
         let types = {
             'MVP': {
@@ -59,37 +65,26 @@ module.exports = {
             }
         }
 
-        let choose = args[0].toUpperCase();
+        const choose = (interaction.options.getString('tipochave')).toUpperCase();
+        const id = (interaction.options.getString('durqnt'));
+        const args2 = (interaction.options.getString('args2'));
+
         if (Object.keys(types).includes(choose) == false) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n${API.prefix}gerarchave money 100\n${API.prefix}gerarchave caixa 1 5`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n/gerarchave money 100\n/gerarchave caixa 1 5`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (types[choose].requiret == true && args.length < 2) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar um tempo de duração para a o produto', `gerarchave ${types[choose].name} 1mo 30d 10h 30m 30s`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        if (types[choose].requiresize == true && args.length < 2) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        let id = args[1]
-
-        if (types[choose].requireid == true && args.length < 3) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar um id de caixa', `gerarchave caixa 1 5`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (types[choose].requireid == true && args2 == null) {
+            const embedtemp = await API.sendError(interaction, 'Você precisa especificar um id de caixa', `gerarchave caixa 1 5`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         let time = 0;
         if (types[choose].requiret == true) {
 
-            let d = API.getMultipleArgs(msg, 2);
-            timesplit = d.split(" ");
+            const timesplit = id.split(" ");
             
             for (const r of timesplit) {
                 if (r.includes('mo')) {
@@ -111,22 +106,22 @@ module.exports = {
             }
 
         }
+
         let size = 0;
-        if (types[choose].requiresize == true && !API.isInt(args[1])) {
-            const embedtemp = await API.sendError(msg, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (types[choose].requiresize == true && !API.isInt(id)) {
+            const embedtemp = await API.sendError(interaction, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
     
         if (types[choose].requireid == true){
-            size = parseInt(args[2])
+            size = parseInt(args2)
             types[choose].icon = API.crateExtension.obj[id.toString()].icon
             types[choose].name = API.crateExtension.obj[id.toString()].name
         }
         if (types[choose].requiresize == true){
-            size = parseInt(args[1])
+            size = parseInt(id)
         }
-
         
 		const embed = new Discord.MessageEmbed()
 		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
@@ -134,24 +129,24 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
-reacted = true;
+            reacted = true;
             collector.stop();
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (!b.deferred) b.deferUpdate().then().catch();
+
             const embed = new API.Discord.MessageEmbed()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Geração de chave cancelada', `
                 Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-                embedmsg.edit({ embeds: [embed] });
+                interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
@@ -175,19 +170,22 @@ reacted = true;
             if (time) obj.time = time
             if (size) obj.size = size
             if (id) obj.id = id
+            
+            const globalobj = await DatabaseManager.get(API.id, 'globals');
 
-            let objgkeys = await API.getGlobalInfo('keys');
+            const objgkeys = globalobj.keys
             let clist = []
             if (objgkeys != null) {
                 clist = objgkeys
             }
             clist.push(obj)
-            API.setGlobalInfo('keys', clist);
+
+            DatabaseManager.set(API.id, 'globals', 'keys', clist);
 
             const embed2 = new API.Discord.MessageEmbed()
             .setTitle(`🔑 Nova chave gerada`)
-            .setDescription(`Quem gerou: ${msg.author} \`${msg.author.id}\`
-Local em que gerou: ${msg.channel} 🡮 ${msg.guild.name} 🡮 \`${msg.guild.id}\`
+            .setDescription(`Quem gerou: ${interaction.user} \`${interaction.user.id}\`
+Local em que gerou: ${interaction.channel} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
 Chave gerada: **${key}**
 
 Produto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
@@ -195,15 +193,15 @@ Produto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret
 **Objeto gerado:**
 \`\`\`js
 ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
-\`\`\``)
-            .setColor(`#fc8c03`)
+\`\`\``).setColor(`#fc8c03`)
+
             let ch = await API.client.channels.cache.get('758711135284232263')
-            let createdmsg = await ch.send({ embeds: [embed2] });
+            let createdinteraction = await ch.send({ embeds: [embed2] });
 
             embed.setColor('#5bff45');
             embed.addField('✅ Chave criada com sucesso', `
-            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdmsg.id}`})`)
-            embedmsg.edit({ embeds: [embed] });
+            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdinteraction.id}`})`)
+            interaction.editReply({ embeds: [embed], components: [] });
 
         });
         
@@ -212,7 +210,7 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
             const embed = new API.Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
-            embedmsg.edit({ embeds: [embed] });
+            interaction.editReply({ embeds: [embed], components: [] });
             return;
         });
 

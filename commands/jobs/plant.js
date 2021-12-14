@@ -1,38 +1,32 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('área').setDescription('Digite o tamanho da área para realizar a plantação').setRequired(true))
+.addIntegerOption(option => option.setName('quantia').setDescription('Digite a quantia de sementes que deseja plantar').setRequired(true))
+.addStringOption(option => option.setName('semente').setDescription('Digite o nome da semente que deseja plantar').setRequired(true))
+
 module.exports = {
     name: 'plantar',
     aliases: ['plant'],
     category: 'none',
     description: 'Faça um lote de plantação em seu terreno',
-    options: [{
-        name: 'área',
-        type: 'INTEGER',
-        description: 'Digite o tamanho da área para realizar a plantação',
-        required: false
-    },
-    {
-        name: 'quantia',
-        type: 'INTEGER',
-        description: 'Digite a quantia de sementes que deseja plantar',
-        required: false
-    },
-    {
-        name: 'semente',
-        type: 'STRING',
-        description: 'Digite o nome da semente que deseja plantar',
-        required: false
-    }],
+    data,
     mastery: 20,
     companytype: 1,
-	async execute(API, msg, company) {
+	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
-        const args = API.args(msg)
 
-        let pobj = await API.getInfo(msg.author, 'players')
+        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+
+        const area = interaction.options.getInteger('área')
+        const quantia = interaction.options.getInteger('quantia')
+        const semente = interaction.options.getString('semente').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
         let allplots = pobj.plots
         let plot
-        let townnum = await API.townExtension.getTownNum(msg.author);
+        let townnum = await API.townExtension.getTownNum(interaction.user.id);
         let contains = false
         if (pobj.plots) {
             for (let r of Object.keys(pobj.plots)) {
@@ -56,67 +50,46 @@ module.exports = {
 
         
         if (!contains) {
-            const embedtemp = await API.sendError(msg, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`${API.prefix}terrenoatual\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         if (plot.plants && plot.plants.length == 5) {
-            const embedtemp = await API.sendError(msg, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`/terrenoatual\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (args.length < 3) {
-            const embedtemp = await API.sendError(msg, `Você precisa digitar __todas__ as informações para a plantação!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (area < 5) {
+            const embedtemp = await API.sendError(interaction, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let area = args[0]
-        let quantidade = args[1]
-        let semente = API.getMultipleArgs(msg, 3)
-
-        if (!API.isInt(area) || parseInt(area) < 5) {
-
-            const embedtemp = await API.sendError(msg, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (quantia < 5) {
+            const embedtemp = await API.sendError(interaction, `A __quantia__ precisa ser no __mínimo 5__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (!API.isInt(quantidade)) {
-            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser um número !\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        if (parseInt(quantidade) < 5) {
-            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser no __mínimo 5__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-
-        if (parseInt(quantidade) > 20) {
-            const embedtemp = await API.sendError(msg, `A __quantidade__ precisa ser no __máximo 20__!\nUtilize \`${API.prefix}plantar <área em m²> <quantidade> <semente>\``, `plantar 10 20 Soja`)
-            await msg.quote({ embeds: [embedtemp]})
+        if (quantia > 20) {
+            const embedtemp = await API.sendError(interaction, `A __quantia__ precisa ser no __máximo 20__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (area > plot.area-plot.areaplant) {
-            const embedtemp = await API.sendError(msg, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`${API.prefix}terrenoatual\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`/terrenoatual\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (plot.adubacao && plot.adubacao < 10) {
-            const embedtemp = await API.sendError(msg, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`${API.prefix}adubar\` para adubar o terreno atual`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`/adubar\` para adubar o terreno atual`)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-
-        area = parseInt(area)
-        quantidade = parseInt(quantidade)
-        semente = semente.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
 
         let seedobj = API.itemExtension.getObj().drops.filter(i => i.type == "seed");
 
@@ -124,14 +97,14 @@ module.exports = {
 
         let seed
 
-        let seedstorage = await API.getInfo(msg.author, 'storage')
+        let seedstorage = await DatabaseManager.get(interaction.user.id, 'storage')
         for (const r of seedobj) {
 
             if (r.displayname.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') == semente) {
                 seed = r
                 contains2 = true
                 
-                if (quantidade > seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]) {
+                if (quantia > seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]) {
                     contains2 = false
                 }
 
@@ -140,12 +113,12 @@ module.exports = {
         }
 
         if (!contains2) {
-            const embedtemp = await API.sendError(msg, `Você não possui **${quantidade}x ${seed ? seed.icon + ' ' + seed.displayname : API.getMultipleArgs(msg, 3)}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`${API.prefix}mochila\``)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui **${quantia}x ${seed ? seed.icon + ' ' + seed.displayname : semente}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`/mochila\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        seed.qnt = quantidade
+        seed.qnt = quantia
         seed.area = area
 
         let adubacao = 100
@@ -159,7 +132,7 @@ module.exports = {
             loc: townnum,
             seed: seed,
             area: area,
-            qnt: quantidade,
+            qnt: quantia,
             adubacao: 0,
             planted: Date.now(),
             maxtime: maxtime
@@ -175,15 +148,15 @@ module.exports = {
         
         allplots[townnum] = plot
 
-        API.setInfo(msg.author, 'players', 'plots', allplots)
-        API.setInfo(msg.author, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantidade)
+        DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
+        DatabaseManager.set(interaction.user.id, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantia)
 
         const embed = new Discord.MessageEmbed()
 
         embed.setColor('RANDOM')
         embed.setTitle(seed.icon + ' Plantação realizada!')
-        embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantidade}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`${API.prefix}terrenoatual\``)
-        await msg.quote({ embeds: [embed] })
+        embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantia}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`/terrenoatual\``)
+        await interaction.reply({ embeds: [embed] })
 
 	}
 };

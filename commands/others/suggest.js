@@ -1,43 +1,45 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('sugestão').setDescription('Escreva uma sugestão para o bot').setRequired(true))
+
 module.exports = {
     name: 'sugerir',
     aliases: ['sugestao', 'sugestão', 'sugest', 'sug'],
     category: 'Outros',
     description: 'Faça uma sugestão de sistemas ou ideias para o bot',
-    options: [{
-      name: 'sugestão',
-      type: 'STRING',
-      description: 'Escreva uma sugestão para o bot',
-      required: true
-    }],
+    data,
     mastery: 20,
-    async execute(API, msg) {
+    async execute(API, interaction) {
 
-        let args = API.args(msg)
         const Discord = API.Discord;
 
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, 'Você precisa definir um texto explicando a sugestão', 'sugerir <texto>')
-            await msg.quote({ embeds: [embedtemp]})
-            return;
+        const sugestão = interaction.options.getString('sugestão')
+
+        let cmaq = await API.maqExtension.get(interaction.user.id)
+
+        if (cmaq < 102) {
+            const embedtemp = await API.sendError(interaction, `Você precisa ter no mínimo a ${API.shopExtension.getProduct(102).icon} ${API.shopExtension.getProduct(102).name} para dar rep á alguém!`)
+            await interaction.reply({ embeds: [embedtemp]})
+            return
         }
   
         const embed = new Discord.MessageEmbed()
         .setColor('RANDOM')
-        .setAuthor(`${msg.author.tag} | ${msg.author.id}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor(`${interaction.user.tag} | ${interaction.user.id}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setDescription(`Sugestão enviada com sucesso!
-        \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
+        \`\`\`${sugestão}\`\`\`[Entre em meu servidor para visualizar a resposta da sugestão](https://bit.ly/svnisru)`)
         
-        await msg.quote({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
 
         const embed2 = new Discord.MessageEmbed()
         .setColor('RANDOM')
-        .setAuthor(`${msg.author.tag} | ${msg.author.id}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor(`${interaction.user.tag} | ${interaction.user.id}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         .setDescription(`🔴 Negada | 🟠 Em análise | 🟢 Aceita | 🟣 Existente/planejada | ⚫ Ignorada
-        \`\`\`${API.getMultipleArgs(msg, 1)}\`\`\``)
+        \`\`\`${sugestão}\`\`\``)
         try{
-            let msg2 = await API.client.channels.cache.get('693910939111653436').send({ embeds: [embed2] });
-            await msg2.react(`👍🏾`)
-            await msg2.react(`👎🏾`)
+            let interaction2 = await API.client.channels.cache.get('693910939111653436').send({ embeds: [embed2] });
+            await interaction2.react(`👍`)
+            await interaction2.react(`👎`)
         }catch{}
   
       }

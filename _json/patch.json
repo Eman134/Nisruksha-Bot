@@ -94,7 +94,7 @@
         "alc": []
     },
 	"2.1.3": {
-        "add": ["Opção para mais funcionários máximos na empresa em n.funcionários", "Comando n.cooldowns", "Compra de terrenos e upgrade no \"n.terrenoatual\"", "Adicionada opção para MVPS usarem n.colher tudo para agricultura", "Integrado novas opções de setarvagas e taxa no n.empresaedit", "Balanceamento no ganho de estrelas"],
+        "add": ["Opção para mais funcionários máximos na empresa em n.funcionários", "Comando n.cooldowns", "Compra de terrenos e upgrade no \"n.terrenoatual\"", "Adicionada opção para MVPS usarem n.colher tudo para agricultura", "Integrado novas opções de setarvagas e taxa no n.editarempresa", "Balanceamento no ganho de estrelas"],
         "rem": ["Categoria \"terrenos\" da loja", "Comando n.setarvaga", "comando n.setartaxa"],
         "chn": ["Preço de venda por cada ficha [910 -> 810]"],
         "fix": ["Burlar cooldown de venda de minérios/itens", "Quando executava n.veremp <qualquer pessoa> o bot não respondia a empresa"],
@@ -108,7 +108,7 @@
         "alc": []
     },
 	"2.1.5": {
-        "add": ["Itens com efeitos que podem ser usados", "Comando n.usaritem", "Reações de confirmação para alterar o nome da empresa", "Nova opção n.desequipar tudo", "Visualização de quando será a próxima modificação da cotação", "Nova opção no n.empresaedit para modificar o nome da empresa", "Novo site para votos"],
+        "add": ["Itens com efeitos que podem ser usados", "Comando n.usaritem", "Reações de confirmação para alterar o nome da empresa", "Nova opção n.desequipar tudo", "Visualização de quando será a próxima modificação da cotação", "Nova opção no n.editarempresa para modificar o nome da empresa", "Novo site para votos"],
         "rem": ["Site zuraaa de votos"],
         "chn": ["Delay update da pescaria [5 -> 8]", "Delay update da coleta [8 -> 15]", "Loja de convites -> loja temporal", "Máximo de fichas do flip [1000 -> 5000]", "Agora o flip vai ser somente contra membros", "Tamanho por nível de armazém [1200 -> 1000]", "Pontos de convite -> pontos temporais"],
         "fix": [],
@@ -132,15 +132,13 @@
     "2.1.8": {
         "add": ["Velocidade do n.perfil melhorado em ~350%"],
         "chn": ["Abertura de caixas simultâneas [10 -> 30]", "Tempo de recarregamento de energia para MVP's melhorado", "Custo para remover processo [200 -> 100]", "Custo para iniciar processo [100 -> 50]", "Combos na exploração [3 -> 5]", "Taxa de depósito reduzida para MVP'S [5% -> 2%]"],
-        "rem": ["Limite de comandos e ter que estar no servidor oficial"],
-        "fix": [],
-        "alc": []
+        "rem": ["Limite de comandos e ter que estar no servidor oficial"]
     },
     "2.1.9": {
-        "add": [],
-        "chn": ["Limite de funcionários máximos [8 -> 10]", "Custo para liberar vaga na empresa [80 -> 60]"],
-        "rem": [],
-        "fix": [],
-        "alc": []
+        "title": "EP 1 - Tecnologias",
+        "add": ["Limite de funcionários máximos [8 -> 10]", "Custo para liberar vaga na empresa [80 -> 60]", "Botão de skip na abertura de caixas", "Novo evento Pato dourado <:pato:919946658941399091>", "Sistema de descontos na loja", "Novo minério, máquina e fragmento de pirita [<:pirita:919781180260384798>, <:piritamaquina:919787769054756864> e <:pifragment:919781611791347753>]", "10 novos monstros para exploração", "Novo jogo de aposta **BLACKJACK**", "Novas mochilas [<:bp11:917087272476737536>, <:bp12:917087272476737567>, <:bp13:917087272501923870>, <:bp14:917087272627761254>]", "Novas variáveis para as máquinas [**Pressão, Refrigeração e Poluentes**]", "Botões no comando /maquina", "Novos chipes [<:chip:914919602461478923>, <:chip:916423648959660082> e <:chip:916438678098804736>]"],
+        "chn": ["Padrão de procura de monstros modificado", "Tempo de update mineração base [20 -> 12]", "Comandos por mensagem migrados para slash (/)", "Sistema de relembrar energia movido para o /maquina"],
+        "rem": ["Ranking local", "Limite de transferência acima do nível 50", "Loja reparos", "Comando /energia", "Comando /equipar", "Comando /desequipar"],
+        "fix": ["Itens usáveis não estavam sendo recompensados no tesouro", "Bug de multiplicar roletas pelas mesmas fichas", "Bug de alguns componentes do perfil desaparecerem quando usavam molduras redondas"]
     }
 }

@@ -1,62 +1,51 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para saque').setRequired(true))
+
 module.exports = {
     name: 'sacar',
     aliases: ['sac'],
     category: 'Economia',
     description: 'Saca uma quantia de dinheiro do banco central',
-    options: [
-    {
-        name: 'quantia',
-        type: 'STRING',
-        description: 'Selecione uma quantia de dinheiro para saque',
-        required: true
-    }],
+    data,
     mastery: 20,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        const args = API.args(msg);
-
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro para saque!`, `sacar <quantia | tudo>`)
-            await msg.quote({ embeds: [embedtemp]})
-			return;
-        }
-        const money = await API.eco.bank.get(msg.author)
+        const quantia = interaction.options.getString('quantia');
+        const money = await API.eco.bank.get(interaction.user.id)
         let total = 0;
-        if (args[0] != 'tudo') {
+        if (quantia != 'tudo') {
 
-            if (!API.isInt(API.toNumber(args[0]))) {
-                const embedtemp = await API.sendError(msg, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (!API.isInt(API.toNumber(quantia))) {
+                const embedtemp = await API.sendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (money < API.toNumber(args[0])) {
-                const embedtemp = await API.sendError(msg, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (money < API.toNumber(quantia)) {
+                const embedtemp = await API.sendError(interaction, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (API.toNumber(args[0]) < 1) {
-                const embedtemp = await API.sendError(msg, `Você não pode sacar essa quantia de dinheiro!`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (API.toNumber(quantia) < 1) {
+                const embedtemp = await API.sendError(interaction, `Você não pode sacar essa quantia de dinheiro!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
-            total = API.toNumber(args[0]);
+            total = API.toNumber(quantia);
         } else {
             if (money < 1) {
-                const embedtemp = await API.sendError(msg, `Você não possui dinheiro __no banco__ para sacar!`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você não possui dinheiro __no banco__ para sacar!`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             total = money;
         }
-
-        const Discord = API.Discord;
-        const client = API.client;
         
 		const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária?`)
@@ -64,15 +53,15 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedmsg = await msg.quote({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
 
-        const filter = i => i.user.id === msg.author.id;
+        const filter = i => i.user.id === interaction.user.id;
         
-        const collector = embedmsg.createMessageComponentCollector({ filter, time: 15000 });
+        const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === msg.author.id)) return
+            if (!(b.user.id === interaction.user.id)) return
 reacted = true;
             collector.stop();
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
@@ -82,7 +71,7 @@ reacted = true;
                 embed.addField('❌ Saque cancelado', `
                 Você cancelou o saque de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária.`)
             } else {
-                const money2 = await API.eco.bank.get(msg.author);
+                const money2 = await API.eco.bank.get(interaction.user.id);
                 if (money2 < total) {
                     embed.fields = [];
                     embed.setColor('#a60000');
@@ -92,14 +81,14 @@ reacted = true;
                     embed.setColor('#5bff45');
                     embed.addField('✅ Sucesso no saque', `
                     Você sacou o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária!`)
-                    API.eco.money.add(msg.author, total);
-                    API.eco.bank.remove(msg.author, total);
-                    API.eco.addToHistory(msg.author, `📤 Saque | - ${API.format(total)} ${API.moneyemoji}`)
-                    let obj = await API.getInfo(msg.author, "players");
-                    API.setInfo(msg.author, "players", "saq", obj.saq + 1);
+                    API.eco.money.add(interaction.user.id, total);
+                    API.eco.bank.remove(interaction.user.id, total);
+                    API.eco.addToHistory(interaction.user.id, `📤 Saque | - ${API.format(total)} ${API.moneyemoji}`)
+                    let obj = await DatabaseManager.get(interaction.user.id, "players");
+                    DatabaseManager.set(interaction.user.id, "players", "saq", obj.saq + 1);
                 }
             }
-            embedmsg.edit({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] });
         });
         
         collector.on('end', collected => {
@@ -108,7 +97,7 @@ reacted = true;
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
             Você iria sacar o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** da sua conta bancária, porém o tempo expirou.`)
-            embedmsg.edit({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], components: [] });
             return;
         });
 

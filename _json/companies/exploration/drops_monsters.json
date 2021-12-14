@@ -4,21 +4,21 @@
         "displayname": "Pena",
         "icon": "<:pena1:764485712539156490>",
         "rarity": "common",
-        "price": 130
+        "price": 70
     },
     {
         "name": "\"pena laranja\"",
         "displayname": "Pena laranja",
         "icon": "<:pena2:764491850379427880>",
         "rarity": "common",
-        "price": 150
+        "price": 100
     },
     {
         "name": "\"pena zumbi\"",
         "displayname": "Pena zumbi",
         "icon": "<:pena3:764492355125772338>",
         "rarity": "common",
-        "price": 200
+        "price": 150
     },
     {
         "name": "\"dente quebrado\"",
@@ -26,14 +26,14 @@
         "icon": "<:brokentooth:764559740754984961>",
         "levelprocess": 6,
         "rarity": "common",
-        "price": 360
+        "price": 260
     },
     {
         "name": "\"asas de kirebat\"",
         "displayname": "Asas de Kirebat",
         "icon": "<:batwing:764565255082606632>",
         "rarity": "common",
-        "price": 430
+        "price": 350
     },
     {
         "name": "\"asas de poison kirebat\"",
@@ -41,7 +41,7 @@
         "icon": "<:poisonbatwing:764565254943670273>",
         "levelprocess": 17,
         "rarity": "common",
-        "price": 710
+        "price": 500
     },
     {
         "name": "\"olho\"",
@@ -213,7 +213,7 @@
         "displayname": "Carola de Shiny Xipta",
         "icon": "<:xiptahead3:830602731126259712>",
         "levelprocess": 27,
-        "rarity": "epic",
+        "rarity": "rare",
         "price": 23000
     },
     {
@@ -221,22 +221,22 @@
         "displayname": "Pele de Imea",
         "icon": "<:imeaskin:830600038643269692>",
         "levelprocess": 27,
-        "rarity": "epic",
+        "rarity": "rare",
         "price": 19000
     },
     {
         "name": "\"corpo de gasho\"",
         "displayname": "Corpo de Gasho",
         "icon": "<:gashostones:830603998520147979>",
-        "rarity": "epic",
-        "price": 45000
+        "rarity": "rare",
+        "price": 35000
     },
     {
         "name": "\"carola de saseu\"",
         "displayname": "Carola de Saseu",
         "icon": "<:craniosaseu:830604626423185489>",
         "levelprocess": 27,
-        "rarity": "epic",
+        "rarity": "rare",
         "price": 24000
     },
     {
@@ -252,21 +252,21 @@
         "displayname": "Membro do Cleitin",
         "icon": "<:partedecleitin:830605952259981385>",
         "rarity": "epic",
-        "price": 35000
+        "price": 30000
     },
     {
         "name": "\"pernas do cleitin\"",
         "displayname": "Pernas do Cleitin",
         "icon": "<:pernascleitin:830606357227896842>",
         "rarity": "epic",
-        "price": 30000
+        "price": 25000
     },
     {
         "name": "\"armadura de olp\"",
         "displayname": "Armadura de Olp",
         "icon": "<:olparmor:830607080159313920>",
         "rarity": "epic",
-        "price": 39000
+        "price": 32000
     },
     {
         "name": "\"pernas de olp\"",
@@ -274,22 +274,162 @@
         "icon": "<:olppernas:830607398993264641>",
         "levelprocess": 77,
         "rarity": "epic",
-        "price": 44500
+        "price": 40500
     },
     {
         "name": "\"restos de basg\"",
         "displayname": "Restos de Basg",
         "icon": "<:restosdebasg:830608024007344199>",
         "levelprocess": 78,
-        "rarity": "lendary",
-        "price": 60000
+        "rarity": "epic",
+        "price": 40000
     },
     {
         "name": "\"corpo de meil\"",
         "displayname": "Corpo de Meil",
         "icon": "<:corpomeil:830608595597918208>",
         "levelprocess": 85,
+        "rarity": "epic",
+        "price": 42000
+    },
+    {
+        "name": "\"sobras de zopt\"",
+        "displayname": "Sobras de Zopt",
+        "icon": "<:megazopt:919719367963459644>",
+        "rarity": "epic",
+        "price": 50000
+    },
+    {
+        "name": "\"carola de maria\"",
+        "displayname": "Carola de Maria",
+        "icon": "<:carolamaria:919722373597515868>",
+        "rarity": "epic",
+        "price": 55000
+    },
+    {
+        "name": "\"maria corazon\"",
+        "displayname": "Coração de Maria",
+        "icon": "<:mariaheart:919723445196030002>",
+        "levelprocess": 50,
+        "rarity": "epic",
+        "price": 20000
+    },
+    {
+        "name": "\"sobras de cogumigo\"",
+        "displayname": "Sobras de Cogumigo",
+        "icon": "<:cogumigo:919724288137920522>",
+        "levelprocess": 35,
         "rarity": "lendary",
-        "price": 70000
+        "price": 50000
+    },
+    {
+        "name": "\"publes corazon\"",
+        "displayname": "Coração de Publes N",
+        "icon": "<:publescorazon:919725205126008832>",
+        "levelprocess": 60,
+        "rarity": "mythic",
+        "price": 200000
+    },
+    {
+        "name": "\"olho de publes n\"",
+        "displayname": "Olho de Publes N",
+        "icon": "<:publeseyes:919726479070351441>",
+        "levelprocess": 50,
+        "rarity": "epic",
+        "price": 25000
+    },
+    {
+        "name": "\"pernas de publes n\"",
+        "displayname": "Pernas de Publes N",
+        "icon": "<:publespernas:919726232222978049>",
+        "levelprocess": 53,
+        "rarity": "lendary",
+        "price": 32000
+    },
+    {
+        "name": "\"coluna de deadly\"",
+        "displayname": "Coluna de Deadly",
+        "icon": "<:deadlycolumn:919727478405218325>",
+        "rarity": "epic",
+        "price": 57500
+    },
+    {
+        "name": "\"coluna de poison deadly\"",
+        "displayname": "Coluna de Poison Deadly",
+        "icon": "<:poisondeadlycolumn:919727919922827304>",
+        "rarity": "epic",
+        "price": 67500
+    },
+    {
+        "name": "\"pernas de deadly\"",
+        "displayname": "Pernas de Deadly",
+        "icon": "<:pernasdedeadly:919728557796769792>",
+        "rarity": "epic",
+        "price": 25780
+    },
+    {
+        "name": "\"veneno de poison deadly\"",
+        "displayname": "Veneno de Poison Deadly",
+        "icon": "<:venenodeadly:919729132743589918>",
+        "levelprocess": 50,
+        "rarity": "mythic",
+        "price": 150000
+    },
+    {
+        "name": "\"carola de equus\"",
+        "displayname": "Carola de Equus",
+        "icon": "<:carolaequus:919753160568999976>",
+        "levelprocess": 75,
+        "rarity": "epic",
+        "price": 59000
+    },
+    {
+        "name": "\"pernas de equus\"",
+        "displayname": "Pernas de Equus",
+        "icon": "<:pernasequus:919754161388679188>",
+        "rarity": "epic",
+        "price": 30000
+    },
+    {
+        "name": "\"cristal de cristalmelo\"",
+        "displayname": "Cristal de Cristalmelo",
+        "icon": "<:cristalmelo:919754853817925663>",
+        "rarity": "epic",
+        "price": 65000
+    },
+    {
+        "name": "\"cristalmelo limpo\"",
+        "displayname": "Cristalmelo limpo",
+        "icon": "<:cristalmelolimpo:919755416479625267>",
+        "rarity": "lendary",
+        "price": 36000
+    },
+    {
+        "name": "\"superior de antereia\"",
+        "displayname": "Superior de Antereia",
+        "icon": "<:supantereia:919760401577697340>",
+        "rarity": "lendary",
+        "price": 72000
+    },
+    {
+        "name": "\"inferior de antereia\"",
+        "displayname": "Inferior de Antereia",
+        "icon": "<:infantereia:919761740026249296>",
+        "rarity": "lendary",
+        "price": 25000
+    },
+    {
+        "name": "\"asa de morcores\"",
+        "displayname": "Asa de Morcores",
+        "icon": "<:asamorcores:919764032007860254>",
+        "rarity": "lendary",
+        "price": 65000
+    },
+    {
+        "name": "\"carola de morcores\"",
+        "displayname": "Carola de Morcores",
+        "icon": "<:carolamorcores:919764461408124999>",
+        "rarity": "lendary",
+        "price": 95000
     }
 ]

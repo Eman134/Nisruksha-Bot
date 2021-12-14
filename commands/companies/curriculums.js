@@ -1,123 +1,92 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('lista')
+        .setDescription('Veja a lista de currículos atual'))
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('aceitar')
+        .setDescription('Aceita ou nega um currículo na sua empresa')
+        .addIntegerOption(option => option.setName('id-currículo').setDescription('Digite o id do currículo para aceitar ou negar').setRequired(true)))
+.addSubcommand(subcommand =>
+    subcommand
+        .setName('negar')
+        .setDescription('Aceita ou nega um currículo na sua empresa')
+        .addIntegerOption(option => option.setName('id-currículo').setDescription('Digite o id do currículo para aceitar ou negar').setRequired(true)))
+
 module.exports = {
     name: 'currículos',
     aliases: ['curriculos', 'curr', 'vercurri', 'curriculo', 'currículo'],
     category: 'Empresas',
     description: 'Visualiza os currículos pendentes da sua empresa',
-    options: [{
-        name: 'ação',
-        type: 'STRING',
-        description: 'Digite a ação que irá ser realizada',
-        required: true,
-        choices: [
-            {
-                name: 'lista',
-                value: 'lista'
-            },
-            {
-                name: 'aceitar',
-                value: 'aceitar'
-            },
-            {
-                name: 'negar',
-                value: 'negar'
-            }
-        ]
-    },
-    {
-        name: 'id-currículo',
-        type: 'INTEGER',
-        description: 'Digite o id do currículo para aceitar ou negar',
-        required: false
-    }
-    ],
+    data,
     mastery: 50,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
-        let args = API.args(msg);
         const Discord = API.Discord;
         
         const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
         
-        if (!(await API.company.check.hasCompany(msg.author))) {
-            const embedtemp = await API.sendError(msg, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`${API.prefix}abrirempresa <setor> <nome>\``)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        
-        if (args.length == 0) {
-            embed.setDescription(`🐻 Olá, sou o Teddy e estou aqui para te auxiliar.\nVeja alguns comandos possíveis relacionados a currículos:\n \n\`${API.prefix}curr lista\` - Visualiza os currículos pendentes da sua empresa\n\`${API.prefix}curr <aceitar/negar> <Nº de currículo>\` - Aceita ou nega um currículo pendente da sua empresa.`)
-            await msg.quote({ embeds: [embed] });
+        if (!(await API.company.check.hasCompany(interaction.user.id))) {
+            const embedtemp = await API.sendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
+            await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let largs0 = ['aceitar', 'negar', 'lista']
-
+        const subCmd = interaction.options.getSubcommand()
+        const value = interaction.options.getInteger('id-currículo')
         
-        if (largs0.includes(args[0]) == false) {
-            const embedtemp = await API.sendError(msg, `Parece que você digitou um argumento inválido, os disponíveis são <aceitar/negar/lista> e você digitou ${args[0]}`)
-            await msg.quote({ embeds: [embedtemp]})
-            return;
-        }
-        
-        let company = await API.company.get.company(msg.author)
+        let company = await API.company.get.companyByOwnerId(interaction.user.id)
         
         let array = [];
         if (company.curriculum != null) array = company.curriculum;
         
         embed.setTitle(`${API.company.e[API.company.types[company.type]].icon} ${company.name}`)
         let botowner = await API.client.users.fetch(API.owner[0])
-        if (args[0] == 'aceitar') {
+        if (subCmd == 'aceitar') {
             
-            if (args.length < 2) {
-                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
-                return;
-            }
-            
-            if (API.isInt(args[1]) == false) {
-                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
-                return;
-            }
-            
-            if (array[parseInt(args[1])-1] == undefined || array[parseInt(args[1])-1] == null) {
-                const embedtemp = await API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr aceitar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (array[value-1] == undefined || array[value-1] == null) {
+                const embedtemp = await API.sendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr aceitar <Nº do currículo>`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            let index = array[parseInt(args[1])-1];
+            let index = array[value-1];
             let usr = await API.client.users.fetch(index.split(";")[0]);
             
-            let xy = await API.company.check.hasCompany(usr)
-            let xx = await API.company.check.isWorker(usr)
+            let xy = await API.company.check.hasCompany(usr.id)
+            let xx = await API.company.check.isWorker(usr.id)
             let vac = await API.company.check.hasVacancies(company.company_id)
 
-            array.splice(parseInt(args[1])-1, 1)
+            array.splice(value-1, 1)
 
             if (xy || xx) {
-                await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
+                await API.setCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
                 embed.setColor('#a60000');
                 embed.addField('❌ Houve uma falha no contrato', `Este membro já possui uma empresa ou trabalha em uma!`)
-                await msg.quote({ embeds: [embed] })
+                await interaction.reply({ embeds: [embed] })
                 return;
             }
             
             if (!(vac)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Houve uma falha no contrato', `Sua empresa não possui vagas disponíveis ou estão desativadas!`)
-                await msg.quote({ embeds: [embed] })
+                await interaction.reply({ embeds: [embed] })
                 return;
             }
 
             embed.setColor("#5bff45")
             .setDescription(`Você aceitou o currículo de ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\``)
-            await msg.quote({ embeds: [embed] })
+            await interaction.reply({ embeds: [embed] })
 
             try {
                 
                 embed.setColor("#5bff45")
-                .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!\nPara visualizar os comandos da sua empresa utilize \`${API.prefix}setores\``)
+                .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!\nPara visualizar os comandos da sua empresa utilize \`/setores\``)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
                 await usr.send({ embeds: [embed]}).catch()
 
@@ -127,39 +96,39 @@ module.exports = {
             let workers = company.workers == null ? [] : company.workers
             workers.push(usr.id)
 
-            await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
-            await API.setCompanieInfo(msg.author, company.company_id, 'workers', workers)
+            await API.setCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
+            await API.setCompanieInfo(interaction.user.id, company.company_id, 'workers', workers)
 
-            API.setInfo(usr, 'players', 'company', company.company_id)
+            DatabaseManager.set(usr.id, 'players', 'company', company.company_id)
             return;
 
-        } else if (args[0] == 'negar') {
+        } else if (subCmd == 'negar') {
             
             if (args.length < 2) {
-                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
             if (API.isInt(args[1]) == false) {
-                const embedtemp = await API.sendError(msg, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
+                const embedtemp = await API.sendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
-            if (array[parseInt(args[1])-1] == undefined || array[parseInt(args[1])-1] == null) {
-                const embedtemp = await API.sendError(msg, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`${API.prefix}curr lista\``, `curr negar <Nº do currículo>`)
-                await msg.quote({ embeds: [embedtemp]})
+            if (array[value-1] == undefined || array[value-1] == null) {
+                const embedtemp = await API.sendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
-            let index = array[parseInt(args[1])-1];
+            let index = array[value-1];
             let usr = await API.client.users.fetch(index.split(";")[0]);
-            array.splice(parseInt(args[1])-1, 1)
+            array.splice(value-1, 1)
             
             embed.setColor("#a60000")
             .setDescription(`Você negou o currículo de ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\``)
-            await msg.quote({ embeds: [embed] })
+            await interaction.reply({ embeds: [embed] })
 
             try {
                 
@@ -171,7 +140,7 @@ module.exports = {
             } catch{
             }
 
-            await API.setCompanieInfo(msg.author, company.company_id, 'curriculum', array)
+            await API.setCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
             
             return;
         }
@@ -185,8 +154,8 @@ module.exports = {
             
             for (const r of array) {
                 let usr = await API.client.users.fetch(r.split(";")[0])
-                const pobjmaq = await API.getInfo(usr, 'machines')
-                embed.addField(`📰 Nº ${array.indexOf(r)+1}`, `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${API.ms2(Date.now()-parseInt(r.split(";")[1]))}**\n\`${API.prefix}curr <aceitar/negar> ${array.indexOf(r)+1}\``)
+                const pobjmaq = await DatabaseManager.get(usr.id, 'machines')
+                embed.addField(`📰 Nº ${array.indexOf(r)+1}`, `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${API.ms2(Date.now()-parseInt(r.split(";")[1]))}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\``)
             }
 
             embed.setColor("#5bff45")
@@ -196,7 +165,7 @@ module.exports = {
             embed.setColor("#a60000")
         }
 
-        await msg.quote({ embeds: [embed] });
+        await interaction.reply({ embeds: [embed] });
         
 	}
 };

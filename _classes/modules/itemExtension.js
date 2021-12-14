@@ -1,4 +1,6 @@
 const API = require("../api.js");
+const Database = require('../manager/DatabaseManager');
+const DatabaseManager = new Database();
 const itemExtension = {
 
   obj: {}
@@ -32,7 +34,7 @@ itemExtension.exists = function(args, k) {
   return false;
 }
 
-itemExtension.give = async function(msg, dp) {
+itemExtension.give = async function(interaction, dp) {
 
     let descartados = []
     let colocados = []
@@ -42,7 +44,7 @@ itemExtension.give = async function(msg, dp) {
         y.sz = y.size
     }
 
-    const utilsobj = await API.getInfo(msg.author, 'players_utils')
+    const utilsobj = await DatabaseManager.get(interaction.user.id, 'players_utils')
 
     let backpackid = utilsobj.backpack;
     let backpack = API.shopExtension.getProduct(backpackid);
@@ -53,10 +55,10 @@ itemExtension.give = async function(msg, dp) {
     
     for (const y of dp) {
         
-        let arrayitens = await API.itemExtension.getInv(msg.author, true, true)
-        let curinfo = await API.getInfo(msg.author, 'storage')
+        let arrayitens = await API.itemExtension.getInv(interaction.user.id, true, true)
+        let curinfo = await DatabaseManager.get(interaction.user.id, 'storage')
         let rsize = curinfo[y.name.replace(/"/g, "")];
-        let csize = await API.getInfo(msg.author, 'storage')
+        let csize = await DatabaseManager.get(interaction.user.id, 'storage')
         csize2 = csize[y.name.replace(/"/g, '')]
         let s = parseInt(csize2) + parseInt(y.sz)
 
@@ -82,7 +84,7 @@ itemExtension.give = async function(msg, dp) {
         } else {
             
             colocados.push(y)
-            await API.setInfo(msg.author, 'storage', y.name, s)
+            await DatabaseManager.set(interaction.user.id, 'storage', y.name, s)
             
         }
     }
@@ -114,14 +116,12 @@ itemExtension.get = function(args) {
   return undefined;
 }
 
-itemExtension.add = async function(member, ore, value) {
-  let ore2 = ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  const obj = await API.getInfo(member, "storage");
-  API.setInfo(member, "storage", ore2, obj[ore2] + value);
+itemExtension.add = async function(user_id, ore, value) {
+  DatabaseManager.increment(user_id, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
 }
 
-itemExtension.set = async function(member, ore, value) {
-  API.setInfo(member, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
+itemExtension.set = async function(user_id, ore, value) {
+  DatabaseManager.set(user_id, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
 }
 
 itemExtension.loadToStorage = async function(obj) {
@@ -129,7 +129,7 @@ itemExtension.loadToStorage = async function(obj) {
     for (const r of obj[key]) {
       const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS ${r.name} double precision NOT NULL DEFAULT 0;`
       try {
-          API.db.pool.query(text);
+          DatabaseManager.query(text);
       } catch (err) {
           console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
           client.emit('error', err)
@@ -155,7 +155,7 @@ itemExtension.loadToStorage = async function(obj) {
   for (const r of placas) {
       const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "piece:${r.id}" double precision NOT NULL DEFAULT 0;`
       try {
-          API.db.pool.query(text);
+          DatabaseManager.query(text);
       } catch (err) {
           console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
           API.client.emit('error', err)
@@ -181,7 +181,7 @@ itemExtension.loadToStorage = async function(obj) {
 
 }
 
-itemExtension.getPieces = async function(member) {
+itemExtension.getChips = async function(user_id) {
 
     let obj = API.shopExtension.getShopObj();
 
@@ -197,11 +197,11 @@ itemExtension.getPieces = async function(member) {
       }
     }
     
-    const text =  `SELECT * FROM storage WHERE user_id=${member.id};`
+    const text =  `SELECT * FROM storage WHERE user_id=${user_id};`
     let res;
     let array = [];
     try {
-        res = await API.db.pool.query(text);
+        res = await DatabaseManager.query(text);
         res = res.rows[0];
     } catch (err) {
         console.log(err.stack)
@@ -220,18 +220,70 @@ itemExtension.getPieces = async function(member) {
     return array;
 }
 
-itemExtension.getEquipedPieces = async function(member) {
-  const obj = await API.getInfo(member, 'machines')
+itemExtension.getEquippedChips = async function(user_id) {
+  const obj = await DatabaseManager.get(user_id, 'machines')
+  const chips = obj.slots == null ? [] : obj.slots
+  for (const chip of chips) {
+    if (typeof chip == 'object') {
+      chip.durabilitypercent = chip.durability/API.shopExtension.getProduct(chip.id).durability*100;
+    }
+  }
   return obj.slots == null ? [] : obj.slots;
 }
 
-itemExtension.givePiece = async function(member, piece) {
-  let array = await itemExtension.getEquipedPieces(member);
+itemExtension.unequipChip = async function(user_id, slot) {
+  try {
+    let chips = await API.itemExtension.getEquippedChips(user_id);
+    if (chips[slot].durabilitypercent == 100) {
+      await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[slot].id}"`, 1)
+    }
+    chips.length == 1 ? chips = null : chips.splice(slot, 1)
+    await DatabaseManager.set(user_id, 'machines', 'slots', chips)
+    return chips
+  } catch (error) {
+    console.log(error)
+  }
+}
 
+itemExtension.unequipAllChips = async function(user_id) {
+  try {
+    let chips = await API.itemExtension.getEquippedChips(user_id);
+    for (i = 0; i < chips.length; i++){
+      if (chips[i].durabilitypercent == 100) {
+        await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[i].id}"`, 1)
+      }
+    }
+    await DatabaseManager.set(user_id, 'machines', `slots`, null)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+itemExtension.removeChipsDurability = async function(user_id, amount) {
+  try {
+
+    let chips = await API.itemExtension.getEquippedChips(user_id);
+
+    chips = chips.filter((chip) => chip.durability - amount > 0)
+
+    for (i = 0; i < chips.length; i++){
+      chips[i].durability -= amount
+    }
+    
+    await DatabaseManager.set(user_id, 'machines', `slots`, chips)
+
+  } catch (error) {
+    console.log(error)
+    API.client.emit('error', error)
+  }
+  
+}
+
+itemExtension.givePiece = async function(user_id, piece) {
+  let array = await itemExtension.getEquippedChips(user_id);
   if (array == null) array = [];
-
   array.push(piece);
-  API.setInfo(member, 'machines', 'slots', array);
+  await DatabaseManager.set(user_id, 'machines', 'slots', array);
 }
 
 itemExtension.translateRarity = function(rarity) {
@@ -251,15 +303,15 @@ itemExtension.translateRarity = function(rarity) {
     }
 }
 
-itemExtension.getInv = async function(member, filtered, length) {
+itemExtension.getInv = async function(user_id, filtered, length) {
   let obj = API.itemExtension.getObj();
   let obj2 = obj
   let res;
-  await API.setPlayer(member, 'storage')
+  await DatabaseManager.setIfNotExists(user_id, 'storage')
   const text =  `SELECT * FROM storage WHERE user_id = $1;`,
-  values = [member.id]
+  values = [user_id]
   try {
-      let res2 = await API.db.pool.query(text, values);
+      let res2 = await DatabaseManager.query(text, values);
       res = res2.rows[0]
   } catch (err) {
       console.log(err.stack)

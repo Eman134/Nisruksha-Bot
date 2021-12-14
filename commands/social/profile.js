@@ -1,5 +1,8 @@
 const API = require("../../_classes/api");
 
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 let bg
 
 loadbg()
@@ -8,76 +11,40 @@ async function loadbg() {
     bg = await API.img.loadImage(`resources/backgrounds/profile/profile.png`)
 }
 
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const data = new SlashCommandBuilder()
+.addUserOption(option => option.setName('membro').setDescription('Veja o perfil de algum membro'))
+
 module.exports = {
     name: 'perfil',
     aliases: ['p', 'profile', 'level'],
     category: 'Social',
     description: 'Veja suas informações como nível e tenha um perfil bonito',
+    data,
     mastery: 6,
-    options: [{
-        name: 'membro',
-        type: 'USER',
-        description: 'Veja o perfil de algum membro',
-        required: false
-    }],
-	async execute(API, msg) {
-
-        const exec = Date.now()
+	async execute(API, interaction) {
         
-        let member;
-        let args = API.args(msg)
+        let member = interaction.options.getUser('membro') || interaction.user
 
-        if (!msg.slash) {
-            if (msg.mentions.users.size < 1) {
-                if (args.length == 0) {
-                    member = msg.author;
-                } else {
-                    try {
-                        let member2 = await client.users.fetch(args[0])
-                        if (!member2) {
-                            member = msg.author
-                        } else {
-                            member = member2
-                        }
-                    } catch {
-                        member = msg.author
-                    }
-                }
-            } else {
-                member = msg.mentions.users.first();
-            }
-        } else {
-            if (msg.options._hoistedOptions.length <= 0) {
-                member = msg.author
-            } else {
-                member = msg.options._hoistedOptions[0].user;
-            }
-        }
-
-        const check = await API.playerUtils.cooldown.check(msg.author, "profile");
+        const check = await API.playerUtils.cooldown.check(interaction.user.id, "profile");
         if (check) {
 
-            API.playerUtils.cooldown.message(msg, 'profile', 'visualizar um perfil')
+            API.playerUtils.cooldown.message(interaction, 'profile', 'visualizar um perfil')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(msg.author, "profile", 10);
+        API.playerUtils.cooldown.set(interaction.user.id, "profile", 10);
 
-        let todel = await msg.quote({ content: `<a:loading:736625632808796250> Carregando informações do perfil` })
+        await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações do perfil` })
 
-        const playerobj = await API.getInfo(member, 'machines')
-        const obj = await API.getInfo(member, "players")
-        const players_utils = await API.getInfo(member, "players_utils")
-        const mastery = await API.playerUtils.getMastery(member)
+        const playerobj = await DatabaseManager.get(member.id, 'machines')
+        const obj = await DatabaseManager.get(member.id, "players")
+        const players_utils = await DatabaseManager.get(member.id, "players_utils")
+        const mastery = await API.playerUtils.getMastery(member.id)
         const maqimg = API.shopExtension.getProduct(playerobj.machine).img;
-
-        let background = bg
-        
-        // Draw bio
         let bio = obj.bio;
         let perm = obj.perm;
-        // Color bord
         let textcolor = '#dedcde'
         let colors = {
             1: '#ffffff',
@@ -87,14 +54,12 @@ module.exports = {
             5: '#7936ff'
         }
 
-        const img = Date.now()
-
         const profileimage = await API.img.imagegens.get('profile.js')(API, {
 
-            textcolor: '#dedcde',
+            textcolor,
             boxescolor: colors[perm],
             name: member.username.normalize('NFD').replace(/([\u0300-\u036f]|[^0-9a-zA-Z</>.,+÷=_!@#$%^&*()'":;{}?¿ ])/g, '').trim() + '.',
-            bio: bio.replace(/<prefixo>/g, API.prefix),
+            bio: bio.replace(/<prefixo>/g, '/'),
             mastery,
             url: {
                 bg: obj.bglink,
@@ -111,18 +76,7 @@ module.exports = {
 
         })
 
-        if (API.debug) console.log((Date.now()-img) + 'ms | Imagem pronta')
-
-        const send = Date.now()
-
-        await msg.quote({ files: [profileimage] } );
-
-        if (API.debug) console.log((Date.now()-send) + 'ms | Envio imagem')
-        todel.delete().catch();
-
-        if (API.debug) console.log((Date.now()-exec) + 'ms | Execução de comando')
-
-        return
+        await interaction.editReply({ content: null, files: [profileimage] } );
 
 	}
 };

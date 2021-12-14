@@ -1,38 +1,39 @@
-const API = require("../api.js");
-const { readFileSync } = require('fs')
+const { readFileSync } = require('fs');
+const Database = require("../manager/DatabaseManager.js");
+const DatabaseManager = new Database();
 
 const badges = {
     json: []
 }
 
-badges.add = async function (member, id) {
+badges.add = async function (user_id, id) {
     badges.load()
-    const obj = await API.getInfo(member, "players")
-    const temphas = await badges.has(member, id)
+    const obj = await DatabaseManager.get(user_id, "players")
+    const temphas = await badges.has(user_id, id)
     if (temphas) return "Já possui " + id
     let tempbadges = (obj.badges == null ? [] : obj.badges)
     tempbadges.push(id + '')
-    API.setInfo(member, "players", "badges", tempbadges)
+    DatabaseManager.set(user_id, "players", "badges", tempbadges)
     return "Added " + id
 }
 
-badges.remove = async function (member, id) {
+badges.remove = async function (user_id, id) {
     badges.load()
-    const obj = await API.getInfo(member, "players")
-    const temphas = await badges.has(member, id)
+    const obj = await DatabaseManager.get(user_id, "players")
+    const temphas = await badges.has(user_id, id)
     if (!temphas) return "Don't have"
     let tempbadges = (obj.badges == null ? [] : obj.badges)
     const index = tempbadges.indexOf(id  + '');
     if (index > -1) {
         tempbadges.splice(index, 1);
     }
-    API.setInfo(member, "players", "badges", tempbadges)
+    DatabaseManager.set(user_id, "players", "badges", tempbadges)
     return "Removed " + id
 }
 
-badges.has = async function (member, id) {
+badges.has = async function (user_id, id) {
     badges.load()
-    const obj = await API.getInfo(member, "players")
+    const obj = await DatabaseManager.get(user_id, "players")
     let has = false
     if (obj.badges != null) {
         if (obj.badges.includes(id) || obj.badges.includes(id + '')) has = true

@@ -1,38 +1,27 @@
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+const data = new SlashCommandBuilder()
+.addIntegerOption(option => option.setName('id-caixa').setDescription('Digite o id da caixa da sua mochila').setRequired(true))
+
 module.exports = {
     name: 'recompensascaixa',
     aliases: ['recomcaixa', 'boxrewards', 'recc'],
     category: 'Players',
     description: 'Visualiza as recompensas de uma caixa misteriosa da sua mochila',
-    options: [{
-        name: 'id-caixa',
-        type: 'STRING',
-        description: 'Escreva o id da caixa da sua mochila para visualizar as recompensas da mesma',
-        required: false
-    }],
+    data,
     mastery: 10,
-	async execute(API, msg) {
+	async execute(API, interaction) {
 
         const Discord = API.Discord;
-        const args = API.args(msg);
 
-        if (args.length == 0) {
-            const embedtemp = await API.sendError(msg, `Você precisa especificar um id de caixa para visualizar as recompensas!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embeds: [embedtemp]})
-			return;
-        }
+        const id = interaction.options.getInteger('id-caixa');
 
-        if (!API.isInt(args[0])) {
-            const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embeds: [embedtemp]})
-			return;
-        }
-
-        const obj = await API.getInfo(msg.author, 'storage');
-        const id = parseInt(args[0]);
+        const obj = await DatabaseManager.get(interaction.user.id, 'storage');
 
         if (obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
-            const embedtemp = await API.sendError(msg, `Você não possui uma caixa com este id!\nUtilize \`${API.prefix}mochila\` para visualizar suas caixas`, `recc 1`)
-            await msg.quote({ embeds: [embedtemp]})
+            const embedtemp = await API.sendError(interaction, `Você não possui uma caixa com este id!\nUtilize \`/mochila\` para visualizar suas caixas`, `recc 1`)
+            await interaction.reply({ embeds: [embedtemp]})
 			return;
         }
 
@@ -50,8 +39,8 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#606060')
         .setDescription(`🏅 Recompensas disponíveis\n \n${rewardsmap}`)
-        .setAuthor(`${msg.author.tag}`, msg.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-        await msg.quote({ embeds: [embed] });
+        .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        await interaction.reply({ embeds: [embed] });
 
 	}
 };
