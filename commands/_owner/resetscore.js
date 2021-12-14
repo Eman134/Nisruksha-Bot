@@ -61,7 +61,6 @@ reacted = true;
                 }
                 
                 res0.rows.forEach(async (row) => {
-                    console.log(row)
                     addTp(row.user_id, parseInt(row.mastery))
                 });
 
