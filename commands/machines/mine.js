@@ -93,6 +93,12 @@ module.exports = {
         let haschipe7 = false
         let hastotalchipe7 = 0
 
+        function checkChipe7() {
+            if (haschipe7) {
+                API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
+            }
+        }
+
         async function edit() {
 
             try{
@@ -298,12 +304,6 @@ module.exports = {
 					API.cacheLists.waiting.remove(member.id, 'mining')
                     console.log(err)
                     return
-                }
-
-                function checkChipe7() {
-                    if (haschipe7) {
-                        API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
-                    }
                 }
 
                 async function checkStop() {
