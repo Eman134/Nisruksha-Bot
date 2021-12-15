@@ -234,6 +234,7 @@ itemExtension.getEquippedChips = async function(user_id) {
 itemExtension.unequipChip = async function(user_id, slot) {
   try {
     let chips = await API.itemExtension.getEquippedChips(user_id);
+    if (!chips[slot]) return;
     if (chips[slot].durabilitypercent == 100) {
       await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[slot].id}"`, 1)
     }
