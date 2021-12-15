@@ -6,7 +6,6 @@ module.exports.check = async (interaction) => {
 
     if (API.ip != "localhost" && interaction.author.id == '782329664730824784' && interaction.channel.id == '761582265741475850') {
 
-
         try {
 
             if (interaction.content.includes('topgg')) {
