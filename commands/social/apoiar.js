@@ -20,7 +20,7 @@ module.exports = {
         const check = await API.eco.tp.check(codigo)
 
         if (!check.exists) {
-            const embedtemp = await API.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
+            const embedtemp = await API.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'apoiar <codigo>')
             await interaction.reply({ embeds: [embedtemp]})
             return
         }

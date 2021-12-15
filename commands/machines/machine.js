@@ -373,7 +373,7 @@ module.exports = {
                 const { energia, energiamax, time } = await API.maqExtension.getEnergy(member.id)
 
                 if (energia >= energiamax) {
-                    await interaction.channel.send({ content: `Relatório de energia: ${energia}/${energiamax}`, mention: true})
+                    await interaction.channel.send({ content: `${interaction.user} Relatório de energia: ${energia}/${energiamax}`, mention: true})
                     if (API.cacheLists.remember.includes(member.id, "energia")) {
                         API.cacheLists.remember.remove(member.id, "energia")
                     }

@@ -86,7 +86,7 @@ shopExtension.load = async function() {
 }
 
 shopExtension.getShopObj = function() {
-    return shopExtension.obj;
+    return shopExtension.obj2;
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
@@ -532,7 +532,7 @@ shopExtension.forceDiscount = async function() {
 
   }
 
-  shopExtension.obj = obj;
+  shopExtension.obj2 = obj;
 
 }
 

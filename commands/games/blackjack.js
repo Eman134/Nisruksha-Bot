@@ -143,7 +143,6 @@ module.exports = {
                 }, 0)
                 checkStatus(i)
                 checkGame(players[i])
-
             }
         }
 
@@ -445,8 +444,8 @@ module.exports = {
                 } else if (game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
                 } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
-                    start()
                     game.status = 'playing'
+                    start()
                 }
 
                 return
@@ -508,8 +507,10 @@ module.exports = {
                 interaction.editReply({ embeds: [embed], components: [] });
                 return
             }
-
             if (['bust', 'blackjack', 'draw', 'lost'].includes(game.status)) return
+
+            console.log(game.status)
+
             players[game.current].status = 'off'
             game.status = 'timeout'
             game.current = (game.current + 1) % players.length
