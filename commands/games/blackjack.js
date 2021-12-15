@@ -74,19 +74,15 @@ module.exports = {
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
+        
+        const tokenmember = await API.eco.token.get(member.id)
 
-        if (member.id != API.id) {
-
-            const tokenmember = await API.eco.token.get(member.id)
-
-            if (tokenmember < aposta) {
-                const embedtemp = await API.sendError(interaction, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
-                await interaction.reply({ embeds: [embedtemp]})
-                return;
-            }
-            
+        if (tokenmember < aposta) {
+            const embedtemp = await API.sendError(interaction, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
         }
-
+        
         let players = [
             {
                 id: interaction.user.id,
