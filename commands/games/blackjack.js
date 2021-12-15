@@ -508,9 +508,6 @@ module.exports = {
                 return
             }
             if (['bust', 'blackjack', 'draw', 'lost'].includes(game.status)) return
-
-            console.log(game.status)
-
             players[game.current].status = 'off'
             game.status = 'timeout'
             game.current = (game.current + 1) % players.length
