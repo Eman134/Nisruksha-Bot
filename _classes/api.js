@@ -166,7 +166,7 @@ API.getBotInfoProperties = async function() {
 
     const text =  `SELECT pg_size_pretty(pg_database_size('postgres'));`
     const res = await DatabaseManager.query(text);
-    const dbsize = res["pg_size_pretty"];
+    const dbsize = res.rows[0]["pg_size_pretty"];
 
     const globalsObj = await DatabaseManager.get(app.id, 'globals');
     const embed = new API.Discord.MessageEmbed();
