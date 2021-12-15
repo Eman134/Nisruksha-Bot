@@ -494,7 +494,7 @@ shopExtension.execute = async function(interaction, p) {
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
-          await interaction.edit({ embeds: [embed], components: [] });
+          await embedinteraction.edit({ embeds: [embed], components: [] });
           return;
     }
       
