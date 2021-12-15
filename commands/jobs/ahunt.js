@@ -106,6 +106,7 @@ module.exports = {
         const equipsBtn = []
         let components = []
         let combo = []
+        let timing = 0
         collector.on('collect', async (b) => {
 
             if (Date.now()-timing < 0) return

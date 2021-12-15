@@ -302,7 +302,6 @@ module.exports = {
                     }
                 }catch (err){
 					API.cacheLists.waiting.remove(member.id, 'mining')
-                    console.log(err)
                     return
                 }
 
