@@ -263,7 +263,10 @@ module.exports = {
         }
 
         function checkGame(player) {
-            if (player.status == 'skip') {
+            if (players[0].pontos == players[1].pontos) {
+                game.winner = -1
+                game.status = 'draw'
+            } else if (player.status == 'skip') {
                 game.current = (game.current + 1) % players.length
                 players[game.current].status = 'playing'
             } else if (player.status == 'bust') {
@@ -276,10 +279,6 @@ module.exports = {
                 game.status = 'blackjack'
                 sendWinner()
             } else if (player.status == 'stand') {
-                if (players[0].pontos == players[1].pontos) {
-                    game.winner = game.current
-                    game.status = 'draw'
-                }
                 
                 players[0].pontos > players[1].pontos ? game.winner = 0 : game.winner = 1
                 game.status = 'lost'
@@ -354,7 +353,7 @@ module.exports = {
                 .setColor('#4e5052')
                 .setTitle(`<:hide:855906056865316895> BlackJack`)
                 .setImage('attachment://image.png')
-                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${API.money3emoji}` : ''}`)
+                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${API.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
                 .setFooter(playsMap)
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
                     embed.addField(`${players[game.current].name}`, `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${API.money3emoji}`)
