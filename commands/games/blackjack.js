@@ -263,10 +263,7 @@ module.exports = {
         }
 
         function checkGame(player) {
-            if (players[0].pontos == players[1].pontos) {
-                game.winner = -1
-                game.status = 'draw'
-            } else if (player.status == 'skip') {
+            if (player.status == 'skip') {
                 game.current = (game.current + 1) % players.length
                 players[game.current].status = 'playing'
             } else if (player.status == 'bust') {
@@ -280,10 +277,22 @@ module.exports = {
                 sendWinner()
             } else if (player.status == 'stand') {
                 
-                players[0].pontos > players[1].pontos ? game.winner = 0 : game.winner = 1
-                game.status = 'lost'
-                sendWinner()
+                if (players[0].pontos == players[1].pontos) {
+                    game.winner = -1
+                    game.status = 'draw'
+                } else {
+                    players[0].pontos > players[1].pontos ? game.winner = 0 : game.winner = 1
+                    game.status = 'lost'
+                    sendWinner()
+                }
+
             }
+
+            if (players[0].pontos == players[1].pontos) {
+                game.winner = -1
+                game.status = 'draw'
+            }
+
             return game
         }
 
