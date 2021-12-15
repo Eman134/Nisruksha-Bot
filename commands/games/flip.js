@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const DatabaseManager = require('../../_classes/manager/DatabaseManager');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a aposta').setRequired(true))
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
