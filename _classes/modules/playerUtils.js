@@ -48,7 +48,7 @@ Utilize \`/mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVoc√
   
       API.crateExtension.give(interaction.user.id, 2, 3)
   
-      await interaction.reply({ embeds: [embed], mention: true, files: [levelupimage]});
+      await interaction.channel.send({ embeds: [embed], mention: true, files: [levelupimage]});
   
     } else DatabaseManager.increment(interaction.user.id, "machines", "xp", xp);
   
