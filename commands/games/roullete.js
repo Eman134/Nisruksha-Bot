@@ -35,6 +35,12 @@ module.exports = {
             return;
         }
 
+        if (aposta > 5000) {
+            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `roleta 5000`)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
+        }
+
         const token = await API.eco.token.get(interaction.user.id)
 
         if (token < aposta) {
