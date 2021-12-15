@@ -21,9 +21,9 @@ module.exports.check = async (interaction) => {
                         .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
                     API.client.channels.cache.get(dbl.voteLogs_channel).send({ embeds: [embed]});
-                    API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
-                    API.eco.points.add(user, size)
-                    API.playerUtils.cooldown.set(user, "votetopgg", 43200);
+                    API.eco.addToHistory(user.id, `Vote | + ${API.format(size)} ${API.money2emoji}`)
+                    API.eco.points.add(user.id, size)
+                    API.playerUtils.cooldown.set(user.id, "votetopgg", 43200);
 
                 })
                 return
