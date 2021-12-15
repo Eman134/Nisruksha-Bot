@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
-.addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(false))
+.addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(true))
 
 module.exports = {
     name: 'blackjack',
@@ -16,7 +16,6 @@ module.exports = {
 
         const aposta = interaction.options.getInteger('fichas')
         let member = interaction.options.getUser('membro')
-        member == null ? member = API.client.users.cache.get(API.id) : null
 
         const check = await API.playerUtils.cooldown.check(interaction.user.id, "blackjack");
 
@@ -33,13 +32,13 @@ module.exports = {
             return;
         }
 
-        if (member.id != API.id) {
+        if (member == null || member.id == interaction.user.id) {
+            const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
+            await interaction.reply({ embeds: [embedtemp]})
+            return
+        }
 
-            if (member.id == interaction.user.id) {
-                const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
-                await interaction.reply({ embeds: [embedtemp]})
-                return
-            }
+        if (member.id != API.id) {
 
             const check2 = await API.playerUtils.cooldown.check(member.id, "blackjack");
 
@@ -500,7 +499,7 @@ module.exports = {
         collector.on('end', async() => {
             if (member.id != API.id) API.playerUtils.cooldown.set(member.id, "blackjack", 0);
             API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 0);
-            if (!game.reacted[interaction.user.id] || !game.reacted[member.id]) {
+            if (game.status == 'confirm' && (!game.reacted[interaction.user.id] || !game.reacted[member.id])) {
                 const embed = new Discord.MessageEmbed()
                 .setTitle('<:hide:855906056865316895> BlackJack')
                 .setColor('#a60000')
