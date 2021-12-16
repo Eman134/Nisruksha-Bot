@@ -107,8 +107,10 @@ module.exports = {
                 API.eco.addToHistory(interaction.user.id, `Cartas da Sorte | + ${API.format(Math.round(aposta*cards[b.customId])-aposta)} ${API.money3emoji}`);
                 await API.eco.token.add(interaction.user.id, (Math.round(aposta*cards[b.customId])-aposta));
             } else {
-                API.eco.addToHistory(interaction.user.id, `Cartas da Sorte | - ${API.format(Math.round(aposta-(aposta*cards[b.customId])))} ${API.money3emoji}`);
-                await API.eco.token.remove(interaction.user.id, Math.round(aposta-(aposta*cards[b.customId])));
+                const preju = Math.round(aposta-(aposta*cards[b.customId]))
+                API.eco.addToHistory(interaction.user.id, `Cartas da Sorte | - ${API.format(preju)} ${API.money3emoji}`);
+                await API.eco.token.remove(interaction.user.id, preju);
+                API.eco.token.add(API.id, preju)
             }
 
         });
