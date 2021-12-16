@@ -263,14 +263,24 @@ module.exports = {
                 game.current = (game.current + 1) % players.length
                 players[game.current].status = 'playing'
             } else if (player.status == 'bust') {
-                game.current = (game.current + 1) % players.length
-                game.winner = game.current
-                game.status = 'bust'
-                sendWinner()
+                if (players[0].pontos == players[1].pontos) {
+                    game.winner = -1
+                    game.status = 'draw'
+                } else {
+                    game.current = (game.current + 1) % players.length
+                    game.winner = game.current
+                    game.status = 'bust'
+                    sendWinner()
+                }
             } else if (player.status == 'blackjack') {
-                game.winner = game.current
-                game.status = 'blackjack'
-                sendWinner()
+                if (players[0].pontos == players[1].pontos) {
+                    game.winner = -1
+                    game.status = 'draw'
+                } else {
+                    game.winner = game.current
+                    game.status = 'blackjack'
+                    sendWinner()
+                }
             } else if (player.status == 'stand') {
                 
                 if (players[0].pontos == players[1].pontos) {
@@ -282,11 +292,6 @@ module.exports = {
                     sendWinner()
                 }
 
-            }
-
-            if (players[0].pontos == players[1].pontos) {
-                game.winner = -1
-                game.status = 'draw'
             }
 
             return game

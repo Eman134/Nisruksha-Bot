@@ -285,7 +285,7 @@ module.exports = {
                     embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring && chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
                     if (chipe7) {
                         const minerioatual = itensObj.minerios.find((i) => i.name == ore.name)
-                        const totalchipe7 = Math.round(qnt*(minerioatual.price.min))
+                        const totalchipe7 = Math.round(qnt*(minerioatual.price.max))
                         hastotalchipe7 += totalchipe7
                         haschipe7 = true
                         API.eco.money.add(member.id, totalchipe7)

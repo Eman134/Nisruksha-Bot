@@ -471,7 +471,7 @@
 			"size": 1,
 			"typeeffect": 7,
 			"chiptype": "one",
-			"info": "Este chipe faz com que sua máquina venda alguns minérios pela cotação mínima.",
+			"info": "Este chipe faz com que sua máquina venda alguns minérios pela cotação máxima.",
 			"price": 5000000,
 			"price2": 10
 		},
