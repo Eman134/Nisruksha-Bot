@@ -132,7 +132,7 @@ module.exports = {
             for (let i = 0; i < players.length; i++) {
                 players[i].cartas = [getCard(), getCard()]
                 players[i].pontos = players[i].cartas.reduce((acc, cur) => {
-                    if (!players[i].cartas.find((c) => c.pontos == 10) && cur.id == 1) {
+                    if (!players[i].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
@@ -216,7 +216,7 @@ module.exports = {
             function giveCard() {
                 players[player].cartas.push(card)
                 players[player].pontos = players[player].cartas.reduce((acc, cur) => {
-                    if (!players[player].cartas.find((c) => c.pontos == 10) && cur.id == 1) {
+                    if (!players[player].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
