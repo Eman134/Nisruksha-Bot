@@ -150,7 +150,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
         .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         interaction.channel.send({ embeds: [embed], mention: true})
         DatabaseManager.set(interaction.user.id, 'players', 'mvp', null)
-        if (pobj.perm == 3) API.setPerm(interaction.user.id, 1)
+        if (pobj.perm == 3) DatabaseManager.set(interaction.user.id, 'players', 'perm', 1)
     }
     
     const check = await API.playerUtils.cooldown.check(interaction.user.id, "global");

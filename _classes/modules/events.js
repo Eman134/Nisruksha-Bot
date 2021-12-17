@@ -177,7 +177,7 @@ events.forceRace = async function() {
 
     const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
-    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()] })
+    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()], fetchReply: true })
 
     events.race.interactionid = embedinteraction.id
 
@@ -206,7 +206,7 @@ async function editRace(embedinteraction) {
     
     if (events.race.time-(Date.now()-events.race.started) > 0) {
         
-        interaction.editReply({ embeds: [events.getRaceEmbed()] })
+        embedinteraction.editReply({ embeds: [events.getRaceEmbed()] })
         setTimeout(function(){editRace(embedinteraction)}, 10000)
 
     } else {
@@ -243,7 +243,7 @@ async function editRace(embedinteraction) {
             await API.eco.addToHistory(user.id, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
         }
         
-        interaction.editReply({ embeds: [events.getRaceEmbed()] })
+        embedinteraction.editReply({ embeds: [events.getRaceEmbed()] })
 
         events.race.apostas = {
             laranja: [],
