@@ -517,7 +517,7 @@ module.exports = {
                 
                 let contains = chips.length >= chipe;
                 
-                let placa = chips[chipe]
+                const placa = chips[chipe]
                 
                 if (!contains) {
                     const embedtemp = await API.sendError(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`);

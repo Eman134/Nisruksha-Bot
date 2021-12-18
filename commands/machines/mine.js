@@ -73,8 +73,9 @@ module.exports = {
 
         const array = obj6.slots == null ? [] : obj6.slots
         for (const i of array){
-            if (API.shopExtension.getProduct(i.id).typeeffect == 4) {
-            timeupdate -= Math.round(API.shopExtension.getProduct(i.id).size*1000)
+            const chipproduct = API.shopExtension.getProduct(i.id);
+            if (chipproduct.typeeffect == 4) {
+            timeupdate -= Math.round(chipproduct.sizeeffect*1000)
             };
         }
 
@@ -153,8 +154,9 @@ module.exports = {
                             } else {
                                 let fvalue = value
                                 for (const i of array){
-                                    if (API.shopExtension.getProduct(i.id).typeeffect == 3) {
-                                        fvalue -= Math.round(API.shopExtension.getProduct(i.id).size*fvalue/100)
+                                    const chipproduct = API.shopExtension.getProduct(i.id);
+                                    if (chipproduct.typeeffect == 3) {
+                                        fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
                                 }
                                 await DatabaseManager.increment(member.id, 'machines', name, -fvalue)

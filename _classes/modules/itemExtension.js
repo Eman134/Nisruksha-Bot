@@ -183,7 +183,7 @@ itemExtension.loadToStorage = async function(obj) {
 
 itemExtension.getChips = async function(user_id) {
 
-    let obj = API.shopExtension.getShopObj();
+    const obj = API.shopExtension.getShopObj();
 
     let placasobjkeys = Object.keys(obj)
 
@@ -209,7 +209,7 @@ itemExtension.getChips = async function(user_id) {
     }
 
     if (res == null || res == undefined) return [];
-
+    
     for (const r of placas) {
       if (res['piece:' + r.id] > 0) {
         let robj = r;
@@ -217,6 +217,7 @@ itemExtension.getChips = async function(user_id) {
         array.push(robj)
       }
     }
+
     return array;
 }
 
