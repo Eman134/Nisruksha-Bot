@@ -10,7 +10,6 @@ const stars = {};
 {
     stars.add = async function(user_id, company_id, options) {
         
-        let owner = await get.ownerById(company_id)
         let memberobj = await DatabaseManager.get(user_id, 'players')
         let company = await get.companyById(company_id)
         
@@ -29,7 +28,6 @@ const stars = {};
             obj.score = parseFloat(obj.score).toFixed(2)
             
         }
-        
         
         if (options.rend) {
             obj.rend = parseInt(obj.rend) + Math.round(parseInt(options.rend))

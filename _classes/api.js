@@ -198,6 +198,7 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
     const text2 =  `INSERT INTO companies(company_id, user_id) VALUES($1, $2) ON CONFLICT DO NOTHING;`,
     values2 = [company, user_id];
     try {
+        console.log(text2, values2)
         await DatabaseManager.query(text2, values2);
     } catch (err) {
         console.log(err.stack)
