@@ -32,23 +32,16 @@ module.exports = {
         let company
 
         try{
-            const owner = await API.company.get.ownerById(company_id)
+
+            company = await API.company.get.companyById(company_id)
+
+            console.log(tempcompany)
 			
-			if (owner == null) {
+			if (!company) {
                 const embedtemp = await API.sendError(interaction, `O id de empresa ${company_id} é inexistente!\nPesquise empresas utilizando \`/empresas\``)
-           	    await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ embeds: [embedtemp]})
                 return;
 			}
-			
-            const res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2`, [company_id, owner.id]);
-
-            if (res.rows[0] == undefined || res.rows[0] == null) {
-                const embedtemp = await API.sendError(interaction, `O id de empresa ${company_id} é inexistente!\nPesquise empresas utilizando \`/empresas\``)
-           	    await interaction.reply({ embeds: [embedtemp]})
-                return;
-            } else {
-                company = res.rows[0]
-            }
 
         }catch (err){ 
             API.client.emit('error', err)

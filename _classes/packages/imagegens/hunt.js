@@ -50,7 +50,7 @@ module.exports = async function execute(API, {
 
     // Desenhando equipamentos
 
-    for (i = 0; i < equips.length; i++) {
+    for (let i = 0; i < equips.length; i++) {
         if (equips[i]) {
             const equip = await API.img.Canvas.loadImage(equips[i].img);
             ctx.drawImage(equip, equips[i].x, equips[i].y, 13, 13);

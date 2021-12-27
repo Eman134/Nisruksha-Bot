@@ -15,7 +15,7 @@ try {
 } catch (err) {
     console.log('Error parsing JSON string:', err);
     if (API.debug) console.log(`Error on load patch obj`);
-    client.emit('error', err)
+    API.client.emit('error', err)
 }
 
 const { SlashCommandBuilder } = require('@discordjs/builders');

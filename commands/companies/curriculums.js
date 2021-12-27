@@ -148,7 +148,7 @@ module.exports = {
         try {
             if (company.logo != null) embed.setThumbnail(company.logo)
         }catch (err){
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
         if (array.length > 0) {
             

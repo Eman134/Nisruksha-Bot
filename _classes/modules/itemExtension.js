@@ -132,7 +132,7 @@ itemExtension.loadToStorage = async function(obj) {
           DatabaseManager.query(text);
       } catch (err) {
           console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          client.emit('error', err)
+          API.client.emit('error', err)
           process.exit()
       }
     }
@@ -205,7 +205,7 @@ itemExtension.getChips = async function(user_id) {
         res = res.rows[0];
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
     if (res == null || res == undefined) return [];
@@ -317,7 +317,7 @@ itemExtension.getInv = async function(user_id, filtered, length) {
       res = res2.rows[0]
   } catch (err) {
       console.log(err.stack)
-      client.emit('error', err)
+      API.client.emit('error', err)
   }
   
   let arrayitens = []

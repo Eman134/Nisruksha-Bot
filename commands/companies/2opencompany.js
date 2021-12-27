@@ -19,6 +19,9 @@ const options = (option) => {
 data.addStringOption(options)
 .addStringOption(option => option.setName('nome').setDescription('Digite o nome da empresa').setRequired(true))
 
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'abrirempresa',
     aliases: ['criarempresa', 'opencompany', 'abrire'],
@@ -73,7 +76,7 @@ module.exports = {
         let playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
         const req = 10;
         const name = nome;
-        const type = e[setor].setor;
+        const type = e[setor].tipo;
         const icon = e[setor].icon;
         let townname = await API.townExtension.getTownName(interaction.user.id);
         let cristais = await API.eco.points.get(interaction.user.id)
@@ -96,11 +99,10 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === interaction.user.id)) return
             if (!b.deferred) b.deferUpdate().then().catch();
             reacted = true;
             collector.stop();
-
+            
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Abertura cancelada', `
@@ -108,10 +110,10 @@ module.exports = {
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
-
+            
             playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
             playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
-
+            
             cristais = await API.eco.points.get(interaction.user.id)
 
             if (playerobj.level < req) {
@@ -158,7 +160,7 @@ module.exports = {
                     }
                 }
             }catch (err) { 
-                client.emit('error', err)
+                API.client.emit('error', err)
                 throw err 
             }
             
@@ -168,12 +170,12 @@ module.exports = {
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
-
+            
             const code = await API.company.create(interaction.user, {
-                type: type,
-                icon: icon,
-                name: name,
-                setor: setor
+                type,
+                icon,
+                name,
+                setor
             })
             
             API.eco.money.remove(interaction.user.id, total)

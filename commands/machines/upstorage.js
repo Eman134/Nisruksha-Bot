@@ -89,7 +89,7 @@ module.exports = {
             try {
                 if (embedinteraction)interaction.editReply({ embeds: [embed], components: [] });
             }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
                 console.log(err)
             }
             if (err)collector.stop()

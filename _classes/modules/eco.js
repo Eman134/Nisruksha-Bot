@@ -227,7 +227,7 @@ eco.createHistoryDir = function(user_id) {
     if (!fs.existsSync(fpath)) {
         fs.writeFileSync(fpath, strin, (err) => {
             if (err) {
-                client.emit('error', err)
+                API.client.emit('error', err)
                 return console.log(`creating: [${err}]`)
             }
         })
@@ -245,7 +245,7 @@ eco.addToHistory = async function (user_id, arg) {
 
     insertLine(fpath).content(content).at(1).then((err) => {
         if (err) {
-            client.emit('error', err)
+            API.client.emit('error', err)
             return console.log(`inserting: [${err}]`)
         }
       })

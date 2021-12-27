@@ -132,7 +132,7 @@ module.exports = {
                     console.log(`Um erro na caixa ${id} foi encontrado!\nReward:`)
                     console.log(arraywin[5])
                     console.log(`\n${err}`)
-                    client.emit('error', err)
+                    API.client.emit('error', err)
                     interaction.reply({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
                 }
 

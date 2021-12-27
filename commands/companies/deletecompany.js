@@ -1,3 +1,6 @@
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'fecharempresa',
     aliases: ['closecompany'],
@@ -30,17 +33,16 @@ module.exports = {
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-
+        
         let total = 0;
-
+        
         let r1 = 150000;
         let r2 = 150000;
         let r3 = 300000;
         let r4 = 75000;
-
-        total = r1+r2+r3+r4
         
-        let playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
+        total = r1+r2+r3+r4
+
         let playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
 
         const name = company.name
@@ -53,11 +55,17 @@ module.exports = {
         .addField(`🧾 Contratos`, `\`Termos de Compromisso\`\n${API.format(r1)} ${API.money} ${API.moneyemoji}\n\`Compensação de Trabalho\`\n${API.format(r2)} ${API.money} ${API.moneyemoji}\n\`Autorização de Recebimento\`\n${API.format(r3)} ${API.money} ${API.moneyemoji}\n\`Instrumento Particular\`\n${API.format(r4)} ${API.money} ${API.moneyemoji}`)
         .addField(`📑 Requisitos de fechamento`, `Valor final: **${API.format(total)} ${API.money} ${API.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}`)
         .setColor('#00e061')
+
+        console.log('debug3')
 		
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
+        console.log('debug4')
+
         let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
+
+        console.log('debug5')
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -65,7 +73,6 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === interaction.user.id)) return
             if (!b.deferred) b.deferUpdate().then().catch();
             reacted = true;
             collector.stop();
