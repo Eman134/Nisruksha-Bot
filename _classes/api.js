@@ -199,6 +199,20 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
     values2 = [company, user_id];
     try {
         console.log(text2, values2)
+        const Discord = API.Discord;
+        let channel = API.client.channels.cache.get('693910783490261033')
+        const embed = new Discord.MessageEmbed()
+            .setColor('#b8312c')
+            .setTitle('<:error:736274027756388353> API.setCompanieInfo')
+            .setDescription(`\`\`\`js\n${text2 + ' : ' + values2}\`\`\``)
+
+        if (channel) {
+            try {
+                await channel.send({ embeds: [embed]}).catch();
+            } catch {
+                
+            }
+        }
         await DatabaseManager.query(text2, values2);
     } catch (err) {
         console.log(err.stack)

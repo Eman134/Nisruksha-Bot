@@ -64,7 +64,8 @@ module.exports = class NisrukshaClient extends Discord.Client {
             if (err) return console.error(err);
             files.forEach(file => {
                 let eventFunction = require(`../events/${file}`);
-                this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
+                if (eventFunction.name != 'ready' ) this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
+                else this.once(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
             });
         });
         console.log(`[EVENTOS] Carregados`.green)
