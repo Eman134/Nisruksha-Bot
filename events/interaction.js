@@ -13,7 +13,7 @@ module.exports = {
 
         const command = interaction.commandName;
 
-        interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
+        if (interaction != null) interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
 
         let commandfile = client.commands.get(command);
 

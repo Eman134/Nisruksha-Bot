@@ -34,8 +34,6 @@ module.exports = {
         try{
 
             company = await API.company.get.companyById(company_id)
-
-            console.log(tempcompany)
 			
 			if (!company) {
                 const embedtemp = await API.sendError(interaction, `O id de empresa ${company_id} é inexistente!\nPesquise empresas utilizando \`/empresas\``)

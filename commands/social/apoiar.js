@@ -4,6 +4,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('código').setDescription('Escreva um código de apoiador').setRequired(true))
 
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'apoiar',
     aliases: ['usereferral', 'usarref'],
