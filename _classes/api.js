@@ -209,18 +209,6 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
     const text =  `UPDATE companies SET ${string} = $3 WHERE user_id = $1 AND company_id = $2;`,
         values = [user_id, company, value]
 
-        console.log(text, values)
-        const Discord = API.Discord;
-        let channel = API.client.channels.cache.get('693910783490261033')
-        const embed = new Discord.MessageEmbed()
-            .setColor('#b8312c')
-            .setTitle('<:error:736274027756388353> API.setCompanieInfo')
-            .setDescription(`\`\`\`js\n${text + ' : ' + values}\`\`\``)
-
-        if (channel) {
-            await channel.send({ embeds: [embed]}).catch();
-        }
-
     try {
         await DatabaseManager.query(text, values);
     } catch (err) {

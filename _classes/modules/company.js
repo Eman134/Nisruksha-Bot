@@ -23,7 +23,7 @@ const stars = {};
 
             options.score = parseFloat(options.score).toFixed(2)
             
-            API.setCompanieInfo(user_id, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
+            API.setCompanieInfo(company.user_id, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
             obj.score = (parseFloat(obj.score) + parseFloat(options.score)).toFixed(2)
             obj.score = parseFloat(obj.score).toFixed(2)
             
