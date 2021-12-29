@@ -287,7 +287,7 @@ module.exports = {
                 let colocadosmap = colocados.sort(sortrarity).map(d => `[${API.itemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
                 let descartadosmap = descartado.sort(sortrarity).map(d => `[${API.itemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
 
-                let score = ((API.company.stars.gen())*1.8).toFixed(2)
+                let score = ((API.company.stars.gen())*1.2).toFixed(2)
                 API.company.stars.add(interaction.user.id, company.company_id, { score })
 
                 embed.fields = []

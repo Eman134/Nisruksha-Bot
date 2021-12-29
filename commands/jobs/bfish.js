@@ -125,7 +125,6 @@ module.exports = {
                 (parseFloat(pobj.rod.profundidade)/2).toFixed(1), 
                 (parseFloat(pobj.rod.profundidade)).toFixed(1)
             ] 
-
             
             let stars = 0
 
@@ -169,7 +168,6 @@ module.exports = {
             for (let xi = 5; xi > 0; xi--) {
                 
                 if (header) {
-
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
@@ -184,7 +182,7 @@ module.exports = {
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 
-                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/3).toFixed(2)
+                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/2).toFixed(2)
 
                                 ca = coletados.get(capturado.icon)
 
@@ -209,9 +207,7 @@ module.exports = {
 
                         }
 
-
                     }
-                    
                     
                     levels[xi.toString()].waterarray.shift()
                     

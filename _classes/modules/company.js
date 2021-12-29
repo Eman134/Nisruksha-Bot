@@ -599,7 +599,7 @@ const jobs = {
 
         const list = await jobs.process.get()
 
-        for (xilist = 0; xilist < list.length; xilist++) {
+        for (let xilist = 0; xilist < list.length; xilist++) {
 
             jobs.process.loopProcess(list[xilist])
 
@@ -665,7 +665,7 @@ const jobs = {
 
                     let maq = API.shopExtension.getProduct(obj.machine);
 
-                    for (inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
+                    for (let inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
 
                         const tool = processjson.tools[inprocs[inprocsi].tool]
 
