@@ -308,7 +308,7 @@ module.exports = {
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
                     const embedtemp = await API.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
-                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
@@ -316,7 +316,7 @@ module.exports = {
 
                 if (sta2 < pobj.rod.sta) {
                     const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
-                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
@@ -362,7 +362,7 @@ module.exports = {
                     if (reacted) {
                         await interaction.editReply({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(interaction, `Você parou a pesca!`)
-                        await interaction.reply({ embeds: [embedtemp], components: [] })
+                        await interaction.followUp({ embeds: [embedtemp], components: [] })
                         API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     } else {
