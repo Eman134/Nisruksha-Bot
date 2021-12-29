@@ -45,11 +45,9 @@ OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \
 🔗 [R$50,00](https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=568626560-844812e3-5e3c-4d61-a6ce-9622218899a1)
 🔗 [R$100,00](https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=568626560-47115992-0628-4709-87fa-6c4b5ca9f437)
 🔗 PIX: kessdev09@gmail.com
-
-Total de doações: ${donates}
-Total em doações: R$${(totaldonates + "").replace('.', ',')}
-
 `).setTimestamp()
+//Total de doações: ${donates}
+//Total em doações: R$${(totaldonates + "").replace('.', ',')}
             if (interaction.replied) return interaction.channel.send({ embeds: [embed]})
             await interaction.reply({ embeds: [embed] });
         
