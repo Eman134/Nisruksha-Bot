@@ -105,19 +105,23 @@ module.exports = class NisrukshaClient extends Discord.Client {
                     let command = require(file.replace('.js', ''))
                     commandsCollection.set(command.name, command)
 
-                    API.helpExtension.addCommand(command);
-                    if (!command.data){
-                        command.data = new SlashCommandBuilder()
+                    if (!command.disabled) {
+
+                        API.helpExtension.addCommand(command);
+                        if (!command.data){
+                            command.data = new SlashCommandBuilder()
+                        }
+                        command.data.setName(command.name)
+                        let categorystring 
+                        if (command.category == 'none' && !command.companytype) categorystring = 'STAFF'
+                        else if (command.category == 'none' && command.companytype > 0) categorystring = 'TRABALHO'
+                        else if (command.category == 'none' && command.companytype == -1) categorystring = 'EVENTO'
+                        else categorystring = command.category
+                        command.data.setDescription(categorystring + (command.description == 'none' ? '' : ' | ' + command.description))
+                        if (categorystring == 'STAFF') serverCommandsJson.push(command.data.toJSON());
+                        else globalCommandsJson.push(command.data.toJSON());
+
                     }
-                    command.data.setName(command.name)
-                    let categorystring 
-                    if (command.category == 'none' && !command.companytype) categorystring = 'STAFF'
-                    else if (command.category == 'none' && command.companytype > 0) categorystring = 'TRABALHO'
-                    else if (command.category == 'none' && command.companytype == -1) categorystring = 'EVENTO'
-                    else categorystring = command.category
-                    command.data.setDescription(categorystring + (command.description == 'none' ? '' : ' | ' + command.description))
-                    if (categorystring == 'STAFF') serverCommandsJson.push(command.data.toJSON());
-                    else globalCommandsJson.push(command.data.toJSON());
 
                 };
 

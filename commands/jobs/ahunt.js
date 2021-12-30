@@ -12,11 +12,12 @@ async function loadbg() {
 
 module.exports = {
     name: 'caçar',
+    disabled: true,
     aliases: ['hunt'],
     category: 'none',
     description: 'Inicia uma caçada á monstros ao redor da sua localização', 
     mastery: 13,
-    companytype: 2,
+    companytype: -1,
 	async execute(API, interaction, company) {
 
         const Discord = API.Discord;
