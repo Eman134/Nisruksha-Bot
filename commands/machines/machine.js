@@ -166,7 +166,7 @@ module.exports = {
                     refrigerationBtn.setDisabled(true)
                 }
 
-                const pollutantsBtnText = `${pollutantsPercent > 90 ? `Liberar poluentes por ${API.format(pollutantsPrice)} 💰` : `Sem poluentes`}`
+                const pollutantsBtnText = `${pollutantsPercent > 40 ? `Liberar poluentes por ${API.format(pollutantsPrice)} 💰` : `Sem poluentes`}`
                 const pollutantsBtnIcon = getMaintenanceIcon('pollutants', pollutantsPercent)
                 const pollutantsBtn = API.createButton('pollutants', 'SECONDARY', pollutantsBtnText, pollutantsBtnIcon)
                 
