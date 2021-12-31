@@ -19,8 +19,11 @@ module.exports = {
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.events.duck.killed.includes(interaction.user.id)) {
-            const embedtemp = await API.sendError(interaction, `Você já batalhou contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
+
+        const hasKilled = API.events.duck.killed.find((killed) => killed.id == interaction.user.id)
+
+        if (hasKilled && hasKilled.amount >= 2) {
+            const embedtemp = await API.sendError(interaction, `Você já batalhou o máximo de vezes contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -34,7 +37,7 @@ module.exports = {
         const check = await API.playerUtils.cooldown.check(interaction.user.id, "patodourado");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'patodourado', 'realizar outra caçada')
+            API.playerUtils.cooldown.message(interaction, 'patodourado', 'realizar outra caçada de pato dourado')
 
             return;
         }
@@ -149,10 +152,12 @@ module.exports = {
             }
         ]
         let reactequips = {};
-        let reactequiplist = ['fight', 'run'];
-        let fixedembed = embed
+        let reactequiplist = ['fight', 'run', 'changeMode'];
         let combo = []
         let points = 0
+        let currentmode = 0
+        let youhasbeencombedmeuamigo = false
+        let losedesc = ''
 
         function getComponents() {
             let components = []
@@ -169,17 +174,106 @@ module.exports = {
                 reactequiplist.push(id)
             }
             components.push(API.rowComponents(equipsBtn))
+            components.push(API.rowComponents([API.createButton('changeMode', 'SECONDARY', currentmode == 0 ? 'Compacto' : 'Detalhado', '🔄')]))
             return components
         }
 
-        function addEquipFields(embed) {
+        async function getEmbeds(currinteraction) {
+
             try {
-                for (const r of equips) {
-                    embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, true)
+                const baruser = getLifeBar(player.sta, player.stamax)
+            
+                const barmonster = getLifeBar(monster.csta, monster.sta)
+
+                const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
+
+                if (currentmode == 1) {
+                    const infosEmbed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.`)
+                    .setImage('attachment://image.png')
+
+                    const embed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+
+                    for (const r of equips) {
+                        infosEmbed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, true)
+                    }
+
+                    embed.addField('Informações do ataque atual', `
+${combostring}
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+${currinteraction ? currinteraction : ''}
+`)
+
+                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+                    
+                    return [infosEmbed, embed]
+                } else {
+                    const embed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+
+                    .setThumbnail('attachment://image.png')
+
+                    for (const r of equips) {
+                        embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, true)
+                    }
+
+                    embed.addField('Informações do ataque atual', `
+${combostring}
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+${currinteraction ? currinteraction : ''}
+`)
+
+                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+
+                    return [embed]
                 }
             } catch (error) {
-                console.log(error)
+                console.log(error)   
             }
+
+        }
+
+        function getLifeBar(life, lifemax) {
+
+            if (!life || !lifemax) console.log('getLifeBar', life, lifemax)
+
+            function progress(maxticks, atual, max, percento) {
+
+                const percentage = atual / max;
+                const progress = Math.round((maxticks * percentage));
+                const emptyProgress = maxticks - progress;
+
+                const frame1 = "<:life:926185180920692786>"
+                const frame2 = "<:life:926185180752928838>"
+                const frame3 = "<:life:926192169755238440>"
+                const frame4 = "<:life:926192859097485342>"
+                const frame5 = "<:life:926192858996826122>"
+                const frame6 = "<:life:926192858925498460>"
+            
+                const progressText = frame2.repeat((progress-1 <= 0 ? 0 : progress-1));
+                const emptyProgressText = frame5.repeat((emptyProgress-1 <= 0 ? 0 : emptyProgress-1));
+
+                const initProgressText = percentage <= 0 ? frame4 : frame1;
+                const endProgressText = percentage >= 0.95 ? frame3 : frame6;
+            
+                const bar = initProgressText + progressText + emptyProgressText + endProgressText + (percento ? Math.round((percentage)*100) + " %" : " (" + atual + "/" + max +")") ;
+                
+                return bar;
+            }
+
+            const lifebar = progress(8, life < 0 ? 0 : life, lifemax)
+
+            return lifebar
+
         }
 
         const filter = i => i.user.id === interaction.user.id && reactequiplist.includes(i.customId);
@@ -187,6 +281,19 @@ module.exports = {
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 45000 });
 
         collector.on('collect', async (b) => {
+
+            if (b.customId === 'changeMode') {
+
+                try { 
+                    currentmode = currentmode == 0 ? 1 : 0
+                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                    const components = getComponents()
+                    return interaction.editReply({ embeds: await getEmbeds(), components })
+                } catch (error) {
+                    return console.log(error)
+                }
+
+            }
 
             reacted = true;
 
@@ -226,15 +333,6 @@ module.exports = {
                     dead = true
                 }
 
-                let percent01 = Math.round(100*(player.sta)/(player.stamax));
-                let percent02 = Math.round(100*(stptdp)/(player.stamax));
-                let percent03 = Math.round(100*(monster.csta)/(monster.sta));
-                let percent04 = Math.round(100*(stcstatdm)/(monster.sta));
-
-                if (API.debug) console.log(`Stamina player: ${percent01}%` + (td_.player > 0 ? ` (-${td_.player} = ${percent01}%)`.red:` (-${td_.player} = ${percent01}%)`.green))
-
-                if (API.debug) console.log(`Stamina pato dourado: ${percent03}%` + (td_.monster > 0 ?` (-${td_.monster} = ${percent03}%)`.red:` (-${td_.monster} = ${percent03}%)`.green))
-                
                 const avatarurl = interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
 
                 let machineobj = await DatabaseManager.get(interaction.user.id, 'machines')
@@ -243,47 +341,45 @@ module.exports = {
                 const equipsdata = [
                     {
                         img: `https://cdn.discordapp.com/emojis/${equips[0].id}.png?v=1`,
-                        x: 150,
-                        y: 29,
+                        x: 33,
+                        y: 54,
                     },
                     {
                         img: `https://cdn.discordapp.com/emojis/${equips[1].id}.png?v=1`,
-                        x: 170,
-                        y: 29,
+                        x: 53,
+                        y: 54,
                     },
                     {
                         img: `https://cdn.discordapp.com/emojis/${equips[2].id}.png?v=1`,
-                        x: 190,
-                        y: 29,
+                        x: 73,
+                        y: 54,
                     },
                     {
                         img: `https://cdn.discordapp.com/emojis/${equips[3].id}.png?v=1`,
-                        x: 210,
-                        y: 29,
+                        x: 93,
+                        y: 54,
                     },
                     {
                         img: `https://cdn.discordapp.com/emojis/${equips[4].id}.png?v=1`,
-                        x: 230,
-                        y: 29,
+                        x: 113,
+                        y: 54,
                     }
                 ]
 
-                const huntimage = await API.img.imagegens.get('hunt.js')(API, {
+                if (dead || b.customId == 'fight' || b.customId == 'autofight') {
+                    var huntimage = await API.img.imagegens.get('battle.js')(API, {
+    
+                        avatarurl, 
+                        monster,
+                        playerlevel,
+                        username: interaction.user.username,       
+                        equips: equipsdata,
+                        stptdp,
+                        stcstatdm,
+            
+                    })
+                }
 
-                    avatarurl, 
-                    monster,
-                    playerlevel,
-                    playerstaminamax: player.stamax,
-                    username: interaction.user.username,       
-                    equips: equipsdata,
-                    stptdp,
-                    stcstatdm,
-                    percent01,
-                    percent02,
-                    percent03,
-                    percent04,
-        
-                })
 
                 monster.csta -= td_.monster
                 player.sta -= td_.player
@@ -292,22 +388,32 @@ module.exports = {
 
             }
 
-            async function monsterlost(mo, embed) {
+            async function monsterlost(mo) {
                 
                 let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
                 xp = await API.playerUtils.execExp(interaction, xp)
 
                 API.crateExtension.give(interaction.user.id, 4, 1)
-                API.events.duck.killed.push(interaction.user.id)
 
-                embed.fields = []
-                embed.setDescription(`✅ Você ganhou a batalha! **(+${xp} XP)**\n \nDrops do monstro:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nColocados na mochila:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nDescartados:\nNenhum item descartado\n \nVisualize os itens colocados usando \`/mochila\``)
+                const hasKilled = API.events.duck.killed.find((killed) => killed.id == interaction.user.id)
+
+                if (hasKilled === undefined) {
+                    API.events.duck.killed.push({ id: interaction.user.id, amount: 1 })
+                } else {
+                    const index = API.events.duck.killed.indexOf(hasKilled)
+                    if (index > -1) {
+                        API.events.duck.killed = API.events.duck.killed.splice(index, 1);
+                    }
+                    hasKilled.amount = 2
+                    API.events.duck.killed.push({ id: interaction.user.id, amount: 2 })
+                }
+
+                losedesc = (`✅ Você ganhou a batalha! **(+${xp} XP)**\n \nDrops do monstro:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nColocados na mochila:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nDescartados:\nNenhum item descartado\n \nVisualize os itens colocados usando \`/mochila\``)
             }
             
-            async function playerlost(member, embed) {
+            async function playerlost(member) {
                 
-                embed.fields = []
-                embed.setDescription(`❌ Você perdeu a batalha contra o pato dourado!`)
+                losedesc = (`❌ Você perdeu a batalha contra o pato dourado!`)
                 player.sta = 0
                 API.events.duck.killed.push(member.id)
 
@@ -319,23 +425,12 @@ module.exports = {
                     API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
 
                     inbattle = true
-                    
-                    const embed = new Discord.MessageEmbed()
-                    embed.setTitle(`Caçada`)
-                    .setColor('#5bff45')
-                    .setDescription(`**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}]**`)
-
+ 
                     const components = getComponents()
-
-                    addEquipFields(embed)
                     
                     const firstbuild = await build()
                     
-                    embed.setImage('attachment://image.png')
-                    
-                    await interaction.editReply({ embeds: [embed], components, files: [firstbuild.attach] });
-
-                    fixedembed = embed
+                    await interaction.editReply({ embeds: await getEmbeds(), components, files: [firstbuild.attach] });
 
                 } catch (error) {
                     console.log(error)
@@ -355,14 +450,14 @@ module.exports = {
                 if (eq.points == 0 && points < 10) {
                     points++
                 }
-                
-                let youhasbeencombedmeuamigo = false
                     
                 if (combo.length >= 5) combo = []
                 combo.push(API.client.emojis.cache.get(b.customId))
 
                 if (combo.length >= 5) {
                     youhasbeencombedmeuamigo = true
+                } else {
+                    youhasbeencombedmeuamigo = false
                 }
 
                 let lost = {
@@ -435,18 +530,9 @@ module.exports = {
                 
                 if (API.debug) console.log(`${eq.name}`.yellow)
                 
-                const embed = new Discord.MessageEmbed()
-                embed.setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}] ${youhasbeencombedmeuamigo ? ' 💥':''}**`)
-                    
-                addEquipFields(embed)
-                
                 let buildlost = await build(lost)
 
                 let components = getComponents()
-                
-                embed.setImage('attachment://image.png')
                 
                 let currinteraction = ""
 
@@ -500,12 +586,8 @@ module.exports = {
                     API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
                     collector.stop();
                 }
-                
-                await embed.setFooter(`Informações do ataque atual\n${currinteraction}`)
 
-                await interaction.editReply({ embeds: [embed], attachments: [], components, files: [buildlost.attach]})
-
-                fixedembed = embed
+                await interaction.editReply({ embeds: await getEmbeds(currinteraction), components})
 
             }
 
@@ -522,11 +604,11 @@ module.exports = {
             if (dead) return
 
             if (reacted) {
-                fixedembed.fields = []
-                fixedembed.setTitle(`Mas que covarde!`)
-                fixedembed.setColor('#a60000');
-                fixedembed.setDescription(`❌ Você não teve coragem de atacar o pato dourado e saiu correndo do combate!`)
-                interaction.editReply({ embeds: [fixedembed], components: [] });
+                embed.fields = []
+                embed.setTitle(`Mas que covarde!`)
+                embed.setColor('#a60000');
+                embed.setDescription(`❌ Você não teve coragem de atacar o pato dourado e saiu correndo do combate!`)
+                interaction.editReply({ embeds: [embed], attachments: [], components: [] });
                 return;
             
             }
@@ -534,7 +616,7 @@ module.exports = {
             embed.setTitle(`Oops, o pato dourado percebeu sua presença!`)
             embed.setColor('#a60000');
             embed.setDescription(`❌ Você demorou demais para a caçada e o pato dourado conseguiu fugir a tempo`)
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ embeds: [embed], attachments: [], components: [] });
             return;
         });
         

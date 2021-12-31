@@ -107,6 +107,8 @@ module.exports = {
         let combo = []
         let timing = 0
         let currentmode = 0
+        let youhasbeencombedmeuamigo = false
+        let losedesc = ''
         collector.on('collect', async (b) => {
 
             if (b.customId === 'changeMode') {
@@ -130,13 +132,15 @@ module.exports = {
                 return;
             }
 
-            async function getEmbeds() {
+            async function getEmbeds(currinteraction) {
 
                 const stp = await API.playerUtils.stamina.get(interaction.user.id);
 
                 const baruser = getLifeBar(stp, 1000)
                 
                 const barmonster = getLifeBar(monster.csta, monster.sta)
+
+                const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
                     const infosEmbed = new Discord.MessageEmbed()
@@ -148,16 +152,20 @@ module.exports = {
                     const embed = new Discord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
-                    .setDescription(`
-**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
-
-${interaction.user.username} ${baruser}
-${monster.name} ${barmonster}
-`)
 
                     for (const r of equips) {
                         infosEmbed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                     }
+
+                    embed.addField('Informações do ataque atual', `
+${combostring}
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
+`)
+
+                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
                     
                     return [infosEmbed, embed]
                 } else {
@@ -167,10 +175,6 @@ ${monster.name} ${barmonster}
                     .setDescription(`
 OBS: Os equipamentos são randômicos de acordo com o seu nível.
 **CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**
-**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
-
-${interaction.user.username} ${baruser}
-${monster.name} ${barmonster}
 `)
                     .setThumbnail('attachment://image.png')
 
@@ -178,8 +182,52 @@ ${monster.name} ${barmonster}
                         embed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                     }
 
+                    embed.addField('Informações do ataque atual', `
+${combostring}
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
+`)
+
+                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+
                     return [embed]
                 }
+            }
+
+            function getLifeBar(life, lifemax) {
+
+                if (!life || !lifemax) console.log('getLifeBar', life, lifemax)
+
+                function progress(maxticks, atual, max, percento) {
+    
+                    const percentage = atual / max;
+                    const progress = Math.round((maxticks * percentage));
+                    const emptyProgress = maxticks - progress;
+
+                    const frame1 = "<:life:926185180920692786>"
+                    const frame2 = "<:life:926185180752928838>"
+                    const frame3 = "<:life:926192169755238440>"
+                    const frame4 = "<:life:926192859097485342>"
+                    const frame5 = "<:life:926192858996826122>"
+                    const frame6 = "<:life:926192858925498460>"
+                
+                    const progressText = frame2.repeat((progress-1 <= 0 ? 0 : progress-1));
+                    const emptyProgressText = frame5.repeat((emptyProgress-1 <= 0 ? 0 : emptyProgress-1));
+
+                    const initProgressText = percentage <= 0 ? frame4 : frame1;
+                    const endProgressText = percentage >= 0.95 ? frame3 : frame6;
+                
+                    const bar = initProgressText + progressText + emptyProgressText + endProgressText + (percento ? Math.round((percentage)*100) + " %" : " (" + atual + "/" + max +")") ;
+                    
+                    return bar;
+                }
+
+                const lifebar = progress(8, life < 0 ? 0 : life, lifemax)
+
+                return lifebar
+
             }
 
             function getRarity(level) { 
@@ -239,6 +287,7 @@ ${monster.name} ${barmonster}
                     
                     if (stcstatdm <= 0) {
                         dead = true
+                        monster.csta = 0
                     }
 
                     const avatarurl = interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
@@ -289,7 +338,7 @@ ${monster.name} ${barmonster}
 
             }
 
-            async function monsterlost(mo, embed) {
+            async function monsterlost(mo) {
 
                 let cr = API.random(0, 100)
                 let array2 = mo.drops;
@@ -343,51 +392,15 @@ ${monster.name} ${barmonster}
                 let score = ((API.company.stars.gen())*1.2).toFixed(2)
                 API.company.stars.add(interaction.user.id, company.company_id, { score })
 
-                embed.fields = []
-                embed.setDescription(`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`)
+                losedesc = (`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`)
                 
             }
             
-            async function playerlost(member, embed) {
+            async function playerlost(member) {
                 
-                embed.fields = []
-                embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
+                losedesc = (`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
                 DatabaseManager.set(member.id, "machines", "xp", 0)
-                API.playerUtils.stamina.subset(member.id, 0)
-
-            }
-
-            function getLifeBar(life, lifemax) {
-
-                if (!life || !lifemax) console.log('getLifeBar', life, lifemax)
-
-                function progress(maxticks, atual, max, percento) {
-    
-                    const percentage = atual / max;
-                    const progress = Math.round((maxticks * percentage));
-                    const emptyProgress = maxticks - progress;
-
-                    const frame1 = "<:life:926185180920692786>"
-                    const frame2 = "<:life:926185180752928838>"
-                    const frame3 = "<:life:926192169755238440>"
-                    const frame4 = "<:life:926192858925498460>"
-                    const frame5 = "<:life:926192858925498460>"
-                    const frame6 = "<:life:926192858925498460>"
-                
-                    const progressText = frame2.repeat((progress-1 <= 0 ? 0 : progress-1));
-                    const emptyProgressText = frame5.repeat((emptyProgress-1 <= 0 ? 0 : emptyProgress-1));
-
-                    const initProgressText = percentage == 0 ? frame4 : frame1;
-                    const endProgressText = percentage >= 0.95 ? frame3 : frame6;
-                
-                    const bar = initProgressText + progressText + emptyProgressText + endProgressText + (percento ? Math.round((percentage)*100) + " %" : " (" + atual + "/" + max +")") ;
-                    
-                    return bar;
-                }
-
-                const lifebar = progress(8, life, lifemax)
-
-                return lifebar
+                await API.playerUtils.stamina.subset(member.id, 0)
 
             }
             
@@ -402,7 +415,6 @@ ${monster.name} ${barmonster}
                 API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
                 inbattle = true
-
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
@@ -446,8 +458,6 @@ ${monster.name} ${barmonster}
             
                 let eq = reactequips[b.customId];
 
-                let youhasbeencombedmeuamigo = false
-
                 if (autohunt) {
                     Object.keys(reactequips)
                     eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
@@ -456,6 +466,8 @@ ${monster.name} ${barmonster}
                     combo.push(API.client.emojis.cache.get(b.customId))
                     if (combo.length >= 5) {
                         youhasbeencombedmeuamigo = true
+                    } else {
+                        youhasbeencombedmeuamigo = false
                     }
                 }
                 
@@ -513,22 +525,20 @@ ${monster.name} ${barmonster}
                     await monsterlost(monster, embed)
                 }
                 }
-                
-                await embed.setFooter(`Informações do ataque atual\n${currinteraction}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}`)
-
+            
                 try {
                     if (dead) {
-                        await interaction.editReply({ embeds: await getEmbeds(), attachments: [], components: [], files: [buildlost.attach]})
+                        await interaction.editReply({ embeds: await getEmbeds(currinteraction), attachments: [], components: [], files: [buildlost.attach]})
                     } else {
-                        await interaction.editReply({ embeds: await getEmbeds() })
+                        await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
                     }
                 } catch {
                     setTimeout(async function(){
                         try {
                             if (dead) {
-                                await interaction.editReply({ embeds: await getEmbeds(), attachments: [], components: [], files: [buildlost.attach]})
+                                await interaction.editReply({ embeds: await getEmbeds(currinteraction), attachments: [], components: [], files: [buildlost.attach]})
                             } else {
-                                await interaction.editReply({ embeds: await getEmbeds() })
+                                await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
                             }
                         } catch {
                             API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
