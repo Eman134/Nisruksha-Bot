@@ -74,7 +74,12 @@ check.hasCompany = async function(user_id){
 }
 
 check.isWorker = async function(user_id) {
-    const obj = await DatabaseManager.get(user_id, 'players') 
+    const obj = await DatabaseManager.get(user_id, 'players')
+    const company = await get.companyById(obj.company)
+    if (!company) {
+        await DatabaseManager.set(user_id, 'players', 'company', null)
+        return false
+    }
     return obj.company != null;
 }
 
@@ -218,7 +223,7 @@ const jobs = {
         },
     },
     fish: {
-        update: 8,
+        update: 5,
         rods: {
             obj: {}
         },

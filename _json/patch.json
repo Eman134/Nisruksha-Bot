@@ -140,5 +140,11 @@
         "chn": ["Padrão de procura de monstros modificado", "Tempo de update mineração base [20 -> 12]", "Comandos por mensagem migrados para slash (/)", "Sistema de relembrar energia movido para o /maquina"],
         "rem": ["Ranking local", "Limite de transferência acima do nível 50", "Loja reparos", "Comando /energia", "Comando /equipar", "Comando /desequipar"],
         "fix": ["Itens usáveis não estavam sendo recompensados no tesouro", "Bug de multiplicar roletas pelas mesmas fichas", "Bug de alguns componentes do perfil desaparecerem quando usavam molduras redondas"]
+    },
+    "2.2.0": {
+        "add": [],
+        "chn": ["Update de pesca [8 -> 5 segundos]", "Mensagem de caça"],
+        "rem": [],
+        "fix": []
     }
 }

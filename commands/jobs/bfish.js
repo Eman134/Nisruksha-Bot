@@ -184,7 +184,7 @@ module.exports = {
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 
-                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/3).toFixed(2)
+                                if (API.random(0, 100) < 35) stars = (API.company.stars.gen()/2).toFixed(2)
 
                                 ca = coletados.get(capturado.icon)
 
@@ -273,9 +273,9 @@ module.exports = {
 
             try{
 
-                let gastosta = 3
+                let gastosta = 5
 
-                if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
+                if (API.random(0, 100) < 60) gastosta = pobj.rod.sta
 
                 let xp = API.random(1, 3);
                 xp = await API.playerUtils.execExp(interaction, xp);
@@ -310,7 +310,7 @@ module.exports = {
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     const embedtemp = await API.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
-                    await interaction.editReply({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
 
@@ -318,7 +318,7 @@ module.exports = {
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
-                    await interaction.editReply({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
 
@@ -359,10 +359,10 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
+                    await interaction.editReply({ embeds: [embed], components: [] }).catch()
                     if (reacted) {
                         API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
                         const embedtemp = await API.sendError(interaction, `Você parou a pesca!`)
                         await interaction.followUp({ embeds: [embedtemp], components: [] })
                     } else {

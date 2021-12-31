@@ -102,11 +102,19 @@ module.exports = {
         let reactequips = {};
         let reactequiplist = ['fight', 'run', 'autofight'];
         let autohunt = false
-        const equipsBtn = []
+        let equipsBtn = [API.createButton('changeMode', 'SECONDARY', 'Compacto', '🔄')]
         let components = []
         let combo = []
         let timing = 0
+        let currentmode = 0
         collector.on('collect', async (b) => {
+
+            if (b.customId === 'changeMode') {
+                currentmode = currentmode == 0 ? 1 : 0
+                equipsBtn[0].label = currentmode == 0 ? 'Compacto' : 'Detalhado'
+                if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                return interaction.editReply({ embeds: await getEmbeds(), components: [ API.rowComponents(equipsBtn) ] })
+            }
 
             if (Date.now()-timing < 0) return
             
@@ -120,6 +128,58 @@ module.exports = {
                 reacted = true
                 collector.stop();
                 return;
+            }
+
+            async function getEmbeds() {
+
+                const stp = await API.playerUtils.stamina.get(interaction.user.id);
+
+                const baruser = getLifeBar(stp, 1000)
+                
+                const barmonster = getLifeBar(monster.csta, monster.sta)
+
+                if (currentmode == 1) {
+                    const infosEmbed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
+                    .setImage('attachment://image.png')
+
+                    const embed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+                    .setDescription(`
+**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+`)
+
+                    for (const r of equips) {
+                        infosEmbed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
+                    }
+                    
+                    return [infosEmbed, embed]
+                } else {
+                    const embed = new Discord.MessageEmbed()
+                    .setTitle(`Caçada`)
+                    .setColor('#5bff45')
+                    .setDescription(`
+OBS: Os equipamentos são randômicos de acordo com o seu nível.
+**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**
+**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
+
+${interaction.user.username} ${baruser}
+${monster.name} ${barmonster}
+`)
+                    .setThumbnail('attachment://image.png')
+
+                    for (const r of equips) {
+                        embed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
+                    }
+
+                    return [embed]
+                }
             }
 
             function getRarity(level) { 
@@ -343,11 +403,7 @@ module.exports = {
 
                 inbattle = true
 
-                const infosEmbed = new Discord.MessageEmbed()
-                .setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
-                    
+                
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
@@ -356,33 +412,14 @@ module.exports = {
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
-                    infosEmbed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
                 }
-
-                infosEmbed.setImage('attachment://image.png')
-
-                const stp = await API.playerUtils.stamina.get(interaction.user.id);
-
-                const baruser = getLifeBar(stp, 1000)
-                
-                const barmonster = getLifeBar(monster.csta, monster.sta)
-                
-                const embed = new Discord.MessageEmbed()
-                .setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`
-**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
-
-${interaction.user.username} ${baruser}
-${monster.name} ${barmonster}
-`)
 
                 if (!autohunt) components = [ API.rowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
                 
                 try {
-                    await interaction.editReply({ embeds: [infosEmbed, embed], components, files: [firstbuild.attach] });
+                    await interaction.editReply({ embeds: await getEmbeds(), components, files: [firstbuild.attach] });
                 } catch (error) {
                     console.log(error)
                 }
@@ -451,32 +488,7 @@ ${monster.name} ${barmonster}
                 
                 if (API.debug) console.log(`${eq.name}`.yellow)
 
-                const infosEmbed = new Discord.MessageEmbed()
-                .setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
-                    
-                for (const r of equips) {
-                    infosEmbed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
-                }
 
-                infosEmbed.setImage('attachment://image.png')
-
-                const stp = await API.playerUtils.stamina.get(interaction.user.id);
-
-                const baruser = getLifeBar(stp, 1000)
-
-                const barmonster = getLifeBar(monster.csta, monster.sta)
-                
-                const embed = new Discord.MessageEmbed()
-                .setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`
-**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}**
-
-${interaction.user.username} ${baruser}
-${monster.name} ${barmonster}
-`)
                 let buildlost = await build(lost)
                 
                 let currinteraction = ""
@@ -506,21 +518,17 @@ ${monster.name} ${barmonster}
 
                 try {
                     if (dead) {
-                        //await interaction.editReply({ embeds: [embed], components: []})//, files: [buildlost.attach]})
-                        await interaction.editReply({ embeds: [infosEmbed, embed], attachments: [], components: [], files: [buildlost.attach]})
+                        await interaction.editReply({ embeds: await getEmbeds(), attachments: [], components: [], files: [buildlost.attach]})
                     } else {
-                        //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
-                        await interaction.editReply({ embeds: [infosEmbed, embed] })
+                        await interaction.editReply({ embeds: await getEmbeds() })
                     }
                 } catch {
                     setTimeout(async function(){
                         try {
                             if (dead) {
-                                //await interaction.editReply({ embeds: [embed], components: []})//, files: [buildlost.attach]})
-                                await interaction.editReply({ embeds: [infosEmbed, embed], attachments: [], components: [], files: [buildlost.attach]})
+                                await interaction.editReply({ embeds: await getEmbeds(), attachments: [], components: [], files: [buildlost.attach]})
                             } else {
-                                //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
-                                await interaction.editReply({ embeds: [infosEmbed, embed] })
+                                await interaction.editReply({ embeds: await getEmbeds() })
                             }
                         } catch {
                             API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
