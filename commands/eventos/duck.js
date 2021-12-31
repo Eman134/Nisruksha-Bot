@@ -74,8 +74,8 @@ module.exports = {
         let player = {
             name: interaction.user.username,
             level: playerlevel,
-            sta: 450,
-            stamax: 450,
+            sta: 400,
+            stamax: 400,
         }
         
         embed

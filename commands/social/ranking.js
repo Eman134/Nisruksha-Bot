@@ -13,7 +13,7 @@ const vare = {
         formated: API.money + ' ' + API.moneyemoji,
         global: [],
     },
-    '741827151879471115': {
+    '743176785986060390': {
         db: {
             table: 'players',
             column: 'points'
