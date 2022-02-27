@@ -244,8 +244,6 @@ ${currinteraction ? currinteraction : ''}
 
         function getLifeBar(life, lifemax) {
 
-            if (!life || !lifemax) console.log('getLifeBar', life, lifemax)
-
             function progress(maxticks, atual, max, percento) {
 
                 const percentage = atual / max;

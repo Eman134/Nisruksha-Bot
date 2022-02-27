@@ -84,7 +84,7 @@ module.exports = {
             .setColor('#a85a32')
             .setTitle(backpack.icon + ' ' + backpack.name)
             .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa utilize \`/abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`/recc <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
+            .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa utilize \`/abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`/recompensascaixa <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
             
             embed.addField(`💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`/venderitem\`\nPara usar itens utilize \`/usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
             //for (i = 1; i < totalpages; i++) {
