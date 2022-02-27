@@ -269,9 +269,9 @@ module.exports = {
 
             try{
 
-                let gastosta = 3
+                let gastosta = 5
 
-                if (API.random(0, 100) < 50) gastosta = pobj.rod.sta
+                if (API.random(0, 100) < 60) gastosta = pobj.rod.sta
 
                 let xp = API.random(1, 3);
                 xp = await API.playerUtils.execExp(interaction, xp);
@@ -355,12 +355,12 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
+                    await interaction.editReply({ embeds: [embed], components: [] }).catch()
                     if (reacted) {
                         API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
                         await interaction.editReply({ embeds: [embed], components: [] }).catch()
-                        const embedtemp = await API.sendError(interaction, `Você parou a pesca!`)
-                        await interaction.followUp({ embeds: [embedtemp], components: [] })
+
                     } else {
                         edit(interaction, company);
                     }

@@ -54,7 +54,7 @@ module.exports = {
         
 		const embed = new Discord.MessageEmbed()
 	    .setColor('#606060')
-        .addField('<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`/recc ${id}\``)
+        .addField('<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
         .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
@@ -180,7 +180,7 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`/recc ${id}\``)
+                embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
                 interaction.editReply({ embeds: [embed], components: [] });
                 API.playerUtils.cooldown.set(interaction.user.id, "crate", 0);
                 return;
@@ -203,7 +203,7 @@ module.exports = {
             if (reacted) return;
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recc ${id}\``)
+            embed.addField('❌ Tempo expirado', `Você iria abrir **${boxl}x ${API.crateExtension.obj[id.toString()].icon} ${API.crateExtension.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
             interaction.editReply({ embeds: [embed], components: [] });
         });
 

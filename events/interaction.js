@@ -229,6 +229,10 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         if (await API.company.check.isWorker(interaction.user.id)) {
             company = await API.company.get.companyById(pobj.company);
+            if (!company) {
+                await DatabaseManager.set(interaction.user.id, 'players', 'company', null)
+                return true
+            }
             if (company.type != companytype) {
                 const embedtemp = await API.sendError(interaction, `A empresa onde você trabalha não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\`\nPesquise empresas usando \`/empresas\``)
                 await interaction.reply({ embeds: [embedtemp]})
@@ -236,6 +240,10 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
             }
         } else {
             company = await API.company.get.companyByOwnerId(interaction.user.id);
+            if (!company) {
+                await DatabaseManager.set(interaction.user.id, 'players', 'company', null)
+                return true
+            }
             if (company.type != companytype) {
                 const embedtemp = await API.sendError(interaction, `A sua empresa não é de ${API.company.e[API.company.types[companytype]].icon} ${API.company.types[companytype]}!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\`\nPesquise empresas usando \`/empresas\``)
                 await interaction.reply({ embeds: [embedtemp]})
