@@ -35,6 +35,12 @@ module.exports = {
             return;
         }
 
+        if (aposta > 5000) {
+            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `roleta 5000`)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
+        }
+
         const token = await API.eco.token.get(interaction.user.id)
 
         if (token < aposta) {
@@ -128,7 +134,15 @@ module.exports = {
                         embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; 
                         await API.eco.token.add(interaction.user.id, (Math.round(aposta*multiplier[selected])-aposta));API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);
                     }
-                    else {API.eco.addToHistory(interaction.user.id, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);embed2.setColor('#fc0324');title = '**❌ VOCÊ PERDEU!!**'; emote = '❌'; await API.eco.token.remove(interaction.user.id, aposta);API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);}
+                    else {
+                        API.eco.addToHistory(interaction.user.id, `Roleta | - ${API.format(aposta)} ${API.money3emoji}`);
+                        embed2.setColor('#fc0324');
+                        title = '**❌ VOCÊ PERDEU!!**'; 
+                        emote = '❌'; 
+                        await API.eco.token.remove(interaction.user.id, aposta);
+                        API.eco.token.add(API.id, aposta);
+                        API.playerUtils.cooldown.set(interaction.user.id, "roullete", 0);
+                    }
                     embed2.fields = [];
                     embed2.addField(`Sua aposta`, `Aposta: ${API.format(aposta)} ${API.money3} ${API.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${API.money3} ${API.money3emoji}`, true)
                     .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)

@@ -64,7 +64,8 @@ module.exports = class NisrukshaClient extends Discord.Client {
             if (err) return console.error(err);
             files.forEach(file => {
                 let eventFunction = require(`../events/${file}`);
-                this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
+                if (eventFunction.name != 'ready' ) this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
+                else this.once(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
             });
         });
         console.log(`[EVENTOS] Carregados`.green)
@@ -169,58 +170,22 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
     loadExpressServer(options) {
 
-        const port = options.port
-
-        let express = require('express')
-
-        const app = express()
-
         if (options.ip != 'localhost') {
-            dblCheck(app)
-            app.listen(port);
+            const { AutoPoster } = require('topgg-autoposter')
+                    
+            AutoPoster(options.dbl.token, API.client)
         }
 
-        function dblCheck(app) {
-            try {
-
-                const Topgg = require("@top-gg/sdk")
-
-                const webhook = new Topgg.Webhook(options.dbl.webhookAuthPass)
-
-                app.post("/dblwebhook", webhook.listener(vote => {
-
-                    API.client.users.fetch(vote.user).then((user) => {
-
-                        let size = 1
-
-                        const embed = new Discord.MessageEmbed()
-                            .setColor('RANDOM')
-                            .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`/votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
-                            .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
-
-                        API.client.channels.cache.get(options.dbl.voteLogs_channel).send({ embeds: [embed]});
-                        API.eco.addToHistory(user, `Vote | + ${API.format(size)} ${API.money2emoji}`)
-                        API.eco.points.add(user, size)
-                        API.playerUtils.cooldown.set(user, "votetopgg", 43200);
-
-                    })
-
-                }))
-
-                API.dbl = new Topgg.Api(options.dbl.token)
-
-                const { AutoPoster } = require('topgg-autoposter')
-                
-                AutoPoster(options.dbl.token, API.client)
-
-            } catch {
-            }
-        }
+        
     }
 
     async login(token = this.token) {
-        super.login(token)
-        API.client = this
+        try {
+            super.login(token)
+            API.client = this
+        } catch {
+            
+        }
 
         process.on("uncaughtException", (err) => {
             API.client.emit('error', err)

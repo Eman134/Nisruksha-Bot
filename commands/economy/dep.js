@@ -2,6 +2,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para depósito').setRequired(true))
 
+const Database = require("../../_classes/manager/DatabaseManager");
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'depositar',
     aliases: ['dep'],

@@ -44,8 +44,11 @@ module.exports = {
             } else {
 
                 res.on('data', d => {
-                    d = JSON.parse(d.toString());
-                    votedbest = d.votedToday
+                    try {
+                        d = JSON.parse(d.toString());
+                        votedbest = d.votedToday
+                    } catch {
+                    }
                     const embed = new Discord.MessageEmbed()
                     .setColor('#36393f')
                     .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))

@@ -77,7 +77,7 @@ module.exports = {
                 return;
             }
 
-            let mat = Math.round(Math.pow(nivel, 2) * 500);
+            var mat = Math.round(Math.pow(nivel, 2) * 500);
             
             if (total > mat) {
                 const embedtemp = await API.sendError(interaction, `O limite de transferência recebido por ${member} é de ${API.format(mat)} ${API.money} ${API.moneyemoji}!`)
@@ -103,44 +103,49 @@ module.exports = {
 
         const filter = i => i.user.id === interaction.user.id;
         
-
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === interaction.user.id)) return
-            if (!b.deferred) b.deferUpdate().then().catch();
-            reacted = true;
-            collector.stop();
-            if (b.customId == 'cancel'){
-                embed.fields = [];
-                embed.setColor('#a60000');
-                embed.addField('❌ Transferência cancelado', `
-                Você cancelou a transferência de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member}.`)
-            } else {
-                const money2 = await API.eco.bank.get(interaction.user.id);
-                if (money2 < total) {
+            try {
+                if (!b.deferred) b.deferUpdate().then().catch();
+                reacted = true;
+                collector.stop();
+                if (b.customId == 'cancel'){
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha na transferência', `Você não possui **${API.format(total)} ${API.money} ${API.moneyemoji}** __no banco__ para transferir!`)
+                    embed.addField('❌ Transferência cancelado', `
+                    Você cancelou a transferência de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member}.`)
                 } else {
-                    embed.fields = [];
-                    embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso na transferência', `
-                    Você transferiu o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member} com sucesso!`)
-                    API.eco.bank.remove(interaction.user.id, total);
-                    API.eco.bank.add(member.id, total);
-                    API.eco.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${API.format(total)} ${API.moneyemoji}`)
-                    API.eco.addToHistory(member.id, `📥 Transferência de ${interaction.user} | + ${API.format(total)} ${API.moneyemoji}`)
-                    let obj = await DatabaseManager.get(interaction.user.id, "players");
-                    DatabaseManager.set(interaction.user.id, "players", "tran", obj.tran + 1);
-                    if (total > mat/2.5) {
-                        API.playerUtils.cooldown.set(member.id, "receivetr", 43200);
+                    const money2 = await API.eco.bank.get(interaction.user.id);
+                    if (money2 < total) {
+                        embed.fields = [];
+                        embed.setColor('#a60000');
+                        embed.addField('❌ Falha na transferência', `Você não possui **${API.format(total)} ${API.money} ${API.moneyemoji}** __no banco__ para transferir!`)
+                    } else {
+                        embed.fields = [];
+                        embed.setColor('#5bff45');
+                        embed.addField('✅ Sucesso na transferência', `
+                        Você transferiu o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** para ${member} com sucesso!`)
+                        API.eco.bank.remove(interaction.user.id, total);
+                        API.eco.bank.add(member.id, total);
+                        API.eco.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${API.format(total)} ${API.moneyemoji}`)
+                        API.eco.addToHistory(member.id, `📥 Transferência de ${interaction.user} | + ${API.format(total)} ${API.moneyemoji}`)
+                        let obj = await DatabaseManager.get(interaction.user.id, "players");
+                        DatabaseManager.set(interaction.user.id, "players", "tran", obj.tran + 1);
+                        if (nivel < 50) {
+                            if (total > mat/2.5) {
+                                API.playerUtils.cooldown.set(member.id, "receivetr", 43200);
+                            }
+                        }
                     }
                 }
+                API.playerUtils.cooldown.set(interaction.user.id, "transferir", 0);
+                interaction.editReply({ embeds: [embed], components: [] });
+            } catch (error) {
+                console.log(error)
             }
-            API.playerUtils.cooldown.set(interaction.user.id, "transferir", 0);
-            interaction.editReply({ embeds: [embed], components: [] });
+
         });
         
         collector.on('end', collected => {

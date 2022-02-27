@@ -65,7 +65,7 @@ module.exports = {
               try{
                 API.client.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
               }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
               }
 
           } else if (edição == 'logo') {
@@ -91,7 +91,7 @@ module.exports = {
               try{
                 API.client.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
               }catch (err){
-                client.emit('error', err)
+                API.client.emit('error', err)
               }
 
         } else if (edição.startsWith('desc')) {

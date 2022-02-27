@@ -132,7 +132,7 @@ itemExtension.loadToStorage = async function(obj) {
           DatabaseManager.query(text);
       } catch (err) {
           console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          client.emit('error', err)
+          API.client.emit('error', err)
           process.exit()
       }
     }
@@ -183,7 +183,7 @@ itemExtension.loadToStorage = async function(obj) {
 
 itemExtension.getChips = async function(user_id) {
 
-    let obj = API.shopExtension.getShopObj();
+    const obj = API.shopExtension.getShopObj();
 
     let placasobjkeys = Object.keys(obj)
 
@@ -205,11 +205,11 @@ itemExtension.getChips = async function(user_id) {
         res = res.rows[0];
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
     if (res == null || res == undefined) return [];
-
+    
     for (const r of placas) {
       if (res['piece:' + r.id] > 0) {
         let robj = r;
@@ -217,6 +217,7 @@ itemExtension.getChips = async function(user_id) {
         array.push(robj)
       }
     }
+
     return array;
 }
 
@@ -234,6 +235,7 @@ itemExtension.getEquippedChips = async function(user_id) {
 itemExtension.unequipChip = async function(user_id, slot) {
   try {
     let chips = await API.itemExtension.getEquippedChips(user_id);
+    if (!chips[slot]) return;
     if (chips[slot].durabilitypercent == 100) {
       await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[slot].id}"`, 1)
     }
@@ -315,7 +317,7 @@ itemExtension.getInv = async function(user_id, filtered, length) {
       res = res2.rows[0]
   } catch (err) {
       console.log(err.stack)
-      client.emit('error', err)
+      API.client.emit('error', err)
   }
   
   let arrayitens = []

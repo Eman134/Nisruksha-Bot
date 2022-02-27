@@ -1,4 +1,6 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja os cooldowns ativos de um membro'))
 

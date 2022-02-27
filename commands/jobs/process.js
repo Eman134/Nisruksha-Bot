@@ -73,7 +73,10 @@ module.exports = {
                     eproctemp.setDescription(`ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
                 
                     eproctemp.setTitle(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : API.ms2(estimadoms))}`)
-                    
+
+                    if (processjson.in[i].tool == 0 && processjson.tools[processjson.in[i].tool].durability.current <= 0) eproctemp.setFooter('❌ Ferramenta não possui durabilidade')
+                    else if (processjson.in[i].tool == 1 && processjson.tools[processjson.in[i].tool].fuel.current <= 0) eproctemp.setFooter('❌ Não possui líquido suficiente')
+
                     if (processjson.in[i].drops && processjson.in[i].drops.length > 0) {
 
                         function gen(rarity, title) {

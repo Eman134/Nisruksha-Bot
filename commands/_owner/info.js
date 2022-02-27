@@ -86,7 +86,7 @@ async function send(API, interaction) {
                     await DatabaseManager.query(text, values);
                 } catch (err) {
                     console.log(err.stack)
-                    client.emit('error', err)
+                    API.client.emit('error', err)
                 }
                 array1.splice(i, 1)
 

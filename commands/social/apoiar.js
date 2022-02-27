@@ -4,6 +4,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('código').setDescription('Escreva um código de apoiador').setRequired(true))
 
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'apoiar',
     aliases: ['usereferral', 'usarref'],
@@ -20,7 +23,7 @@ module.exports = {
         const check = await API.eco.tp.check(codigo)
 
         if (!check.exists) {
-            const embedtemp = await API.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'usarcodigo <codigo>')
+            const embedtemp = await API.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'apoiar <codigo>')
             await interaction.reply({ embeds: [embedtemp]})
             return
         }

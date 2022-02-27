@@ -72,6 +72,7 @@ module.exports = async function execute(API, options) {
     API.img.drawText(ctx, `Nível atual: ${options.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 675, 4)
     // Experiência
     API.img.drawText(ctx, `EXP: ${options.xp}/${options.level*1980} (${(100*options.xp/(options.level*1980)).toFixed(2)}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 705, 4)
+    API.img.drawText(ctx, `debug`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, -50, 0, 4)
 
     const percent = Math.round((100*options.xp/(options.level*1980)))
 
@@ -100,6 +101,8 @@ module.exports = async function execute(API, options) {
         }
     }
 
+    ctx.save()
+
     // Barra de progresso
     ctx.strokeStyle = options.boxescolor;
     ctx.lineWidth = 10;
@@ -108,8 +111,12 @@ module.exports = async function execute(API, options) {
     ctx.closePath();
     ctx.lineCap = "square";
     ctx.stroke();
+
+    ctx.restore()
     
     // Barras de cores
+
+    ctx.save()
     
     if (options.perm > 1 || options.profile_color > 0) {
         
@@ -123,7 +130,11 @@ module.exports = async function execute(API, options) {
         
     }
 
+    ctx.restore()
+
     // Checando moldura e avatar
+
+    ctx.save()
 
     if (options.frame) {
 
@@ -145,6 +156,8 @@ module.exports = async function execute(API, options) {
 
     const avatar = await API.img.Canvas.loadImage(options.url.avatar);
     ctx.drawImage(avatar, 85, 59, 180, 180);
+
+    ctx.restore()
 
     // Transformando a imagem em arquivo
     const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');

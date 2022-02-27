@@ -166,7 +166,7 @@ API.getBotInfoProperties = async function() {
 
     const text =  `SELECT pg_size_pretty(pg_database_size('postgres'));`
     const res = await DatabaseManager.query(text);
-    const dbsize = res["pg_size_pretty"];
+    const dbsize = res.rows[0]["pg_size_pretty"];
 
     const globalsObj = await DatabaseManager.get(app.id, 'globals');
     const embed = new API.Discord.MessageEmbed();
@@ -198,10 +198,12 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
     const text2 =  `INSERT INTO companies(company_id, user_id) VALUES($1, $2) ON CONFLICT DO NOTHING;`,
     values2 = [company, user_id];
     try {
+
         await DatabaseManager.query(text2, values2);
+
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
     const text =  `UPDATE companies SET ${string} = $3 WHERE user_id = $1 AND company_id = $2;`,
@@ -211,7 +213,7 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
         await DatabaseManager.query(text, values);
     } catch (err) {
         console.log(err.stack)
-        client.emit('error', err)
+        API.client.emit('error', err)
     }
 
 };

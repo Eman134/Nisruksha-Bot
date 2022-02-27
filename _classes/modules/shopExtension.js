@@ -54,7 +54,7 @@ shopExtension.loadItens = async function() {
       
   } catch (err) {
       console.log('Error parsing JSON string:', err);
-      client.emit('error', err)
+      API.client.emit('error', err)
   }
   API.itemExtension.obj = bigobj;
 
@@ -86,7 +86,7 @@ shopExtension.load = async function() {
 }
 
 shopExtension.getShopObj = function() {
-    return shopExtension.obj;
+    return shopExtension.obj2;
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
@@ -195,15 +195,11 @@ shopExtension.getShopList = function() {
       }
     } catch (err) {
         console.log('Error parsing JSON string:', err);
-        client.emit('error', err)
+        API.client.emit('error', err)
         return '`Error on load shop list`';
         
     }
     return '**' + array.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
-}
-
-shopExtension.setShopObject = function(shop) {
-  shopExtension.shop = shop;
 }
 
 shopExtension.categoryExists = function(cat) {
@@ -498,7 +494,7 @@ shopExtension.execute = async function(interaction, p) {
 
           embed.setColor('#a60000');
           embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
-          await interaction.edit({ embeds: [embed], components: [] });
+          await embedinteraction.edit({ embeds: [embed], components: [] });
           return;
     }
       
@@ -536,7 +532,7 @@ shopExtension.forceDiscount = async function() {
 
   }
 
-  shopExtension.setShopObj(obj)
+  shopExtension.obj2 = obj;
 
 }
 

@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
-.addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(false))
+.addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(true))
 
 module.exports = {
     name: 'blackjack',
@@ -15,7 +15,7 @@ module.exports = {
         const Discord = API.Discord;
 
         const aposta = interaction.options.getInteger('fichas')
-        const member = interaction.options.getUser('membro')
+        let member = interaction.options.getUser('membro')
 
         const check = await API.playerUtils.cooldown.check(interaction.user.id, "blackjack");
 
@@ -32,13 +32,13 @@ module.exports = {
             return;
         }
 
-        if (member != null) {
+        if (member == null || member.id == interaction.user.id) {
+            const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
+            await interaction.reply({ embeds: [embedtemp]})
+            return
+        }
 
-            if (member.id == interaction.user.id) {
-                const embedtemp = await API.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
-                await interaction.reply({ embeds: [embedtemp]})
-                return
-            }
+        if (member.id != API.id) {
 
             const check2 = await API.playerUtils.cooldown.check(member.id, "blackjack");
 
@@ -61,8 +61,8 @@ module.exports = {
             return;
         }
 
-        if (aposta > 5000) {
-            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `blackjack <aposta>`)
+        if (aposta > 2500) {
+            const embedtemp = await API.sendError(interaction, `A quantia máxima de apostas é de 2500 fichas!`, `blackjack <aposta>`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -74,21 +74,15 @@ module.exports = {
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
+        
+        const tokenmember = await API.eco.token.get(member.id)
 
-        if (member != null) {
-
-            const tokenmember = await API.eco.token.get(member.id)
-
-            if (tokenmember < aposta) {
-                const embedtemp = await API.sendError(interaction, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
-                await interaction.reply({ embeds: [embedtemp]})
-                return;
-            }
-            
-        }   
-
-        API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 60);
-
+        if (tokenmember < aposta) {
+            const embedtemp = await API.sendError(interaction, `O membro ${member} não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para apostar!`)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
+        }
+        
         let players = [
             {
                 id: interaction.user.id,
@@ -101,11 +95,16 @@ module.exports = {
         ]
 
         let game = {
+            confirm: {},
+            reacted: {},
             current: 0,
             winner: -1,
-            status: 'playing',
+            status: 'confirm',
             plays: []
         }
+
+        game.confirm[interaction.user.id] = '<a:loading:736625632808796250>'
+        game.confirm[member.id] = '<a:loading:736625632808796250>'
 
         if (member != null) {
             const player2 = {
@@ -133,18 +132,21 @@ module.exports = {
             for (let i = 0; i < players.length; i++) {
                 players[i].cartas = [getCard(), getCard()]
                 players[i].pontos = players[i].cartas.reduce((acc, cur) => {
-                    if (!players[i].cartas.find((c) => c.pontos == 10) && cur.id == 1) {
+                    if (!players[i].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
                 }, 0)
                 checkStatus(i)
                 checkGame(players[i])
-
             }
         }
 
-        setCards()
+        async function start() {
+            setCards()
+            const blmsg = await blackjack()
+            return blmsg
+        }
 
         function getCard() {
 
@@ -214,7 +216,7 @@ module.exports = {
             function giveCard() {
                 players[player].cartas.push(card)
                 players[player].pontos = players[player].cartas.reduce((acc, cur) => {
-                    if (!players[player].cartas.find((c) => c.pontos == 10) && cur.id == 1) {
+                    if (!players[player].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
@@ -231,6 +233,9 @@ module.exports = {
                     break;
                 case 'stand':
                     setStand()
+                    if (players[(game.current + 1) % players.length].cartas.length >= 5) {
+                        setStand()
+                    }
                     break;
                 case 'double':
                     giveCard()
@@ -258,24 +263,37 @@ module.exports = {
                 game.current = (game.current + 1) % players.length
                 players[game.current].status = 'playing'
             } else if (player.status == 'bust') {
-                game.current = (game.current + 1) % players.length
-                game.winner = game.current
-                game.status = 'bust'
-                sendWinner()
-            } else if (player.status == 'blackjack') {
-                game.winner = game.current
-                game.status = 'blackjack'
-                sendWinner()
-            } else if (player.status == 'stand') {
                 if (players[0].pontos == players[1].pontos) {
-                    game.winner = game.current
+                    game.winner = -1
                     game.status = 'draw'
+                } else {
+                    game.current = (game.current + 1) % players.length
+                    game.winner = game.current
+                    game.status = 'bust'
+                    sendWinner()
                 }
+            } else if (player.status == 'blackjack') {
+                if (players[0].pontos == players[1].pontos) {
+                    game.winner = -1
+                    game.status = 'draw'
+                } else {
+                    game.winner = game.current
+                    game.status = 'blackjack'
+                    sendWinner()
+                }
+            } else if (player.status == 'stand') {
                 
-                players[0].pontos > players[1].pontos ? game.winner = 0 : game.winner = 1
-                game.status = 'lost'
-                sendWinner()
+                if (players[0].pontos == players[1].pontos) {
+                    game.winner = -1
+                    game.status = 'draw'
+                } else {
+                    players[0].pontos > players[1].pontos ? game.winner = 0 : game.winner = 1
+                    game.status = 'lost'
+                    sendWinner()
+                }
+
             }
+
             return game
         }
 
@@ -289,7 +307,7 @@ module.exports = {
             API.eco.token.remove(loser.id, loser.fichas);
 
             API.eco.addToHistory(winner.id, `Blackjack <@${loser.id}> | + ${API.format(winner.fichas)} ${API.money3emoji}`);
-            API.eco.addToHistory(loser.id, `Blackjack <@${winner.user}> | - ${API.format(loser.fichas)} ${API.money3emoji}`);
+            API.eco.addToHistory(loser.id, `Blackjack <@${winner.id}> | - ${API.format(loser.fichas)} ${API.money3emoji}`);
 
         }
 
@@ -345,7 +363,7 @@ module.exports = {
                 .setColor('#4e5052')
                 .setTitle(`<:hide:855906056865316895> BlackJack`)
                 .setImage('attachment://image.png')
-                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${API.money3emoji}` : ''}`)
+                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${API.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
                 .setFooter(playsMap)
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
                     embed.addField(`${players[game.current].name}`, `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${API.money3emoji}`)
@@ -371,7 +389,22 @@ module.exports = {
 
         }
 
-        const message = await blackjack()
+        const embed = new Discord.MessageEmbed()
+        .setTitle(`<:hide:855906056865316895> BlackJack`)
+        .setColor('#42e3d0')
+		.setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}.`)
+        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
+        
+        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+
+        let message 
+        if (member.id == API.id) {
+            message = await start()
+            game.status = 'playing'
+        } else {
+            message = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
+        }
 
         const filter = i => {
             let passed = true
@@ -380,10 +413,6 @@ module.exports = {
                 if (member != null) checkFilter.push(member.id)
     
                 if (!checkFilter.includes(i.user.id)) passed = false
-    
-                if (game.current == 0 && i.user.id != interaction.user.id) passed = false
-    
-                if (member != null && game.current == 1 && i.user.id != member.id) passed = false
 
             } catch (error) {
                 console.log(error)
@@ -394,26 +423,69 @@ module.exports = {
         let collector = message.createMessageComponentCollector({ filter, time: 60000 });
         collector.on('collect', async(b) => {
 
+            collector.resetTimer()
+
+            if (game.status == 'confirm') {
+
+                API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 60);
+                if (member.id != API.id) API.playerUtils.cooldown.set(member.id, "blackjack", 60);
+                game.reacted[b.user.id] = true
+                if (b.customId == 'cancel'){
+                    game.confirm[b.user.id] = '❌'
+                } else {
+                    game.confirm[b.user.id] = '✅'
+                }
+                if (b && !b.deferred) await b.deferUpdate()
+
+                const embed = new Discord.MessageEmbed()
+                .setTitle('<:hide:855906056865316895> BlackJack')
+                .setColor('#a60000')
+                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}.`)
+                if (game.confirm[interaction.user.id] == '<a:loading:736625632808796250>' || game.confirm[member.id] == '<a:loading:736625632808796250>') {
+                    embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
+                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
+                }
+
+                if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
+                    embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
+                } else if (game.confirm[interaction.user.id] == '❌') {
+                    embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
+                } else if (game.confirm[member.id] == '❌') {
+                    embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
+                } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
+                    game.status = 'playing'
+                    start()
+                }
+
+                return
+            }
+
             try {
+
+                if (game.current == 0 && b.user.id != interaction.user.id) return true
+    
+                if (member != null && game.current == 1 && b.user.id != member.id) return true
 
                 const player = await play(game.current, b.customId)
                 checkGame(player)
 
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
 
-                    if (member == null && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
+                    if (member.id == API.id && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
 
                         function getBotPlay() {
                             const botPlay = {
                                 player: 1,
                                 playtype: 'hit',
                             }
-                            if (players[1].pontos < 8 && API.random(0, 100) < 40) {
-                                botPlay.playtype = 'double'
-                            } else if (players[1].pontos < 17) {
-                                botPlay.playtype = 'hit'
-                            } else if (players[1].pontos >= 17 && players[1].pontos < 21 && game.status != 'stand') {
+                            if (players[1].pontos >= 15 && players[1].pontos <= 21 && game.status != 'stand' && players[0].status != 'stand') {
                                 botPlay.playtype = 'stand'
+                            } else if (players[1].pontos >= 17 && players[1].pontos <= 21 && players[0].pontos <= 10 && game.status != 'stand' && players[0].status != 'stand') {
+                                botPlay.playtype = 'stand'
+                            } else if (players[1].pontos > 6 && players[1].pontos < 14 && API.random(0, 100) < 40 && players[1].cartas.length == 2) {
+                                botPlay.playtype = 'double'
+                            } else if (players[1].pontos < 15) {
+                                botPlay.playtype = 'hit'
                             }
                             return botPlay
                         }
@@ -435,12 +507,24 @@ module.exports = {
         })
 
         collector.on('end', async() => {
+            if (member.id != API.id) API.playerUtils.cooldown.set(member.id, "blackjack", 0);
+            API.playerUtils.cooldown.set(interaction.user.id, "blackjack", 0);
+            if (game.status == 'confirm' && (!game.reacted[interaction.user.id] || !game.reacted[member.id])) {
+                const embed = new Discord.MessageEmbed()
+                .setTitle('<:hide:855906056865316895> BlackJack')
+                .setColor('#a60000')
+                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${API.money3}\` ${API.money3emoji}.`)
+                .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!`)
+                interaction.editReply({ embeds: [embed], components: [] });
+                return
+            }
             if (['bust', 'blackjack', 'draw', 'lost'].includes(game.status)) return
             players[game.current].status = 'off'
             game.status = 'timeout'
             game.current = (game.current + 1) % players.length
             game.winner = game.current
             await blackjack()
+            sendWinner()
         })
     
     }

@@ -75,22 +75,25 @@ module.exports = {
 
         async function getMachineImage () {
 
-            const machineimage = await API.img.imagegens.get('machine.js')(API, {
-
-                profundidade,
-                energia,
-                energiamax,
-                machineproduct,
-                durabilityPercent,
-                pressurePercent,
-                pollutantsPercent,
-                refrigerationPercent,
-                maxslots,
-                equippedchips,
-
-            })
-
-            return machineimage;
+            try {
+                const machineimage = await API.img.imagegens.get('machine.js')(API, {
+    
+                    profundidade,
+                    energia,
+                    energiamax,
+                    machineproduct,
+                    durabilityPercent,
+                    pressurePercent,
+                    pollutantsPercent,
+                    refrigerationPercent,
+                    maxslots,
+                    equippedchips,
+    
+                })
+                return machineimage;
+            } catch (error) {
+                console.log(error)
+            }
 
         }
 
@@ -104,162 +107,167 @@ module.exports = {
 
         function makeComponents (disableall) {
 
-            const components = [];
-            const firstrow = []
-            const isMining = API.cacheLists.waiting.includes(member.id, 'mining')
+            try {
+                const components = [];
+                const firstrow = []
+                const isMining = API.cacheLists.waiting.includes(member.id, 'mining')
 
-            const energyBtnText = `[${energia}/${energiamax}]${energia < energiamax && !disableall && !rememberEnergy ? ' ' + API.ms2(time) : ''}`
-            const energyBtn = API.createButton('energyBtn', 'SUCCESS', energyBtnText, '🔋')
+                const energyBtnText = `[${energia}/${energiamax}]${energia < energiamax && !disableall && !rememberEnergy ? ' ' + API.ms2(time) : ''}`
+                const energyBtn = API.createButton('energyBtn', 'SUCCESS', energyBtnText, '🔋')
 
-            if (energia == energiamax || disableall || rememberEnergy) {
-                energyBtn.setDisabled(true)
-            }
-            
-            const getMaintenanceIcon = (type, percent) => {
-                const icons = []
-                if (type == 'durability') icons.push('🧰', '⚙', '🔩', '🔧')
-                if (type == 'pressure') icons.push('858463319904223252', '917061148715663420', '917061148715663420', '858463319904223252')
-                if (type == 'refrigeration') icons.push('917064899740438600', '917064899740438600', '917064899740438600', '917064899740438600')
-                if (type == 'pollutants') icons.push('917063856205991987', '917063856205991987', '917063856205991987', '917063856205991987')
-
-                if (percent <= 20) return icons[0]
-                if (percent <= 50) return icons[1]
-                if (percent <= 75) return icons[2]
-                if (percent <= 100) return icons[3]
-            }
-            
-            const maintenanceBtn = API.createButton('maintenance', 'SUCCESS', 'Manutenção', '🔨')
-            if (disableall || isMaintenance) {
-                maintenanceBtn.setDisabled(true)
-            }
-
-            const chipsBtn = API.createButton('chips', 'SUCCESS', 'Chipes', '833803786022682636')
-            if (disableall || isEquipping) {
-                chipsBtn.setDisabled(true)
-            }
-
-            const repairBtnText = `${durabilityPercent < 60 ? `Reparar por ${API.format(durabilityPrice)} 💰` : `Reparado`}`
-            const repairBtnIcon = getMaintenanceIcon('durability', durabilityPercent)
-            const repairBtn = API.createButton('repair', 'SECONDARY', repairBtnText, repairBtnIcon)
-            
-            if (durabilityPercent >= 60 || disableall) {
-                repairBtn.setDisabled(true)
-            }
-
-            const pressureBtnText = `${pressurePercent < 20 || pressurePercent > 80 ? `Corrigir pressão por ${API.format(pressurePrice)} 💰` : `Presurizado`}`
-            const pressureBtnIcon = getMaintenanceIcon('pressure', pressurePercent)
-            const pressureBtn = API.createButton('pressure', 'SECONDARY', pressureBtnText, pressureBtnIcon)
-            
-            if ((pressurePercent >= 20 && pressurePercent <= 80) || disableall) {
-                pressureBtn.setDisabled(true)
-            }
-
-            const refrigerationBtnText = `${refrigerationPercent < 15 ? `Refrigerar por ${API.format(refrigerationPrice)} 💰` : `Refrigerado`}`
-            const refrigerationBtnIcon = getMaintenanceIcon('refrigeration', refrigerationPercent)
-            const refrigerationBtn = API.createButton('refrigeration', 'SECONDARY', refrigerationBtnText, refrigerationBtnIcon)
-            
-            if (refrigerationPercent >= 40 || disableall) {
-                refrigerationBtn.setDisabled(true)
-            }
-
-            const pollutantsBtnText = `${pollutantsPercent > 90 ? `Liberar poluentes por ${API.format(pollutantsPrice)} 💰` : `Sem poluentes`}`
-            const pollutantsBtnIcon = getMaintenanceIcon('pollutants', pollutantsPercent)
-            const pollutantsBtn = API.createButton('pollutants', 'SECONDARY', pollutantsBtnText, pollutantsBtnIcon)
-            
-            if (pollutantsPercent <= 40 || disableall) {
-                pollutantsBtn.setDisabled(true)
-            }
-
-            let unequipallBtn
-            if (mvp) {
-                unequipallBtn = API.createButton('unequipall', 'SECONDARY', 'Desequipar todos', '🗑️')
-            } else {
-                unequipallBtn = API.createButton('unequipall', 'DANGER', '[MVP] Desequipar todos', '758717273304465478').setDisabled(true)
-            }
-
-            if (disableall) unequipallBtn.setDisabled(true)
-
-            if (isMining) {
-                const miningBtn = API.createButton((API.cacheLists.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
-                firstrow.push(miningBtn)
-            } else if (member.id == interaction.user.id) {
-                firstrow.push(energyBtn, maintenanceBtn, chipsBtn)
-                if (equippedchips.length > 0 && isEquipping) {
-                    firstrow.push(unequipallBtn)
+                if (energia == energiamax || disableall || rememberEnergy) {
+                    energyBtn.setDisabled(true)
                 }
-            }
-
-            if (firstrow.length == 0) return []
-
-            const row1 = API.rowComponents(firstrow)
-
-            components.push(row1)
-
-            if (isMining) return components
-
-            if (maxslots > 0 && isEquipping) {
-
-                const slotsrow = [];
-
-                const genSlotBtn = (slot, { disableall, mvp }) => {
-                    let slotBtnText = `[${slot+1}] `
-                    let slotBtnIcon
-                    let slotBtnColor = 'SECONDARY'
-                    let type = 0
-                    let isEquipBtn = false
-                    if (equippedchips[slot]) {
-                        const chipe = API.shopExtension.getProduct(equippedchips[slot].id);
-                        slotBtnText += `Desequipar`
-                        slotBtnIcon = chipe.icon
-                        slotBtnColor = 'PRIMARY'
-                        type = 1
-                    } else {
-                        isEquipBtn = true
-                        slotBtnText = 'Equipar'
-                        slotBtnIcon = '⬛'
-                        type = 2
-                    }
-                    if (!mvp && slot == 4) {
-                        slotBtnText = `[${slot+1}] ` + '[MVP]'
-                        slotBtnIcon = '758717273304465478'
-                        slotBtnColor = 'DANGER'
-                    }
-                    const slotBtn = API.createButton(`${type}-${slot}`, slotBtnColor, slotBtnText, slotBtnIcon)
-                    if (disableall) slotBtn.setDisabled(true)
-                    if (!mvp && slot == 4) slotBtn.setDisabled(true)
-                    return { slotBtn, isEquipBtn }
-                }
-
-                let hasEquipBtn = false
-
-                for (let i = 0; i < maxslots; i++) {
-                    const { slotBtn, isEquipBtn } = genSlotBtn(i, { disableall, mvp })
-                    if (!hasEquipBtn && isEquipBtn) {
-                        hasEquipBtn = true
-                        slotsrow.push(slotBtn)
-                    }
-                    if (!isEquipBtn) {
-                        slotsrow.push(slotBtn)
-                    }
-
-                }
-
-                const row2 = API.rowComponents(slotsrow)
-
-                components.push(row2)
-
-            }
-
-            if (isMaintenance) {
-                const maintenancerow = []
-                maintenancerow.push(repairBtn, refrigerationBtn, pressureBtn, pollutantsBtn)
                 
-                const row3 = API.rowComponents(maintenancerow)
+                const getMaintenanceIcon = (type, percent) => {
+                    const icons = []
+                    if (type == 'durability') icons.push('🧰', '⚙', '🔩', '🔧')
+                    if (type == 'pressure') icons.push('858463319904223252', '917061148715663420', '917061148715663420', '858463319904223252')
+                    if (type == 'refrigeration') icons.push('917064899740438600', '917064899740438600', '917064899740438600', '917064899740438600')
+                    if (type == 'pollutants') icons.push('917063856205991987', '917063856205991987', '917063856205991987', '917063856205991987')
 
-                components.push(row3)
+                    if (percent <= 20) return icons[0]
+                    if (percent <= 50) return icons[1]
+                    if (percent <= 75) return icons[2]
+                    if (percent <= 100) return icons[3]
+                }
+                
+                const maintenanceBtn = API.createButton('maintenance', 'SUCCESS', 'Manutenção', '🔨')
+                if (disableall || isMaintenance) {
+                    maintenanceBtn.setDisabled(true)
+                }
+
+                const chipsBtn = API.createButton('chips', 'SUCCESS', 'Chipes', '833803786022682636')
+                if (disableall || isEquipping) {
+                    chipsBtn.setDisabled(true)
+                }
+
+                const repairBtnText = `${durabilityPercent < 60 ? `Reparar por ${API.format(durabilityPrice)} 💰` : `Reparado`}`
+                const repairBtnIcon = getMaintenanceIcon('durability', durabilityPercent)
+                const repairBtn = API.createButton('durability', 'SECONDARY', repairBtnText, repairBtnIcon)
+                
+                if (durabilityPercent >= 60 || disableall) {
+                    repairBtn.setDisabled(true)
+                }
+
+                const pressureBtnText = `${pressurePercent < 20 || pressurePercent > 80 ? `Corrigir pressão por ${API.format(pressurePrice)} 💰` : `Presurizado`}`
+                const pressureBtnIcon = getMaintenanceIcon('pressure', pressurePercent)
+                const pressureBtn = API.createButton('pressure', 'SECONDARY', pressureBtnText, pressureBtnIcon)
+                
+                if ((pressurePercent >= 20 && pressurePercent <= 80) || disableall) {
+                    pressureBtn.setDisabled(true)
+                }
+
+                const refrigerationBtnText = `${refrigerationPercent < 15 ? `Refrigerar por ${API.format(refrigerationPrice)} 💰` : `Refrigerado`}`
+                const refrigerationBtnIcon = getMaintenanceIcon('refrigeration', refrigerationPercent)
+                const refrigerationBtn = API.createButton('refrigeration', 'SECONDARY', refrigerationBtnText, refrigerationBtnIcon)
+                
+                if (refrigerationPercent >= 40 || disableall) {
+                    refrigerationBtn.setDisabled(true)
+                }
+
+                const pollutantsBtnText = `${pollutantsPercent > 40 ? `Liberar poluentes por ${API.format(pollutantsPrice)} 💰` : `Sem poluentes`}`
+                const pollutantsBtnIcon = getMaintenanceIcon('pollutants', pollutantsPercent)
+                const pollutantsBtn = API.createButton('pollutants', 'SECONDARY', pollutantsBtnText, pollutantsBtnIcon)
+                
+                if (pollutantsPercent <= 40 || disableall) {
+                    pollutantsBtn.setDisabled(true)
+                }
+
+                let unequipallBtn
+                if (mvp) {
+                    unequipallBtn = API.createButton('unequipall', 'SECONDARY', 'Desequipar todos', '🗑️')
+                } else {
+                    unequipallBtn = API.createButton('unequipall', 'DANGER', '[MVP] Desequipar todos', '758717273304465478').setDisabled(true)
+                }
+
+                if (disableall) unequipallBtn.setDisabled(true)
+
+                if (isMining) {
+                    const miningBtn = API.createButton((API.cacheLists.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
+                    firstrow.push(miningBtn)
+                } else if (member.id == interaction.user.id) {
+                    firstrow.push(energyBtn, maintenanceBtn, chipsBtn)
+                    if (equippedchips.length > 0 && isEquipping) {
+                        firstrow.push(unequipallBtn)
+                    }
+                }
+
+                if (firstrow.length == 0) return []
+
+                const row1 = API.rowComponents(firstrow)
+
+                components.push(row1)
+
+                if (isMining) return components
+
+                if (maxslots > 0 && isEquipping) {
+
+                    const slotsrow = [];
+
+                    const genSlotBtn = (slot, { disableall, mvp }) => {
+                        let slotBtnText = `[${slot+1}] `
+                        let slotBtnIcon
+                        let slotBtnColor = 'SECONDARY'
+                        let type = 0
+                        let isEquipBtn = false
+                        if (equippedchips[slot]) {
+                            const chipe = API.shopExtension.getProduct(equippedchips[slot].id);
+                            slotBtnText += `Desequipar`
+                            slotBtnIcon = chipe.icon
+                            slotBtnColor = 'PRIMARY'
+                            type = 1
+                        } else {
+                            isEquipBtn = true
+                            slotBtnText = 'Equipar'
+                            slotBtnIcon = '⬛'
+                            type = 2
+                        }
+                        if (!mvp && slot == 4) {
+                            slotBtnText = `[${slot+1}] ` + '[MVP]'
+                            slotBtnIcon = '758717273304465478'
+                            slotBtnColor = 'DANGER'
+                        }
+                        const slotBtn = API.createButton(`${type}-${slot}`, slotBtnColor, slotBtnText, slotBtnIcon)
+                        if (disableall) slotBtn.setDisabled(true)
+                        if (!mvp && slot == 4) slotBtn.setDisabled(true)
+                        return { slotBtn, isEquipBtn }
+                    }
+
+                    let hasEquipBtn = false
+
+                    for (let i = 0; i < maxslots; i++) {
+                        const { slotBtn, isEquipBtn } = genSlotBtn(i, { disableall, mvp })
+                        if (!hasEquipBtn && isEquipBtn) {
+                            hasEquipBtn = true
+                            slotsrow.push(slotBtn)
+                        }
+                        if (!isEquipBtn) {
+                            slotsrow.push(slotBtn)
+                        }
+
+                    }
+
+                    const row2 = API.rowComponents(slotsrow)
+
+                    components.push(row2)
+
+                }
+
+                if (isMaintenance) {
+                    const maintenancerow = []
+                    maintenancerow.push(repairBtn, refrigerationBtn, pressureBtn, pollutantsBtn)
+                    
+                    const row3 = API.rowComponents(maintenancerow)
+
+                    components.push(row3)
+                }
+
+                return components
+            } catch (error) {
+                console.log(error)
             }
 
-            return components
         }
 
         const embed = new API.Discord.MessageEmbed()
@@ -303,7 +311,7 @@ module.exports = {
             
             if (b.customId == 'energyBtn') await pressEnergyBtn()
 
-            if (['repair', 'pressure', 'refrigeration', 'pollutants'].includes(b.customId)) {
+            if (['durability', 'pressure', 'refrigeration', 'pollutants'].includes(b.customId)) {
                 await pressRepairBtn(b.customId)
                 await reworkImage()
             }
@@ -373,7 +381,7 @@ module.exports = {
                 const { energia, energiamax, time } = await API.maqExtension.getEnergy(member.id)
 
                 if (energia >= energiamax) {
-                    await interaction.channel.send({ content: `Relatório de energia: ${energia}/${energiamax}`, mention: true})
+                    await interaction.channel.send({ content: `${interaction.user} Relatório de energia: ${energia}/${energiamax}`, mention: true})
                     if (API.cacheLists.remember.includes(member.id, "energia")) {
                         API.cacheLists.remember.remove(member.id, "energia")
                     }
@@ -509,7 +517,7 @@ module.exports = {
                 
                 let contains = chips.length >= chipe;
                 
-                let placa = chips[chipe]
+                const placa = chips[chipe]
                 
                 if (!contains) {
                     const embedtemp = await API.sendError(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`);

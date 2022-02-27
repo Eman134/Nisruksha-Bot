@@ -125,7 +125,6 @@ module.exports = {
                 (parseFloat(pobj.rod.profundidade)/2).toFixed(1), 
                 (parseFloat(pobj.rod.profundidade)).toFixed(1)
             ] 
-
             
             let stars = 0
 
@@ -169,7 +168,6 @@ module.exports = {
             for (let xi = 5; xi > 0; xi--) {
                 
                 if (header) {
-
                     
                     if (levels[xi.toString()].waterarray[0] != '🟦' && xi == levels[0]) {
 
@@ -209,9 +207,7 @@ module.exports = {
 
                         }
 
-
                     }
-                    
                     
                     levels[xi.toString()].waterarray.shift()
                     
@@ -363,8 +359,8 @@ module.exports = {
                     if (reacted) {
                         API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                        const embedtemp = await API.sendError(interaction, `Você parou a pesca!`)
-                        await interaction.followUp({ embeds: [embedtemp], components: [] })
+                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+
                     } else {
                         edit(interaction, company);
                     }

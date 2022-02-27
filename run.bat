@@ -1,6 +1,6 @@
 @echo off
 echo Iniciando BOT...
 :main
-node index.js
+node bot.js
 echo Reiniciando BOT..
 goto main

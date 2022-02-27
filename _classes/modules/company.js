@@ -4,13 +4,12 @@ const API = require("../api.js");
 const Database = require('../manager/DatabaseManager');
 const DatabaseManager = new Database();
 
-const debugmode = true
+const debugmode = false
 
 const stars = {};
 {
     stars.add = async function(user_id, company_id, options) {
         
-        let owner = await get.ownerById(company_id)
         let memberobj = await DatabaseManager.get(user_id, 'players')
         let company = await get.companyById(company_id)
         
@@ -29,7 +28,6 @@ const stars = {};
             obj.score = parseFloat(obj.score).toFixed(2)
             
         }
-        
         
         if (options.rend) {
             obj.rend = parseInt(obj.rend) + Math.round(parseInt(options.rend))
@@ -165,9 +163,9 @@ get.ownerById = async function(company_id) {
         throw err
     }
 
-    if (res == undefined) return null
+    if (!res) return null
 
-    let result = await API.client.users.fetch(res.user_id, {cache: false})
+    let result = await API.client.users.fetch(res.user_id)
 
     return result;
 }
@@ -554,7 +552,7 @@ const jobs = {
         } catch (err) {
             console.log('Error parsing JSON string:', err);
             jobs.fish.rods.obj = '`Error on load rods list`';
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
     }
 
@@ -592,7 +590,7 @@ const jobs = {
         } catch (err) {
             console.log('Error parsing JSON string:', err);
             jobs.fish.list.obj = '`Error on load fish list`';
-            client.emit('error', err)
+            API.client.emit('error', err)
         }
     }
 
@@ -606,7 +604,7 @@ const jobs = {
 
         const list = await jobs.process.get()
 
-        for (xilist = 0; xilist < list.length; xilist++) {
+        for (let xilist = 0; xilist < list.length; xilist++) {
 
             jobs.process.loopProcess(list[xilist])
 
@@ -672,7 +670,7 @@ const jobs = {
 
                     let maq = API.shopExtension.getProduct(obj.machine);
 
-                    for (inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
+                    for (let inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
 
                         const tool = processjson.tools[inprocs[inprocsi].tool]
 
@@ -1000,12 +998,15 @@ company.create = async function(member, ob) {
         try {
             let res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1;`, [code]);
             const embed = new API.Discord.MessageEmbed();
-            if (res.rows[0] == undefined) {
+
+            if (!res.rows[0]) {
                 try {
+
                     townnum = await API.townExtension.getTownNum(member.id);
                     townname = await API.townExtension.getTownName(member.id);
+
                     embed.setTitle(`Nova empresa!`) 
-                    .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.tipo.charAt(0).toUpperCase() + ob.tipo.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
+                    .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                     await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
@@ -1016,7 +1017,7 @@ company.create = async function(member, ob) {
 
                     return code;
                 }catch (err){
-                    client.emit('error', err)
+                    API.client.emit('error', err)
                     console.log(err)
                 }
             } else {
@@ -1025,13 +1026,13 @@ company.create = async function(member, ob) {
                     embed.setColor('#eb4828')
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                 }catch (err){
-                    client.emit('error', err)
+                    API.client.emit('error', err)
                     console.log(err)
                 }
                 await gen();
             }
         } catch (err) {
-            client.emit('error', err)
+            API.client.emit('error', err)
             throw err
         }
 

@@ -73,8 +73,9 @@ module.exports = {
 
         const array = obj6.slots == null ? [] : obj6.slots
         for (const i of array){
-            if (API.shopExtension.getProduct(i.id).typeeffect == 4) {
-            timeupdate -= Math.round(API.shopExtension.getProduct(i.id).size*1000)
+            const chipproduct = API.shopExtension.getProduct(i.id);
+            if (chipproduct.typeeffect == 4) {
+            timeupdate -= Math.round(chipproduct.sizeeffect*1000)
             };
         }
 
@@ -92,6 +93,12 @@ module.exports = {
 
         let haschipe7 = false
         let hastotalchipe7 = 0
+
+        function checkChipe7() {
+            if (haschipe7) {
+                API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
+            }
+        }
 
         async function edit() {
 
@@ -147,8 +154,9 @@ module.exports = {
                             } else {
                                 let fvalue = value
                                 for (const i of array){
-                                    if (API.shopExtension.getProduct(i.id).typeeffect == 3) {
-                                        fvalue -= Math.round(API.shopExtension.getProduct(i.id).size*fvalue/100)
+                                    const chipproduct = API.shopExtension.getProduct(i.id);
+                                    if (chipproduct.typeeffect == 3) {
+                                        fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
                                 }
                                 await DatabaseManager.increment(member.id, 'machines', name, -fvalue)
@@ -276,10 +284,10 @@ module.exports = {
                     let qnt = sizeMap.get(ore.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
-                    embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
+                    embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring && chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
                     if (chipe7) {
                         const minerioatual = itensObj.minerios.find((i) => i.name == ore.name)
-                        const totalchipe7 = Math.round(qnt*(minerioatual.price.min))
+                        const totalchipe7 = Math.round(qnt*(minerioatual.price.max))
                         hastotalchipe7 += totalchipe7
                         haschipe7 = true
                         API.eco.money.add(member.id, totalchipe7)
@@ -296,14 +304,7 @@ module.exports = {
                     }
                 }catch (err){
 					API.cacheLists.waiting.remove(member.id, 'mining')
-                    console.log(err)
                     return
-                }
-
-                function checkChipe7() {
-                    if (haschipe7) {
-                        API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
-                    }
                 }
 
                 async function checkStop() {

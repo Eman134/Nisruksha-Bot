@@ -51,7 +51,7 @@ ores.gen = async function(maq, profundidade, chips) {
             if (oreobj[i].name.includes('fragmento')) {
               if (genchips.chipe5) {
                 oreobj[i].size = API.random(2, 4);
-                array.push({ oreobj: oreobj[i], orechips: { chipe5 } })
+                array.push({ oreobj: oreobj[i], orechips: { chipe5: genchips["chipe5"] } })
               }
             } else {
               let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
@@ -247,8 +247,9 @@ maqExtension.getEnergy = async function(user_id) {
 
   const array = obj.slots == null ? [] : obj.slots
   for (const i of array){
-    if (API.shopExtension.getProduct(i.id).typeeffect == 1) {
-      r += API.shopExtension.getProduct(i.id).size
+    const chipproduct = API.shopExtension.getProduct(i.id)
+    if (chipproduct.typeeffect == 1) {
+      r += chipproduct.sizeeffect
     };
   }
 
@@ -319,7 +320,8 @@ maqExtension.getDepth = async function(user_id) {
   let r = 0;
   const array = await API.itemExtension.getEquippedChips(user_id);
   for (const i of array){
-    if (API.shopExtension.getProduct(i.id).typeeffect == 2) r = r+API.shopExtension.getProduct(i.id).size;
+    const chipproduct = API.shopExtension.getProduct(i.id)
+    if (chipproduct.typeeffect == 2) r += chipproduct.sizeeffect;
   }
   return maq.profundidade+r
 }

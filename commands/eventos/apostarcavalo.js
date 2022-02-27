@@ -2,6 +2,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('aposta').setDescription('Selecione uma quantia de dinheiro para aposta').setRequired(true))
 
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
+
 module.exports = {
     name: 'apostarcavalo',
     aliases: [],

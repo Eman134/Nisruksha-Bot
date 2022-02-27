@@ -3,8 +3,24 @@ module.exports = {
     name: "messageCreate",
     execute: async (API, interaction) => {
 
-        const votosBest = require('../_classes/packages/votosBest.js');
-        votosBest.votos(interaction)
+        const votos = require('../_classes/packages/votos.js');
+        votos.check(interaction)
+
+        const prefix = "n."
+
+        if (interaction.content.startsWith(prefix)) {
+
+            const args = interaction.content.slice(prefix.length).split(/ +/);
+    
+            const command = args.shift().toLowerCase();
+
+            let commandfile = API.client.commands.get(command)
+            if (commandfile) {
+                interaction.commandName = 'MIGRAÇÃO'
+                API.client.emit('fail', { interaction, type: 'Atualização', sendMe: true, desc: 'Os comandos do NISRUKSHA foram migrados para **SLASH (/)**\nMencione o bot para entrar no servidor oficial e tirar suas dúvidas!' })
+                return true;
+            }
+        }
 
         const mentionRegex = new RegExp(`^<@!?${API.client.user.id}>$`);
         

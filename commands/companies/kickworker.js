@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Mencione o membro que deseja demitir').setRequired(true))
 .addStringOption(option => option.setName('motivo').setDescription('Explique o motivo da demoção').setRequired(true))
+const Database = require('../../_classes/manager/DatabaseManager');
+const DatabaseManager = new Database();
 
 module.exports = {
     name: 'demitir',

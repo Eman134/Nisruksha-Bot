@@ -13,7 +13,7 @@ module.exports = {
 
         const command = interaction.commandName;
 
-        interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
+        if (interaction != null) interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
 
         let commandfile = client.commands.get(command);
 
@@ -22,8 +22,13 @@ module.exports = {
                 const boolean = await checkAll(API, interaction, { req: commandfile.perm ? commandfile.perm : 1, mastery: commandfile.mastery ? commandfile.mastery : 0, companytype: commandfile.companytype });
                 if (boolean === true) return
                 if (boolean && !commandfile.companytype) return;
-                if (!commandfile.companytype) await commandfile.execute(API, interaction);
-                else await commandfile.execute(API, interaction, boolean);
+
+                try {
+                    if (!commandfile.companytype) await commandfile.execute(API, interaction);
+                    else await commandfile.execute(API, interaction, boolean);
+                } catch {
+                    
+                }
             } catch (error) {
                 console.error(error);
                 API.client.emit('error', error)
@@ -145,7 +150,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
         .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         interaction.channel.send({ embeds: [embed], mention: true})
         DatabaseManager.set(interaction.user.id, 'players', 'mvp', null)
-        if (pobj.perm == 3) API.setPerm(interaction.user.id, 1)
+        if (pobj.perm == 3) DatabaseManager.set(interaction.user.id, 'players', 'perm', 1)
     }
     
     const check = await API.playerUtils.cooldown.check(interaction.user.id, "global");
@@ -177,7 +182,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
 		const voteembed = new API.Discord.MessageEmbed()
         voteembed.setDescription('Olá, vi que é a primeira vez sua no bot, não é mesmo? Acesse o tutorial usando `/tutorial`\nPara apoiar o amigo/pessoa que lhe convidou utilize `/apoiar <codigo do amigo>`\nCaso não tenha o código, peça para o mesmo.\nVocê também pode convidar amigos e ganhar recompensas! Utilize `/meucodigo`')
         voteembed.setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
-        await interaction.followUp({ embeds: [voteembed], mention: true})
+        if (interaction.replied) await interaction.followUp({ embeds: [voteembed], mention: true})
 		return false;
 		
 		
@@ -196,7 +201,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
             .setDescription(words[API.random(0, words.length-1)])
             .setFooter('Entre em nosso servidor oficial para ficar ciente das regras e evitar ser banido!')
 
-            await interaction.followUp({ embeds: [alertembed], mention: true})
+            if (interaction.replied) await interaction.followUp({ embeds: [alertembed], mention: true})
         }
     }
 	
