@@ -76,12 +76,12 @@ tp.check = async function (code) {
 
 tp.add = async function (user_id, po) {
 
-  const invitejson1 = await tp.getn(user_id)
+  const invitejson1 = await tp.get(user_id)
 
   invitejson1.points += po
 
   DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
-
+  
 }
 
 tp.remove = async function (user_id, po) {
