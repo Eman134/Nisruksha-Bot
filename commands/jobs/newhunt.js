@@ -414,7 +414,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     reactequiplist.splice(index2, 1);
                 }
 
-                await interaction.editReply({ components: [] })
+                await interaction.editReply({ content: 'Carregando caça...', components: [] })
                 
                 if (pobj.mvp && b.customId == 'autofight') {
                     autohunt = true
@@ -440,7 +440,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
                 
                 try {
-                    await interaction.editReply({ embeds: await getEmbeds(), components, files: [firstbuild.attach] });
+                    await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
                 } catch (error) {
                     console.log(error)
                 }

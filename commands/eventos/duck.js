@@ -424,7 +424,7 @@ ${currinteraction ? currinteraction : ''}
                     reactequiplist.splice(index, 1);
                 }
 
-                await interaction.editReply({ components: [] })
+                await interaction.editReply({ content: 'Carregando caça...', components: [] })
 
                 try {
                     API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
@@ -435,7 +435,7 @@ ${currinteraction ? currinteraction : ''}
                     
                     const firstbuild = await build()
                     
-                    await interaction.editReply({ embeds: await getEmbeds(), components, files: [firstbuild.attach] });
+                    await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
 
                 } catch (error) {
                     console.log(error)
