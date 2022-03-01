@@ -50,7 +50,6 @@ module.exports = async function execute(API, {
             const equip = await API.img.Canvas.loadImage(equips[iequip].img);
             const tempx = equips[iequip].x
             const tempy = equips[iequip].y
-            console.log(tempx, tempy)
             ctx.drawImage(equip, tempx, tempy, 13, 13);
         }
     }
