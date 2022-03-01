@@ -419,6 +419,13 @@ ${currinteraction ? currinteraction : ''}
             
             if ((b.customId == 'fight') && !inbattle) {
 
+                const index = reactequiplist.indexOf('fight');
+                if (index > -1) {
+                    reactequiplist.splice(index, 1);
+                }
+
+                await interaction.editReply({ components: [] })
+
                 try {
                     API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
 

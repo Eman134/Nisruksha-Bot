@@ -403,7 +403,18 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
             }
             
             if ((b.customId == 'fight' || b.customId == 'autofight') && !inbattle) {
-                
+
+                const index = reactequiplist.indexOf('fight');
+                if (index > -1) {
+                    reactequiplist.splice(index, 1);
+                }
+
+                const index2 = reactequiplist.indexOf('autofight');
+                if (index2 > -1) {
+                    reactequiplist.splice(index2, 1);
+                }
+
+                await interaction.editReply({ components: [] })
                 
                 if (pobj.mvp && b.customId == 'autofight') {
                     autohunt = true
