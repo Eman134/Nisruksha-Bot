@@ -295,7 +295,7 @@ module.exports = {
                 embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
-                    await interaction.editReply({ embeds: [embed], components: reworkBtns() })
+                    await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                 }catch{
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
@@ -345,7 +345,7 @@ module.exports = {
                         await embed.addField(`➰ Coletados`, ccmap)
                         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
-                            await interaction.editReply({ embeds: [embed], components: reworkBtns() }).catch()
+                            await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                         }catch{
                             API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                             API.cacheLists.waiting.remove(interaction.user.id, 'working');
@@ -355,11 +355,11 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
-                    await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                    await embedinteraction.edit({ embeds: [embed], components: [] })
                     if (reacted) {
                         API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                        await embedinteraction.edit({ embeds: [embed], components: [] })
 
                     } else {
                         edit(interaction, company);
