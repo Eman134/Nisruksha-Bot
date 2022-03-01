@@ -206,7 +206,7 @@ async function editRace(embedinteraction) {
     
     if (events.race.time-(Date.now()-events.race.started) > 0) {
         
-        embedinteraction.editReply({ embeds: [events.getRaceEmbed()] })
+        embedinteraction.edit({ embeds: [events.getRaceEmbed()] })
         setTimeout(function(){editRace(embedinteraction)}, 10000)
 
     } else {
@@ -243,7 +243,7 @@ async function editRace(embedinteraction) {
             await API.eco.addToHistory(user.id, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
         }
         
-        embedinteraction.editReply({ embeds: [events.getRaceEmbed()] })
+        embedinteraction.edit({ embeds: [events.getRaceEmbed()] })
 
         events.race.apostas = {
             laranja: [],

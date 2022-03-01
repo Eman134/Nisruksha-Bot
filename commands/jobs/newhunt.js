@@ -500,6 +500,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
 
                 let buildlost = await build(lost)
+
+                if (!buildlost) return
                 
                 let currinteraction = ""
                 {
