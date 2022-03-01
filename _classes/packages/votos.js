@@ -16,7 +16,7 @@ module.exports.check = async (interaction) => {
 
                     const embed = new API.Discord.MessageEmbed()
                         .setColor('RANDOM')
-                        .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`${API.prefix}votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
+                        .setDescription(`\`${user.tag}\` votou no **Top.gg** e ganhou ${size} ${API.money2} ${API.money2emoji} como recompensa!\nVote você também usando \`/votar\` ou [clicando aqui](https://top.gg/bot/763815343507505183)`)
                         .setAuthor(user.tag + ' | ' + user.id, user.displayAvatarURL(), 'https://top.gg/bot/763815343507505183')
 
                     API.client.channels.cache.get(dbl.voteLogs_channel).send({ embeds: [embed]});
