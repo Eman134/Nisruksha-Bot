@@ -266,7 +266,7 @@ async function editRace(embedinteraction) {
 
 }
 
-async function loadIntervals() {
+events.load = async function() {
 
     let intervalEvents = (API.random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
@@ -332,9 +332,5 @@ async function loadIntervals() {
     }, 60000*config.modules.discount);
 
 }
-
-setTimeout(async () => {
-    await loadIntervals()
-}, 5000)
 
 module.exports = events

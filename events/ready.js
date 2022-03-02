@@ -38,6 +38,7 @@ module.exports = {
         API.cacheLists.remember.load()
         API.company.jobs.process.load()
         API.shopExtension.load()
+        API.events.load()
         
     }
 
