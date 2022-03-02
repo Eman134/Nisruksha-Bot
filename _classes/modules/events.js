@@ -202,7 +202,7 @@ events.forceRace = async function() {
 
 async function editRace(embedinteraction) {
 
-    if (!embedinteraction) return
+    if (!embedinteraction) return console.log('Not found interaction of race after restart')
     
     if (events.race.time-(Date.now()-events.race.started) > 0) {
         
