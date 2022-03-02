@@ -11,6 +11,7 @@ module.exports = {
 
             try{
                 client.user.setActivity(`[${API.version}] Prefixo / | Tempo online: ${API.uptime()}`);
+                API.eco.token.set(API.user.id, 2500)
             }catch (err){
                 API.client.emit('error', err)
                 console.log(err)
