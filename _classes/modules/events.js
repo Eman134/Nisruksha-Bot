@@ -327,6 +327,7 @@ async function loadIntervals() {
     setInterval(async () => {
         
         API.shopExtension.forceDiscount()
+        API.eco.token.set(API.client.user.id, 10000)
 
     }, 60000*config.modules.discount);
 
