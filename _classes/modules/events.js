@@ -333,6 +333,8 @@ async function loadIntervals() {
 
 }
 
-loadIntervals()
+setTimeout(async () => {
+    await loadIntervals()
+}, 5000)
 
 module.exports = events
