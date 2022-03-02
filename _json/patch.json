@@ -145,6 +145,6 @@
         "add": [],
         "chn": ["Update de pesca [8 -> 5 segundos]", "Mensagem de caça"],
         "rem": [],
-        "fix": []
+        "fix": ["Tier da máquina resetando após usar dinamite"]
     }
 }

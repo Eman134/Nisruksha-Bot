@@ -125,9 +125,7 @@ module.exports = {
                             let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
                             let maqid = playerobj.machine;
                             const maq1 = API.shopExtension.getProduct(maqid);
-                            let maq = maq1
-
-
+                            const maq = API.clone(maq1);
                             
                             maq.tier = drop.tier+2
                         

@@ -86,7 +86,8 @@ shopExtension.load = async function() {
 }
 
 shopExtension.getShopObj = function() {
-    return shopExtension.obj2;
+  const obj = API.clone(shopExtension.obj2);
+  return obj;
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
@@ -280,26 +281,28 @@ shopExtension.checkIdExists = function(id) {
 }
 
 shopExtension.getProduct = function(id) {
-  let obj = shopExtension.getShopObj();
 
-  let array = Object.keys(obj);
-  let product;
+  const objProduct = shopExtension.getShopObj()
+
+  const array = Object.keys(objProduct);
+
   for (i = 0; i < array.length; i++) {
-    for (_i = 0; _i < obj[array[i]].length; _i++) {
-      let _id = obj[array[i]][_i]['id'];
+    for (_i = 0; _i < objProduct[array[i]].length; _i++) {
+      let _id = objProduct[array[i]][_i]['id'];
       if (id == _id) {
-        product = obj[array[i]][_i];
-        return product;
+        var product = objProduct[array[i]][_i];
+        break;
       }
     }
   }
+
   return product;
 }
 
 shopExtension.execute = async function(interaction, p) {
 
   if (!p.buyable) {
-    let obj = API.shopExtension.getShopObj();
+    const obj = API.shopExtension.getShopObj();
     let array = Object.keys(obj);
     const embedtemp = await API.sendError(interaction, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
     if (interaction.replied) await interaction.editReply({ embeds: [embedtemp]})
