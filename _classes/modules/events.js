@@ -327,7 +327,7 @@ events.load = async function() {
     setInterval(async () => {
         
         API.shopExtension.forceDiscount()
-        API.eco.token.set(API.client.user.id, 10000)
+        API.eco.token.set(API.client.user.id, 5000)
 
     }, 60000*config.modules.discount);
 
