@@ -448,10 +448,13 @@ module.exports = {
 
                 if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
+                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
                 } else if (game.confirm[interaction.user.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
+                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
                 } else if (game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
+                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
                 } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
                     game.status = 'playing'
                     start()
