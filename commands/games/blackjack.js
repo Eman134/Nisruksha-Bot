@@ -445,16 +445,18 @@ module.exports = {
                     embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
                     return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
                 }
-
                 if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
-                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
+                    game.status = 'nostart'
+                    return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[interaction.user.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
-                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
+                    game.status = 'nostart'
+                    return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
-                    return interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])] })
+                    game.status = 'nostart'
+                    return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
                     game.status = 'playing'
                     start()
@@ -521,7 +523,7 @@ module.exports = {
                 interaction.editReply({ embeds: [embed], components: [] });
                 return
             }
-            if (['bust', 'blackjack', 'draw', 'lost'].includes(game.status)) return
+            if (['bust', 'blackjack', 'draw', 'lost', 'nostart'].includes(game.status)) return
             players[game.current].status = 'off'
             game.status = 'timeout'
             game.current = (game.current + 1) % players.length
