@@ -18,12 +18,11 @@ Servidor oficial: https://bit.ly/svnisru
 
 Para adicionar o Nisruksha ao seu servidor [**CLIQUE AQUI**](https://discord.com/oauth2/authorize?client_id=763815343507505183&scope=bot&permissions=388160)
 
-**🌆 • Algumas imagens**
+**📑 • Privacy Policy**
 
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236163108438016/unknown.png)
-
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236206657372160/unknown.png)
-
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236361331245076/image.png)
-
-![](https://i.imgur.com/DpxS6z1.png)
+• Ao utilizar a nossa aplicação e seus serviços, você concorda com nossos [Termos de Serviço (TOS)](https://github.com/Eman134/Nisruksha-Bot/blob/master/TOS.md) e com as [Políticas de Privacidade](https://github.com/Eman134/Nisruksha-Bot/blob/master/PRIVACY.md)
+• Os termos de serviço podem ser modificados sem aviso prévio, portanto você deve ler e estar atualizado do mesmo.
+• O Nisruksha é uma aplicação pública e você não deve pagar para uso da mesma.
+• Nós armazenamos somente os ID'S dos membros, caso queira a remoção dos dados, contate a equipe superior.
+• É proibido qualquer abuso da licença e dos termos.
+• O repositório público é somente para fins de estudo, proibido qualquer revenda ou uso próprio dos códigos.
