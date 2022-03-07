@@ -327,7 +327,18 @@ events.load = async function() {
     setInterval(async () => {
         
         API.shopExtension.forceDiscount()
-        API.eco.token.set(API.client.user.id, 5000)
+
+        try {
+            const botmoney = await API.eco.money.get(API.client.user.id)
+            if (botmoney > 1000000) {
+                API.eco.money.remove(API.client.user.id, 1000000)
+                API.eco.token.add(API.client.user.id, 500)
+            }
+        } catch (error) {
+            console.log(error)
+            API.client.emit('error', error)
+        }
+
 
     }, 60000*config.modules.discount);
 
