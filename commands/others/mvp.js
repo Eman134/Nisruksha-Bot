@@ -29,6 +29,7 @@ module.exports = {
 \`10.\` Molduras para perfil na ativação
 \`11.\` Taxa de depósito reduzida [5% -> 2%]
 \`12.\` Desconto global de 5% na loja
+\`13.\` Taxa de venda de minérios reduzida [3% -> 1%]
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 

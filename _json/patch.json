@@ -142,7 +142,7 @@
         "fix": ["Itens usáveis não estavam sendo recompensados no tesouro", "Bug de multiplicar roletas pelas mesmas fichas", "Bug de alguns componentes do perfil desaparecerem quando usavam molduras redondas"]
     },
     "2.2.0": {
-        "add": [],
+        "add": ["Taxa de venda de minérios"],
         "chn": ["Update de pesca [8 -> 5 segundos]", "Mensagem de caça"],
         "rem": [],
         "fix": ["Tier da máquina resetando após usar dinamite"]

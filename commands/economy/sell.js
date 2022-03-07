@@ -147,14 +147,21 @@ module.exports = {
                 total += parseInt(quantia)*caseprice;
                 break;
         }
-        total = Math.round(total);
+
+        const playerobj = await DatabaseManager.get(interaction.user.id, 'players')
+
+        const taxa = playerobj.mvp != null ? 0.01 : 0.03
+
+        const totaltaxa = Math.round(total*taxa);
+
+        total = Math.round(total - totaltaxa);
 
         const embed = new API.Discord.MessageEmbed();
         embed.setColor('#606060');
         embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}?`)
+        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**?`)
 
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
@@ -176,7 +183,7 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}.`)
+                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**.`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -231,11 +238,14 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
-            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}.`)
+            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**.`)
             if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
             interaction.editReply({ embeds: [embed], components: [] });
             API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
             API.eco.money.add(interaction.user.id, total)
+            if (totaltaxa > 0) {
+                API.eco.money.add(API.client.user.id, totaltaxa)
+            }
         });
         
         collector.on('end', collected => {
@@ -244,7 +254,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji}, porém o tempo expirou!`)
+            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**, porém o tempo expirou!`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });
