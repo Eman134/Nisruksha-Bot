@@ -107,9 +107,20 @@ module.exports = {
                             break;
                         case 5:
 
-                            const rewardname = reward.name.includes('x') ? reward.name.split('x ')[1] : reward.name
+                            const rewardname = reward.name.includes('x ') ? reward.name.split('x ')[1] : reward.name
 
-                            const drop = API.itemExtension.get(rewardname)
+                            if (!rewardname) {
+                                console.log('TYPE 5 OPENBOX')
+                                console.log(reward)
+                                console.log(rewardname)
+                            }
+                            
+                            if (!reward) {
+                                console.log('TYPE 5 REWARD')
+                                console.log(reward)
+                            }
+
+                            const drop = API.itemExtension.get((rewardname || reward.name))
 
                             drop.size = (reward.size || 1)
 
@@ -130,8 +141,7 @@ module.exports = {
                     
                 } catch (err) {
                     console.log(`Um erro na caixa ${id} foi encontrado!\nReward:`)
-                    console.log(arraywin)
-                    console.log(`\n${err}`)
+                    console.log(err)
                     API.client.emit('error', err)
                     interaction.channel.send({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
                 }

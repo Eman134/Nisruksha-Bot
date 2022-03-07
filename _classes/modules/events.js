@@ -281,9 +281,10 @@ events.load = async function() {
             let ch = await API.client.channels.fetch(config.modules.events.channel);
             try{
                 interaction = await ch.messages.fetch(events.race.interactionid)
-            }catch (err) {
-                API.client.emit('error', err)
+            }catch {
             }
+
+            if (!interaction) return
 
 
             editRace(interaction)
