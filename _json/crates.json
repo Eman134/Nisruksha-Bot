@@ -116,13 +116,6 @@
 				"size": 5
 			},
 			{
-				"name": "3x Dinamite Pequena",
-				"chance": 14,
-				"icon": "🧨",
-				"type": 5,
-				"size": 3
-			},
-			{
 				"name": "5x Café",
 				"chance": 13,
 				"icon": "☕",
@@ -130,11 +123,25 @@
 				"size": 5
 			},
 			{
+				"name": "3x Dinamite Pequena",
+				"chance": 10,
+				"icon": "🧨",
+				"type": 5,
+				"size": 3
+			},
+			{
 				"name": "5x Frasco de EXP Pequeno",
 				"chance": 5,
 				"icon": "<:frasco:846496717251018752>",
 				"type": 5,
 				"size": 5
+			},
+			{
+				"name": "3x Dinamite Média",
+				"chance": 4,
+				"icon": "🧨",
+				"type": 5,
+				"size": 3
 			},
 			{
 				"name": "6x Cristais",
