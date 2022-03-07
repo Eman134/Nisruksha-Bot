@@ -11,6 +11,28 @@
         "price": 15000
     },
     {
+        "name": "\"dinamite2\"",
+        "displayname": "Dinamite Média",
+        "icon": "🧨",
+        "desc": "Faz uma explosão na base de mineração e realiza a coleta dos minérios",
+        "usavel": true,
+        "rarity": "epic",
+        "type": 1,
+        "tier": 2,
+        "price": 25000
+    },
+    {
+        "name": "\"dinamite3\"",
+        "displayname": "Dinamite Grande",
+        "icon": "🧨",
+        "desc": "Faz uma explosão na base de mineração e realiza a coleta dos minérios",
+        "usavel": true,
+        "rarity": "epic",
+        "type": 1,
+        "tier": 3,
+        "price": 75000
+    },
+    {
         "name": "\"cafe\"",
         "displayname": "Café",
         "icon": "☕",
