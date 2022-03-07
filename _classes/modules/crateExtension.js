@@ -101,6 +101,7 @@ crateExtension.getReward = function(id, size) {
 
             const randomdrop = array2[API.random(0, array2.length-1)]
             randomdrop.type = 5
+            if (randomdrop.size == 0) randomdrop.size = 1
             
             arr.push(randomdrop);
             

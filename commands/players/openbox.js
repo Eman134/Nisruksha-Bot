@@ -111,7 +111,7 @@ module.exports = {
 
                             const drop = API.itemExtension.get(rewardname)
 
-                            drop.size = reward.size
+                            drop.size = (reward.size || 1)
 
                             let retorno = await API.itemExtension.give(interaction, [drop])
 
