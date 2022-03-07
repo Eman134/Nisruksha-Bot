@@ -56,16 +56,10 @@ module.exports = {
         .addField(`📑 Requisitos de fechamento`, `Valor final: **${API.format(total)} ${API.money} ${API.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}`)
         .setColor('#00e061')
 
-        console.log('debug3')
-		
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        console.log('debug4')
-
         let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
-
-        console.log('debug5')
 
         const filter = i => i.user.id === interaction.user.id;
         

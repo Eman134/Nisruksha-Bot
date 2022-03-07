@@ -130,10 +130,10 @@ module.exports = {
                     
                 } catch (err) {
                     console.log(`Um erro na caixa ${id} foi encontrado!\nReward:`)
-                    console.log(arraywin[5])
+                    console.log(arraywin)
                     console.log(`\n${err}`)
                     API.client.emit('error', err)
-                    interaction.reply({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
+                    interaction.channel.send({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
                 }
 
                 if (descartou && currnum >= rewards.length) {

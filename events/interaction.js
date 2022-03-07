@@ -136,7 +136,7 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
 
     //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
 
-    if (result.includes('❌') && perm < 4) {
+    if (result.includes('❌') && pobj.perm < 4) {
         API.client.emit('fail', { interaction, type: 'sem permissão', sendMe: true, desc: 'O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru' })
         return true;
     }
