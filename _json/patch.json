@@ -145,6 +145,6 @@
         "add": ["Taxa de venda de minérios"],
         "chn": ["Update de pesca [8 -> 5 segundos]", "Mensagem de caça"],
         "rem": [],
-        "fix": ["Tier da máquina resetando após usar dinamite"]
+        "fix": ["Certos itens não eram recompensados nos tesouros", "Tier da máquina resetando após usar dinamite"]
     }
 }
