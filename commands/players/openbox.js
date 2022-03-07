@@ -122,6 +122,12 @@ module.exports = {
 
                             const drop = API.itemExtension.get((rewardname || reward.name))
 
+                            if (!drop) {
+                                console.log('TYPE 5 DROP')
+                                console.log(drop)
+                                console.log((rewardname || reward.name))
+                            }
+
                             drop.size = (reward.size || 1)
 
                             let retorno = await API.itemExtension.give(interaction, [drop])
