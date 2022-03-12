@@ -244,7 +244,7 @@ module.exports = {
             API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
             API.eco.money.add(interaction.user.id, total)
             if (totaltaxa > 0) {
-                API.eco.money.add(API.client.user.id, totaltaxa)
+                API.eco.money.globaladd(totaltaxa)
             }
         });
         
