@@ -337,6 +337,7 @@ module.exports = {
                 isEquipping = true
                 isMaintenance = false
             }
+            
             if (b.customId == 'maintenance') {
                 isMaintenance = true
                 isEquipping = false

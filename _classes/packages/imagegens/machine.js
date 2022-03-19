@@ -237,8 +237,10 @@ module.exports = async function execute(API, {
 
     ctx.restore()
 
+    const finalcanvas = await API.img.resize(canvas, width*0.65, height*0.65)
+
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
+    const attachment = new API.Discord.MessageAttachment(finalcanvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
     return attachment
 
 }
