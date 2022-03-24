@@ -486,8 +486,13 @@ module.exports = {
                                 botPlay.playtype = 'stand'
                             } else if (players[1].pontos >= 17 && players[1].pontos <= 21 && players[0].pontos <= 10 && game.status != 'stand' && players[0].status != 'stand') {
                                 botPlay.playtype = 'stand'
-                            } else if (players[1].pontos > 6 && players[1].pontos < 14 && API.random(0, 100) < 40 && players[1].cartas.length == 2) {
-                                botPlay.playtype = 'double'
+                            } else if (players[1].pontos > 6 && players[1].pontos < 14 && API.random(0, 100) < 30 && players[1].cartas.length == 2) {
+                                const token = await API.eco.token.get(players[1].id)
+                                if (token >= (players[1].fichas * 2)) {
+                                    botPlay.playtype = 'double'
+                                } else {
+                                    botPlay.playtype = 'hit'
+                                }
                             } else if (players[1].pontos < 15) {
                                 botPlay.playtype = 'hit'
                             }
