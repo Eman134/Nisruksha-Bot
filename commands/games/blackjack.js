@@ -477,7 +477,7 @@ module.exports = {
 
                     if (member.id == API.id && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
 
-                        function getBotPlay() {
+                        async function getBotPlay() {
                             const botPlay = {
                                 player: 1,
                                 playtype: 'hit',
@@ -498,8 +498,8 @@ module.exports = {
                             }
                             return botPlay
                         }
-
-                        const player2 = await play(game.current, getBotPlay().playtype)
+                        const botPlay = await getBotPlay()
+                        const player2 = await play(game.current, botPlay.playtype)
                         checkGame(player2)
                     }
 
