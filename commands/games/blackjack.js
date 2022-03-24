@@ -324,7 +324,7 @@ module.exports = {
     
             }
 
-            function getBlackJackComponents () {
+            function getBlackJackComponents (token) {
 
                 if ((players[0].status != 'playing' && players[1].status != 'playing') || ['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) return []
 
@@ -343,10 +343,8 @@ module.exports = {
                     //doubleBtn.setDisabled(true)
                     //splitBtn.setDisabled(true)
                 }
-
-                const tokens = await API.eco.token.get(players[game.current].id)
                 
-                if (players[game.current].cartas.length != 2 || tokens < (players[game.current].fichas * 2)) {
+                if (players[game.current].cartas.length != 2 || token < (players[game.current].fichas * 2)) {
                     doubleBtn.setDisabled(true)
                 }
                 
@@ -372,9 +370,9 @@ module.exports = {
                 }
                 return embed
             }
-
+            const token = await API.eco.token.get(players[game.current].id)
             const blackjackimage = await getBlackJackImage()
-            const blackjackcomponents = getBlackJackComponents()
+            const blackjackcomponents = getBlackJackComponents(token)
             const blackjackembed = getBlackJackEmbed()
             
             const interactionData = { embeds: [blackjackembed], attachments: [], files: [blackjackimage], components: blackjackcomponents, fetchReply: true }
