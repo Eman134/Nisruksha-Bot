@@ -344,8 +344,9 @@ module.exports = {
                     //splitBtn.setDisabled(true)
                 }
 
+                const tokens = await API.eco.token.get(players[game.current].id)
                 
-                if (players[game.current].cartas.length != 2) {
+                if (players[game.current].cartas.length != 2 || tokens < (players[game.current].fichas * 2)) {
                     doubleBtn.setDisabled(true)
                 }
                 
