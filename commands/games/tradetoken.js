@@ -20,6 +20,14 @@ module.exports = {
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
+		
+	const token = await API.eco.token.get(interaction.user.id)
+
+        if (token < aposta) {
+            const embedtemp = await API.sendError(interaction, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para trocar `)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
+        }
 
         let total = fichas*810;
         
@@ -45,6 +53,15 @@ module.exports = {
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
             reacted = true;
             collector.stop();
+		
+	const token = await API.eco.token.get(interaction.user.id)
+
+        if (token < aposta) {
+            const embedtemp = await API.sendError(interaction, `Você não possui \`${aposta} ${API.money3}\` ${API.money3emoji} para trocar `)
+            await interaction.reply({ embeds: [embedtemp]})
+            return;
+        }
+		
             if (b.customId == 'cancel'){
                 collector.stop();
                 embed.fields = [];
