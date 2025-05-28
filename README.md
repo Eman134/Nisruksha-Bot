@@ -20,10 +20,14 @@ Para adicionar o Nisruksha ao seu servidor [**CLIQUE AQUI**](https://discord.com
 
 **🌆 • Algumas imagens**
 
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236163108438016/unknown.png)
+![](readme-images/imagemmaquina.png)
+![](readme-images/imagemmaquina2.png)
+![](readme-images/imagemmineracao.png)
+![](readme-images/imagemmineracao2armazem.png)
+![](readme-images/imagemsaldo.png)
+![](readme-images/imagemmochila.png)
+![](readme-images/imagemmapa.png)
 
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236206657372160/unknown.png)
+![](readme-images/imagempesca.png)
 
-![](https://cdn.discordapp.com/attachments/693945958857441331/772236361331245076/image.png)
-
-![](https://i.imgur.com/DpxS6z1.png)
+![](readme-images/imagemblackjack.png)
