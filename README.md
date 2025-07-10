@@ -1,6 +1,6 @@
 # Nisruksha
  Um bot de economia que busca entreter o seu servidor!
- - Sobre a licença GNU General Public License v3.0
+ - Código apenas para leitura e estudo, proibido cópias e uso pessoal/comercial.
  - Terms of Service (TOS) [CLIQUE AQUI](https://github.com/Eman134/Nisruksha-Bot/blob/master/TOS.md)
  - Privacy Policy [CLIQUE AQUI](https://github.com/Eman134/Nisruksha-Bot/blob/master/PRIVACY.md)
  - Adição para a licença: Este material é somente para estudo, é proibido o uso do mesmo para uso público em outra aplicação ou para objetivos financeiros.
