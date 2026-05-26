@@ -35,8 +35,10 @@ module.exports = {
 
             butnList.push(API.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
+            // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (i = 0; i < Object.keys(API.company.e).length; i++) {
                 const sector = API.company.e[Object.keys(API.company.e)[i]]
+                // Code Review - Bug: Chamada incorreta `sector.tipo+toString()`. A ausência do ponto (.) faz com que tente concatenar a string resultante da chamada global `toString()` (que retorna "[object global]" ou similar). O correto seria `sector.tipo.toString()`.
                 if (sector.description) butnList.push(API.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'SUCCESS': 'SECONDARY'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
             }
 
@@ -46,7 +48,9 @@ module.exports = {
 
             totalcomponents += 1
 
+            // Code Review - CodeSmell: A variável de loop 'x' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (x = 0; x < totalcomponents; x++) {
+                // Code Review - CodeSmell: Variáveis com nomes genéricos ('var1', 'var2') para delimitar fatias do array de botões. Recomenda-se usar nomes descritivos (ex: startIndex, endIndex).
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = API.rowComponents(butnList.slice(var1, var2))

@@ -7,6 +7,7 @@ module.exports = {
     category: 'Maquinas',
     description: 'Inicia sua máquina e cava as profundezas encontrando minérios sob a energia solar',
     mastery: 25,
+    // Code Review - Falha de Arquitetura: Acoplamento excessivo e falta de camadas. Este comando mistura lógica de apresentação (Discord UI), lógica de negócios complexa (cálculo de desgaste de peças, refrigeração, pressão e geração de minérios) e acesso/gravação direta no banco de dados. Recomenda-se mover a lógica física de simulação da máquina para um serviço dedicado (ex: `MachineSimulationService`).
 	async execute(API, interaction) {
         
         const member = interaction.user
@@ -33,6 +34,7 @@ module.exports = {
             return;
         }
 
+        // Code Review - CodeSmell: Nome de variável sequencial genérico ('playerobj') e críptico ('maq'). Além disso, o arquivo faz leituras redundantes da tabela de máquinas no banco de dados (aqui e na linha 70 com a variável 'obj6').
         let playerobj = await DatabaseManager.get(member.id, 'machines');
         let maqid = playerobj.machine;
 
@@ -67,6 +69,7 @@ module.exports = {
         }
 
         let init = Date.now();
+        // Code Review - CodeSmell: Leitura redundante do banco de dados. A variável `obj6` faz uma segunda consulta à tabela `machines` para o mesmo jogador, quando `playerobj` (linha 38) já contém os mesmos dados. Isso duplica chamadas de I/O desnecessariamente.
         let obj6 = await DatabaseManager.get(member.id, "machines");
 
         let timeupdate = API.maqExtension.update*1000
@@ -129,6 +132,7 @@ module.exports = {
                     var [ user_pressure, pressureMax, pressurePercent ] = pressure
                     var [ user_refrigeration, refrigerationMax, refrigerationPercent ] = refrigeration
 
+                    // Code Review - Bug / Exploit de Lógica: Reparo gratuito automático. Quando a durabilidade, pressão ou refrigeração da máquina atingem 0, o sistema redefine os valores para o máximo gratuitamente. Isso contorna toda a mecânica de manutenção e reparo do jogo, permitindo mineração infinita sem custos.
                     if (user_durability == 0) {
                         await DatabaseManager.set(member.id, 'machines', "durability", durabilityMax)
                     }
@@ -284,6 +288,7 @@ module.exports = {
                     let qnt = sizeMap.get(ore.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
+                    // Code Review - CodeSmell: Linha excessivamente longa e complexa (~280 caracteres). Template literal com múltiplas operações ternárias aninhadas, capitalização manual e `.map()` identity (`chipicon => chipicon`). Quebrar em variáveis intermediárias e usar uma função de capitalização.
                     embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring && chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
                     if (chipe7) {
                         const minerioatual = itensObj.minerios.find((i) => i.name == ore.name)
@@ -297,6 +302,7 @@ module.exports = {
 
                 try{
                     if (interaction.replied) {
+                        // Code Review - CodeSmell: Referência desatualizada de mensagem. A chamada `editReply` não atualiza a variável `embedinteraction`, que continuará apontando para a resposta inicial. Se o bot precisasse coletar eventos baseados no objeto mais recente, causaria inconsistências.
                         await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])], fetchReply: true })
                     }
                     else {
@@ -369,6 +375,7 @@ module.exports = {
                 const { isStopping, stoppingMessage } = await checkStop()
 
                 if (isStopping) {
+                    // Code Review - CodeSmell: Duplicação de código. A lógica para registrar a venda do chip 7 no histórico é idêntica à declarada na função helper `checkChipe7`.
                     if (haschipe7) {
                         API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
                     }
@@ -404,6 +411,7 @@ module.exports = {
                         const embedtemp = await API.sendError(interaction, `Você parou o funcionamento da sua máquina!`)
                         await interaction.followUp({ embeds: [embedtemp] })
                     } else {
+                        // Code Review - Bug / Falha de Arquitetura: Chamada recursiva indireta. Quando o collector expira sem o jogador parar, `edit()` se chama novamente. Isso cria uma cadeia de recursão crescente sem condição de término (a pilha cresce a cada ciclo de mineração). A Promise retornada por `edit()` também não é awaited, mascarando erros assíncronos.
                         edit();
                     }
                 });

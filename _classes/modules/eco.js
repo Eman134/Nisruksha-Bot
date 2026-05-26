@@ -168,7 +168,7 @@ money.set = async function (user_id, money) {
 
 money.set = async function (user_id, points) {
     DatabaseManager.set(user_id, "players", "points", points);
-}
+} // CodeReview: 🐛 Bug identificado: função money.set sobrescrita incorretamente. Nas linhas 165 e 169, o metodo money.set é declarado duas vezes. A segunda declaração sobrescreve silenciosamente a primeira, e sua implementação está errada — em vez de persistir o valor em players.money, ela grava em players.points
 
 const token = {};
 
