@@ -5,6 +5,7 @@ const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.
 const Database = require('./manager/DatabaseManager');
 const DatabaseManager = new Database();
 
+// Code Review - Falha de Arquitetura: God Object (Objeto Deus). O objeto `API` centraliza utilitários diversos, conexões/consultas de banco de dados, lógica de negócios, componentes do Discord e estado global. Isso viola o Princípio da Responsabilidade Única, cria alto acoplamento e impossibilita a criação de testes unitários isolados. Recomenda-se quebrar esta classe em serviços e utilitários específicos (ex: formattingUtils, dbService, economyService, discordUIHelper).
 const API = {
 
     debug: false,
@@ -92,7 +93,7 @@ API.getProgress = function(maxticks, tickchar, seekpos, atual, max, percento) {
     const emptyProgress = maxticks - progress;
 
     if (typeof tickchar == 'object') {
-        for (xii = 0; xii < Object.keys(tickchar).length; xii++) {
+        for (xii = 0; xii < Object.keys(tickchar).length; xii++) { //CodeReview: CodeSmells: Nome de variável "xii" confusa e não faz referência ao conteúdo do código. Considere renomear para "i" ou "index" e adicionar declaração "let" para evitar vazamento de escopo global.
             if ( Math.round(percentage*100) >= parseInt(Object.keys(tickchar).reverse()[xii])){
                 tickchar = tickchar[Object.keys(tickchar).reverse()[xii]]
                 break;
@@ -206,6 +207,7 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
         API.client.emit('error', err)
     }
 
+    // Code Review - Falha de Arquitetura / Vulnerabilidade: SQL Injection por interpolação de parâmetro de coluna. O parâmetro `string` é concatenado diretamente na query SQL. Embora o PostgreSQL utilize prepared statements para os valores ($1, $2, $3), o nome da coluna não pode ser parametrizado dessa forma. Se dados de entrada não sanitizados de usuários forem repassados para `string`, será possível realizar comandos arbitrários no banco de dados. Recomenda-se mapear as colunas válidas em um conjunto restrito (whitelist) antes da execução da query.
     const text =  `UPDATE companies SET ${string} = $3 WHERE user_id = $1 AND company_id = $2;`,
         values = [user_id, company, value]
 
@@ -301,7 +303,7 @@ API.rowComponents = function(arr) {
 
     let btnRow = new MessageActionRow()
 
-    for (rowButtonVar = 0; rowButtonVar < arr.length; rowButtonVar++) {
+    for (rowButtonVar = 0; rowButtonVar < arr.length; rowButtonVar++) { //CodeReview: rowButtonVar é redundante e prolixo para um índice de loop. Prefira let i ou, mais semântico, let componentIndex. Também está sem let, causando vazamento de escopo.
         btnRow.addComponents(arr[rowButtonVar])
     }
 

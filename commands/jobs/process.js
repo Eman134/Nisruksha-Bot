@@ -29,6 +29,7 @@ module.exports = {
 
         const level = machines.level
 
+        // Code Review - CodeSmell: Nome de variável com sufixo de tipo de dados ('processjson'). Recomenda-se usar um nome descritivo que represente o domínio de negócios (ex: playerProcessConfig).
         let processjson = players_utils.process
 
         const custoretirar = 50
@@ -51,7 +52,9 @@ module.exports = {
         }
 
         if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
+            // Code Review - Bug/ReferenceError: A variável `member` não está definida neste escopo. Deveria ser `interaction.user` ou `interaction.member`.
             await API.cacheLists.waiting.remove(member.id, 'working');
+            // Code Review - Bug/ReferenceError: A variável `jobs` não está importada nem definida neste arquivo, causando erro de execução. Além disso, `member` é indefinido.
             await jobs.process.remove(member.id)
         }
 
@@ -61,8 +64,10 @@ module.exports = {
             
             if (processjson.in.length > 0) {
                 embeds = []
+                // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (i = 0; i < processjson.in.length; i++) {
     
+                    // Code Review - CodeSmell: Nome de variável abreviado de forma críptica ('eproctemp'). Recomenda-se renomear para algo expressivo (ex: processEmbed).
                     const eproctemp = new Discord.MessageEmbed()
 
                     const checkfi = processjson.in[i].fragments.current == 0
@@ -91,6 +96,7 @@ module.exports = {
                                 if (totalpages_rar == 0) totalpages_rar = (cclist_rar.length)/5;
                                 else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
                                 
+                                // Code Review - CodeSmell: A variável de loop 'iil' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                                 for (iil = 0; iil < totalpages_rar; iil++){
                                     const sliced = cclist_rar.slice(((iil+1)*5)-5, ((iil+1)*5))
                                     if (sliced.length > 0) {
@@ -162,6 +168,7 @@ module.exports = {
 
                 let butnList = []
 
+                // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global. Também há um caractere redundante/typo '1' após a abertura do bloco.
                 for (i = 0; i < endprocs.length; i++) {1
                     butnList.push(API.createButton('proc:' + endprocs[i].id, 'SECONDARY', ' ' + custoretirar + ' | Processo: ' + endprocs[i].id, '🔸', (allDisabled ? true : false)))
                 }
@@ -172,6 +179,7 @@ module.exports = {
 
                 totalcomponents += 1
 
+                // Code Review - CodeSmell: A variável de loop 'x' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (x = 0; x < totalcomponents; x++) {
                     const var1 = (x+1)*5-5
                     const var2 = ((x+1)*5)
@@ -195,6 +203,7 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
+            // Code Review - CodeSmell: A variável 'reacted' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             reacted = true;
             embeds = [embed]
             embed.fields = [];
@@ -324,6 +333,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
                     setProcess()
 
+                    // Code Review - Bug: O objeto `oldproc` não possui a propriedade `xpbase` definida em sua criação em `startprocess.js` (possui apenas `xp`), o que passará `undefined` para `execExp`.
                     let xp = await API.playerUtils.execExp(interaction, oldproc.xpbase)
                     let score = parseFloat(oldproc.score)
                     API.company.stars.add(interaction.user.id, company.company_id, { score })

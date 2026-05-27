@@ -3,6 +3,7 @@ const DatabaseManager = new Database();
 
 const API = require('../../_classes/api');
 
+// Code Review - CodeSmell: Nome de variável confuso e genérico 'vare'. Trata-se do mapeamento de categorias de ranking com suas configurações de banco e cache. Recomenda-se renomear para algo como 'rankingCategories' ou 'rankingConfig'.
 const vare = {
     '736290479406317649': {
         db: {
@@ -78,6 +79,7 @@ const vare = {
     }
 }
 
+// Code Review - Falha de Arquitetura: Violação de separação de conceitos. Colocar um cache em memória e um temporizador (`setInterval`) para atualizar dados do banco de dados diretamente dentro do arquivo de definição de um comando do Discord é uma falha grave de arquitetura. Se o comando for recarregado ou instanciado múltiplas vezes, múltiplos loops de banco serão criados de forma descontrolada. Essa lógica de segundo plano e armazenamento de estado deve ser abstraída em um serviço dedicado (ex: `RankingService` ou `CacheManager`).
 async function setRankCache() {
     for (let i = 0; i < Object.keys(vare).length; i++) {
         const data = Object.values(vare)[i];
@@ -131,6 +133,7 @@ module.exports = {
 
             //butnList.push(API.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
+            // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (i = 0; i < Object.keys(vare).length; i++) {
                 butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
             }
@@ -141,7 +144,9 @@ module.exports = {
 
             totalcomponents += 1
 
+            // Code Review - CodeSmell: A variável de loop 'x' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (x = 0; x < totalcomponents; x++) {
+                // Code Review - CodeSmell: Variáveis com nomes genéricos ('var1', 'var2') usadas para delimitar o início e o fim da fatia de botões. Recomenda-se nomes expressivos (ex: startIndex, endIndex).
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = API.rowComponents(butnList.slice(var1, var2))
@@ -182,6 +187,7 @@ module.exports = {
                 
                 const arr2check = []
 
+                // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (i = 0; i < array.length; i++) {
 
                     try {

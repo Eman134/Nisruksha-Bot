@@ -149,6 +149,7 @@ module.exports = {
                 let response = "cara"
                 let lado = "cara"
 
+                // Code Review - CodeSmell: Abreviação críptica de variável ('rd' representando o resultado do random). Recomenda-se usar termos explícitos (ex: randomRoll ou coinFlipResult).
                 const rd = API.random(0, 100)
 
                 if (rd < 50) response = "coroa"

@@ -44,6 +44,7 @@ const events = {
         embed.setColor('#36393f')
         embed.setTitle('Evento | Corrida de Cavalos')
 
+        // Code Review - CodeSmell: Variáveis com nomes genéricos e confusos ('inv', 'inv2', 'inv3', 'inv4'). Eles representam emojis de preenchimento invisíveis para o embed. Recomenda-se nomes descritivos (ex: spacerOrange, spacerRed, spacerPurple, spacerTrack).
         const inv = '<:inv:781993473331036251>'
         const inv2 = '<:inv2:838584020547141643>'
         const inv3 = '<:inv3:838584020571783179>'
@@ -55,12 +56,15 @@ const events = {
         let apostasvermelho = 0
         let apostasroxo = 0
 
+        // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
         for (i = 0; i < events.race.apostas.laranja.length; i++) {
             apostaslaranja += events.race.apostas.laranja[i].aposta
         }
+        // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
         for (i = 0; i < events.race.apostas.vermelho.length; i++) {
             apostasvermelho += events.race.apostas.vermelho[i].aposta
         }
+        // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
         for (i = 0; i < events.race.apostas.roxo.length; i++) {
             apostasroxo += events.race.apostas.roxo[i].aposta
         }
@@ -77,6 +81,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         let vencedorcor = ''
         let vencedorcornome = ''
 
+        // Code Review - CodeSmell: Estrutura switch duplicada. A lógica para mapear o vencedor para cor/nome é idêntica à linha 220. Considere refatorar em uma função auxiliar ou objeto de mapeamento.
         switch (vencedor) {
             case 1:
                 vencedorcor = '🟧'
@@ -98,6 +103,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
 
         let apostas = 0
 
+        // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
         for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             apostas += events.race.apostas[vencedorcornome][i].aposta
         }
@@ -113,6 +119,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
 
 events.getConfig = function(){ return config }
 
+// Code Review - Falha de Arquitetura: Falta de separação de camadas. O módulo de agendamento/gerenciamento de eventos (`events`) executa diretamente lógica de apresentação visual (criação de MessageEmbed do Discord) e entrega de mensagens (`API.client.channels.cache...`), além de manipular dados brutos no banco. Recomenda-se mover a lógica de apresentação para uma camada visual/UI e delegar a entrega de alertas para um serviço de notificação (ex: NotificationService).
 events.alert = async function(text) {
     
     try {
@@ -217,6 +224,7 @@ async function editRace(embedinteraction) {
         let vencedorcor = ''
         let vencedorcornome = ''
 
+        // Code Review - CodeSmell: Estrutura switch duplicada. A lógica para mapear o vencedor para cor/nome é idêntica à linha 80. Considere refatorar em uma função auxiliar ou objeto de mapeamento.
         switch (events.race.vencedor) {
             case 1:
                 vencedorcor = '🟧'
@@ -236,6 +244,7 @@ async function editRace(embedinteraction) {
                 break;
         }
 
+        // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
         for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             const user = events.race.apostas[vencedorcornome][i]
             await API.eco.money.add(user.id, Math.round(user.aposta*1.5))
@@ -255,10 +264,11 @@ async function editRace(embedinteraction) {
 
         const globalevents = globalobj.events
 
+        // Code Review - CodeSmell: Mutação direta de objeto compartilhado global. 'globalevents2' aponta para a mesma referência que 'globalevents'. Usar 'delete' modificará silenciosamente o cache global original. Considere clonar o objeto.
         let globalevents2 = globalevents
-
+        
         delete globalevents2.race
-
+        
         DatabaseManager.set(API.id, 'globals', "events", globalevents2)
 
     }
@@ -268,6 +278,7 @@ async function editRace(embedinteraction) {
 
 events.load = async function() {
 
+    // Code Review - CodeSmell: O intervalo do evento é calculado apenas uma vez na inicialização, resultando em um intervalo estático para o setInterval. Se o objetivo era obter intervalos dinâmicos entre os eventos, prefira usar setTimeout recursivo.
     let intervalEvents = (API.random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
     const globalobj = await DatabaseManager.get(config.app.id, "globals")
@@ -282,6 +293,7 @@ events.load = async function() {
             try{
                 interaction = await ch.messages.fetch(events.race.interactionid)
             }catch {
+                // Code Review - CodeSmell: Bloco catch vazio que ignora silenciosamente falhas de busca de mensagens do Discord.
             }
 
             if (!interaction) return

@@ -64,6 +64,7 @@ module.exports = {
 
         let total = 0;
 
+        // Code Review - CodeSmell: Nomes de variáveis genéricos e crípticos (r1, r2, r3, r4, c1). Dificultam a legibilidade. Recomenda-se utilizar nomes descritivos (ex: contractCommitment, contractCompensation, crystalCost).
         let r1 = 75000;
         let r2 = 50000;
         let r3 = 50000;
@@ -72,6 +73,7 @@ module.exports = {
 
         total = r1+r2+r3+r4
         
+        // Code Review - CodeSmell: Nomes de variáveis sequenciais genéricos (playerobj, playerobj2). O primeiro armazena as máquinas e o segundo o jogador. Recomenda-se usar nomes como playerMachines e playerData.
         let playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
         let playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
         const req = 10;
@@ -150,8 +152,10 @@ module.exports = {
                 return;
             }
 
+            // Code Review - CodeSmell: Variável com nome genérico 'cont' (abreviação de 'continua' ou 'contém'). Deveria ser descritiva como 'companyNameExists'.
             let cont = false;
             try {
+                // Code Review - Falha de Arquitetura e Performance: Falta de encapsulamento em camadas e péssima performance de query. O comando executa SQL diretamente (acesso direto a dados) e carrega TODAS as empresas do banco de dados na memória do Node para verificar duplicidade em JS. Conforme o bot crescer, isso causará lentidão extrema e estouro de memória. O correto é usar uma camada de repositório e delegar o filtro para o banco (ex: SELECT 1 FROM companies WHERE LOWER(name) = $1 LIMIT 1).
                 let res = await DatabaseManager.query(`SELECT * FROM companies;`);
                 for (const r of res.rows) {
                     if (r.name.toLowerCase() == name.toLowerCase()) {

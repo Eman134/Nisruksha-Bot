@@ -50,6 +50,7 @@ module.exports = {
         let init = Date.now();
         let header = await gen(pobj)
 
+        // Code Review - CodeSmell: Uso de conceitos de visualização invertidos e genéricos ('body', 'header'). `header` armazena o estado do jogo gerado e `body` armazena as camadas de água. Além disso, 'pd' é uma abreviação críptica para 'profundidades'. Recomenda-se usar termos explícitos (ex: waterLayers, depths).
         let body = header.levels
         let pd = header.profundidades
 
@@ -253,12 +254,14 @@ module.exports = {
             body = header.levels
             pd = header.profundidades
 
+            // Code Review - CodeSmell: Abreviação críptica de variável ('cclist' para listagem de peixes coletados). Recomenda-se usar nomes explícitos (ex: collectedFishList).
             let cclist = [ ...coletados.values()];
 
             let totalpages = cclist.length % 5;
             if (totalpages == 0) totalpages = (cclist.length)/5;
             else totalpages = ((cclist.length-totalpages)/5)+1;
 
+            // Code Review - CodeSmell: Abreviação críptica de variável ('ccmap' para representação textual de peixes coletados). Recomenda-se usar nomes explícitos (ex: collectedFishString).
             let ccmap = ""
             for (i = totalpages; i > 0; i--){
                 let ic = totalpages+1-i

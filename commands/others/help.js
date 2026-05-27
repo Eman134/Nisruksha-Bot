@@ -43,6 +43,7 @@ ${API.helpExtension.getCategoryList()}`)
 
             butnList.push(API.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
+            // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (i = 0; i < categorylist.length; i++) {
                 butnList.push(API.createButton(categorylist[i], (current == categorylist[i] ? 'SUCCESS': 'SECONDARY'), categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
             }
@@ -53,7 +54,9 @@ ${API.helpExtension.getCategoryList()}`)
 
             totalcomponents += 1
 
+            // Code Review - CodeSmell: A variável de loop 'x' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
             for (x = 0; x < totalcomponents; x++) {
+                // Code Review - CodeSmell: Variáveis com nomes genéricos ('var1', 'var2') para delimitar fatias do array de botões. Recomenda-se usar nomes descritivos (ex: startIndex, endIndex).
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = API.rowComponents(butnList.slice(var1, var2))

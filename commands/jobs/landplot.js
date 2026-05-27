@@ -12,6 +12,7 @@ module.exports = {
 
         const Discord = API.Discord;
 
+        // Code Review - CodeSmell: Nome de variável abreviado de forma genérica ('pobj' representando player object). Recomenda-se usar termos significativos (ex: playerData).
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
         const check = await API.playerUtils.cooldown.check(interaction.user.id, "landplot");
@@ -57,6 +58,7 @@ module.exports = {
 
                         r.areaplant = areaplant
 
+                        // Code Review - CodeSmell: A variável 'contains' é inicializada sem declaração (let/const/var) dentro da função helper 'getTerrain', causando vazamento no escopo global/externo.
                         contains = true
                         plot = r;
                         break;
@@ -125,6 +127,7 @@ module.exports = {
                 
                 if (row0.length > 0) components.push(API.rowComponents(row0))
 
+                // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (i = 0; i < grow.length; i++) {
                     growBtnList.push(API.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
                 }
@@ -135,6 +138,7 @@ module.exports = {
 
                 totalcomponents += 1
 
+                // Code Review - CodeSmell: A variável de loop 'x' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (x = 0; x < totalcomponents; x++) {
                     if (growBtnList[x]) {
                         const var1 = (x+1)*5-5
@@ -247,6 +251,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === interaction.user.id)) return
+            // Code Review - CodeSmell: A variável 'reacted' é atribuída aqui, mas não está declarada no escopo desta função ou do comando (está apenas na outra ramificação if hasTerrain em outro bloco), causando vazamento de escopo global.
             reacted = true;
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
 
@@ -309,6 +314,7 @@ module.exports = {
                     return;
                 }
 
+                // Code Review - CodeSmell: Nome de variável sequencial e genérico ('pobj2'). Recomenda-se renomear (ex: playerMachines).
                 let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
                 allplots[townnum].plants.splice([parseInt(b.customId)-1], 1)
@@ -340,6 +346,7 @@ module.exports = {
                 let xp = API.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
                 xp = await API.playerUtils.execExp(interaction, xp);
                 
+                // Code Review - CodeSmell: Nome de variável genérico ('score' que representa estrelas/rating). Recomenda-se usar um termo mais descritivo como 'starsEarned' ou 'ratingPoints'.
                 let score = ((API.company.stars.gen()*2.5).toFixed(2)) 
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
@@ -358,6 +365,7 @@ module.exports = {
                 await API.company.stars.add(interaction.user.id, company.company_id, { score })
                 
                 if (company == undefined || interaction.user.id == owner.id) return
+                // Code Review - CodeSmell: Nome de variável abreviado e em idioma misto ('rend' para rendimento). Recomenda-se usar nomes explícitos e consistentes (ex: companyRevenueList).
                 let rend = company.rend || []
                 rend.unshift(totaltaxa)
                 rend = rend.slice(0, 10)

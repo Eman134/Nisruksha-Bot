@@ -19,6 +19,7 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
 
         const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+        // Code Review - CodeSmell: Nome de variável contendo sufixo de tipo de dados ('processjson'). Recomenda-se usar nomes descritivos com semântica de negócio (ex: playerProcessConfig).
         let processjson = players_utils.process
         const machines = await DatabaseManager.get(interaction.user.id, 'machines')
         const level = machines.level
@@ -28,6 +29,7 @@ module.exports = {
 
         if (players_utils.process == null) {
 
+            // Code Review - CodeSmell: Nome de variável contendo sufixo de tipo de dados e significado genérico ('defaultjson'). Recomenda-se renomear (ex: defaultProcessState).
             const defaultjson = {
                 tools: {
                     0: API.company.jobs.process.tools.search(level, 0),
@@ -57,6 +59,7 @@ module.exports = {
 
         function setProcess() {
             if (processjson.in.length > 0) {
+                // Code Review - CodeSmell: A variável de loop 'i' é inicializada sem declaração (let/const/var), causando vazamento no escopo global.
                 for (i = 0; i < processjson.in.length; i++) {
                     const checkfi = processjson.in[i].fragments.current == 0
                     
@@ -177,6 +180,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             }
 
             let id = 1
+            // Code Review - Bug: Condição de loop incorreta 'processjson.in.length+processjson.in.length'. Se o array contiver elementos, essa expressão sempre retornará um valor positivo (verdadeiro), resultando em um loop infinito que travará o processo. Além disso, a variável de loop 'i' não está declarada (let/const/var), causando vazamento global.
             for (i = 1; processjson.in.length+processjson.in.length; i++) {
                 if (processjson.in.filter((pi) => pi.id == i).length < 1) {
                     id = i

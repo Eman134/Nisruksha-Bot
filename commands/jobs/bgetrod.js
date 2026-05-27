@@ -12,6 +12,7 @@ module.exports = {
 
         const Discord = API.Discord;
 
+        // Code Review - CodeSmell: Nome de variável sequencial e genérico ('pobj2'). Recomenda-se usar termos significativos (ex: playerMachines).
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (pobj2.level < 3) {
@@ -27,6 +28,7 @@ module.exports = {
         }
 
         let total = 1200*(pobj2.level)
+        // Code Review - CodeSmell: Abreviação críptica e de idioma misto ('disp' para 'disponíveis'). Recomenda-se usar termos completos e consistentes em inglês ou português (ex: availableRods).
         let disp = API.company.jobs.fish.rods.possibilities(pobj2.level)
 
         const embed = new Discord.MessageEmbed()
@@ -45,6 +47,7 @@ module.exports = {
             return [API.rowComponents([btn0, btn1])]
         }
 
+        // Code Review - CodeSmell: Nome de variável críptico ('pobjcheck'). Recomenda-se usar um nome expressivo que descreva o propósito da checagem (ex: playerDataToCheck).
         let pobjcheck = await DatabaseManager.get(interaction.user.id, 'players')
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
@@ -64,6 +67,7 @@ module.exports = {
 
             let pobj2 = await DatabaseManager.get(interaction.user.id, 'players')
             if (pobj2.rod == null) delete pobj2.rod
+            // Code Review - CodeSmell: Nome de variável sequencial e confuso ('pobj3'). Agrava a falta de clareza do escopo já poluído por outros pobj. Recomenda-se usar nomes explícitos (ex: playerMachines).
             let pobj3 = await DatabaseManager.get(interaction.user.id, 'machines')
 
             if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
