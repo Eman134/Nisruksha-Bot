@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
 
@@ -78,7 +79,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             selected = b.customId;
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.roleta.defer_update'); });
             reacted = true
 
             let array = [];

@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja o armazém de algum membro'))
 
@@ -59,7 +60,7 @@ module.exports = {
             reacted = true;
             collector.stop()
             embed.fields = [];
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.armazenamento.defer_update'); });
                 
             if (b.customId == 'upgrade'){
                 if (price > await API.eco.money.get(interaction.user.id)) {

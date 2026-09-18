@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'venderterreno',
@@ -80,7 +81,7 @@ module.exports = {
 
             selled = true;
             collector.stop();
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.venderterreno.defer_update'); });
             embed.fields = [];
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');

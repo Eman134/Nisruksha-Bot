@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('item').setDescription('Escreva o nome do item que você deseja usar').setRequired(true))
 
@@ -180,8 +181,9 @@ module.exports = {
                             }
 
                             try{
-                                await interaction.editReply({ embeds: [embed2], components: [] }).catch()
-                            }catch{
+                                await interaction.editReply({ embeds: [embed2], components: [] })
+                            } catch (error) {
+                                reportError(error, 'command.usaritem.edit_reply', { userId: interaction.user.id });
                                 return
                             }
                         }catch (err){

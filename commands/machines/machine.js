@@ -1,5 +1,6 @@
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -351,7 +352,7 @@ module.exports = {
                 //editObj.components.splice(1, 1)
             }
                 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.maquina.defer_update'));
             await interaction.editReply(editObj);
             collector.resetTimer();
 

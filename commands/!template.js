@@ -1,3 +1,5 @@
+const { reportError } = require('../_classes/debug');
+
 module.exports = {
     name: 'template',
     aliases: [],
@@ -25,7 +27,7 @@ module.exports = {
             reacted = true;
             collector.stop();
             embed.fields = [];
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'template.defer_update'); });
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Currículo cancelado', `

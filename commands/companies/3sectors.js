@@ -1,3 +1,5 @@
+const { reportError } = require('../../_classes/debug');
+
 module.exports = {
     name: 'setores',
     aliases: ['sectors'],
@@ -86,7 +88,7 @@ module.exports = {
             await interaction.editReply({embeds: [embed], components})
 
             collector.resetTimer()
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.setores.defer_update'); });
             
         });
         

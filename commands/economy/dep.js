@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para depósito').setRequired(true))
 
@@ -70,7 +71,7 @@ module.exports = {
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             collector.stop();
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.depositar.defer_update'); });
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');

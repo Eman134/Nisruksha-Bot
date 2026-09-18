@@ -1,5 +1,6 @@
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'sairdaempresa',
@@ -44,7 +45,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === interaction.user.id)) return
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.sairempresa.defer_update'));
             reacted = true;
             embed.fields = []
             collector.stop();
@@ -80,8 +81,9 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${interaction.user.tag} (${interaction.user.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                owner.send({ embeds: [embed], components: [] }).catch()
-            }catch{
+                await owner.send({ embeds: [embed], components: [] })
+            } catch (error) {
+                reportError(error, 'command.sairempresa.owner_notification', { ownerId: owner.id });
             }
 
             const list = company2.workers;

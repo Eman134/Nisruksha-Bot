@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
@@ -139,7 +140,7 @@ module.exports = {
 
             reacted = true;
             collector.stop();
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.genkey.defer_update'));
 
             const embed = new API.Discord.MessageEmbed()
             if (b.customId == 'cancel'){

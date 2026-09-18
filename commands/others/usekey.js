@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
@@ -59,7 +60,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === interaction.user.id)) return
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.usarchave.defer_update'));
             reacted = true;
             collector.stop();
             const embed = new API.Discord.MessageEmbed()

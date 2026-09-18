@@ -1,7 +1,7 @@
 const { prefix, owner, token, ip, app } = require("../_classes/config");
 const serverdb = {};
 const version = require('../package.json').version
-const { MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js')
+const { MessageActionRow, MessageButton, MessageSelectMenu, ButtonStyle } = require('discord.js')
 const Database = require('./manager/DatabaseManager');
 const DatabaseManager = new Database();
 
@@ -249,7 +249,7 @@ API.getMultipleArgs = function(interaction, index) {
 API.createButton = function(id, style, label, emoji, disabled) {
 
     let button = new MessageButton()
-    .setStyle(style.toUpperCase())
+    .setStyle(ButtonStyle[style.charAt(0).toUpperCase() + style.slice(1).toLowerCase()])
     .setLabel(label)
     if (emoji) button.setEmoji(emoji)
     if (style == 'LINK') button.setURL(id.toString()) 

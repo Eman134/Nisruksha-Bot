@@ -1,6 +1,7 @@
 const API = require("../../_classes/api");
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 let bg
 
@@ -351,7 +352,7 @@ module.exports = {
                         await go() 
                     }, 6000)
                 } else {
-                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                        if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.cacar.defer_update'); });
                     timing = Date.now()
                 }
 
@@ -359,7 +360,7 @@ module.exports = {
                 
             }
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.cacar.defer_update'); });
             
             if(!inbattle) return
 
@@ -457,7 +458,8 @@ module.exports = {
                         //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
                         await interaction.editReply({ embeds: [embed], attachments: [], components, files: [buildlost.attach] })
                     }
-                } catch {
+                } catch (error) {
+                    reportError(error, 'command.cacar.edit_progress', { userId: interaction.user.id });
                     setTimeout(async function(){
                         try {
                             if (dead) {
@@ -467,7 +469,8 @@ module.exports = {
                                 //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
                                 await interaction.editReply({ embeds: [embed], components, files: [buildlost.attach] })
                             }
-                        } catch {
+                        } catch (error) {
+                            reportError(error, 'command.cacar.cleanup', { userId: interaction.user.id });
                             API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
                             API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             collector.stop();

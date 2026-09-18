@@ -1,17 +1,24 @@
 const Discord = require('discord.js');
 const fs = require('fs');
+const path = require('path');
+require('./discordCompat');
 const API = require("./api.js");
 const { REST } = require('@discordjs/rest');
-const { Routes } = require('discord-api-types/v9');
-const glob = require('glob');
+const { Routes } = require('discord-api-types/v10');
+const { globSync } = require('glob');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('./debug');
 
 module.exports = class NisrukshaClient extends Discord.Client {
 
     constructor(options = {}) {
         super({
             allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
-            intents: ['GUILDS', 'GUILD_MESSAGE_REACTIONS', 'GUILD_MESSAGES'] 
+            intents: [
+                Discord.GatewayIntentBits.Guilds,
+                Discord.GatewayIntentBits.GuildMessageReactions,
+                Discord.GatewayIntentBits.GuildMessages
+            ]
         })
 
         this.options
@@ -43,11 +50,11 @@ module.exports = class NisrukshaClient extends Discord.Client {
         API.client = this;
         API.Discord = Discord;
 
-        const files = glob.sync(__dirname + '/modules/*.js')
+        const files = globSync(__dirname + '/modules/*.js')
 
         for (const file of files) {
-            let eventFunction = require(file.replace('.js', ''));
-            const eventName = file.replace('.js', '').replace(__dirname.replace(/\\/g, '/') + '/modules/', "")
+            let eventFunction = require(path.resolve(file));
+            const eventName = path.basename(file, '.js')
             API[eventName] = eventFunction
         }
 
@@ -60,40 +67,37 @@ module.exports = class NisrukshaClient extends Discord.Client {
     }
 
     loadEvents() {
-        fs.readdir("./events/", (err, files) => {
-            if (err) return console.error(err);
-            files.forEach(file => {
-                let eventFunction = require(`../events/${file}`);
-                if (eventFunction.name != 'ready' ) this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
+        const files = fs.readdirSync(path.resolve(__dirname, '../events'));
+        files.forEach(file => {
+            const eventPath = path.resolve(__dirname, '../events', file);
+            try {
+                const eventFunction = require(eventPath);
+                if (eventFunction.name !== 'clientReady') this.on(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
                 else this.once(eventFunction.name, (...args) => eventFunction.execute(API, ...args));
-            });
+            } catch (error) {
+                throw reportError(error, 'events.load', { file: eventPath });
+            }
         });
         console.log(`[EVENTOS] Carregados`.green)
     }
 
     loadCommands(options) {
+        this.loadCommandsAsync(options).catch((error) => {
+            reportError(error, 'commands.bootstrap');
+            process.exitCode = 1;
+        });
+    }
 
-        (async () => {
-            try {
-        
-                if (!this.application?.owner) await this.application?.fetch();
-
-                const commandsObject = await this.getCommandsJson()
-                this.commands = commandsObject.commandsCollection
-
-                await this.loadSlashCommands({ id: options.app.id })
-
-                console.log(`[COMANDOS] Carregados`.green)
-
-            } catch (error) {
-                console.error(error);
-            }
-        })();
-        
+    async loadCommandsAsync(options) {
+        if (!this.application?.owner) await this.application?.fetch();
+        const commandsObject = this.getCommandsJson();
+        this.commands = commandsObject.commandsCollection;
+        await this.loadSlashCommands({ id: options.app.id });
+        console.log(`[COMANDOS] Carregados`.green)
     }
 
     getCommandsJson() {
-        const files = glob.sync(__dirname + '/../commands/*/*.js')
+        const files = globSync(__dirname + '/../commands/*/*.js')
         const commandsCollection = new Discord.Collection();
         const globalCommandsJson = []
         const serverCommandsJson = []
@@ -103,7 +107,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 if (!file.includes('!')) {
                     
-                    let command = require(file.replace('.js', ''))
+                    let command = require(path.resolve(file))
                     commandsCollection.set(command.name, command)
 
                     if (!command.disabled) {
@@ -126,9 +130,8 @@ module.exports = class NisrukshaClient extends Discord.Client {
 
                 };
 
-            } catch (err) {
-                console.log('Houve um erro ao carregar o comando ' + file)
-                console.log(err.stack)
+            } catch (error) {
+                throw reportError(error, 'commands.load', { file });
             }
         }
 
@@ -136,36 +139,23 @@ module.exports = class NisrukshaClient extends Discord.Client {
     }
 
     async loadSlashCommands({ force = false, id }) {
-        const rest = new REST({ version: '9' }).setToken(this.token);
+        const rest = new REST({ version: '10' }).setToken(this.token);
         const { globalCommandsJson, serverCommandsJson } = await this.getCommandsJson()
 
         console.log(force ? 'Forçando atualização de comandos' : 'Carregando comandos')
-        rest.get(Routes.applicationCommands(id)).then(async (cmds) => {
-
-            if ((globalCommandsJson.length != cmds.length) || force) {
-
-                console.log('Atualizando comandos')
-
-                try {
-                    await rest.put(
-                        Routes.applicationGuildCommands(id, '693150851396796446'),
-                        { body: serverCommandsJson },
-                    );
-    
-                    await rest.put(
-                        Routes.applicationCommands(id),
-                        { body: globalCommandsJson },
-                    )
-                } catch (error) {
-                    console.log(error)
-                }
-
-
-                console.log(globalCommandsJson.length + ' Slash reiniciados' + (force ? ' (FORCE)' : ''))
-
-            }
-
-        })
+        const cmds = await rest.get(Routes.applicationCommands(id));
+        if ((globalCommandsJson.length != cmds.length) || force) {
+            console.log('Atualizando comandos')
+            await rest.put(
+                Routes.applicationGuildCommands(id, '693150851396796446'),
+                { body: serverCommandsJson },
+            );
+            await rest.put(
+                Routes.applicationCommands(id),
+                { body: globalCommandsJson },
+            )
+            console.log(globalCommandsJson.length + ' Slash reiniciados' + (force ? ' (FORCE)' : ''))
+        }
     }
 
     loadExpressServer(options) {
@@ -180,20 +170,19 @@ module.exports = class NisrukshaClient extends Discord.Client {
     }
 
     async login(token = this.token) {
-        try {
-            super.login(token)
-            API.client = this
-        } catch {
-            
+        API.client = this
+        if (!process.__nisrukshaErrorHandlers) {
+            process.__nisrukshaErrorHandlers = true;
+            process.on("uncaughtException", (error) => {
+                reportError(error, 'process.uncaught_exception');
+                process.exitCode = 1;
+            });
+            process.on("unhandledRejection", (error) => {
+                reportError(error, 'process.unhandled_rejection');
+                process.exitCode = 1;
+            });
         }
-
-        process.on("uncaughtException", (err) => {
-            API.client.emit('error', err)
-        })
-        process.on("unhandledRejection", (err) => {
-            API.client.emit('error', err)
-        })
-
+        return super.login(token)
     }
 
 }

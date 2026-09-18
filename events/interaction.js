@@ -1,19 +1,20 @@
 const Database = require('../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { app } = require("../_classes/config");
+const { reportError } = require('../_classes/debug');
 
 module.exports = {
 
     name: "interactionCreate",
     execute: async (API, interaction) => {
 
-        if (!interaction.isCommand() && !interaction.isContextMenu()) return
+        if (!interaction.isChatInputCommand() && !interaction.isContextMenuCommand()) return
 
         const client = API.client;
 
         const command = interaction.commandName;
 
-        if (interaction != null) interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
+        if (interaction != null && interaction.guild && interaction.channel) interaction.url = `https://discord.com/channels/${interaction.guild.id}/${interaction.channel.id}/${interaction.id}`
 
         let commandfile = client.commands.get(command);
 
@@ -23,18 +24,34 @@ module.exports = {
                 if (boolean === true) return
                 if (boolean && !commandfile.companytype) return;
 
-                try {
-                    if (!commandfile.companytype) await commandfile.execute(API, interaction);
-                    else await commandfile.execute(API, interaction, boolean);
-                } catch {
-                    
-                }
+                if (!commandfile.companytype) await commandfile.execute(API, interaction);
+                else await commandfile.execute(API, interaction, boolean);
             } catch (error) {
-                console.error(error);
-                API.client.emit('error', error)
-                await interaction.reply({ content: 'Ocorreu um erro ao executar o comando ' + command });
+                const normalized = reportError(error, 'discord.interaction', {
+                    command,
+                    userId: interaction.user?.id,
+                    guildId: interaction.guild?.id,
+                    channelId: interaction.channel?.id
+                });
+                await replyInteractionError(interaction, command, normalized);
             }
         }
+    }
+}
+
+async function replyInteractionError(interaction, command, error) {
+    const content = `Ocorreu um erro ao executar /${command}. O erro foi registrado para investigação.`;
+    try {
+        if (interaction.deferred || interaction.replied) {
+            await interaction.editReply({ content, embeds: [], components: [] });
+        } else {
+            await interaction.reply({ content, ephemeral: true });
+        }
+    } catch (replyError) {
+        reportError(replyError, 'discord.interaction.error_reply', {
+            command,
+            originalError: error.stack
+        });
     }
 }
 
@@ -105,7 +122,11 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
                 if (await limitedpatrao()) return true
             }
 
-        } catch {
+        } catch (error) {
+            reportError(error, 'discord.interaction.official_guild_check', {
+                userId: interaction.user?.id,
+                guildId: interaction.guild?.id
+            });
             if (await limitedpatrao()) return true
         }
         

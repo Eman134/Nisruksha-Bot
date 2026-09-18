@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'pescar',
@@ -81,7 +82,7 @@ module.exports = {
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), fetchReply: true }).catch();
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), fetchReply: true });
         
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'fishing');
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
@@ -296,7 +297,8 @@ module.exports = {
 
                 try{
                     await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
-                }catch{
+                } catch (error) {
+                    reportError(error, 'command.pescar.edit_progress', { userId: interaction.user.id });
                     API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return
@@ -323,7 +325,7 @@ module.exports = {
 
                 collector.on('collect', async (b) => {
   
-                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                    if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.pescar.defer_update'); });
                     if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();
@@ -346,7 +348,8 @@ module.exports = {
                         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
                             await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
-                        }catch{
+                        } catch (error) {
+                            reportError(error, 'command.pescar.cleanup', { userId: interaction.user.id });
                             API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
                             API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             return

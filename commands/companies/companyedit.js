@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('edição').setDescription('Digite a edição que irá ser realizada')
   .addChoice('Editar logo', 'logo')
@@ -205,7 +206,7 @@ module.exports = {
 
               if (!(b.user.id === interaction.user.id)) return
               
-              if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+              if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.editarempresa.defer_update'); });
               reacted = true;
               collector.stop();
               embed.fields = [];

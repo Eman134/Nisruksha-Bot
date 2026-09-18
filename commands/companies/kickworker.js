@@ -4,6 +4,7 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('motivo').setDescription('Explique o motivo da demoção').setRequired(true))
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'demitir',
@@ -49,7 +50,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.demitir.defer_update'));
             reacted = true;
             embed.fields = []
             collector.stop();
@@ -93,8 +94,10 @@ module.exports = {
                 embed.setColor("#a60000")
                 .setDescription(`Você foi demitido da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**\nMotivo: ${motivo}`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações da empresa onde trabalha!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                await member.send({ embeds: [embed], components: [] }).catch()
-            }catch{}
+                await member.send({ embeds: [embed], components: [] })
+            } catch (error) {
+                reportError(error, 'command.demitir.member_notification', { memberId: member.id });
+            }
 
             
             const list = company2.workers;

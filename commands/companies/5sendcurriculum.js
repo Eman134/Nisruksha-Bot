@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('empresa').setDescription('Digite o código da empresa que deseja enviar o currículo').setRequired(true))
 
@@ -106,7 +107,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             if (!(b.user.id === interaction.user.id)) return
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.enviarcurriculo.defer_update'));
             reacted = true;
             collector.stop();
             embed.fields = [];
@@ -171,8 +172,9 @@ module.exports = {
                     embed2.setColor('#5bff45')
                     embed2.setDescription(`O membro ${interaction.user} enviou um currículo para a sua empresa!\nUtilize \`/curriculos\` em algum servidor do bot para visualizar os currículos pendentes.`)
                     .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                    await companyowner.send({ embeds: [embed2], components: [] }).catch()
-                } catch { 
+                    await companyowner.send({ embeds: [embed2], components: [] })
+                } catch (error) {
+                    reportError(error, 'command.enviarcurriculo.owner_notification', { companyId: companyobj.company_id });
                 }
                 
                 embed.setColor('#5bff45');

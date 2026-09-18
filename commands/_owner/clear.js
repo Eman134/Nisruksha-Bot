@@ -20,9 +20,10 @@ module.exports = {
         }
 
         try {
-            await interaction.channel.bulkDelete(quantia).catch()
+            await interaction.channel.bulkDelete(quantia).catch((error) => reportError(error, 'command.clear.bulk_delete'))
             await interaction.reply({ content: `Você limpou **${quantia}** mensagens deste canal!`})
-        } catch{
+        } catch (error) {
+            reportError(error, 'command.clear', { channelId: interaction.channel.id });
         }
 
 	}

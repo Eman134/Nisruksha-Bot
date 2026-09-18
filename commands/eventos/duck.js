@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'patodourado',
@@ -284,7 +285,7 @@ ${currinteraction ? currinteraction : ''}
 
                 try { 
                     currentmode = currentmode == 0 ? 1 : 0
-                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                    if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.duck.defer_update'); });
                     const components = getComponents()
                     return interaction.editReply({ embeds: await getEmbeds(), components })
                 } catch (error) {

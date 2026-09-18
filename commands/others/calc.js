@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('expressão').setDescription('Coloque uma expressão de matemática para calcular').setRequired(true))
 
@@ -30,7 +31,8 @@ module.exports = {
             embed.setImage('https://media.tenor.com/images/c2f392370c8b20cc99d04148c7b6bebc/tenor.gif')
             .setDescription(`Resultado: \`${resultado}\``)
             return interaction.reply({ embeds: [embed]});
-        } catch {
+        } catch (error) {
+            reportError(error, 'command.calcular');
             const embedtemp = await API.sendError(interaction, `Houve um erro ao realizar o seu calculo! Tente novamente`);
             await interaction.reply({ embeds: [embedtemp]})
             return

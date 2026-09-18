@@ -1,6 +1,7 @@
 const API = require("../../_classes/api");
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 let bg
 
@@ -114,7 +115,7 @@ module.exports = {
             if (b.customId === 'changeMode') {
                 currentmode = currentmode == 0 ? 1 : 0
                 equipsBtn[0].label = currentmode == 0 ? 'Compacto' : 'Detalhado'
-                if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
                 return interaction.editReply({ embeds: await getEmbeds(), components: [ API.rowComponents(equipsBtn) ] })
             }
 
@@ -451,7 +452,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                         await go() 
                     }, 6000)
                 } else {
-                    if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                    if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
                     timing = Date.now()
                 }
 
@@ -459,7 +460,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
             }
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
             
             if(!inbattle) return
 
@@ -543,7 +544,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     } else {
                         await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
                     }
-                } catch {
+                } catch (error) {
+                    reportError(error, 'command.novaca.edit_progress', { userId: interaction.user.id });
                     setTimeout(async function(){
                         try {
                             if (dead) {
@@ -551,7 +553,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                             } else {
                                 await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
                             }
-                        } catch {
+                        } catch (error) {
+                            reportError(error, 'command.novaca.cleanup', { userId: interaction.user.id });
                             API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
                             API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             collector.stop();

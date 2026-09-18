@@ -1,4 +1,5 @@
 const API = require("../api");
+const { reportError } = require('../debug');
 
 const Database = require('../manager/DatabaseManager');
 const DatabaseManager = new Database();
@@ -137,8 +138,8 @@ const remembermap = new Map();
                 const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
                 if (!channel) return
                 this.loadold("energia", keys[i].memberid, channel)
-              } catch {
-
+              } catch (error) {
+                reportError(error, 'cacheLists.energia_restore', { memberId: keys[i].memberid });
               }
             }
           } if (keys[i] && keys[i]["estamina"] && keys[i]["estamina"].active){
@@ -147,8 +148,8 @@ const remembermap = new Map();
                 const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
                 if (!channel) return
                 this.loadold("estamina", keys[i].memberid, channel)
-              } catch {
-
+              } catch (error) {
+                reportError(error, 'cacheLists.estamina_restore', { memberId: keys[i].memberid });
               }
             }
           } if (((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active))) {

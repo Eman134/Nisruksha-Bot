@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'terrenoatual',
@@ -172,7 +173,7 @@ module.exports = {
             if (!(b.user.id === interaction.user.id)) return
                 reacted = true;
                 collector.stop();
-                if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.terreno.defer_update'); });
                 embed.fields = [];
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
@@ -248,7 +249,7 @@ module.exports = {
 
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.terreno.defer_update'); });
 
             collector.resetTimer()
 

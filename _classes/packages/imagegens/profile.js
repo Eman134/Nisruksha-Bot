@@ -1,4 +1,5 @@
 const API = require("../../api.js");
+const { reportError } = require('../../debug');
 let bg
 
 loadbg()
@@ -51,7 +52,8 @@ module.exports = async function execute(API, options) {
             // Criando o background personalizado como imagem e definindo a resolução
             const imageBackground = await API.img.Canvas.loadImage(options.url.bg)
             ctx.drawImage(imageBackground, 0, 0, width, height);
-        } catch{
+        } catch (error) {
+            reportError(error, 'imagegen.profile.background', { background: options.url.bg });
         }
     }
     

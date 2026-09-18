@@ -1,4 +1,5 @@
 const API = require("../../api.js");
+const { reportError } = require('../../debug');
 const ImageCharts = require('image-charts');
 let bg
 
@@ -48,7 +49,8 @@ module.exports = async function execute(API, {
             // Criando o background personalizado como imagem e definindo a resolução
             const imageBackground = await API.img.Canvas.loadImage(bglink) 
             ctx.drawImage(imageBackground, 0, 0, width, height);
-        } catch {
+        } catch (error) {
+            reportError(error, 'imagegen.seecompany.background', { bglink });
         }
     }
     
@@ -62,7 +64,8 @@ module.exports = async function execute(API, {
         try{
             const logoCanvas = await API.img.Canvas.loadImage(logo)
             ctx.drawImage(logoCanvas, 38, 50, 150, 150);
-        }catch{
+        } catch (error) {
+            reportError(error, 'imagegen.seecompany.logo', { logo });
         }
     }
 

@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'coletar',
@@ -129,7 +130,8 @@ module.exports = {
 
                 try{
                     await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])] })
-                }catch{
+                } catch (error) {
+                    reportError(error, 'command.coletar.edit_progress', { userId: interaction.user.id });
                     API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
                     API.cacheLists.waiting.remove(interaction.user.id, 'working');
                 }
@@ -158,7 +160,7 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        if (b && !b.deferred) b.deferUpdate().then().catch(console.error); 
+                        if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.coletar.defer_update'); });
                     }
                 });
 
@@ -166,7 +168,7 @@ module.exports = {
                     if (reacted) {
                         API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
                         API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                        await interaction.editReply({ embeds: [embed], components: [] })
                         const embedtemp = await API.sendError(interaction, `Você parou a coleta!`)
                         await interaction.followUp({ embeds: [embedtemp]})
                     } else {

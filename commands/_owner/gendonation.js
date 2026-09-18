@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('valor').setDescription('Digite o valor da doação').setRequired(false))
 
@@ -37,7 +38,7 @@ module.exports = {
             
             if (b.customId == 'cancel') return collector.stop();
             embed.fields = [];
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.gendonation.defer_update'); });
 
             await DatabaseManager.increment(API.id, 'globals', 'totaldonates', donate);
             await DatabaseManager.increment(API.id, 'globals', 'donates', 1);

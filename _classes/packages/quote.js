@@ -1,4 +1,5 @@
 const { Message } = require("discord.js");
+const { reportError } = require('../debug');
 
 async function quote(x) {
 
@@ -13,8 +14,9 @@ async function quote(x) {
   
     interaction = await this.channel.send(x);
     
-  } catch {
-
+  } catch (error) {
+    reportError(error, 'quote.send');
+    throw error;
   }
     
   return interaction

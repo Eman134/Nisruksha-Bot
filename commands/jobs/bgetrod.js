@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'pegarvara',
@@ -66,7 +67,7 @@ module.exports = {
             if (pobj2.rod == null) delete pobj2.rod
             let pobj3 = await DatabaseManager.get(interaction.user.id, 'machines')
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.bgetrod.defer_update'); });
 
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');

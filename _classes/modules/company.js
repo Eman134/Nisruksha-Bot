@@ -1009,7 +1009,7 @@ company.create = async function(member, ob) {
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
-                    await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${member.id};`).catch();
+                    await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${member.id};`);
                     await API.setCompanieInfo(member.id, code, 'company_id', code)
                     await API.setCompanieInfo(member.id, code, 'type', ob.type)
                     await API.setCompanieInfo(member.id, code, 'name', ob.name)

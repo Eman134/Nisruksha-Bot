@@ -1,4 +1,5 @@
 const Database = require('../../_classes/manager/DatabaseManager');
+const { reportError } = require('../../_classes/debug');
 const DatabaseManager = new Database();
 
 module.exports = {
@@ -388,11 +389,11 @@ module.exports = {
                 collector.on('collect', async (b) => {
 
                     if (b.customId == 'stopBtn') {
-                        if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+                        if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.minerar.defer_update'); });
                         stopped = true
                         btn.setDisabled()
                         API.cacheLists.waiting.remove(member.id, 'mining')
-                        await interaction.editReply({ embeds: [embed], components: [] }).catch()
+                        await interaction.editReply({ embeds: [embed], components: [] })
                         collector.stop();
                     }
                 });

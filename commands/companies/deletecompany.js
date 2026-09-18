@@ -1,5 +1,6 @@
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'fecharempresa',
@@ -67,7 +68,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.fecharempresa.defer_update'));
             reacted = true;
             collector.stop();
 

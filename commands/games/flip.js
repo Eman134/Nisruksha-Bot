@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
@@ -112,7 +113,7 @@ module.exports = {
                 confirm[b.user.id] = '✅'
             }
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.flip.defer_update'); });
 
             const embed = new Discord.MessageEmbed()
             .setTitle('Giro')

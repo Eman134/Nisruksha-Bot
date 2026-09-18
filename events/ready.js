@@ -1,8 +1,9 @@
 const trustedguilds = ['693150851396796446']
+const { reportError } = require('../_classes/debug');
 
 module.exports = {
    
-    name: "ready",
+    name: "clientReady",
     execute: async(API) => {
         
         const client = API.client;
@@ -12,8 +13,7 @@ module.exports = {
             try{
                 client.user.setActivity(`[${API.version}] Prefixo / | Tempo online: ${API.uptime()}`);
             }catch (err){
-                API.client.emit('error', err)
-                console.log(err)
+                reportError(err, 'discord.ready.activity');
             }
         }
         u()
@@ -21,7 +21,7 @@ module.exports = {
             u()
         }, 60000);
         setInterval(async() => {
-            client.sweepMessages(1800);
+            if (typeof client.sweepMessages === 'function') client.sweepMessages(1800);
             client.emojis.cache.sweep((emoji) => {
                 if (emoji.guild.name.includes('Emotes') || trustedguilds.includes(emoji.guild.id)) {
                     return false

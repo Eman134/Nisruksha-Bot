@@ -1,3 +1,5 @@
+const { reportError } = require('../debug');
+
 const crateExtension = {
 
     obj: {}
@@ -46,7 +48,7 @@ crateExtension.load = async function() {
     let obj = crateExtension.obj;
     for (const key in obj) {
         const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "crate:${key}" double precision NOT NULL DEFAULT 0;`
-        DatabaseManager.query(text).then().catch(console.error)
+        DatabaseManager.query(text).catch((error) => { throw reportError(error, 'crateExtension.give.query'); })
     }
 
     function makeid(length) {

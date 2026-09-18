@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'pegartesouro',
@@ -47,10 +48,7 @@ module.exports = {
         embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
         embed.setFooter(`Tempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
-        let embedinteraction
-        try {
-            embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true }).then((ems) => embedinteraction = ems).catch();
-        } catch {}  
+        const embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true });
 
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'digging');
 
@@ -82,7 +80,7 @@ module.exports = {
                     embed.setFooter(`Tempo escavando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                     API.crateExtension.give(interaction.user.id, 3, 1)
                     const channel = API.client.channels.cache.get(API.events.getConfig().modules.events.channel)
-                    channel.bulkDelete(10).catch()
+                    channel.bulkDelete(10).catch((error) => reportError(error, 'command.escavar.bulk_delete'))
                 } else if (prof < API.events.treasure.profundidade){
                     embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
                     embed.setFooter(`Tempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
@@ -113,7 +111,7 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         reacted = true;
                         collector.stop();
-                        if (!b.deferred) b.deferUpdate().then().catch();
+                        if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.escavar.defer_update'));
                         API.cacheLists.waiting.remove(interaction.user.id,  'digging');
                     }
                 });
@@ -128,8 +126,9 @@ module.exports = {
                     }
                 });
 
-            }catch (err){
-                API.client.emit('error', err)
+            } catch (error) {
+                reportError(error, 'command.escavar.progress');
+                API.cacheLists.waiting.remove(interaction.user.id, 'digging');
             }
         }
         edit();

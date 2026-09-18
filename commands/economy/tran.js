@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a transferência').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para transferência').setRequired(true))
@@ -108,7 +109,7 @@ module.exports = {
         collector.on('collect', async (b) => {
 
             try {
-                if (!b.deferred) b.deferUpdate().then().catch();
+                if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.transferir.defer_update'));
                 reacted = true;
                 collector.stop();
                 if (b.customId == 'cancel'){

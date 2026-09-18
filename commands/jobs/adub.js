@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'adubar',
@@ -74,7 +75,7 @@ module.exports = {
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             collector.stop();
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.adubar.defer_update'); });
             
             embed.fields = [];
 

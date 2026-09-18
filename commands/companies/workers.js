@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 module.exports = {
     name: 'funcionários',
@@ -110,7 +111,7 @@ module.exports = {
             collector.stop();
             embed.fields = [];
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.func.defer_update'); });
 
             if ((company.score < price)) {
                 embed.setColor('#a60000');

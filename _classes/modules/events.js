@@ -1,4 +1,5 @@
 const API = require("../api.js");
+const { reportError } = require('../debug');
 const Database = require('../manager/DatabaseManager');
 const DatabaseManager = new Database();
 const config = require("../config");
@@ -121,10 +122,10 @@ events.alert = async function(text) {
         embed.setTitle("Siga este canal em seu servidor para avisos de eventos")
         embed.setDescription(text)
         const channel = API.client.channels.cache.get(config.modules.events.channel)
-        await channel.bulkDelete(10).catch()
+        await channel.bulkDelete(10).catch((error) => reportError(error, 'events.bulk_delete'))
         let eventinteraction 
         await channel.send({ embeds: [embed]}).then((embedinteraction) => {
-            if (channel.type == 'GUILD_NEWS') embedinteraction.crosspost()
+            if (channel.type == API.Discord.ChannelType.GuildAnnouncement) embedinteraction.crosspost()
             eventinteraction = embedinteraction
         })
 
@@ -281,7 +282,8 @@ events.load = async function() {
             let ch = await API.client.channels.fetch(config.modules.events.channel);
             try{
                 interaction = await ch.messages.fetch(events.race.interactionid)
-            }catch {
+            } catch (error) {
+                reportError(error, 'events.race_message_fetch', { interactionId: events.race.interactionid });
             }
 
             if (!interaction) return

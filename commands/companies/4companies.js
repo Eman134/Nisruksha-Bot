@@ -1,4 +1,6 @@
 
+const { reportError } = require('../../_classes/debug');
+
 async function formatList(API, embed2, page2) {
 
     embed2.setColor('#4870c7')
@@ -108,7 +110,7 @@ module.exports = {
 
             if (!(b.user.id === interaction.user.id)) return
             
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.empresas.defer_update'); });
 
             if (b.customId == 'forward'){
                 if (currentpage < totalpages) currentpage += 1;

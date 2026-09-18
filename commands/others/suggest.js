@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('sugestão').setDescription('Escreva uma sugestão para o bot').setRequired(true))
 
@@ -40,7 +41,9 @@ module.exports = {
             let interaction2 = await API.client.channels.cache.get('693910939111653436').send({ embeds: [embed2] });
             await interaction2.react(`👍`)
             await interaction2.react(`👎`)
-        }catch{}
+        } catch (error) {
+            reportError(error, 'command.sugerir.publish', { userId: interaction.user.id });
+        }
   
       }
   };

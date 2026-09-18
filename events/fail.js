@@ -1,3 +1,4 @@
+const { reportError } = require('../_classes/debug');
 
 module.exports = {
 
@@ -30,8 +31,11 @@ module.exports = {
             if (interaction.replied) interaction.editReply({ embeds: [embedfail] })
             else interaction.reply(failObject)
         } catch (error) {
-            API.client.emit('error', error)
-            console.log(error)
+            reportError(error, 'discord.fail_event', {
+                type,
+                userId: interaction?.user?.id,
+                command: interaction?.commandName
+            });
         }
 
     }

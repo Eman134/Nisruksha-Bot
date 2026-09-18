@@ -1,5 +1,6 @@
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 const API = require('../../_classes/api');
 
@@ -187,7 +188,8 @@ module.exports = {
                     try {
                         const x = await interaction.guild.members.fetch(array[i].user_id)
                         arr2check.push(array[i])
-                    } catch {
+                    } catch (error) {
+                        reportError(error, 'command.ranking.member_fetch', { userId: array[i].user_id });
                     }
 
                 }

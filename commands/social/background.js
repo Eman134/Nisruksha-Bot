@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('link').setDescription('Coloque um link de uma imagem para background').setRequired(true))
 
@@ -47,8 +48,8 @@ module.exports = {
         .setImage(bglink);
         try{
             await API.client.channels.cache.get('736383144499871765').send({ embeds: [embed2] });
-        }catch{
-
+        } catch (error) {
+            reportError(error, 'command.background.publish', { userId: interaction.user.id });
         }
 
 	}

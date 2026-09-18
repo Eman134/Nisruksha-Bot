@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de fragmentos para processar').setRequired(true))
 
@@ -98,7 +99,7 @@ module.exports = {
             embed.setDescription('')
             current = b.customId
 
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.iniciar.defer_update'); });
 
             collector.stop()
             

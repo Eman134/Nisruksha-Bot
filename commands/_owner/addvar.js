@@ -1,5 +1,6 @@
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -29,7 +30,8 @@ module.exports = {
         try {
             v = await client.users.fetch(id);
             va = 'user_id'
-        } catch {
+        } catch (error) {
+            reportError(error, 'command.addvar.user_lookup', { id });
             v = client.guilds.cache.get(id);
             va = 'server_id'
         }

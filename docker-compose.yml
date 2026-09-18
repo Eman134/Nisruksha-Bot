@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:13-alpine
+    container_name: nisruksha-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: nisruksha-local-db
+      POSTGRES_DB: nisru
+    ports:
+      - "5432:5432"
+    volumes:
+      - nisru-postgres-data:/var/lib/postgresql/data
+      - ./db_nisru.db:/docker-entrypoint-initdb.d/01-db_nisru.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nisru"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+volumes:
+  nisru-postgres-data:

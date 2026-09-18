@@ -1,5 +1,6 @@
 const Database = require("../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
+const { reportError } = require('../_classes/debug');
 
 module.exports = {
 
@@ -17,8 +18,8 @@ module.exports = {
         let owner = { id: '0', tag: '0#0'}
         try {
             owner = await API.client.users.fetch(guild.ownerId)
-        } catch {
-            
+        } catch (error) {
+            reportError(error, 'guild_delete.owner_fetch', { guildId: guild.id });
         }
 
         const embed = new Discord.MessageEmbed();

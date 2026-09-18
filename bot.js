@@ -1,5 +1,6 @@
 const ShardingManager = require('./_classes/manager/ShardingManager');
 const config = require('./_classes/config');
+const { reportError } = require('./_classes/debug');
 require('colors')
 
 new ShardingManager(config).connect()
@@ -8,7 +9,7 @@ new ShardingManager(config).connect()
     })  
 
     .catch(err => {             
-        console.log('Erro ao conectar'.red)
-        console.log(err)
+        reportError(err, 'sharding.connect');
+        process.exitCode = 1;
     }
 )

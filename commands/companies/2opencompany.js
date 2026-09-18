@@ -1,6 +1,7 @@
 const API = require('../../_classes/api');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 
 const options = (option) => {
@@ -99,7 +100,7 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!b.deferred) b.deferUpdate().then().catch();
+            if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.abrirempresa.defer_update'));
             reacted = true;
             collector.stop();
             

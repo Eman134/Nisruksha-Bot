@@ -1,3 +1,5 @@
+const { reportError } = require('../../_classes/debug');
+
 module.exports = {
     name: 'votar',
     aliases: ['vote', 'upvote'],
@@ -47,7 +49,8 @@ module.exports = {
                     try {
                         d = JSON.parse(d.toString());
                         votedbest = d.votedToday
-                    } catch {
+                    } catch (error) {
+                        reportError(error, 'command.votar.response_json', { userId: interaction.user.id });
                     }
                     const embed = new Discord.MessageEmbed()
                     .setColor('#36393f')

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 
 .addSubcommand(subcommand =>
@@ -88,9 +89,10 @@ module.exports = {
                 embed.setColor("#5bff45")
                 .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!\nPara visualizar os comandos da sua empresa utilize \`/setores\``)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                await usr.send({ embeds: [embed]}).catch()
+                await usr.send({ embeds: [embed]})
 
-            } catch{
+            } catch (error) {
+                reportError(error, 'command.curriculos.user_notification', { userId: usr.id });
             }
 
             let workers = company.workers == null ? [] : company.workers
@@ -137,7 +139,8 @@ module.exports = {
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
                 usr.send({ embeds: [embed]});
 
-            } catch{
+            } catch (error) {
+                reportError(error, 'command.curriculos.rejection_notification', { userId: usr.id });
             }
 
             await API.setCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)

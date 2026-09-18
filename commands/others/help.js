@@ -1,3 +1,5 @@
+const { reportError } = require('../../_classes/debug');
+
 module.exports = {
 	name: 'ajuda',
 	aliases: ['help', 'comandos', 'commands'],
@@ -90,7 +92,7 @@ ${API.helpExtension.getCategoryList()}`)
             await interaction.editReply({ embeds: [embed], components })
 
             collector.resetTimer()
-            if (b && !b.deferred) b.deferUpdate().then().catch(console.error);
+            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.ajuda.defer_update'); });
             
         });
         

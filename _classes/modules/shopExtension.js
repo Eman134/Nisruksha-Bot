@@ -1,4 +1,5 @@
 const API = require("../api.js");
+const { reportError } = require('../debug');
 const Database = require("../manager/DatabaseManager.js");
 const DatabaseManager = new Database();
 
@@ -248,7 +249,7 @@ shopExtension.editPage = async function(cat, interaction, embedinteraction, prod
       if (product) stopComponents = true
       components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, interaction.user.id, stopComponents);
       
-      if (!b.deferred) b.deferUpdate().then().catch();
+      if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'shop.defer_update'));
 
       if (product) {
         collector.stop()
@@ -352,7 +353,7 @@ shopExtension.execute = async function(interaction, p) {
     collector.stop();
     embed.fields = [];
 
-    if (!b.deferred) b.deferUpdate().then().catch();
+    if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'shop.defer_update'));
 
     if (b.customId == 'confirm'){
 
