@@ -146,5 +146,12 @@
         "chn": ["Update de pesca [8 -> 5 segundos]", "Mensagem de caça"],
         "rem": [],
         "fix": ["Certos itens não eram recompensados nos tesouros", "Tier da máquina resetando após usar dinamite"]
+    },
+    "1.0.0 (Rework)": {
+        "title": "Rework",
+        "add": ["Tratamento centralizado de erros", "Logs estruturados para diagnóstico", "Compatibilidade com Discord.js atualizada"],
+        "chn": ["Comandos e banco de dados agora propagam exceções sem ocultá-las"],
+        "rem": [],
+        "fix": ["Falhas de comandos agora geram resposta segura e registro com contexto"]
     }
 }
