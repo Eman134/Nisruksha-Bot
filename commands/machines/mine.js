@@ -11,6 +11,7 @@ module.exports = {
 	async execute(API, interaction) {
         
         const member = interaction.user
+        await interaction.deferReply();
 
         const Discord = API.Discord;
         const isFull = await API.maqExtension.storage.isFull(member.id);
@@ -18,19 +19,19 @@ module.exports = {
 
         if (!(hasMachine)) {
             const embedtemp = await API.sendError(interaction, `Você ainda não possui uma máquina!\nAcesse \`/loja maquinas\` para visualizar as maquinas disponíveis`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.editReply({ embeds: [embedtemp]})
             return;
         }
 
         if (API.cacheLists.waiting.includes(member.id, 'mining')) {
             const embedtemp = await API.sendError(interaction, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.editReply({ embeds: [embedtemp]})
             return;
         }
 
 		if (isFull) {
             const embedtemp = await API.sendError(interaction, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.editReply({ embeds: [embedtemp]})
             return;
         }
 
@@ -38,10 +39,11 @@ module.exports = {
         let maqid = playerobj.machine;
 
         let maq = API.shopExtension.getProduct(maqid);
+        if (!maq) throw new Error(`Machine product not found: ${maqid}`);
 
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
             const embedtemp = await API.sendError(interaction, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`/maquina\` para reparar a sua máquina.`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.editReply({ embeds: [embedtemp]})
             return;
         }
 
@@ -49,7 +51,7 @@ module.exports = {
 
         if (energia < Math.round(15*energiamax/100)) {
             const embedtemp = await API.sendError(interaction, `Sua máquina precisa de no mínimo ${Math.round(15*energiamax/100)} de energia para ligar\nVisualize a energia utilizando \`/maquina\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.editReply({ embeds: [embedtemp]})
             return;
         }
 
@@ -74,8 +76,9 @@ module.exports = {
 
         const array = obj6.slots == null ? [] : obj6.slots
         for (const i of array){
-            const chipproduct = API.shopExtension.getProduct(i.id);
-            if (chipproduct.typeeffect == 4) {
+            const chipId = typeof i === 'object' ? i.id : i;
+            const chipproduct = API.shopExtension.getProduct(chipId);
+            if (chipproduct?.typeeffect == 4) {
             timeupdate -= Math.round(chipproduct.sizeeffect*1000)
             };
         }
@@ -155,15 +158,16 @@ module.exports = {
                             } else {
                                 let fvalue = value
                                 for (const i of array){
-                                    const chipproduct = API.shopExtension.getProduct(i.id);
-                                    if (chipproduct.typeeffect == 3) {
+                                    const chipId = typeof i === 'object' ? i.id : i;
+                                    const chipproduct = API.shopExtension.getProduct(chipId);
+                                    if (chipproduct?.typeeffect == 3) {
                                         fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
                                 }
                                 await DatabaseManager.increment(member.id, 'machines', name, -fvalue)
                             }
                         } catch (error) {
-                            console.log(error)
+                            throw reportError(error, 'command.minerar.maintenance.durability', { userId: member.id });
                         }
 
                     }
@@ -185,7 +189,7 @@ module.exports = {
                                 }
                             }
                         } catch (error) {
-                            console.log(error)
+                            throw reportError(error, 'command.minerar.maintenance.pressure', { userId: member.id });
                         }
                     }
 
@@ -206,7 +210,7 @@ module.exports = {
                                 }
                             }
                         } catch (error) {
-                            console.log(error)
+                            throw reportError(error, 'command.minerar.maintenance.pollutants', { userId: member.id });
                         }
 
                     }
@@ -216,7 +220,7 @@ module.exports = {
                         try {
                             await DatabaseManager.increment(member.id, 'machines', name, -value*4)
                         } catch (error) {
-                            console.log(error)
+                            throw reportError(error, 'command.minerar.maintenance.refrigeration', { userId: member.id });
                         }
                     }
 
@@ -297,15 +301,10 @@ module.exports = {
                 }
 
                 try{
-                    if (interaction.replied) {
-                        await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])], fetchReply: true })
-                    }
-                    else {
-                        embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn])], fetchReply: true })
-                    }
-                }catch (err){
-					API.cacheLists.waiting.remove(member.id, 'mining')
-                    return
+                    embedinteraction = await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])] })
+                } catch (error) {
+                    API.cacheLists.waiting.remove(member.id, 'mining')
+                    throw reportError(error, 'command.minerar.initial_reply', { userId: member.id });
                 }
 
                 async function checkStop() {
@@ -405,21 +404,24 @@ module.exports = {
                         const embedtemp = await API.sendError(interaction, `Você parou o funcionamento da sua máquina!`)
                         await interaction.followUp({ embeds: [embedtemp] })
                     } else {
-                        edit();
+                        edit().catch((error) => {
+                            reportError(error, 'command.minerar.collector', { userId: member.id });
+                            API.cacheLists.waiting.remove(member.id, 'mining');
+                        });
                     }
                 });
 
-            }catch (err) {
+            } catch (error) {
                 checkChipe7()
-                API.client.emit('error', err)
                 API.cacheLists.waiting.remove(member.id, 'mining');
+                throw reportError(error, 'command.minerar.progress', { userId: member.id });
             }
         }
         try {
             await edit();
-        } catch (err) {
-            API.client.emit('error', err)
+        } catch (error) {
             API.cacheLists.waiting.remove(member.id, 'mining');
+            throw reportError(error, 'command.minerar', { userId: member.id });
         }
 	}
 };

@@ -27,7 +27,8 @@ module.exports = {
 
         API.playerUtils.cooldown.set(interaction.user.id, "maq", 10);
 
-        const embedinteraction = await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da máquina`, fetchReply: true })
+        await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da máquina` })
+        const embedinteraction = await interaction.fetchReply()
 
         const machinesobj = await DatabaseManager.get(member.id, 'machines')
         
@@ -93,7 +94,12 @@ module.exports = {
                 })
                 return machineimage;
             } catch (error) {
-                console.log(error)
+                throw reportError(error, 'command.maquina.image_generation', {
+                    userId: interaction.user.id,
+                    memberId: member.id,
+                    machineId: machineproduct?.id,
+                    image: machineproduct?.img
+                });
             }
 
         }
@@ -266,7 +272,10 @@ module.exports = {
 
                 return components
             } catch (error) {
-                console.log(error)
+                throw reportError(error, 'command.maquina.components', {
+                    userId: interaction.user.id,
+                    memberId: member.id
+                });
             }
 
         }
@@ -462,7 +471,7 @@ module.exports = {
     
                 eval(repairType + 'Percent = ' + repairType + 'Percent2')
             } catch (error) {
-                console.log(error)
+                reportError(error, 'command.maquina.maintenance');
             }
 
         }
@@ -541,7 +550,7 @@ module.exports = {
                 const newchips = await API.itemExtension.getChips(interaction.user.id);
                 reworkEmbed(newchips)
             } catch (error) {
-                console.log(error)
+                throw reportError(error, 'command.maquina.equip_chip', { userId: interaction.user.id });
             }
 
         }

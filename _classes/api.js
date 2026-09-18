@@ -1,6 +1,7 @@
 const { prefix, owner, token, ip, app } = require("../_classes/config");
 const serverdb = {};
-const version = require('../package.json').version
+const packageVersion = require('../package.json').version
+const version = `${packageVersion} (Rework)`
 const { MessageActionRow, MessageButton, MessageSelectMenu, ButtonStyle } = require('discord.js')
 const Database = require('./manager/DatabaseManager');
 const DatabaseManager = new Database();
@@ -249,9 +250,9 @@ API.getMultipleArgs = function(interaction, index) {
 API.createButton = function(id, style, label, emoji, disabled) {
 
     let button = new MessageButton()
-    .setStyle(ButtonStyle[style.charAt(0).toUpperCase() + style.slice(1).toLowerCase()])
-    .setLabel(label)
-    if (emoji) button.setEmoji(emoji)
+        .setStyle(ButtonStyle[style.charAt(0).toUpperCase() + style.slice(1).toLowerCase()])
+        .setLabel(label)
+    if (emoji) button.setEmoji(API.normalizeEmoji(emoji))
     if (style == 'LINK') button.setURL(id.toString()) 
     else button.setCustomId(id)
     if (disabled) button.setDisabled(true);
@@ -291,10 +292,44 @@ Render this option as the default selection
     .setPlaceholder(placeholder)
     .setMinValues(min)
     .setMaxValues(max)
-    .addOptions(options)
+    .addOptions(options.map((option) => ({
+        ...option,
+        emoji: option.emoji ? API.normalizeEmoji(option.emoji) : undefined
+    })))
 
     return menu
 
+}
+
+API.normalizeEmoji = function(emoji) {
+    if (!emoji) return emoji;
+
+    const fallbackById = {
+        '737370913204600853': '▶️',
+        '758717273304465478': '⭐',
+        '765944910179336202': '🛒',
+        '833803786022682636': '🧩',
+        '833837888634486794': '⬆️',
+        '852241487064596540': '◀️',
+        '852302870074359838': '🔢',
+        '855906056865316895': '🃏',
+        '858463319904223252': '⚙️',
+        '917061148715663420': '📈',
+        '917063856205991987': '☣️',
+        '917064899740438600': '❄️'
+    };
+
+    if (typeof emoji === 'string') {
+        const customEmoji = emoji.match(/^<a?:[^:>]+:(\d+)>$/);
+        const id = customEmoji ? customEmoji[1] : emoji;
+        if (/^\d+$/.test(id)) return fallbackById[id] || '🔘';
+    }
+
+    if (typeof emoji === 'object' && emoji.id) {
+        return fallbackById[emoji.id] || '🔘';
+    }
+
+    return emoji;
 }
 
 API.rowComponents = function(arr) {

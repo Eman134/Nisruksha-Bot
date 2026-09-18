@@ -1,7 +1,8 @@
 const API = require("../../api.js");
+const { reportWarning } = require('../../debug');
 let bg, locked, locked2, rachadura1, rachadura2, rachadura3, rachadura4, rachadura5
 
-loadbg()
+const assetsReady = loadbg()
 
 async function loadbg() {
     bg = await API.img.Canvas.loadImage('./resources/backgrounds/maq/maqbackground.png');
@@ -29,6 +30,7 @@ module.exports = async function execute(API, {
     equippedchips,
 
 }) {
+    await assetsReady;
 
     // Criando o padrão de imagem
 
@@ -51,7 +53,7 @@ module.exports = async function execute(API, {
     API.img.drawText(ctx, Math.round(durabilityPercent) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
 
     // Desenhando máquina
-    const machineimage = await API.img.Canvas.loadImage(machineproduct.img)
+    const machineimage = await loadOptionalImage(machineproduct.img, () => createWhiteImage(100, 100), 'imagegen.machine.machine');
     ctx.drawImage(machineimage, 200, 80, 100, 100);
 
     if (maxslots < 5) {
@@ -110,8 +112,8 @@ module.exports = async function execute(API, {
         if (equippedchips[0]) {
             const equipedchip = equippedchips[0]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await API.img.Canvas.loadImage(chip.img)
-            ctx.drawImage(chipimg, 19, 219, 60, 60)
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.1');
+            if (chipimg) ctx.drawImage(chipimg, 19, 219, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
             rachadura ? ctx.drawImage(rachadura, 19, 219, 60, 60) : null
@@ -124,8 +126,8 @@ module.exports = async function execute(API, {
         if (equippedchips[1]) {
             const equipedchip = equippedchips[1]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await API.img.Canvas.loadImage(chip.img)
-            ctx.drawImage(chipimg, 117, 255, 60, 60)
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.2');
+            if (chipimg) ctx.drawImage(chipimg, 117, 255, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
             rachadura ? ctx.drawImage(rachadura, 117, 255, 60, 60) : null
@@ -138,8 +140,8 @@ module.exports = async function execute(API, {
         if (equippedchips[2]) {
             const equipedchip = equippedchips[2]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await API.img.Canvas.loadImage(chip.img)
-            ctx.drawImage(chipimg, 220, 242, 60, 60)
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.3');
+            if (chipimg) ctx.drawImage(chipimg, 220, 242, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
             rachadura ? ctx.drawImage(rachadura, 220, 242, 60, 60) : null
@@ -152,8 +154,8 @@ module.exports = async function execute(API, {
         if (equippedchips[3]) {
             const equipedchip = equippedchips[3]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await API.img.Canvas.loadImage(chip.img)
-            ctx.drawImage(chipimg, 312, 252, 60, 60)
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.4');
+            if (chipimg) ctx.drawImage(chipimg, 312, 252, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
             rachadura ? ctx.drawImage(rachadura, 312, 252, 60, 60) : null
@@ -166,8 +168,8 @@ module.exports = async function execute(API, {
         if (equippedchips[4]) {
             const equipedchip = equippedchips[4]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await API.img.Canvas.loadImage(chip.img)
-            ctx.drawImage(chipimg, 398, 220, 60, 60)
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.5');
+            if (chipimg) ctx.drawImage(chipimg, 398, 220, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
             rachadura ? ctx.drawImage(rachadura, 398, 220, 60, 60) : null
@@ -243,4 +245,26 @@ module.exports = async function execute(API, {
     const attachment = new API.Discord.MessageAttachment(finalcanvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
     return attachment
 
+}
+
+async function loadOptionalImage(url, fallback, context) {
+    try {
+        if (!url) throw new Error('Image URL is empty');
+        return await API.img.Canvas.loadImage(url);
+    } catch (error) {
+        reportWarning('Optional image unavailable; using fallback', context, {
+            url,
+            error: error.message,
+            fallback: Boolean(fallback)
+        });
+        return fallback ? fallback() : null;
+    }
+}
+
+function createWhiteImage(width, height) {
+    const canvas = API.img.Canvas.createCanvas(width, height);
+    const context = canvas.getContext('2d');
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, width, height);
+    return canvas;
 }

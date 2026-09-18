@@ -1,6 +1,11 @@
 const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 
+function sanitizeEmojiText(value) {
+    if (typeof value !== 'string') return value;
+    return value.replace(/<a?:([A-Za-z0-9_]+):\d+>/g, ':$1:');
+}
+
 let stringOptionPrototype;
 new SlashCommandBuilder().addStringOption(option => {
     stringOptionPrototype = option.constructor.prototype;
@@ -18,17 +23,33 @@ class LegacyEmbedBuilder extends Discord.EmbedBuilder {
     }
 
     addField(name, value, inline = false) {
-        return this.addFields({ name, value, inline });
+        return this.addFields({ name: sanitizeEmojiText(name), value: sanitizeEmojiText(value), inline });
+    }
+
+    addFields(...fields) {
+        return super.addFields(...fields.flat().map((field) => ({
+            ...field,
+            name: sanitizeEmojiText(field.name),
+            value: sanitizeEmojiText(field.value)
+        })));
+    }
+
+    setTitle(title) {
+        return super.setTitle(sanitizeEmojiText(title));
+    }
+
+    setDescription(description) {
+        return super.setDescription(sanitizeEmojiText(description));
     }
 
     setAuthor(name, iconURL, url) {
-        if (typeof name === 'object') return super.setAuthor(name);
-        return super.setAuthor({ name, iconURL, url });
+        if (typeof name === 'object') return super.setAuthor({ ...name, name: sanitizeEmojiText(name.name) });
+        return super.setAuthor({ name: sanitizeEmojiText(name), iconURL, url });
     }
 
     setFooter(text, iconURL) {
-        if (typeof text === 'object') return super.setFooter(text);
-        return super.setFooter({ text, iconURL });
+        if (typeof text === 'object') return super.setFooter({ ...text, text: sanitizeEmojiText(text.text) });
+        return super.setFooter({ text: sanitizeEmojiText(text), iconURL });
     }
 }
 
@@ -47,6 +68,28 @@ class LegacyAttachmentBuilder extends Discord.AttachmentBuilder {
         super(attachment, typeof name === 'string' ? { name } : name);
     }
 }
+
+function patchReplyMethod(InteractionClass) {
+    if (!InteractionClass?.prototype?.reply || InteractionClass.prototype.reply.__nisrukshaPatched) return;
+
+    const reply = InteractionClass.prototype.reply;
+    const wrappedReply = function(options) {
+        if (!options || !options.fetchReply) return reply.call(this, options);
+
+        const { fetchReply, ...payload } = options;
+        return reply.call(this, { ...payload, withResponse: true }).then((response) => {
+            return response?.resource?.message || this.fetchReply();
+        });
+    };
+
+    wrappedReply.__nisrukshaPatched = true;
+    InteractionClass.prototype.reply = wrappedReply;
+}
+
+patchReplyMethod(Discord.ChatInputCommandInteraction);
+patchReplyMethod(Discord.ContextMenuCommandInteraction);
+patchReplyMethod(Discord.MessageComponentInteraction);
+patchReplyMethod(Discord.ModalSubmitInteraction);
 
 Discord.MessageEmbed = LegacyEmbedBuilder;
 Discord.MessageActionRow = Discord.ActionRowBuilder;
