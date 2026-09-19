@@ -1,6 +1,15 @@
 const Database = require('../../_classes/manager/DatabaseManager');
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const DatabaseManager = new Database();
+
+function buildMiningStatusContainer(message) {
+    return new ContainerBuilder()
+        .setAccentColor(0x36393f)
+        .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## MINERACAO ENCERRADA\n${message}`)
+        );
+}
 
 module.exports = {
     name: 'minerar',
@@ -13,25 +22,30 @@ module.exports = {
         const member = interaction.user
         await interaction.deferReply();
 
-        const Discord = API.Discord;
         const isFull = await API.maqExtension.storage.isFull(member.id);
         const hasMachine = await API.maqExtension.has(member.id);
 
         if (!(hasMachine)) {
-            const embedtemp = await API.sendError(interaction, `Você ainda não possui uma máquina!\nAcesse \`/loja maquinas\` para visualizar as maquinas disponíveis`)
-            await interaction.editReply({ embeds: [embedtemp]})
+            await interaction.editReply({
+                components: [buildMiningStatusContainer('Você ainda não possui uma máquina!\nAcesse `/loja maquinas` para visualizar as maquinas disponíveis')],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
         if (API.cacheLists.waiting.includes(member.id, 'mining')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se minerando no momento! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})`)
-            await interaction.editReply({ embeds: [embedtemp]})
+            await interaction.editReply({
+                components: [buildMiningStatusContainer(`Você já encontra-se minerando no momento! [[VER MINERACAO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})`)],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
 		if (isFull) {
-            const embedtemp = await API.sendError(interaction, `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`)
-            await interaction.editReply({ embeds: [embedtemp]})
+            await interaction.editReply({
+                components: [buildMiningStatusContainer('Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize `/armazém` para visualizar seus recursos\nUtilize `/vender` para vender os recursos')],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
@@ -42,24 +56,30 @@ module.exports = {
         if (!maq) throw new Error(`Machine product not found: ${maqid}`);
 
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
-            const embedtemp = await API.sendError(interaction, `Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize \`/maquina\` para reparar a sua máquina.`)
-            await interaction.editReply({ embeds: [embedtemp]})
+            await interaction.editReply({
+                components: [buildMiningStatusContainer('Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize `/maquina` para reparar a sua máquina.')],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
         const { energia, energiamax, time } = await API.maqExtension.getEnergy(interaction.user.id)
 
         if (energia < Math.round(15*energiamax/100)) {
-            const embedtemp = await API.sendError(interaction, `Sua máquina precisa de no mínimo ${Math.round(15*energiamax/100)} de energia para ligar\nVisualize a energia utilizando \`/maquina\``)
-            await interaction.editReply({ embeds: [embedtemp]})
+            await interaction.editReply({
+                components: [buildMiningStatusContainer(`Sua máquina precisa de no mínimo ${Math.round(15*energiamax/100)} de energia para ligar\nVisualize a energia utilizando \`/maquina\``)],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
         const check = await API.playerUtils.cooldown.check(member.id, "mine");
         if (check) {
-
-            API.playerUtils.cooldown.message(interaction, 'mine', 'executar um comando de mineração')
-
+            const cooldown = await API.playerUtils.cooldown.get(member.id, 'mine');
+            await interaction.editReply({
+                components: [buildMiningStatusContainer(`Aguarde mais ${API.ms(cooldown)} para executar um comando de mineracao.`)],
+                flags: API.Discord.MessageFlags.IsComponentsV2
+            });
             return;
         }
 
@@ -83,24 +103,55 @@ module.exports = {
             };
         }
 
-        let btn = API.createButton('stopBtn', 'DANGER', 'Parar mineração')
-
-        const embed = new Discord.MessageEmbed();
-        embed.setTitle(`${maq.icon} ${maq.name}`).setColor("#36393f")
+        let btn = API.createButton('stopBtn', 'DANGER', 'Parar mineracao')
 
         API.cacheLists.waiting.add(member.id, interaction, 'mining');
 
-        let totalcoletado = 0;
-        let coletadox = new Map();
-
         let embedinteraction
+
+        function buildMiningContainer({ description, machine, mining, ores, showStop = true }) {
+            const container = new ContainerBuilder()
+                .setAccentColor(0x36393f)
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(description),
+                    new TextDisplayBuilder().setContent(machine),
+                    new TextDisplayBuilder().setContent(mining),
+                    new TextDisplayBuilder().setContent(ores)
+                );
+
+            if (showStop) {
+                container.addActionRowComponents(
+                    new ActionRowBuilder().addComponents(btn)
+                );
+            }
+
+            return container;
+        }
+
+        function buildProgress(current, max, size = 10) {
+            const safeMax = Math.max(Number(max) || 0, 1);
+            const safeCurrent = Math.max(0, Math.min(Number(current) || 0, safeMax));
+            const filled = Math.round((safeCurrent / safeMax) * size);
+            return `[${'#'.repeat(filled)}${'-'.repeat(size - filled)}] ${current}/${max}`;
+        }
+
+        function buildOreText(ores) {
+            if (ores.length === 0) return '**Minerios coletados**\nNenhum minerio coletado neste update.';
+
+            const lines = ores.map(({ name, amount, chips }) => {
+                const chipText = chips.length > 0 ? ` | Chips: ${chips.join(', ')}` : '';
+                return `- ${name}: +${amount}g | Update: ${amount}g${chipText}`;
+            });
+
+            return `**Minerios coletados**\n${lines.join('\n')}`;
+        }
 
         let haschipe7 = false
         let hastotalchipe7 = 0
 
         function checkChipe7() {
             if (haschipe7) {
-                API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
+                API.eco.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${API.format(hastotalchipe7)} ${API.money}`)
             }
         }
 
@@ -118,7 +169,7 @@ module.exports = {
 
                 const obj2 = await API.maqExtension.ores.gen(maq, profundidade, playerobj.slots == null ? [] : playerobj.slots);
 
-                let sizeMap = new Map();
+                const oreDetails = new Map();
                 let round = 0;
                 let xp = API.random(20, 40);
                 xp = await API.playerUtils.execExp(interaction, xp);
@@ -244,12 +295,24 @@ module.exports = {
                     if (await API.maqExtension.storage.getSize(member.id)+size >= arMax) {
                         size -= (await API.maqExtension.storage.getSize(member.id)+size-arMax)
                     }
-                    totalcoletado += size;
-                    if (coletadox.has(ore.name)) coletadox.set(ore.name, coletadox.get(ore.name)+size)
-                    else coletadox.set(ore.name, size)
-                    sizeMap.set(ore.name, size)
+                    const details = oreDetails.get(ore.name) || {
+                        name: ore.name.charAt(0).toUpperCase() + ore.name.slice(1),
+                        amount: 0,
+                        chips: new Set()
+                    };
+                    details.amount += size;
+                    for (const chipId of Object.keys(r.orechips || {})) details.chips.add(chipId.toUpperCase());
+                    oreDetails.set(ore.name, details);
                     API.itemExtension.add(member.id, ore.name, size)
                     round += size;
+
+                    if (r.orechips && r.orechips.chipe7) {
+                        const minerioatual = API.itemExtension.getObj().minerios.find((i) => i.name == ore.name)
+                        const totalchipe7 = Math.round(size * (minerioatual?.price?.max || 0))
+                        hastotalchipe7 += totalchipe7
+                        haschipe7 = true
+                        API.eco.money.add(member.id, totalchipe7)
+                    }
 
                     if (await API.maqExtension.storage.getSize(member.id)+size >= arMax) break;
                     
@@ -266,42 +329,25 @@ module.exports = {
                 var [ _, _, pollutantsPercent ] = pollutants
                 var [ _, _, refrigerationPercent ] = refrigeration
 
-                let progress2 = API.getProgress(8, { 60: '<:energyfull:741675235010674849>', 30: '<:energy:850573316602200064>', 0: '<:energy:850573316728946698>' }, '<:energyempty:741675234796503041>', (energia+1 < 0 ? 0 : energia+1), energiamax);
-                embed.fields = [];
                 const obj6 = await DatabaseManager.get(member.id, "machines");
                 const arsize = await API.maqExtension.storage.getSize(member.id);
-                
-                await embed.setDescription(`Minerador: ${member}`);
-                await embed.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
-                await embed.addField(`<:info:736274028515295262> Informações da máquina`, `${ep == null || ep.length == 0 ?'\nChipes: Nenhum instalado\n': `\nChipes: [${ep.map((i) => `${API.shopExtension.getProduct(i.id).icon}`).join(', ')}]\n`}Profundidade: ${profundidade}m\nDurabilidade: ${durabilityPercent}%\nPressão: ${pressurePercent}%\nRefrigeração: ${refrigerationPercent}%\nPoluentes: ${pollutantsPercent}%`)
-                await embed.addField(`⛏ Informações de mineração`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${(100*obj6.xp/(obj6.level*1980)).toFixed(2)}%) \`(+${xp} XP)\`\nEnergia: ${progress2}`)
-                embed.setFooter(`Tempo de atualização: ${timeupdate/1000} segundos\nTempo minerando: ${API.ms(Date.now()-init)}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-                let itensObj = API.itemExtension.getObj();
-                
-                for await (const r of obj2) {
-
-                    const ore = r.oreobj
-                    const orechips = r.orechips
-                    const chipsstring = r.chipsstring
-
-                    const chipe7 = orechips && orechips.chipe7
-                    
-                    let qnt = sizeMap.get(ore.name);
-                    if (qnt == undefined) qnt = 0;
-                    if (qnt < 1) qnt = 0;
-                    embed.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g${chipsstring && chipsstring.length > 0 ? ' [' + chipsstring.map((chipicon) => chipicon).join(', ') + ']':''}`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
-                    if (chipe7) {
-                        const minerioatual = itensObj.minerios.find((i) => i.name == ore.name)
-                        const totalchipe7 = Math.round(qnt*(minerioatual.price.max))
-                        hastotalchipe7 += totalchipe7
-                        haschipe7 = true
-                        API.eco.money.add(member.id, totalchipe7)
-                    }
-
-                }
+                const progress2 = buildProgress(energia + 1 < 0 ? 0 : energia + 1, energiamax);
+                const chipNames = ep == null || ep.length === 0
+                    ? 'Nenhum instalado'
+                    : ep.map((i) => API.shopExtension.getProduct(i.id)?.name || `Chip ${i.id}`).join(', ');
+                const oreList = [...oreDetails.values()].map((details) => ({
+                    ...details,
+                    chips: [...details.chips]
+                }));
+                const container = buildMiningContainer({
+                    description: `## MINERACAO | ${maq.name}\nMinerador: ${member}`,
+                    machine: `**Armazem**\nCapacidade: ${arsize}/${armazemmax2}g\nArmazenado: ${arsize}g\nColetado neste update: ${round}g\n\n**Maquina**\nChips: ${chipNames}\nProfundidade: ${profundidade}m\nDurabilidade: ${durabilityPercent}%\nPressao: ${pressurePercent}%\nRefrigeracao: ${refrigerationPercent}%\nPoluentes: ${pollutantsPercent}%`,
+                    mining: `**Mineracao**\nNivel: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level * 1980} (${(100 * obj6.xp / (obj6.level * 1980)).toFixed(2)}%) (+${xp} XP)\nEnergia: ${progress2}\nAtualizacao: ${timeupdate / 1000}s\nTempo minerando: ${API.ms(Date.now() - init)}`,
+                    ores: buildOreText(oreList)
+                });
 
                 try{
-                    embedinteraction = await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])] })
+                    embedinteraction = await interaction.editReply({ components: [container], flags: API.Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
                     API.cacheLists.waiting.remove(member.id, 'mining')
                     throw reportError(error, 'command.minerar.initial_reply', { userId: member.id });
@@ -370,12 +416,13 @@ module.exports = {
 
                 if (isStopping) {
                     if (haschipe7) {
-                        API.eco.addToHistory(interaction.user.id, `Venda <:chip:916423648959660082> | + ${API.format(hastotalchipe7)} ${API.moneyemoji}`)
+                        API.eco.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${API.format(hastotalchipe7)} ${API.money}`)
                     }
                     API.cacheLists.waiting.remove(member.id, 'mining')
-                    const embedtemp = await API.sendError(interaction, stoppingMessage)
-                    await interaction.followUp({ embeds: [embedtemp] })
-                    await interaction.editReply({ embeds: [embed], components: [] })
+                    await interaction.editReply({
+                        components: [buildMiningStatusContainer(stoppingMessage)],
+                        flags: API.Discord.MessageFlags.IsComponentsV2
+                    })
                     return
                 }
 
@@ -390,9 +437,11 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.minerar.defer_update'); });
                         stopped = true
-                        btn.setDisabled()
                         API.cacheLists.waiting.remove(member.id, 'mining')
-                        await interaction.editReply({ embeds: [embed], components: [] })
+                        await interaction.editReply({
+                            components: [buildMiningStatusContainer('Você parou o funcionamento da sua máquina!')],
+                            flags: API.Discord.MessageFlags.IsComponentsV2
+                        })
                         collector.stop();
                     }
                 });
@@ -401,8 +450,6 @@ module.exports = {
                     if (stopped) {
                         checkChipe7()
                         API.cacheLists.waiting.remove(member.id, 'mining');
-                        const embedtemp = await API.sendError(interaction, `Você parou o funcionamento da sua máquina!`)
-                        await interaction.followUp({ embeds: [embedtemp] })
                     } else {
                         edit().catch((error) => {
                             reportError(error, 'command.minerar.collector', { userId: member.id });
