@@ -1,10 +1,10 @@
 const { createClient } = require('redis');
-const { redis: redisConfig } = require('../config');
+const { redis: redisConfig = {} } = require('../config');
 const API = require('../api');
 const { reportError } = require('../debug');
 
 const prefix = redisConfig.prefix || `nisruksha:${API.id}`;
-const client = createClient({ url: redisConfig.url });
+const client = createClient({ url: redisConfig.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
 let connection;
 
 client.on('error', (error) => reportError(error, 'redis.client'));
