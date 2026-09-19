@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -35,14 +35,14 @@ module.exports = {
 
         let company = await companyService.get.companyById(pobj.company);
         
-		const embed = new Discord.MessageEmbed()
-		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-Você deseja se demitir da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**?`)
+		const embed = new Discord.EmbedBuilder()
+		embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+Você deseja se demitir da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -58,15 +58,15 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
             
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Demissão cancelada', `
-                Você cancelou a própria demissão na empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**.`)
+                embed.addFields({ name: '❌ Demissão cancelada', value: `
+                Você cancelou a própria demissão na empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             if (!(await companyService.check.isWorker(interaction.user.id))) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na demissão', `Você não trabalha em nenhuma empresa para se demitir${ await companyService.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}`)
+                embed.addFields({ name: '❌ Falha na demissão', value: `Você não trabalha em nenhuma empresa para se demitir${ await companyService.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -75,7 +75,7 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
 
             embed.fields = [];
             embed.setColor('#5bff45');
-            embed.addField('✅ Demitido!', `Você se demitiu da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**!`)
+            embed.addFields({ name: '✅ Demitido!', value: `Você se demitiu da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**!` })
             interaction.editReply({ embeds: [embed], components: [] });
             
             let pobj = await DatabaseManager.get(interaction.user.id, 'players')
@@ -86,7 +86,7 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
                 embed.fields = [];
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${interaction.user.tag} (${interaction.user.id}) se demitiu da sua empresa!`)
-                .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
+                .setFooter({ text: `Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})` })
                 await owner.send({ embeds: [embed], components: [] })
             } catch (error) {
                 reportError(error, 'command.sairempresa.owner_notification', { ownerId: owner.id });
@@ -111,7 +111,7 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
             if (reacted) return;
             embed.fields = []
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria se demitir da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria se demitir da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

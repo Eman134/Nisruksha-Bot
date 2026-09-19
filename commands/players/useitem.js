@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const itemsService = require('../../_classes/services/items');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -60,17 +60,17 @@ module.exports = {
 
         const quantia = 1
         
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\``)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\`` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -86,23 +86,23 @@ module.exports = {
             const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Uso cancelado', `
-                Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
+                embed.addFields({ name: '❌ Uso cancelado', value: `
+                Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Uso cancelado', `
-                Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``)
+                embed.addFields({ name: '❌ Uso cancelado', value: `
+                Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\`` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             function sucessEmbed() {
                 embed.setColor('#5bff45');
-                embed.addField('✅ Item usado', `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\``)
+                embed.addFields({ name: '✅ Item usado', value: `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\`` })
                 interaction.editReply({ embeds: [embed], components: [] });
             }
 
@@ -113,12 +113,12 @@ module.exports = {
 
                     if (isFull) {
                         embed.setColor('#a60000');
-                        embed.addField('❌ Uso cancelado', `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`)
+                        embed.addFields({ name: '❌ Uso cancelado', value: `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos` })
                         interaction.editReply({ embeds: [embed], components: [] });
                         return
                     }
 
-                    const embed2 = new Discord.MessageEmbed();
+                    const embed2 = new Discord.EmbedBuilder();
                     embed2.setTitle(`${drop.icon} ${drop.displayname}`).setColor("#2ed1ce")
                     
                     let totalcoletado = 0;
@@ -173,8 +173,8 @@ module.exports = {
                             const arsize = await machinesService.storage.getSize(interaction.user.id);
 
                             await embed2.setDescription(`Minerador: ${interaction.user}`);
-                            await embed2.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
-                            await embed2.addField(`💥 Informações de explosão`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nTier da dinamite: ${drop.tier}`)
+                            await embed2.addFields({ name: `<:storageinfo:738427915531845692> Informações do armazém`, value: `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g` })
+                            await embed2.addFields({ name: `💥 Informações de explosão`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nTier da dinamite: ${drop.tier}` })
 
                             for await (const r of obj2) {
 
@@ -184,7 +184,7 @@ module.exports = {
                                 if (qnt == undefined) qnt = 0;
                                 if (qnt < 1) qnt = 0;
 
-                                embed2.addField(`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, true)
+                                embed2.addFields({ name: `${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g`, value: `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, inline: true })
                             }
 
                             try{
@@ -226,8 +226,8 @@ module.exports = {
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria usar **${drop.icon} ${drop.displayname}**, porém o tempo expirou!\nDescrição do item: \`${drop.desc}\``)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria usar **${drop.icon} ${drop.displayname}**, porém o tempo expirou!\nDescrição do item: \`${drop.desc}\`` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

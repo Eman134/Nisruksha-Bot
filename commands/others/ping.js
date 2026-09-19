@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 module.exports = {
     name: 'ping',
@@ -8,7 +8,7 @@ module.exports = {
 	async execute(interaction) {
         
                 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#32a893')
         .setDescription('🏓 Latência: ' + client.ws.ping + ' ms')
 

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -63,19 +63,19 @@ module.exports = {
             '🍇': 6.5
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#4e5052')
-        .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         .setTitle(`⭕ Roleta`)
-        .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
-        .setFooter(`⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
+        .setFooter({ text: `⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
         const btn0 = utility.createButton('🍊', 'SECONDARY', '', '🍊')
         const btn1 = utility.createButton('🍓', 'SECONDARY', '', '🍓')
         const btn2 = utility.createButton('🍐', 'SECONDARY', '', '🍐')
         const btn3 = utility.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1, btn2, btn3])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1, btn2, btn3])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
             
@@ -122,12 +122,12 @@ module.exports = {
                     }
                 }
                 
-                const embed2 = new Discord.MessageEmbed()
-                .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                const embed2 = new Discord.EmbedBuilder()
+                .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 .setColor('#4e5052')
                 .setTitle(`⭕ Roleta`)
-                .addField(`Sua aposta`, `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)`, true)
-                .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
+                .addFields({ name: `Sua aposta`, value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)`, inline: true })
+                .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
                 .setDescription(`**<a:loading:736625632808796250> Girando a roleta**\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
                 currentnum++;
                 if (rolnum > currentnum) {
@@ -151,8 +151,8 @@ module.exports = {
                         playersService.cooldown.set(interaction.user.id, "roullete", 0);
                     }
                     embed2.fields = [];
-                    embed2.addField(`Sua aposta`, `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${utility.money3} ${utility.money3emoji}`, true)
-                    .addField(`Informações de Jogo`, `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, true)
+                    embed2.addFields({ name: `Sua aposta`, value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${utility.money3} ${utility.money3emoji}`, inline: true })
+                    .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
                     .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
                     playersService.cooldown.set(interaction.user.id, "roullete", 0);
                 }

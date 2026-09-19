@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -38,12 +38,12 @@ module.exports = {
             if (res.statusCode == 204) {
 
                 votedbest = false
-                const embed = new Discord.MessageEmbed()
+                const embed = new Discord.EmbedBuilder()
                 .setColor('#36393f')
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
-                .addField( (votedbest ? '🔴' : '🟢') + ' **Best**', `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`)
-                .addField( (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}`)
+                .addFields({ name: (votedbest ? '🔴' : '🟢') + ' **Best**', value: `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum` })
+                .addFields({ name: (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', value: `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}` })
                 interaction.reply({ embeds: [embed]});
 
             } else {
@@ -55,12 +55,12 @@ module.exports = {
                     } catch (error) {
                         reportError(error, 'command.votar.response_json', { userId: interaction.user.id });
                     }
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new Discord.EmbedBuilder()
                     .setColor('#36393f')
-                    .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                    .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                     .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
-                    .addField( (votedbest ? '🔴' : '🟢') + ' **Best**', `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`)
-                    .addField( (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}`)
+                    .addFields({ name: (votedbest ? '🔴' : '🟢') + ' **Best**', value: `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum` })
+                    .addFields({ name: (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', value: `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}` })
                     interaction.reply({ embeds: [embed]});
 
                 })

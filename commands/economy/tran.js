@@ -1,7 +1,7 @@
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -74,10 +74,10 @@ module.exports = {
             if (check2) {
 
                 let cooldown = await playersService.cooldown.get(member.id, "receivetr");
-                const embed = new Discord.MessageEmbed()
+                const embed = new Discord.EmbedBuilder()
                 .setColor('#b8312c')
                 .setDescription('❌ Este membro já recebeu uma transferência nas últimas 12 horas!\nAguarde mais `' + utility.ms(cooldown) + '` para fazer uma transferência para ele!')
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 await interaction.reply({ embeds: [embed] });
                 return;
             }
@@ -94,17 +94,17 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "transferir", 20);
         
-		const embed = new Discord.MessageEmbed();
+		const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}?`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -119,19 +119,19 @@ module.exports = {
                 if (b.customId == 'cancel'){
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Transferência cancelado', `
-                    Você cancelou a transferência de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}.`)
+                    embed.addFields({ name: '❌ Transferência cancelado', value: `
+                    Você cancelou a transferência de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}.` })
                 } else {
                     const money2 = await economyService.bank.get(interaction.user.id);
                     if (money2 < total) {
                         embed.fields = [];
                         embed.setColor('#a60000');
-                        embed.addField('❌ Falha na transferência', `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para transferir!`)
+                        embed.addFields({ name: '❌ Falha na transferência', value: `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para transferir!` })
                     } else {
                         embed.fields = [];
                         embed.setColor('#5bff45');
-                        embed.addField('✅ Sucesso na transferência', `
-                        Você transferiu o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member} com sucesso!`)
+                        embed.addFields({ name: '✅ Sucesso na transferência', value: `
+                        Você transferiu o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member} com sucesso!` })
                         economyService.bank.remove(interaction.user.id, total);
                         economyService.bank.add(member.id, total);
                         economyService.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${utility.format(total)} ${utility.moneyemoji}`)
@@ -158,8 +158,8 @@ module.exports = {
             playersService.cooldown.set(interaction.user.id, "transferir", 0);
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

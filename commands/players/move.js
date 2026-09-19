@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -8,10 +8,10 @@ const economyService = require('../../_classes/services/economy');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('vila').setDescription('Selecione a vila para a qual deseja se mover')
-  .addChoice('Nishigami', 'Nishigami')
-  .addChoice('Tyris', 'Tyris')
-  .addChoice('Harotec', 'Harotec')
-  .addChoice('Massibi', 'Massibi')
+  .addChoices({ name: 'Nishigami', value: 'Nishigami' })
+  .addChoices({ name: 'Tyris', value: 'Tyris' })
+  .addChoices({ name: 'Harotec', value: 'Harotec' })
+  .addChoices({ name: 'Massibi', value: 'Massibi' })
   .setRequired(true))
 
 const Database = require('../../_classes/manager/DatabaseManager');
@@ -110,7 +110,7 @@ module.exports = {
         }
         
         playersService.stamina.remove(interaction.user.id, 149)
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#32a893')
         .setDescription(`Você usou 100 pontos de Estamina 🔸 e se moveu da vila **${townsService.getTownNameByNum(atual)}** para a vila **${townsService.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${utility.format(total)} ${utility.money} ${utility.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
         await interaction.reply({ embeds: [embed], mention: true });

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
@@ -35,7 +35,7 @@ module.exports = {
             v = client.guilds.cache.get(id);
             va = 'server_id'
         }
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         try {
             await DatabaseManager.setIfNotExists(v.id, tabela, va);
 
@@ -48,7 +48,7 @@ module.exports = {
             .setColor('#32a893')
         } catch (e) {
             embed.setDescription(`❌ Houve um erro ao atualizar dados de ${v} em \`${tabela}:${coluna}\``)
-            .addField('Erro:', `\`\`\`js\n${e.stack}\`\`\``)
+            .addFields({ name: 'Erro:', value: `\`\`\`js\n${e.stack}\`\`\`` })
             .setColor('#eb4034')
         } finally {
             await interaction.reply({ embeds: [embed] });

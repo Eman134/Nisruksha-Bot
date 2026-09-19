@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const config = require('../../_classes/config');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -20,13 +20,13 @@ module.exports = {
                 const donates = globalobj.donates
                 const totaldonates = globalobj.totaldonates
                 
-                const embed = new Discord.MessageEmbed()
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                const embed = new Discord.EmbedBuilder()
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 .setTitle(`Doe para o nosso projeto`)
                 .setThumbnail(client.user.displayAvatarURL())
-                .setFooter(`Nisruksha agradece :)`, client.user.displayAvatarURL())
-                .addField(`<:info:736274028515295262> Introdução e explicação`, `Lembre-se primeiramente que é uma **doação**, e **não uma compra**, portanto as vantagens são um extra para ajudar quem contribui com o projeto.\nAo doar para o Nisruksha, você pode ajudar a manter a hospedagem do bot online e assim o bot ficando online também. Além de incentivar o criador do bot a trazer mais novidades, eventos e sorteios para a comunidade do bot. As vantagens são aplicadas para doações acima de \`R$4,99\` (Cristais são adicionados independente do valor da doação).`)
-                .addField(`<:list:736274028179750922> Quais as vantagens?`, `
+                .setFooter({ text: `Nisruksha agradece :)`, iconURL: client.user.displayAvatarURL() })
+                .addFields({ name: `<:info:736274028515295262> Introdução e explicação`, value: `Lembre-se primeiramente que é uma **doação**, e **não uma compra**, portanto as vantagens são um extra para ajudar quem contribui com o projeto.\nAo doar para o Nisruksha, você pode ajudar a manter a hospedagem do bot online e assim o bot ficando online também. Além de incentivar o criador do bot a trazer mais novidades, eventos e sorteios para a comunidade do bot. As vantagens são aplicadas para doações acima de \`R$4,99\` (Cristais são adicionados independente do valor da doação).` })
+                .addFields({ name: `<:list:736274028179750922> Quais as vantagens?`, value: `
 \`1.\` Um obrigado
 \`2.\` Cargo Doador no servidor principal
 \`3.\` Acesso a sorteios exclusivos para Doadores
@@ -36,9 +36,9 @@ Para cada \`R$1,00\` = 25 ${utility.money2} ${utility.money2emoji}
 
 OBS: As vantagens são ativadas por cada doação
 OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \`R$5,00\` agora e doar a mesma quantia daqui 3 horas, a donate é contada como um todo de \`R$10,00\` e as vantagens serão agrupadas.        
-`)
-                .setColor(`RANDOM`)
-                .addField(`<:mvp:758717273304465478> Doar pelo MERCADOPAGO`, `
+` })
+                .setColor(Math.floor(Math.random() * 0xffffff))
+                .addFields({ name: `<:mvp:758717273304465478> Doar pelo MERCADOPAGO`, value: `
 
 🔗 [R$1,00](https://mpago.la/2JmgSMg)
 🔗 [R$3,00](https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=568626560-658d6e1b-3d4e-4e6f-95ca-f7cf493cff37)
@@ -48,7 +48,7 @@ OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \
 🔗 [R$50,00](https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=568626560-844812e3-5e3c-4d61-a6ce-9622218899a1)
 🔗 [R$100,00](https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=568626560-47115992-0628-4709-87fa-6c4b5ca9f437)
 🔗 PIX: kessdev09@gmail.com
-`).setTimestamp()
+` }).setTimestamp()
 //Total de doações: ${donates}
 //Total em doações: R$${(totaldonates + "").replace('.', ',')}
             if (interaction.replied) return interaction.channel.send({ embeds: [embed]})

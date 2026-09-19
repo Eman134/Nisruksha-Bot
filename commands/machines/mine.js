@@ -1,5 +1,5 @@
 const machinesService = require('../../_classes/services/machines');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const shopService = require('../../_classes/services/shop');
 const playersService = require('../../_classes/services/players');

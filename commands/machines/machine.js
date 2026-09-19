@@ -6,7 +6,7 @@ const imagesService = require('../../_classes/services/images');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
 const Database = require('../../_classes/manager/DatabaseManager');
@@ -291,14 +291,14 @@ module.exports = {
 
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         function reworkEmbed(chips) {
             embed.fields = []
             let chipsmap = chips.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
             embed.setDescription(`OBS: A cada **6 níveis** você adquire **+1 slot** para equipar chipes!\nVocê não pode desequipar chipes que perderam uma durabilidade, se não eles serão descartados!`)
-            .addField(`<:chip:833521401951944734> Inventário de Chipes`, (chips.length <= 0 ? '**Não possui chipes de aprimoramento**' : chipsmap))
-            embed.setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            .addFields({ name: `<:chip:833521401951944734> Inventário de Chipes`, value: (chips.length <= 0 ? '**Não possui chipes de aprimoramento**' : chipsmap) })
+            embed.setAuthor({ name: member.tag, iconURL: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
             embed.setColor('#7e6eb5')
             embed.setImage('attachment://image.png')
         }
@@ -384,16 +384,16 @@ module.exports = {
 
         async function pressEnergyBtn() {
             rememberEnergy = true
-            const embed2 = new Discord.MessageEmbed()
+            const embed2 = new Discord.EmbedBuilder()
 
             const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
             
             const pObj = await DatabaseManager.get(member.id, 'players')
             perm = pObj.perm
             
-            embed2.addField(`<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!`)
+            embed2.addFields({ name: `<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!` })
             embed2.setColor('#42f569')
-            embed2.setFooter(`1 ponto de energia recupera a cada ${machinesService.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
+            embed2.setFooter({ text: `1 ponto de energia recupera a cada ${machinesService.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}` })
             await interaction.followUp({ embeds: [embed2], flags: Discord.MessageFlags.Ephemeral });
 
             if (await cacheListsService.remember.includes(member.id, "energia")) return;
@@ -422,7 +422,7 @@ module.exports = {
 
                 if (await cacheListsService.waiting.includes(member.id, 'mining')) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no reparo', `Você não pode realizar reparos de uma máquina enquanto estiver minerando!`)
+                    embed.addFields({ name: '❌ Falha no reparo', value: `Você não pode realizar reparos de uma máquina enquanto estiver minerando!` })
                     await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                 }
@@ -455,7 +455,7 @@ module.exports = {
     
                 if (money < price) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no reparo', `Você não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`)
+                    embed.addFields({ name: '❌ Falha no reparo', value: `Você não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
                     await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                 }

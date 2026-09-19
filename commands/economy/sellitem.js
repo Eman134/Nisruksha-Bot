@@ -3,7 +3,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const playersService = require('../../_classes/services/players');
 const companyService = require('../../_classes/services/company');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const runtime = require('../../_classes/services/runtime');
 const economyService = require('../../_classes/services/economy');
 const companyInfo = require('../../_classes/services/companyInfo');
@@ -150,17 +150,17 @@ module.exports = {
 
         let totalantes = total
         
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}?`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}?` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -176,8 +176,8 @@ module.exports = {
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.venderitem.defer_update'); });
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}.`)
+                embed.addFields({ name: '❌ Venda cancelada', value: `
+                Você cancelou a venda de **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -190,7 +190,7 @@ module.exports = {
                     let armsize2 = await itemsService.getInv(interaction.user.id, true, true);
 
                     if (armsize2 <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui itens na sua mochila para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui itens na sua mochila para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -204,7 +204,7 @@ module.exports = {
                 case 1:
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -214,13 +214,13 @@ module.exports = {
                 case 2:
 
                     if (obj3[drop.name.replace(/"/g, '')] <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
                     if (parseInt(quantia) > obj3[drop.name.replace(/"/g, '')]) {
-                        embed.addField('❌ Venda cancelada', `Você não possui **${quantia}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui **${quantia}x** de ${drop.icon} \`${drop.displayname}\` na sua mochila para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -251,9 +251,9 @@ module.exports = {
             
             embed.fields = [];
             embed.setColor('#5bff45');
-            embed.addField('✅ Sucesso na venda', `
-            Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(totalantes)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}.`)
-            if(runtime.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+            embed.addFields({ name: '✅ Sucesso na venda', value: `
+            Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(totalantes)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}.` })
+            if(runtime.debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
             interaction.editReply({ embeds: [embed], components: [] });
             economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
 
@@ -277,8 +277,8 @@ module.exports = {
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria vender **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}, porém o tempo expirou!` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

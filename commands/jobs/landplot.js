@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -111,14 +111,14 @@ module.exports = {
 
                     let crescimento = utility.getProgress(12, '<:cresc:765647640594481183>', '<:energyempty:741675234796503041>', ob.percent, 100, true)
                     
-                    embed.addField(`Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':utility.ms(ob.ms, true)}`)
+                    embed.addFields({ name: `Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, value: `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':utility.ms(ob.ms, true)}` })
                     
                     grow.push(r)
     
                     x++
                 }
             } else {
-                embed.addField(`❌ Não possui plantações`, `Utilize \`/coletar\` para coletar plantas ou sementes e começar a plantar`)
+                embed.addFields({ name: `❌ Não possui plantações`, value: `Utilize \`/coletar\` para coletar plantas ou sementes e começar a plantar` })
             }
 
             function reworkButtons(grow) {
@@ -162,7 +162,7 @@ module.exports = {
 
         }
         
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         if (!hasTerrain(pobj.plots, townnum)) {
 
@@ -170,7 +170,7 @@ module.exports = {
 
             const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${utility.format(price)} ${utility.money}\` ${utility.moneyemoji}`)
             
-            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [utility.rowComponents([utility.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )
+            const embedinteraction = (await interaction.reply({ embeds: [embedtemp], components: [utility.rowComponents([utility.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )).resource.message
 
             const filter = i => i.user.id === interaction.user.id;
             
@@ -190,7 +190,7 @@ module.exports = {
       
                 if (!(money >= price)) {
                   embed.setColor('#a60000');
-                  embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`)
+                  embed.addFields({ name: '❌ Falha na compra', value: `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
                   await interaction.editReply({ embeds: [embed], components: [] });
                   return;
                 }
@@ -206,7 +206,7 @@ module.exports = {
                 if (plots) {
                   if (Object.keys(plots).includes(townnum.toString())) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha na compra', `Você já possui um terreno nessa vila!\nUtilize \`/terrenos\` para visualizar seus terrenos`)
+                    embed.addFields({ name: '❌ Falha na compra', value: `Você já possui um terreno nessa vila!\nUtilize \`/terrenos\` para visualizar seus terrenos` })
                     await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                   }
@@ -219,8 +219,8 @@ module.exports = {
                 DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
     
                 embed.setColor('#5bff45');
-                embed.addField('✅ Terreno adquirido', `
-                Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.`)
+                embed.addFields({ name: '✅ Terreno adquirido', value: `
+                Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.` })
                 await interaction.editReply({ embeds: [embed], components: [] });
 
                 playersService.cooldown.set(interaction.user.id, "landplot", 0);
@@ -233,8 +233,8 @@ module.exports = {
             collector.on('end', async collected => {
                 if (reacted) return
                 embed.setColor('#a60000');
-                embed.addField('❌ Tempo expirado', `
-                Você iria comprar um terreno, porém o tempo expirou!`)
+                embed.addFields({ name: '❌ Tempo expirado', value: `
+                Você iria comprar um terreno, porém o tempo expirou!` })
                 interaction.editReply({ embeds: [embed], components: [] });
             });
 
@@ -247,7 +247,7 @@ module.exports = {
 
         const components = plotReturns.components
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -274,14 +274,14 @@ module.exports = {
 
                 if (!(points >= priceupgrade)) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${utility.format(points)}/${utility.format(priceupgrade)} ${utility.money2} ${utility.money2emoji}**`)
+                    embed.addFields({ name: '❌ Falha no upgrade', value: `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${utility.format(points)}/${utility.format(priceupgrade)} ${utility.money2} ${utility.money2emoji}**` })
                     interaction.editReply({ embeds: [embed], components });
                     return;
                 }
 
                 if (plot.area+10 > 100) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no upgrade', `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!`)
+                    embed.addFields({ name: '❌ Falha no upgrade', value: `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!` })
                     interaction.editReply({ embeds: [embed], components });
                     return;
                 }
@@ -301,8 +301,8 @@ module.exports = {
                 components = plotReturns.components
 
                 embed.setColor('#5bff45');
-                embed.addField('✅ Upgrade realizado', `
-                Você pagou \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
+                embed.addFields({ name: '✅ Upgrade realizado', value: `
+                Você pagou \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²` })
                 
                 await interaction.editReply({ embeds: [embed], components });
 
@@ -313,7 +313,7 @@ module.exports = {
                 let selectedplant = plot.plants[parseInt(b.customId)-1]
 
                 if (selectedplant.percent < 100) {
-                    embed.addField('❌ Falha na colheita', `Esta plantação ainda não está crescida!\nUtilize \`/terrenoatual\` para visualizar seus lotes`)
+                    embed.addFields({ name: '❌ Falha na colheita', value: `Esta plantação ainda não está crescida!\nUtilize \`/terrenoatual\` para visualizar seus lotes` })
                     await interaction.editReply({ embeds: [embed], components })
                     return;
                 }
@@ -356,7 +356,7 @@ module.exports = {
                 components = plotReturns.components
 
                 embed.setColor('#5bff45')
-                embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
+                embed.addFields({ name: '✅ Colheita realizada ', value: `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**` })
                 
                 await interaction.editReply({ embeds: [embed], components })
 

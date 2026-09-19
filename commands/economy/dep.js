@@ -2,7 +2,7 @@ const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const townsService = require('../../_classes/services/towns');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -55,17 +55,17 @@ module.exports = {
         let taxa = await townsService.getTownTax(interaction.user.id);
         total = total2 - (Math.round(taxa*total2/100));
         
-		const embed = new Discord.MessageEmbed();
+		const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja depositar o valor de ${utility.format(total2)} ${utility.money} ${utility.moneyemoji} na sua conta bancária?\nTaxa de depósito da vila atual (**${await townsService.getTownName(interaction.user.id)}**): ${taxa}% (${Math.round(taxa*total2/100)} ${utility.money} ${utility.moneyemoji})\nTotal a ser depositado: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja depositar o valor de ${utility.format(total2)} ${utility.money} ${utility.moneyemoji} na sua conta bancária?\nTaxa de depósito da vila atual (**${await townsService.getTownName(interaction.user.id)}**): ${taxa}% (${Math.round(taxa*total2/100)} ${utility.money} ${utility.moneyemoji})\nTotal a ser depositado: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
 
@@ -80,19 +80,19 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addField('❌ Depósito cancelado', `
-                Você cancelou o depósito de **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária.`)
+                embed.addFields({ name: '❌ Depósito cancelado', value: `
+                Você cancelou o depósito de **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária.` })
             } else {
                 const money2 = await economyService.money.get(interaction.user.id);
                 if (money2 < total) {
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no depósito', `Você não possui **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** em mãos para depositar!`)
+                    embed.addFields({ name: '❌ Falha no depósito', value: `Você não possui **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** em mãos para depositar!` })
                 } else {
                     embed.fields = [];
                     embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso no depósito', `
-                    Você depositou o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária!`)
+                    embed.addFields({ name: '✅ Sucesso no depósito', value: `
+                    Você depositou o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária!` })
                     economyService.bank.add(interaction.user.id, total);
                     economyService.money.remove(interaction.user.id, total2);
                     economyService.addToHistory(interaction.user.id, `📥 Depósito | + ${utility.format(total)} ${utility.moneyemoji}`)
@@ -108,8 +108,8 @@ module.exports = {
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria depositar o valor de **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria depositar o valor de **${utility.format(total2)} ${utility.money} ${utility.moneyemoji}** na sua conta bancária, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

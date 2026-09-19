@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManager = require('../manager/DatabaseManager');
 const clientService = require('./clientService');
 const runtime = require('./runtime');
@@ -14,10 +14,10 @@ class BotInfoService {
         const client = clientService.current;
         const globals = await this.database.get(require('../config').app.id, 'globals');
         const version = `${require('../../package.json').version} (Rework)`;
-        return new Discord.MessageEmbed().setTitle(`(/) ${client.user.username}`)
-            .addField('🕐 Tempo online', `\`${this.utility.uptime()}\``, true)
-            .addField('📓 Comandos executados', `Após iniciar: \`${runtime.commandsExecuted}\`\nTotal: \`${globals.totalcmd}\`\nPlayers após iniciar: \`${runtime.playersSeen.size}\``, true)
-            .addField('📎 Versões', `Node.js \`${process.versions.node}\`\nDiscord.js \`${Discord.version}\`\nNisruksha \`${version}\``)
+        return new Discord.EmbedBuilder().setTitle(`(/) ${client.user.username}`)
+            .addFields({ name: '🕐 Tempo online', value: `\`${this.utility.uptime()}\``, inline: true })
+            .addFields({ name: '📓 Comandos executados', value: `Após iniciar: \`${runtime.commandsExecuted}\`\nTotal: \`${globals.totalcmd}\`\nPlayers após iniciar: \`${runtime.playersSeen.size}\``, inline: true })
+            .addFields({ name: '📎 Versões', value: `Node.js \`${process.versions.node}\`\nDiscord.js \`${Discord.version}\`\nNisruksha \`${version}\`` })
             .setTimestamp();
     }
 }

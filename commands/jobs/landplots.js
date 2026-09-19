@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const townsService = require('../../_classes/services/towns');
 const companyService = require('../../_classes/services/company');
@@ -18,9 +18,9 @@ module.exports = {
                 
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        const embed = new Discord.MessageEmbed().setColor(`#b8312c`)
+        const embed = new Discord.EmbedBuilder().setColor(`#b8312c`)
         if (!pobj.plots || Object.keys(pobj.plots).length == 0) {
-            embed.addField(`❌ Não possui terrenos`, `Utilize \`/terrenoatual\` para adquirir um terreno`)
+            embed.addFields({ name: `❌ Não possui terrenos`, value: `Utilize \`/terrenoatual\` para adquirir um terreno` })
          await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -39,7 +39,7 @@ module.exports = {
                 }
             }
             // \nConservação do terreno: \`${r.cons}%\`
-            embed.addField(`${townnum == r.loc ? '<:arrow:737370913204600853> ':''}<:terreno:765944910179336202> Terreno ${x}`, `Área máxima em m²: \`${r.area}m²\`\nLotes de plantação: \`${r.plants ? r.plants.length : 0}/5\`\nÁrea com plantação: \`${areaplant}m²\`\nLocalização: \`${townsService.getTownNameByNum(r.loc)}\``)
+            embed.addFields({ name: `${townnum == r.loc ? '<:arrow:737370913204600853> ':''}<:terreno:765944910179336202> Terreno ${x}`, value: `Área máxima em m²: \`${r.area}m²\`\nLotes de plantação: \`${r.plants ? r.plants.length : 0}/5\`\nÁrea com plantação: \`${areaplant}m²\`\nLocalização: \`${townsService.getTownNameByNum(r.loc)}\`` })
             x++
         }
         await interaction.reply({ embeds: [embed] });

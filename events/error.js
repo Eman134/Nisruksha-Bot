@@ -1,5 +1,5 @@
 const { reportError } = require('../_classes/debug');
-const Discord = require('../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
         const error = reportError(err, 'discord.client_error');
 
         let channel = clientService.current.channels.cache.get('920404030801444885')
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
             .setColor('#b8312c')
             .setTitle('<:error:736274027756388353> Um erro foi encontrado')
             .setDescription(`\`\`\`js\n${error.stack.slice(0, 1000)}\n\`\`\``)

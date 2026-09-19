@@ -1,4 +1,6 @@
 const { createClient } = require('redis');
+const fs = require('fs/promises');
+const path = require('path');
 const config = require('../config');
 const { reportError } = require('../debug');
 const clientService = require('./clientService');
@@ -11,16 +13,27 @@ class CacheListsService {
     constructor() {
         const redisConfig = config.redis || {};
         this.prefix = redisConfig.prefix || `nisruksha:${config.app.id}`;
-        this.redisClient = createClient({ url: redisConfig.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
+        this.redisClient = createClient({
+            url: redisConfig.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+            socket: { reconnectStrategy: false }
+        });
         this.connection = null;
         this.rememberenergy = [];
         this.rememberstamina = [];
-        this.redisClient.on('error', (error) => reportError(error, 'redis.client'));
+        this.redisClient.on('error', (error) => {
+            if (this.redisClient.isReady) reportError(error, 'redis.client');
+        });
         this.waiting = this.createWaitingApi();
         this.remember = this.createRememberApi();
         this.images = {
             get: (filePath, version) => this.getImage(filePath, version),
             set: (filePath, version, data) => this.setImage(filePath, version, data)
+        };
+        this.json = {
+            load: (filePath, name) => this.loadJson(filePath, name),
+            composite: (name, files, combine) => this.loadComposite(name, files, combine),
+            version: (files) => this.getCompositeVersion(files),
+            save: (filePath, name, value, version) => this.saveJson(filePath, name, value, version)
         };
     }
 
@@ -29,11 +42,16 @@ class CacheListsService {
         if (!this.connection) {
             this.connection = this.redisClient.connect().catch((error) => {
                 this.connection = null;
-                throw reportError(error, 'redis.connect');
+                throw error;
             });
         }
         await this.connection;
         return this.redisClient;
+    }
+
+    async disconnect() {
+        this.connection = null;
+        if (this.redisClient.isOpen) await this.redisClient.disconnect();
     }
 
     keys(list) {
@@ -49,6 +67,54 @@ class CacheListsService {
 
     imageKey(filePath, version) {
         return `${this.prefix}:images:${filePath}:${version}`;
+    }
+
+    jsonKey(name) {
+        return `${this.prefix}:json:${String(name).replace(/[^a-zA-Z0-9:_-]/g, '_')}`;
+    }
+
+    async loadJson(filePath, name = filePath) {
+        const absolutePath = path.resolve(filePath);
+        const stats = await fs.stat(absolutePath);
+        const version = `${stats.mtimeMs}:${stats.size}`;
+        const redis = await this.connect();
+        const key = this.jsonKey(name);
+        const cached = parse(await redis.get(key));
+        if (cached?.version === version) return cached.data;
+
+        const data = JSON.parse(await fs.readFile(absolutePath, 'utf8'));
+        await this.saveJson(null, name, data, version);
+        return data;
+    }
+
+    async loadComposite(name, files, combine) {
+        const version = await this.getCompositeVersion(files);
+        const redis = await this.connect();
+        const cached = parse(await redis.get(this.jsonKey(name)));
+        if (cached?.version === version) return cached.data;
+
+        const values = await Promise.all(files.map(async ({ path: filePath }) => {
+            return JSON.parse(await fs.readFile(path.resolve(filePath), 'utf8'));
+        }));
+        const data = combine(values);
+        await this.saveJson(null, name, data, version);
+        return data;
+    }
+
+    async getCompositeVersion(files) {
+        const versions = await Promise.all(files.map(async ({ path: filePath }) => {
+            const stats = await fs.stat(path.resolve(filePath));
+            return `${filePath}:${stats.mtimeMs}:${stats.size}`;
+        }));
+        return versions.join('|');
+    }
+
+    async saveJson(filePath, name, value, version) {
+        if (!version && filePath) {
+            const stats = await fs.stat(path.resolve(filePath));
+            version = `${stats.mtimeMs}:${stats.size}`;
+        }
+        await (await this.connect()).set(this.jsonKey(name), JSON.stringify({ version: version || 'runtime', data: value }));
     }
 
     createWaitingApi() {

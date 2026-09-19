@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
@@ -36,12 +36,12 @@ module.exports = {
         let total = 1200*(pobj2.level)
         let disp = companyService.jobs.fish.rods.possibilities(pobj2.level)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#63b8ae')
         .setTitle('🎣 Varas disponíveis')
         .setDescription('**Explicação:** Ao confirmar a reação, o sistema irá sortear uma vara dentre as disponíveis, e a vara de pesca será essa.\n**Preço atual: ' + utility.format(total) + ' ' + utility.money + '** ' + utility.moneyemoji)
         for (i = 0; i < disp.length; i++) {
-            embed.addField(disp[i].icon + ' ' + disp[i].name, `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`)
+            embed.addFields({ name: disp[i].icon + ' ' + disp[i].name, value: `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**` })
         }
 
         function reworkBtns(hasrod) {
@@ -56,7 +56,7 @@ module.exports = {
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(pobjcheck.rod), withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: reworkBtns(pobjcheck.rod), withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -77,7 +77,7 @@ module.exports = {
 
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField(`❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.`)
+                embed.addFields({ name: `❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, value: `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.` })
                 interaction.editReply({ embeds: [embed] });
 				collector.stop();
                 return;
@@ -87,7 +87,7 @@ module.exports = {
 
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
-                embed.addField(`❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}`, `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
+                embed.addFields({ name: `❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}`, value: `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
                 interaction.editReply({ embeds: [embed] });
 				collector.stop();
                 return
@@ -100,11 +100,11 @@ module.exports = {
             embed.fields = []
 
             for (let i = 0; i < disp.length; i++) {
-                embed.addField((disp[i] == vara ? ( troca ? '🔁':'✅') : ' ') + disp[i].icon + ' ' + disp[i].name, `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`)
+                embed.addFields({ name: (disp[i] == vara ? ( troca ? '🔁':'✅') : ' ') + disp[i].icon + ' ' + disp[i].name, value: `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**` })
             }
 
             embed
-            .addField(`✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`/pescar\`!`)
+            .addFields({ name: `✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, value: `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`/pescar\`!` })
             .setColor('#5bff45')
             interaction.editReply({ embeds: [embed], components: reworkBtns(true) });
             DatabaseManager.set(interaction.user.id, 'players', 'rod', vara)
@@ -118,7 +118,7 @@ module.exports = {
                 return interaction.editReply({ embeds: [embed] });;
             }
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

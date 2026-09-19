@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -26,11 +26,11 @@ module.exports = {
         }
 
         DatabaseManager.set(interaction.user.id, "players", "bio", bio)
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#8adb5e')
         .setDescription(`Sua biografia foi definida para:
         \`\`\`${bio}\`\`\``)
-        .setFooter('Quantia de caracteres da sua biografia: ' + bio.length + '/50')
+        .setFooter({ text: 'Quantia de caracteres da sua biografia: ' + bio.length + '/50' })
         await interaction.reply({ embeds: [embed] });
 
 	}

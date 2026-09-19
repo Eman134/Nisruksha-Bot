@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
@@ -69,14 +69,14 @@ module.exports = {
 
         let total = plot.area*10000
 
-		const embed = new Discord.MessageEmbed().setColor(`#a4e05a`)
+		const embed = new Discord.EmbedBuilder().setColor(`#a4e05a`)
         .setTitle(`Venda de terreno`)
-        .addField('<a:loading:736625632808796250> Aguardando confirmação', `Você deseja vender seu terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**?`)
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `Você deseja vender seu terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**?` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -93,8 +93,8 @@ module.exports = {
             embed.fields = [];
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**.`)
+                embed.addFields({ name: '❌ Venda cancelada', value: `
+                Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 playersService.cooldown.set(interaction.user.id, "sellterrain", 0);
                 return;
@@ -122,8 +122,8 @@ module.exports = {
             
             embed.fields = [];
             embed.setColor('#5bff45');
-            embed.addField('✅ Sucesso na venda', `
-            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`)
+            embed.addFields({ name: '✅ Sucesso na venda', value: `
+            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.` })
             interaction.editReply({ embeds: [embed], components: [] });
             economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
 
@@ -148,8 +148,8 @@ module.exports = {
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**, porém o tempo expirou!`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**, porém o tempo expirou!` })
             interaction.editReply({ embeds: [embed], components: [] });
             playersService.cooldown.set(interaction.user.id, "sellterrain", 0);
             return;

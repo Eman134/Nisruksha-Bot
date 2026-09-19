@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
@@ -25,7 +25,7 @@ module.exports = {
         const coluna = interaction.options.getString('coluna');
         const valor = interaction.options.getString('valor');
 
-		                const embed = new Discord.MessageEmbed()
+		                const embed = new Discord.EmbedBuilder()
         let v;
         let va = '';
         try {
@@ -53,7 +53,7 @@ module.exports = {
 
         } catch (e) {
             embed.setDescription(`❌ Houve um erro ao setar \`${valor}\` para ${v} em \`${tabela}:${coluna}\``)
-            embed.addField('Erro:', `\`\`\`js\n${e}\`\`\``);
+            embed.addFields({ name: 'Erro:', value: `\`\`\`js\n${e}\`\`\`` });
             embed.setColor('#eb4034')
         } finally {
             await interaction.reply({ embeds: [embed] });

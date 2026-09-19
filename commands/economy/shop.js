@@ -1,15 +1,15 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const shopService = require('../../_classes/services/shop');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('categoria').setDescription('Digite uma categoria de loja para visualizar os produtos')
-.addChoice('MAQUINAS', 'MAQUINAS')
-.addChoice('FICHAS', 'FICHAS')
-.addChoice('CHIPES', 'CHIPES')
-.addChoice('TEMPORAL', 'TEMPORAL')
-.addChoice('MOCHILAS', 'MOCHILAS')
+.addChoices({ name: 'MAQUINAS', value: 'MAQUINAS' })
+.addChoices({ name: 'FICHAS', value: 'FICHAS' })
+.addChoices({ name: 'CHIPES', value: 'CHIPES' })
+.addChoices({ name: 'TEMPORAL', value: 'TEMPORAL' })
+.addChoices({ name: 'MOCHILAS', value: 'MOCHILAS' })
 .setRequired(false))
 
 module.exports = {
@@ -23,14 +23,14 @@ module.exports = {
 
                 const optioncategoria = interaction.options.getString('categoria')
         if (optioncategoria == null) {
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setColor('#811e99')
             .setDescription(`
             <:shop:736274027919966269> Veja abaixo produtos das categorias e divirta-se!
             ↳ Utilize \`/loja <categoria>\` para visualizar uma categoria
             ↳ Utilize \`/comprar <id>\` para realizar uma compra
             `)
-            .addField('<:list:736274028179750922> Categorias', shopService.getShopList())
+            .addFields({ name: '<:list:736274028179750922> Categorias', value: shopService.getShopList() })
             await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -48,7 +48,7 @@ module.exports = {
         var product = obj[categoria];
         product = product.filter((item) => item.buyable)
         let array2 = Object.keys(product);
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         let totalpages = array2.length % 3;
         if (totalpages == 0) totalpages = (array2.length)/3;
         else totalpages = ((array2.length-totalpages)/3)+1;
@@ -59,7 +59,7 @@ module.exports = {
 
         embed.setTitle(`${categoria.toUpperCase()} ${currentpage}/${totalpages}`);
         embed.setColor('#bf772a');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         embed.setDescription(`Utilize \`/comprar <id>\` para realizar uma compra`);
 
         let stopComponents = false
@@ -68,7 +68,7 @@ module.exports = {
 
         const components = await shopService.formatPages(embed, { currentpage, totalpages }, product, interaction.user.id, stopComponents);
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         if (stopComponents) return
 

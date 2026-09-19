@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -65,10 +65,10 @@ module.exports = {
             cristal = 1
         }
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         .setColor(colors[streak] || colors["10"])
         .setDescription(`Você recebeu \`${reward}\` ${utility.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${utility.money2}\` ${utility.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
-        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         await interaction.reply({ embeds: [embed] });
         economyService.money.add(interaction.user.id, reward)
         economyService.points.add(interaction.user.id, cristal)

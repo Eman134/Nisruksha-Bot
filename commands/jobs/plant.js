@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -157,9 +157,9 @@ module.exports = {
         DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
         DatabaseManager.set(interaction.user.id, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantia)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
-        embed.setColor('RANDOM')
+        embed.setColor(Math.floor(Math.random() * 0xffffff))
         embed.setTitle(seed.icon + ' Plantação realizada!')
         embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantia}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`/terrenoatual\``)
         await interaction.reply({ embeds: [embed] })

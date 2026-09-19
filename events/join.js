@@ -1,6 +1,6 @@
 const Database = require("../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
-const Discord = require('../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
 
 module.exports = {
@@ -15,13 +15,13 @@ module.exports = {
 
             guild.leave()
             
-            const embedcmd = new Discord.MessageEmbed()
+            const embedcmd = new Discord.EmbedBuilder()
             .setColor('#b8312c')
             .setTimestamp()
             .setTitle(`Falha: servidor banido`)
             .setDescription(`Bot tentou entrar no servidor ${guild.name}`)
-            .setFooter(guild.name + " | " + guild.id, guild.iconURL())
-            .setAuthor(guild.name, guild.iconURL())
+            .setFooter({ text: guild.name + " | " + guild.id, iconURL: guild.iconURL() })
+            .setAuthor({ name: guild.name, iconURL: guild.iconURL() })
             client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
             
             return;
@@ -29,7 +29,7 @@ module.exports = {
         
         let owner = await client.users.fetch(guild.ownerId)
         
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)
         .setColor('#55eb34')
         client.channels.cache.get('746735962196803584').send({ embeds: [embed]});;

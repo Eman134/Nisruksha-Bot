@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -57,11 +57,11 @@ module.exports = {
             return;
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#4e5052')
-        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         .setTitle(`<:hide:855906056865316895> Cartas da Sorte`)
-        .addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}`, true)
+        .addFields({ name: `Informações de Jogo`, value: `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}`, inline: true })
         
         const cards = {
             card1: parseFloat(utility.random(0, 1.5, true).toFixed(2)),
@@ -77,7 +77,7 @@ module.exports = {
         const btn3 = utility.createButton('card4', 'SECONDARY', '', '855906056865316895')
         const btn4 = utility.createButton('card5', 'SECONDARY', '', '855906056865316895')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1, btn2, btn3, btn4])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1, btn2, btn3, btn4])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
             
@@ -100,7 +100,7 @@ module.exports = {
                 return;
             }
 
-            embed.addField(`Informações de Jogo`, `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}\n${Math.round(aposta*cards[b.customId]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customId])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customId])-aposta) } ${utility.money3}\` ${utility.money3emoji}`, true)
+            embed.addFields({ name: `Informações de Jogo`, value: `Você deve escolher dentre as cartas disponíveis, somente uma.\nO sistema sorteia anteriormente (ou seja, as cartas possuem resultado antes mesmo de você clicar) as multiplicações das cartas e, dependendo da carta que você escolher você pode vir com multiplicador de 0.1x-1.5x a sua aposta.\nSua aposta: \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}\n${Math.round(aposta*cards[b.customId]) < aposta ? '❌ Prejuízo de `' + Math.round(aposta-Math.round(aposta*cards[b.customId])) : '✅ Lucro de `' + Math.round(Math.round(aposta*cards[b.customId])-aposta) } ${utility.money3}\` ${utility.money3emoji}`, inline: true })
 
             const btn0 = utility.createButton('card1', (b.customId == 'card1' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card1'].toString(), '855906056865316895', true)
             const btn1 = utility.createButton('card2', (b.customId == 'card2' ? (Math.round(aposta*cards[b.customId]) < aposta ? 'DANGER' : 'SUCCESS') : 'SECONDARY'), 'x' + cards['card2'].toString(), '855906056865316895', true)

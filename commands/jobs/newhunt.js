@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -63,7 +63,7 @@ module.exports = {
 
         playersService.stamina.remove(interaction.user.id, cost-1)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         
         let monster = companyService.jobs.explore.searchMob(pobj2.level);
 
@@ -75,8 +75,8 @@ module.exports = {
         }
         
         embed
-        .addField(`Você deseja iniciar uma nova caçada?`, `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.`)
-        .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
+        .addFields({ name: `Você deseja iniciar uma nova caçada?`, value: `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.` })
+        .addFields({ name: `Informações do monstro`, value: `Nome: **${monster.name}**\nNível: **${monster.level}**` })
         .setImage(monster.image)
 
         const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
@@ -89,7 +89,7 @@ module.exports = {
 
         const rowButton0 = utility.rowComponents(rb0)
 
-        const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
+        const embedinteraction = (await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } )).resource.message;
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'hunting')
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
 
@@ -144,33 +144,33 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.MessageEmbed()
+                    const infosEmbed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                     .setImage('attachment://image.png')
 
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
                     for (const r of equips) {
-                        infosEmbed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
+                        infosEmbed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
                     }
 
-                    embed.addField('Informações do ataque atual', `
+                    embed.addFields({ name: 'Informações do ataque atual', value: `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
-`)
+` })
 
-                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`
@@ -180,18 +180,18 @@ OBS: Os equipamentos são randômicos de acordo com o seu nível.
                     .setThumbnail('attachment://image.png')
 
                     for (const r of equips) {
-                        embed.addField(`[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, true)
+                        embed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
                     }
 
-                    embed.addField('Informações do ataque atual', `
+                    embed.addFields({ name: 'Informações do ataque atual', value: `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
-`)
+` })
 
-                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
 
                     return [embed]
                 }

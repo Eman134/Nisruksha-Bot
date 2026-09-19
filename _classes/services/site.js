@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const clientService = require('./clientService');
 
 class SiteService {
@@ -6,7 +6,7 @@ class SiteService {
     const client = clientService.current;
     const member = await client.users.fetch(id)
 
-    const embed = new Discord.MessageEmbed()
+    const embed = new Discord.EmbedBuilder()
     embed.setTitle('<:info:736274028515295262> Informações de ação')
     embed.setDescription(`
 Usuário acionador: ${member} | ${member.tag} | ${member.id}

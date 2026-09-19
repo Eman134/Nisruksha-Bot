@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManager = require('../manager/DatabaseManager');
 const crateService = require('./crateExtension');
 const imageService = require('./images');
@@ -29,12 +29,12 @@ class PlayersService {
                 level: machine.level,
                 avatar: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
             });
-            const embed = new Discord.MessageEmbed()
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            const embed = new Discord.EmbedBuilder()
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 .setImage('attachment://image.png')
-                .addField('🥇 Recompensas', `**3x <:caixaup:782307290295435304> Caixa up**! Utilize \`/mochila\` para visualizar suas caixas.${slot ? '\nVocê recebeu +1 Slot de Aprimoramento para máquinas!' : ''}`)
-                .setFooter(`Você evoluiu do nível ${machine.level} para o nível ${machine.level + 1}`)
-                .setColor('RANDOM');
+                .addFields({ name: '🥇 Recompensas', value: `**3x <:caixaup:782307290295435304> Caixa up**! Utilize \`/mochila\` para visualizar suas caixas.${slot ? '\nVocê recebeu +1 Slot de Aprimoramento para máquinas!' : ''}` })
+                .setFooter({ text: `Você evoluiu do nível ${machine.level} para o nível ${machine.level + 1}` })
+                .setColor(Math.floor(Math.random() * 0xffffff));
             await crateService.give(interaction.user.id, 2, 3);
             await interaction.channel.send({ embeds: [embed], mention: true, files: [levelupImage] });
         } else {
@@ -60,10 +60,10 @@ class PlayersService {
         };
         this.cooldown.set = (userId, name, milliseconds) => this.database.set(userId, 'cooldowns', name, `${Date.now()};${milliseconds}`);
         this.cooldown.message = async (interaction, name, text) => {
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
                 .setColor('#b8312c')
                 .setDescription(`🕑 Aguarde mais \`${this.utility.ms(await this.cooldown.get(interaction.user.id, name))}\` para ${text}.`)
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
             return interaction.reply({ embeds: [embed] });
         };
     }

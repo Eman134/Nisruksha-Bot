@@ -4,7 +4,7 @@ module.exports = {
     execute: async (interaction) => {
 
         const client = require('../_classes/services/clientService').current;
-        const Discord = require('../_classes/discordCompat');
+        const Discord = require('discord.js');
         const UtilityService = require('../_classes/services/utilityService');
         const utility = new UtilityService();
 
@@ -31,9 +31,9 @@ module.exports = {
         
         if (interaction.content.match(mentionRegex)) {
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setColor('#36393f')
-            .setAuthor(interaction.author.tag, interaction.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            .setAuthor({ name: interaction.author.tag, iconURL: interaction.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
             .setDescription(`Olá ${interaction.author}` + ', meu prefixo é `/`, caso precise de ajuda use `/ajuda`')
 
             const btn1 = utility.createButton('https://discord.com/invite/jK3eNA5GkM', 'LINK', 'Meu servidor', '📨')

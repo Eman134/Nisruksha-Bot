@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const machinesService = require('../../_classes/services/machines');
@@ -19,7 +19,7 @@ const minérios = customerores
 const options = (option) => {
     option.setName('minério').setDescription('Veja a cotação de um minério específico')
     minérios.map(key => {
-        option.addChoice(key.name, key.name)
+        option.addChoices({ name: key.name, value: key.name })
     })
     return option.setRequired(false)
 }
@@ -40,7 +40,7 @@ module.exports = {
     
         if (minério == null) {
         
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setColor('#32a893')
             .setTitle('📈 Cotação atual dos minérios')
             .setDescription(`${minérios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${utility.money}\` ${utility.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
@@ -51,7 +51,7 @@ module.exports = {
             if (machinesService.proxcot !== 0) {
                 footer += ('\nPróxima atualização em ' + compactTime(machinesService.proxcot-Date.now()+(60000*eventsService.getConfig().modules.cotacao)))
             }
-            if (footer != "") embed.setFooter(footer)
+            if (footer != "") embed.setFooter({ text: footer })
 
             await interaction.reply({ embeds: [embed] });
 
@@ -95,7 +95,7 @@ module.exports = {
 
             const attachment = await imagesService.getAttachment(cotimg, 'cot.png')
             
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setColor('#32a893')
             .setTitle('📈 Cotação recente de ' + minerio.icon + ' ' + minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1))
             .setImage('attachment://cot.png')

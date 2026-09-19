@@ -1,7 +1,7 @@
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
@@ -112,9 +112,9 @@ module.exports = {
         let rankingtype = 0
         let current = ''
 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         .setColor('#32a893')
-        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()))
+        .setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local'), iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
 
         .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!clientService.current.emojis.cache.get(key) ? key : clientService.current.emojis.cache.get(key)}`).join('\n'))
 
@@ -150,7 +150,7 @@ module.exports = {
 
         }
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id
         
@@ -164,7 +164,7 @@ module.exports = {
 
             if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
-                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()))
+                embed.setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local'), iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
                 b.customId = current
             }
             
@@ -212,7 +212,7 @@ module.exports = {
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()))
+            .setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
             .setColor('#32a893')
             .setDescription(maparray)
 

@@ -2,7 +2,7 @@ const runtime = require('../../_classes/services/runtime');
 const clientService = require('../../_classes/services/clientService');
 const framesService = require('../../_classes/services/frames');
 const badgesService = require('../../_classes/services/badges');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const config = require('../../_classes/config');
 let patch = ''
 let patchobj
@@ -30,7 +30,7 @@ const data = new SlashCommandBuilder()
 const options = (option) => {
     option.setName('versão').setDescription('Digite uma versão para visualizar as modificações que ocorreram nela')
     Object.keys(patchobj).forEach(key => {
-        option.addChoice(key, key)
+        option.addChoices({ name: key, value: key })
     })
     return option.setRequired(false)
 }
@@ -66,17 +66,17 @@ module.exports = {
         let getPatch = patchobj[patch] || patchobj[require('{root}/package.json').version + '']
 
             
-        const embed = new Discord.MessageEmbed()
-        .setColor('RANDOM')
+        const embed = new Discord.EmbedBuilder()
+        .setColor(Math.floor(Math.random() * 0xffffff))
         if (getPatch.title) embed.setTitle(getPatch.title)
         embed.setDescription(`**Versão ${patch}**${getPatch.obs ? '\n'+getPatch.obs:''}`)
-        embed.addField('(' + getPatch.chn.length + `) \`Mudanças\``, getPatch.chn.length == 0 ? '**Não ocorreu mudanças**' : getPatch.chn.map(i => `<:changed:762022788038525008> ${i}`).join('\n'))
-        embed.addField('(' + getPatch.add.slice(0, 10).length + `) \`Adições\``, getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(0, 10).map(i => `<:added:762022787773759498> ${i}`).join('\n'))
-        if (getPatch.add.length > 10) embed.addField('(' + getPatch.add.slice(10, 20).length + `) \`Adições\``, getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(10, 20).map(i => `<:added:762022787773759498> ${i}`).join('\n'))
-        embed.addField('(' + getPatch.rem.length + `) \`Remoções\``, getPatch.rem.length == 0 ? '**Não ocorreu remoções**' : getPatch.rem.map(i => `<:removed:762022787954245642> ${i}`).join('\n'))
-        if (getPatch.alc && getPatch.alc.length > 0) embed.addField('(' + getPatch.alc.length + `) \`Novas alcunhas\``, getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n'))
-        if (getPatch.fix && getPatch.fix.length > 0) embed.addField('(' + getPatch.fix.length + `) \`Bugs fixados\``, getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n'))
-        .setFooter(`A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
+        embed.addFields({ name: '(' + getPatch.chn.length + `) \`Mudanças\``, value: getPatch.chn.length == 0 ? '**Não ocorreu mudanças**' : getPatch.chn.map(i => `<:changed:762022788038525008> ${i}`).join('\n') })
+        embed.addFields({ name: '(' + getPatch.add.slice(0, 10).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(0, 10).map(i => `<:added:762022787773759498> ${i}`).join('\n') })
+        if (getPatch.add.length > 10) embed.addFields({ name: '(' + getPatch.add.slice(10, 20).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(10, 20).map(i => `<:added:762022787773759498> ${i}`).join('\n') })
+        embed.addFields({ name: '(' + getPatch.rem.length + `) \`Remoções\``, value: getPatch.rem.length == 0 ? '**Não ocorreu remoções**' : getPatch.rem.map(i => `<:removed:762022787954245642> ${i}`).join('\n') })
+        if (getPatch.alc && getPatch.alc.length > 0) embed.addFields({ name: '(' + getPatch.alc.length + `) \`Novas alcunhas\``, value: getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n') })
+        if (getPatch.fix && getPatch.fix.length > 0) embed.addFields({ name: '(' + getPatch.fix.length + `) \`Bugs fixados\``, value: getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n') })
+        .setFooter({ text: `A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}` })
         if (!config.owner.includes(interaction.user.id)) {
             await interaction.reply({ embeds: [embed] });
         } else {

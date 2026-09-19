@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
@@ -18,13 +18,13 @@ module.exports = {
 
         const scoremin = 80
 
-		        const embed = new Discord.MessageEmbed()
+		        const embed = new Discord.EmbedBuilder()
         embed.setDescription('Reaja para continuar o reset de temporada')
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -72,7 +72,7 @@ reacted = true;
     
             } catch (e) {
                 embed.setDescription(`❌ Houve um erro ao tentar resetar os scores`)
-                embed.addField('Erro', `\`\`\`js\n${e.stack}\`\`\``);
+                embed.addFields({ name: 'Erro', value: `\`\`\`js\n${e.stack}\`\`\`` });
                 embed.setColor('#eb4034')
             } finally {
                 await interaction.editReply({ embeds: [embed], components: []  });
@@ -82,7 +82,7 @@ reacted = true;
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.MessageEmbed();
+            const embed = new Discord.EmbedBuilder();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar a temporada, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: []  });

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const config = require('../../_classes/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -16,7 +16,7 @@ module.exports = {
         
         const { inspect } = require('util')
 
-        const embed = new Discord.MessageEmbed().setFooter(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        const embed = new Discord.EmbedBuilder().setFooter({ text: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
         const tempo = Date.now();
         const query = interaction.options.getString('código');
@@ -26,18 +26,18 @@ module.exports = {
                 
             const evald = await eval(query)
             const res = typeof evald === 'string' ? evald : inspect(evald, { depth: 0 })
-            embed.addField('Código', code('js', query), false)
-            embed.addField('Resultado', code('js', res), false)
+            embed.addFields({ name: 'Código', value: code('js', query), inline: false })
+            embed.addFields({ name: 'Resultado', value: code('js', res), inline: false })
                 
-            if (!Boolean(res) || (!Boolean(evald) && evald !== 0)) embed.setColor('DANGER')
+            if (!Boolean(res) || (!Boolean(evald) && evald !== 0)) embed.setColor('#a60000')
             else {
-                embed.addField('Tipo', code('css', typeof evald), true).setColor('#6cf542')
+                embed.addFields({ name: 'Tipo', value: code('css', typeof evald), inline: true }).setColor('#6cf542')
             }
 
         } catch (error) {
                 embed
-                .addField('Erro', code('js', error), true)
-                .setColor('DANGER')
+                .addFields({ name: 'Erro', value: code('js', error), inline: true })
+                .setColor('#a60000')
         } finally {
             const content = '**Executado em ' + (Date.now()-tempo)+" ms**"
             await interaction.reply({ content, embeds: [embed] }).catch(error => {

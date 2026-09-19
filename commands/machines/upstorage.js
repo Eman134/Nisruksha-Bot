@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const machinesService = require('../../_classes/services/machines');
@@ -41,16 +41,15 @@ module.exports = {
         let obj = await DatabaseManager.get(interaction.user.id, 'storage');
         let lvl = obj.storage;
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         .setColor('#5634eb')
         .setTitle('Armazém de ' + interaction.user.username)
-        .addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\``)
-        embed.addField('<:waiting:739967127502454916> Aguardando resposta'
-        , 'Aprimorar o armazém [<:upgrade:738434840457642054>]')
+        .addFields({ name: '<:storageinfo:738427915531845692> Informações', value: `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\`` })
+        embed.addFields({ name: '<:waiting:739967127502454916> Aguardando resposta', value: 'Aprimorar o armazém [<:upgrade:738434840457642054>]' })
 
         const btn0 = utility.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0])], withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -74,8 +73,8 @@ module.exports = {
             if (b.customId == 'upgrade'){
                 if (price > money) {
                     embed.setColor('#a60000')
-                    .addField('❌ Aprimoramento mal sucedido!', `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`)
-                    .setFooter('')
+                    .addFields({ name: '❌ Aprimoramento mal sucedido!', value: `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
+                    .setFooter({ text: '' })
                     err = true;
                 } else {
                     embed.setColor('#5bff45');
@@ -83,8 +82,8 @@ module.exports = {
                     await DatabaseManager.set(interaction.user.id, 'storage', 'storage', lvl+r1)
                     let obj55 = await DatabaseManager.get(interaction.user.id, 'storage');
                     let lvl55 = obj55.storage;
-                    embed.addField('<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**`)
-                    .setFooter('')
+                    embed.addFields({ name: '<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', value: `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**` })
+                    .setFooter({ text: '' })
                     economyService.money.remove(interaction.user.id, price)
                     economyService.addToHistory(interaction.user.id, `Aprimoramento Armazém | - ${utility.format(price)} ${utility.moneyemoji}`)
                     ap = true;
@@ -105,9 +104,9 @@ module.exports = {
                 if (embedinteraction){
                     if (!reacted) {
                     embed.fields = [];
-                    embed.addField('<:storageinfo:738427915531845692> Informações', `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\``)
-                    embed.addField('❌ Sessão encerrada', 'O tempo de reação foi expirado!')
-                    .setFooter('')
+                    embed.addFields({ name: '<:storageinfo:738427915531845692> Informações', value: `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\`` })
+                    embed.addFields({ name: '❌ Sessão encerrada', value: 'O tempo de reação foi expirado!' })
+                    .setFooter({ text: '' })
                     interaction.editReply({ embeds: [embed], components: [] });}
                 }
             }catch (err){

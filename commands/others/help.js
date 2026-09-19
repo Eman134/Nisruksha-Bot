@@ -1,5 +1,5 @@
 const helpService = require('../../_classes/services/help');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
@@ -32,7 +32,7 @@ Caso não tenha o código, peça para a pessoa utilizar \`/meucodigo\`
 ${helpService.getCategoryList()}`)
 		}
 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 			
 		home()
 
@@ -69,7 +69,7 @@ ${helpService.getCategoryList()}`)
 
         }
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         

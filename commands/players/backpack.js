@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const crateExtensionService = require('../../_classes/services/crateExtension');
 const shopService = require('../../_classes/services/shop');
 const itemsService = require('../../_classes/services/items');
@@ -88,13 +88,13 @@ module.exports = {
             embed
             .setColor('#a85a32')
             .setTitle(backpack.icon + ' ' + backpack.name)
-            .setAuthor(`Mochila de ${member.tag}`, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-            .addField(`📦 Caixas misteriosas`, `Para abrir uma caixa utilize \`/abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`/recompensascaixa <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`))
+            .setAuthor({ name: `Mochila de ${member.tag}`, iconURL: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
+            .addFields({ name: `📦 Caixas misteriosas`, value: `Para abrir uma caixa utilize \`/abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`/recompensascaixa <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`) })
             
-            embed.addField(`💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`/venderitem\`\nPara usar itens utilize \`/usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
+            embed.addFields({ name: `💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, value: `Para vender itens utilize \`/venderitem\`\nPara usar itens utilize \`/usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫` })
             //for (i = 1; i < totalpages; i++) {
             const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${itemsService.translateRarity(i2.rarity)}] `:''}**${i2.size}x** ${i2.icon} ${i2.displayname}${i2.usavel ? ` 💫` : ''}`).join('\n')
-            embed.addField(`Itens Página ${currentpage}/${totalpages} ${sorter == 0 ? '🔢' : sorter == 1 ? '<:raro:852302870074359838>' : '🔠'}${sortermode == 0 ? '<:up:833837888634486794>':'<:down:833837888546275338>'}`, (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
+            embed.addFields({ name: `Itens Página ${currentpage}/${totalpages} ${sorter == 0 ? '🔢' : sorter == 1 ? '<:raro:852302870074359838>' : '🔠'}${sortermode == 0 ? '<:up:833837888634486794>':'<:down:833837888546275338>'}`, value: (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`) })
            // }
             return embed
         }
@@ -118,7 +118,7 @@ module.exports = {
       
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         await setInfosEmbed(embed, member)
 
@@ -126,7 +126,7 @@ module.exports = {
 
         if (currentpage == totalpages || totalpages == 0) components = []
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
         
         if (currentpage == totalpages || totalpages == 0) return
 
@@ -156,7 +156,7 @@ module.exports = {
 
             components = reworkButtons({ currentpage, totalpages })
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             
             await setInfosEmbed(embed, member)
            

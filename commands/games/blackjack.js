@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -367,15 +367,15 @@ module.exports = {
 
             function getBlackJackEmbed () {
                 const playsMap = `\n \nJogadas:\nCartas iniciais dadas\n${game.plays.map(play => `${players[play.player].name} usou ${play.playtype.toUpperCase()}`).join('\n')}`
-                const embed = new Discord.MessageEmbed()
+                const embed = new Discord.EmbedBuilder()
                 .setColor('#4e5052')
                 .setTitle(`<:hide:855906056865316895> BlackJack`)
                 .setImage('attachment://image.png')
                 .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${utility.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
-                .setFooter(playsMap)
+                .setFooter({ text: playsMap })
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
-                    embed.addField(`${players[game.current].name}`, `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${utility.money3emoji}`)
-                    embed.setFooter(`${players[game.current].name} está jogando${playsMap}`)
+                    embed.addFields({ name: `${players[game.current].name}`, value: `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${utility.money3emoji}` })
+                    embed.setFooter({ text: `${players[game.current].name} está jogando${playsMap}` })
                 }
                 return embed
             }
@@ -397,11 +397,11 @@ module.exports = {
 
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setTitle(`<:hide:855906056865316895> BlackJack`)
         .setColor('#42e3d0')
 		.setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
-        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
@@ -411,7 +411,7 @@ module.exports = {
             message = await start()
             game.status = 'playing'
         } else {
-            message = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+            message = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
         }
 
         const filter = i => {
@@ -445,24 +445,24 @@ module.exports = {
                 }
                 if (b && !b.deferred) await b.deferUpdate()
 
-                const embed = new Discord.MessageEmbed()
+                const embed = new Discord.EmbedBuilder()
                 .setTitle('<:hide:855906056865316895> BlackJack')
                 .setColor('#a60000')
                 .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
                 if (game.confirm[interaction.user.id] == '<a:loading:736625632808796250>' || game.confirm[member.id] == '<a:loading:736625632808796250>') {
-                    embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
+                    embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` })
                     return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
                 }
                 if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
-                    embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
+                    embed.addFields({ name: '❌ Aposta cancelada', value: `Os dois jogadores cancelaram a aposta!` })
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[interaction.user.id] == '❌') {
-                    embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
+                    embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` })
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[member.id] == '❌') {
-                    embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
+                    embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` })
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
                 } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
@@ -528,11 +528,11 @@ module.exports = {
             if (member.id != config.app.id) playersService.cooldown.set(member.id, "blackjack", 0);
             playersService.cooldown.set(interaction.user.id, "blackjack", 0);
             if (game.status == 'confirm' && (!game.reacted[interaction.user.id] || !game.reacted[member.id])) {
-                const embed = new Discord.MessageEmbed()
+                const embed = new Discord.EmbedBuilder()
                 .setTitle('<:hide:855906056865316895> BlackJack')
                 .setColor('#a60000')
                 .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
-                .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!`)
+                .addFields({ name: '❌ Tempo expirado', value: `Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return
             }

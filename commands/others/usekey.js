@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const config = require('../../_classes/config');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -55,13 +55,13 @@ module.exports = {
         let size = item.size || 0
         let time = item.time || 0
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -73,11 +73,11 @@ module.exports = {
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.usarchave.defer_update'));
             reacted = true;
             collector.stop();
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Uso de chave cancelado', `
-                Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+                embed.addFields({ name: '❌ Uso de chave cancelado', value: `
+                Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -115,12 +115,12 @@ module.exports = {
             await DatabaseManager.set(config.app.id, 'globals', 'keys', objgkeys)
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
+            embed.addFields({ name: '✅ Chave usada com sucesso', value: `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, inline: `` })
             interaction.editReply({ embeds: [embed], components: [] });
 
 			let cchannel = await clientService.current.channels.cache.get(interaction.channel.id)
 
-            const embed2 = new Discord.MessageEmbed()
+            const embed2 = new Discord.EmbedBuilder()
             .setTitle(`✅ Chave usada`)
             .setDescription(`Quem usou: ${interaction.user} \`${interaction.user.id}\`
 Local em que usou: #${cchannel.name} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
@@ -139,9 +139,9 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.MessageEmbed();
+            const embed = new Discord.EmbedBuilder();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
             interaction.editReply({ embeds: [embed], components: [] });
             playersService.cooldown.set(interaction.user.id, "usekey", 0);
             return;

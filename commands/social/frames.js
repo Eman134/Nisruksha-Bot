@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -66,12 +66,12 @@ module.exports = {
         btnRow0 = utility.rowComponents([btn1, btn2])
         btnRow1 = utility.rowComponents([btn3, btn4, btn5, btn6])
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + framesService.get(frames[0]).name)
         .setImage(framesService.get(frames[0]).url)
         .setColor('#60ced6')
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         

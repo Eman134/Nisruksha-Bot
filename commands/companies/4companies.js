@@ -1,7 +1,7 @@
 const clientService = require('../../_classes/services/clientService');
 const companyService = require('../../_classes/services/company');
 const townsService = require('../../_classes/services/towns');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 
@@ -47,7 +47,7 @@ async function formatList(embed2, page2) {
                 let func = (r.workers == null ? `0/${await companyService.get.maxWorkers(r.company_id)}`: `${r.workers.length}/${await companyService.get.maxWorkers(r.company_id)}`)
                 let locname = townsService.getTownNameByNum(r.loc)
                 let curriculum = r.curriculum == null ? 0 : r.curriculum.length;
-                embed2.addField(`${companyService.e[companyService.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, `Setor: ${companyService.e[companyService.types[r.type]].icon} **${companyService.types[r.type].charAt(0).toUpperCase() + companyService.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`/enviarcurriculo ${r.company_id}\``: `🔴`}`);
+                embed2.addFields({ name: `${companyService.e[companyService.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, value: `Setor: ${companyService.e[companyService.types[r.type]].icon} **${companyService.types[r.type].charAt(0).toUpperCase() + companyService.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`/enviarcurriculo ${r.company_id}\``: `🔴`}` });
             }
 
         return { totalpages, currentpage: page2 }
@@ -73,7 +73,7 @@ module.exports = {
 
         const página = interaction.options.getString('página')
 		
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         let components
 
@@ -102,7 +102,7 @@ module.exports = {
 
         reworkButtons({ currentpage, totalpages })
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         if (returned.currentpage == returned.totalpages || returned.totalpages == 0) return
 

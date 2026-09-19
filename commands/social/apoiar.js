@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -58,22 +58,22 @@ module.exports = {
 
         const owner = await clientService.current.users.fetch(check.owner)
         
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         .setTitle('💚 Código de convite utilizado com sucesso!')
         .setColor('#5bff45')
         .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + utility.tp.name + ' ' + utility.tp.emoji + ', enquanto seu amigo recebeu 1 ' + utility.tp.name + ' ' + utility.tp.emoji)
-        .setFooter('Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize /convite para mais informações')
+        .setFooter({ text: 'Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize /convite para mais informações' })
         await interaction.reply({ embeds: [embed] })
 
-        const embedcmd = new Discord.MessageEmbed()
+        const embedcmd = new Discord.EmbedBuilder()
           .setColor('#b8312c')
           .setTimestamp()
           .setDescription(`O membro ${interaction.user} apoiou ${owner}`)
-          .addField('<:mention:788945462283075625> Membro', `${interaction.user.tag} (\`${interaction.user.id}\`)`)
-          .addField('<:channel:788949139390988288> Canal', `\`${interaction.channel.name} (${interaction.channel.id})\``)
-          .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-          .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
+          .addFields({ name: '<:mention:788945462283075625> Membro', value: `${interaction.user.tag} (\`${interaction.user.id}\`)` })
+          .addFields({ name: '<:channel:788949139390988288> Canal', value: `\`${interaction.channel.name} (${interaction.channel.id})\`` })
+          .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
+          .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
           clientService.current.channels.cache.get('826184097814020116').send({ embeds: [embedcmd]});
 
         updateInviteJson(interaction.user, owner)

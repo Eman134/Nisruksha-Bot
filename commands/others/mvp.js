@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const runtime = require('../../_classes/services/runtime');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -16,11 +16,11 @@ module.exports = {
 	async execute(interaction) {
 
                                                 
-                const embed = new Discord.MessageEmbed()
-                .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+                const embed = new Discord.EmbedBuilder()
+                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
                 .setTitle(`Doe para o nosso projeto`)
                 .setThumbnail(client.user.displayAvatarURL())
-                .addField(`<:list:736274028179750922> Quais as vantagens?`, `
+                .addFields({ name: `<:list:736274028179750922> Quais as vantagens?`, value: `
 \`1.\` Energia recarrega mais rápido
 \`2.\` Cor de destaque MVP no seu perfil
 \`3.\` Uma bandeira de MVP no seu perfil
@@ -37,18 +37,18 @@ module.exports = {
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 
-`)
-                .setColor(`RANDOM`)
-                .addField(`<:mvp:758717273304465478> Como adquirir um MVP?`, `
+` })
+                .setColor(Math.floor(Math.random() * 0xffffff))
+                .addFields({ name: `<:mvp:758717273304465478> Como adquirir um MVP?`, value: `
 
 🔗 Para adquirir um MVP basta utilizar \`/doar\` e ver as informações
 
-`).setTimestamp()
+` }).setTimestamp()
 
             let pobj = await DatabaseManager.get(interaction.user.id, 'players')
             if (runtime.debug)console.log(Date.now()-pobj.mvp)
             if (pobj.mvp != null) {
-                embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**`)
+                embed.addFields({ name: `<:info:736274028515295262> Informações do seu MVP`, value: `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**` })
             }
 
             if (interaction.replied) return interaction.channel.send({ embeds: [embed]})

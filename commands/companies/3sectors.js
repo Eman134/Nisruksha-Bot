@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -14,7 +14,7 @@ module.exports = {
 	async execute(interaction) {
 
 		
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         function home() {
             embed.fields = []
             embed.setTitle('👨🏽‍🌾 | Setores de Empresas')
@@ -22,7 +22,7 @@ module.exports = {
             for (i = 0; i < Object.keys(companyService.e).length; i++) {
                 const sector = companyService.e[Object.keys(companyService.e)[i]]
                 const name = Object.keys(companyService.e)[i]
-                if (sector.description) embed.addField(`**${sector.icon} ${name.charAt(0).toUpperCase() + name.slice(1)}**`, sector.description)
+                if (sector.description) embed.addFields({ name: `**${sector.icon} ${name.charAt(0).toUpperCase() + name.slice(1)}**`, value: sector.description })
             }
         }
 			
@@ -62,7 +62,7 @@ module.exports = {
 
         }
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         

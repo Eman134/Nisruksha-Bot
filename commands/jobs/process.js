@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const companyService = require('../../_classes/services/company');
 const cacheListsService = require('../../_classes/services/cacheLists');
@@ -22,7 +22,7 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 
         const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
         const machines = await DatabaseManager.get(interaction.user.id, 'machines')
@@ -73,7 +73,7 @@ module.exports = {
                 embeds = []
                 for (i = 0; i < processjson.in.length; i++) {
     
-                    const eproctemp = new Discord.MessageEmbed()
+                    const eproctemp = new Discord.EmbedBuilder()
 
                     const checkfi = processjson.in[i].fragments.current == 0
 
@@ -84,8 +84,8 @@ module.exports = {
                 
                     eproctemp.setTitle(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : utility.ms(estimadoms, true))}`)
 
-                    if (processjson.in[i].tool == 0 && processjson.tools[processjson.in[i].tool].durability.current <= 0) eproctemp.setFooter('❌ Ferramenta não possui durabilidade')
-                    else if (processjson.in[i].tool == 1 && processjson.tools[processjson.in[i].tool].fuel.current <= 0) eproctemp.setFooter('❌ Não possui líquido suficiente')
+                    if (processjson.in[i].tool == 0 && processjson.tools[processjson.in[i].tool].durability.current <= 0) eproctemp.setFooter({ text: '❌ Ferramenta não possui durabilidade' })
+                    else if (processjson.in[i].tool == 1 && processjson.tools[processjson.in[i].tool].fuel.current <= 0) eproctemp.setFooter({ text: '❌ Não possui líquido suficiente' })
 
                     if (processjson.in[i].drops && processjson.in[i].drops.length > 0) {
 
@@ -108,7 +108,7 @@ module.exports = {
                                     }
                                 }
 
-                                if (ccmap_rar.length > 0) eproctemp.addField(title, ccmap_rar, false)
+                                if (ccmap_rar.length > 0) eproctemp.addFields({ name: title, value: ccmap_rar, inline: false })
         
                             }
         
@@ -122,7 +122,7 @@ module.exports = {
                         gen('mythic', "<:mitico:852302869746548787> Míticos:\n")
         
                     } else {
-                        eproctemp.addField(`❌ Sem drops`, `Este processo ainda não possui drops de fragmentos processados.`, true)
+                        eproctemp.addFields({ name: `❌ Sem drops`, value: `Este processo ainda não possui drops de fragmentos processados.`, inline: true })
                     }
         
                     embeds.push(eproctemp)
@@ -197,7 +197,7 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        const embedinteraction = await interaction.reply({ embeds, components, withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds, components, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -290,11 +290,11 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
             }  if (repair) {
                 if (money < custorepair) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha ' + (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customId == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}**`)
+                    embed.addFields({ name: '❌ Falha ' + (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), value: `Você não possui dinheiro o suficiente para ${(b.customId == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}**` })
                 } else {
 
                     embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso ' +  (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}** e ${(b.customId == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
+                    embed.addFields({ name: '✅ Sucesso ' +  (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), value: `Você gastou **${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}** e ${(b.customId == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.` })
                 
                 
                     if (b.customId == 'ferr') {
@@ -320,7 +320,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                 if (stamina < custoretirar) {
                     
                     await setProcess()
-                    embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custoretirar}]**`)
+                    embed.addFields({ name: '❌ Falha na remoção', value: `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custoretirar}]**` })
                     if (processjson.in.length > 0) embeds.push(embed)
 
                 } else {
@@ -340,7 +340,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                     const retorno = await itemsService.give(interaction, oldproc.drops || [])
                     
-                    embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
+                    embed.addFields({ name: '✅ Processo ' + id + ' removido', value: `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}` })
                     if (processjson.in.length > 0) embeds.push(embed)
 
                 }

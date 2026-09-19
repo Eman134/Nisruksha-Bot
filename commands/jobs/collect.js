@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
@@ -55,12 +55,12 @@ module.exports = {
         if (runtime.debug) console.log(seedobj)
 
         let obj6 = await DatabaseManager.get(interaction.user.id, "machines");
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setTitle(`Coletando`)
         embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-        await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
-        embed.setFooter(`Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn])], withResponse: true });
+        await embed.addFields({ name: `🍁 Informações de coleta`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸` })
+        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn])], withResponse: true })).resource.message;
 
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'collecting');
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
@@ -120,22 +120,22 @@ module.exports = {
                 const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
                 let sta2 = await playersService.stamina.get(interaction.user.id);
                 embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\``)
-                embed.setFooter(`Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                await embed.addFields({ name: `🍁 Informações de coleta`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\`` })
+                embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
 
                 for await (const r of colocados) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
                     
-                    embed.addField(`${r.icon} ${r.displayname} +${qnt}`, `\`\`\`autohotkey\nColetado: ${r.size}\`\`\``, true)
+                    embed.addFields({ name: `${r.icon} ${r.displayname} +${qnt}`, value: `\`\`\`autohotkey\nColetado: ${r.size}\`\`\``, inline: true })
                 }
 
                 for await (const r of descartados) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
-                    embed.addField(`${r.icon} ${r.displayname} -${r.size}`, `\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``, true)
+                    embed.addFields({ name: `${r.icon} ${r.displayname} -${r.size}`, value: `\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``, inline: true })
                 }
 
                 try{

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -36,11 +36,11 @@ module.exports = {
 
         let total = Math.round(1200*pobj.rod.level*2)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#63b8ae')
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
         .setDescription(`\`${companyService.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-        let embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true})
+        let embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true})).resource.message
         embedinteraction.react('🔼')
 
         const filter = (reaction, user) => {
@@ -62,7 +62,7 @@ module.exports = {
 
             if (!pobj2.rod) {
                 embed.setColor('#a60000');
-                embed.addField(`❌ Falha no upgrade`, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
+                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\`` })
                 interaction.editReply({ embeds: [embed] });
                 return
             }
@@ -70,7 +70,7 @@ module.exports = {
 
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
-                embed.addField(`❌ Falha no upgrade`, `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
+                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
                 interaction.editReply({ embeds: [embed] });
                 return
             }
@@ -106,7 +106,7 @@ module.exports = {
 
             if (list.length == 0) {
                 embed.setColor('#a60000');
-                embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
+                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui mais upgrades disponíveis nessa vara de pesca!` })
                 return interaction.editReply({ embeds: [embed] });
             }
 			upgraded = true
@@ -120,7 +120,7 @@ module.exports = {
                 DatabaseManager.set(interaction.user.id, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
+                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!` })
                 return interaction.editReply({ embeds: [embed] });
 
             } if (list.includes(1)) {
@@ -128,7 +128,7 @@ module.exports = {
                 DatabaseManager.set(interaction.user.id, 'players', 'rod', pobj2.rod)
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
+                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!` })
                 return interaction.editReply({ embeds: [embed] });
 
             } if (list.includes(2)) {
@@ -140,11 +140,11 @@ module.exports = {
 
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addField(`✅ Sucesso no upgrade`, `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
+                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!` })
                 return interaction.editReply({ embeds: [embed] })
             } else {
                 embed.setColor('#a60000');
-                embed.addField(`❌ Falha no upgrade`, `Você não possui mais upgrades disponíveis nessa vara de pesca!`)
+                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui mais upgrades disponíveis nessa vara de pesca!` })
                 return interaction.editReply({ embeds: [embed] });
             }
             
@@ -153,9 +153,9 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted || upgraded) return;
-            const embed = new Discord.MessageEmbed();
+            const embed = new Discord.EmbedBuilder();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria upar sua vara de pesca, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria upar sua vara de pesca, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed] });
             return;
         });

@@ -1,5 +1,5 @@
 const clientService = require('../../_classes/services/clientService');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
@@ -33,7 +33,7 @@ module.exports = {
             return interaction.reply({ content: 'id undefined' });
         }
 
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
 
         try {
             const rows = await DatabaseManager.findMany(table, {
@@ -51,7 +51,7 @@ module.exports = {
         } catch (error) {
             embed
                 .setDescription(`❌ Houve um erro ao ver dados de ${target.entity} em \`${table}\``)
-                .addField('Erro:', codeBlock(getErrorDetails(error)))
+                .addFields({ name: 'Erro:', value: codeBlock(getErrorDetails(error)) })
                 .setColor(ERROR_COLOR);
         }
 
@@ -88,7 +88,7 @@ function addDataToEmbed(embed, entity, table, serializedData) {
         .setColor(SUCCESS_COLOR);
 
     fields.forEach((chunk) => {
-        embed.addField('.', `\n${codeBlock(chunk)}`);
+        embed.addFields({ name: '.', value: `\n${codeBlock(chunk)}` });
     });
 }
 

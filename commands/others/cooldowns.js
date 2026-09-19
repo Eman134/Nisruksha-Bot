@@ -1,6 +1,6 @@
 const playersService = require('../../_classes/services/players');
 const clientService = require('../../_classes/services/clientService');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -44,10 +44,10 @@ module.exports = {
             clientService.current.emit('error', err)
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#4ae8ac')
         .setTitle('⏰ Lista de cooldowns ativos')
-        .setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor({ name: member.tag, iconURL: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
         if (filtered.length > 0) {
 

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const crateExtensionService = require('../../_classes/services/crateExtension');
@@ -10,11 +10,11 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tipochave').setDescription('Digite o tipo de chave que deseja gerar')
-  .addChoice('MVP', 'MVP')
-  .addChoice('MOEDAS', 'MOEDAS')
-  .addChoice('FICHAS', 'FICHAS')
-  .addChoice('CRISTAIS', 'CRISTAIS')
-  .addChoice('CAIXA', 'CAIXA')
+  .addChoices({ name: 'MVP', value: 'MVP' })
+  .addChoices({ name: 'MOEDAS', value: 'MOEDAS' })
+  .addChoices({ name: 'FICHAS', value: 'FICHAS' })
+  .addChoices({ name: 'CRISTAIS', value: 'CRISTAIS' })
+  .addChoices({ name: 'CAIXA', value: 'CAIXA' })
 .setRequired(true))
 .addStringOption(option => option.setName('durqnt').setDescription('Digite a quantidade ou duração da chave').setRequired(false))
 .addStringOption(option => option.setName('args2').setDescription('Caixa').setRequired(false))
@@ -129,13 +129,13 @@ module.exports = {
             size = parseInt(id)
         }
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -147,11 +147,11 @@ module.exports = {
             collector.stop();
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.genkey.defer_update'));
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Geração de chave cancelada', `
-                Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+                embed.addFields({ name: '❌ Geração de chave cancelada', value: `
+                Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -188,7 +188,7 @@ module.exports = {
 
             DatabaseManager.set(config.app.id, 'globals', 'keys', clist);
 
-            const embed2 = new Discord.MessageEmbed()
+            const embed2 = new Discord.EmbedBuilder()
             .setTitle(`🔑 Nova chave gerada`)
             .setDescription(`Quem gerou: ${interaction.user} \`${interaction.user.id}\`
 Local em que gerou: ${interaction.channel} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
@@ -205,17 +205,17 @@ ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
             let createdinteraction = await ch.send({ embeds: [embed2] });
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Chave criada com sucesso', `
-            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdinteraction.id}`})`)
+            embed.addFields({ name: '✅ Chave criada com sucesso', value: `
+            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdinteraction.id}`})` })
             interaction.editReply({ embeds: [embed], components: [] });
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.MessageEmbed();
+            const embed = new Discord.EmbedBuilder();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

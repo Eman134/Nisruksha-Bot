@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -16,7 +16,7 @@ module.exports = {
         const qnt = invitejson.qnt
         const points = invitejson.points
         
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
 
         .setTitle('<:info:736274028515295262> Informações de Convite')
         .setColor('#34ebcf')

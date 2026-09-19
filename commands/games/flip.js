@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -89,16 +89,16 @@ module.exports = {
         playersService.cooldown.set(interaction.user.id, "flip", 60);
         playersService.cooldown.set(member.id, "flip", 60);
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setTitle('Giro')
         .setColor('#42e3d0')
 		.setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}`)
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = (button) => true
 
@@ -121,34 +121,34 @@ module.exports = {
 
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.flip.defer_update'); });
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setTitle('Giro')
             .setColor('#a60000')
             .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             if (confirm[interaction.user.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
-                embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}`)
+                embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` })
                 return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
             }
 
             collector.stop()
             if (confirm[interaction.user.id] == '❌' && confirm[member.id] == '❌') {
-                embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
+                embed.addFields({ name: '❌ Aposta cancelada', value: `Os dois jogadores cancelaram a aposta!` })
             } else if (confirm[interaction.user.id] == '❌') {
-                embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
+                embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` })
             } else if (confirm[member.id] == '❌') {
-                embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
+                embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` })
             } else if (confirm[interaction.user.id] == '✅' && confirm[member.id] == '✅') {
 
                 const token = await economyService.token.get(interaction.user.id)
 
                 if (token < aposta) {
-                    embed.addField('❌ Aposta cancelada', `${interaction.user} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+                    embed.addFields({ name: '❌ Aposta cancelada', value: `${interaction.user} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` })
                     return interaction.editReply({ embeds: [embed], components: [] });
                 }
                 const tokenmember = await economyService.token.get(member.id)
 
                 if (tokenmember < aposta) {
-                    embed.addField('❌ Aposta cancelada', `${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+                    embed.addFields({ name: '❌ Aposta cancelada', value: `${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` })
                     return interaction.editReply({ embeds: [embed], components: [] });
                 }
 
@@ -206,7 +206,7 @@ module.exports = {
 
                 const chances = await applyBet(rd, response) 
                 embed.setColor('#5bff45');
-                embed.addField('✅ Aposta realizada', fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
+                embed.addFields({ name: '✅ Aposta realizada', value: fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:'') })
                 playersService.cooldown.set(interaction.user.id, "flip", 0);
                 playersService.cooldown.set(member.id, "flip", 0);
             }
@@ -220,11 +220,11 @@ module.exports = {
             playersService.cooldown.set(member.id, "flip", 0);
             if (reacted[interaction.user.id] == true && reacted[member.id] == true) return;
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setTitle('Giro')
             .setColor('#a60000')
             .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-            .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!`)
+            .addFields({ name: '❌ Tempo expirado', value: `Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!` })
             interaction.editReply({ embeds: [embed], components: [] });
 
             return;

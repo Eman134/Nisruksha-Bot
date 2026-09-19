@@ -1,7 +1,7 @@
 const itemsService = require('../../_classes/services/items');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database()
@@ -35,11 +35,11 @@ module.exports = {
             return;
         }
         
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
-        embed.addField('🔎 Inspeção', `Nome: **${drop.icon} ${drop.displayname}**\nValor: \`${drop.price} ${utility.money}\` ${utility.moneyemoji}\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? itemsService.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}`)
+        embed.addFields({ name: '🔎 Inspeção', value: `Nome: **${drop.icon} ${drop.displayname}**\nValor: \`${drop.price} ${utility.money}\` ${utility.moneyemoji}\nDescrição do item: \`${drop.desc || "Descrição desconhecida."}\`\nRaridade:${drop.rarity ? itemsService.translateRarity(drop.rarity) : "Desconhecida"}\nItem usável: ${drop.usavel ? '**sim** 💫' : '**não**'}` })
         if (drop.icon.includes('>')) embed.setImage('https://cdn.discordapp.com/emojis/' + drop.icon.split(':')[2].replace('>', '') + '.png?v=1')
         await interaction.reply({ embeds: [embed] });
 

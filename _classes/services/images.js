@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManager = require('../manager/DatabaseManager');
 const cacheLists = require('./cacheLists');
 const clientService = require('./clientService');
@@ -446,7 +446,7 @@ img.getAssets = async function (groupName) {
 
 img.getAttachment = async function (image, name) {
     if (!image) return;
-    return new Discord.MessageAttachment(await imageToBuffer(image), name);
+    return new Discord.AttachmentBuilder(await imageToBuffer(image), { name });
 };
 
 img.sendImage = async function (channel, image, interactionidreference, text) {

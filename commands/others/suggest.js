@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const machinesService = require('../../_classes/services/machines');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -29,17 +29,17 @@ module.exports = {
             return
         }
   
-        const embed = new Discord.MessageEmbed()
-        .setColor('RANDOM')
-        .setAuthor(`${interaction.user.tag} | ${interaction.user.id}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        const embed = new Discord.EmbedBuilder()
+        .setColor(Math.floor(Math.random() * 0xffffff))
+        .setAuthor({ name: `${interaction.user.tag} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         .setDescription(`Sugestão enviada com sucesso!
         \`\`\`${sugestão}\`\`\`[Entre em meu servidor para visualizar a resposta da sugestão](https://bit.ly/svnisru)`)
         
         await interaction.reply({ embeds: [embed] });
 
-        const embed2 = new Discord.MessageEmbed()
-        .setColor('RANDOM')
-        .setAuthor(`${interaction.user.tag} | ${interaction.user.id}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        const embed2 = new Discord.EmbedBuilder()
+        .setColor(Math.floor(Math.random() * 0xffffff))
+        .setAuthor({ name: `${interaction.user.tag} | ${interaction.user.id}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         .setDescription(`🔴 Negada | 🟠 Em análise | 🟢 Aceita | 🟣 Existente/planejada | ⚫ Ignorada
         \`\`\`${sugestão}\`\`\``)
         try{

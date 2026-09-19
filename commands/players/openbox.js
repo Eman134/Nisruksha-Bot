@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -61,15 +61,15 @@ module.exports = {
             return;
         }
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#606060')
-        .addField('<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
-        .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `📦 Você deseja abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
+        .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id && ['confirm', 'cancel', 'skip'].includes(i.customId);
             
@@ -90,7 +90,7 @@ module.exports = {
                 embed.setColor('#5bff45');
                 embed.setDescription(`${arraywin.map(rr => `<a:aberto:758105619269156864>  ⤳  ${rr.icon} ${rr.displayname ? rr.displayname : rr.name}`).join('\n')}${currnum < rewards.length ? `\n \n**<a:abrindo:758105619281870898> ${rewards.length-currnum}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}** restantes...`:`\n \n✅ Todas as caixas foram abertas (${boxl}x)`}`)
                 if(runtime.debug) {
-                    embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nBoxl: ${boxl}\nRewardsLength: ${rewards.length}\nÚltimo recebido em: ${1000+(100-rewards[currnum-1].chance)*30}ms\nFinalizado em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+                    embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nBoxl: ${boxl}\nRewardsLength: ${rewards.length}\nÚltimo recebido em: ${1000+(100-rewards[currnum-1].chance)*30}ms\nFinalizado em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
                 }
 
                 try {
@@ -160,7 +160,7 @@ module.exports = {
                 }
 
                 if (descartou && currnum >= rewards.length) {
-                    embed.addField('❌ Oops, um problema ao abrir as caixas!', `Um ou mais itens foram descartados da sua mochila.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`/venderitem\``)
+                    embed.addFields({ name: '❌ Oops, um problema ao abrir as caixas!', value: `Um ou mais itens foram descartados da sua mochila.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`/venderitem\`` })
                 }
                 
                 let components = []
@@ -203,7 +203,7 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addField('❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
+                embed.addFields({ name: '❌ Abertura de caixa cancelada', value: `Você cancelou a abertura de **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 playersService.cooldown.set(interaction.user.id, "crate", 0);
                 return;
@@ -226,7 +226,7 @@ module.exports = {
             if (reacted) return;
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
             interaction.editReply({ embeds: [embed], components: [] });
         });
 

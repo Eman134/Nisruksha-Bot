@@ -1,6 +1,6 @@
 const DatabaseManager = new (require('../_classes/manager/DatabaseManager'))();
 const config = require('../_classes/config');
-const Discord = require('../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
 const companyService = require('../_classes/services/company');
 const playersService = require('../_classes/services/players');
@@ -127,7 +127,7 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
     }
 
     if (player.mvp != null && Date.now() - player.mvp > 0) {
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
             .setColor('#f21a0f')
             .setTitle('Opa, deslizou ai?')
             .setDescription('Seu **MVP** acaba de ter seu tempo expirado!');

@@ -3,7 +3,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const itemsService = require('../../_classes/services/items');
 const playersService = require('../../_classes/services/players');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const runtime = require('../../_classes/services/runtime');
 const economyService = require('../../_classes/services/economy');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -21,7 +21,7 @@ const minérios = customerores
 const options = (option) => {
     option.setName('minério').setDescription('Selecione um minério para venda')
     minérios.map(key => {
-        option.addChoice(key.name, key.name)
+        option.addChoices({ name: key.name, value: key.name })
     })
     return option.setRequired(false)
 }
@@ -165,17 +165,17 @@ module.exports = {
 
         total = Math.round(total - totaltaxa);
 
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**?`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -191,8 +191,8 @@ module.exports = {
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.vender.defer_update'); });
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.`)
+                embed.addFields({ name: '❌ Venda cancelada', value: `
+                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -205,7 +205,7 @@ module.exports = {
                     let armsize2 = await machinesService.storage.getSize(interaction.user.id);
 
                     if (armsize2 <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui recursos no seu armazém para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui recursos no seu armazém para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -219,7 +219,7 @@ module.exports = {
                 case 1:
 
                     if (obj3[id] <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -229,13 +229,13 @@ module.exports = {
                 case 2:
 
                     if (obj3[id] <= 0) {
-                        embed.addField('❌ Venda cancelada', `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
 
                     if (parseInt(quantia) > obj3[id]) {
-                        embed.addField('❌ Venda cancelada', `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
                         interaction.editReply({ embeds: [embed], components: [] })
                         return;
                     }
@@ -246,9 +246,9 @@ module.exports = {
             
             embed.fields = [];
             embed.setColor('#5bff45');
-            embed.addField('✅ Sucesso na venda', `
-            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.`)
-            if(runtime.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+            embed.addFields({ name: '✅ Sucesso na venda', value: `
+            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` })
+            if(runtime.debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
             interaction.editReply({ embeds: [embed], components: [] });
             economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
             economyService.money.add(interaction.user.id, total)
@@ -262,8 +262,8 @@ module.exports = {
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**, porém o tempo expirou!`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**, porém o tempo expirou!` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

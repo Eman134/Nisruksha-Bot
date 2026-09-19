@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -9,12 +9,12 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('edição').setDescription('Digite a edição que irá ser realizada')
-  .addChoice('Editar logo', 'logo')
-  .addChoice('Editar background', 'background')
-  .addChoice('Editar descrição', 'desc')
-  .addChoice('Editar liberação de vagas', 'vagas')
-  .addChoice('Editar nome', 'nome')
-  .addChoice('Editar taxa', 'taxa')
+  .addChoices({ name: 'Editar logo', value: 'logo' })
+  .addChoices({ name: 'Editar background', value: 'background' })
+  .addChoices({ name: 'Editar descrição', value: 'desc' })
+  .addChoices({ name: 'Editar liberação de vagas', value: 'vagas' })
+  .addChoices({ name: 'Editar nome', value: 'nome' })
+  .addChoices({ name: 'Editar taxa', value: 'taxa' })
   .setRequired(true))
 .addStringOption(option => option.setName('valor').setDescription('Digite o valor que a edição necessita').setRequired(false))
 
@@ -32,7 +32,7 @@ module.exports = {
           const edição = interaction.options.getString('edição').toLowerCase();
           const valor = interaction.options.getString('valor')
 
-          const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
+          const embed = new Discord.EmbedBuilder().setColor(`#fc7b03`)
         
           if (!(await companyService.check.hasCompany(interaction.user.id))) {
               const embedtemp = await utility.sendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
@@ -63,10 +63,10 @@ module.exports = {
             embed
               .setColor('#8adb5e')
               .setDescription(`O background da sua empresa foi definido para:`)
-              .setFooter(`Você pode visualizar as mudanças usando /veremp`)
+              .setFooter({ text: `Você pode visualizar as mudanças usando /veremp` })
               .setImage(url);
               await interaction.reply({ embeds: [embed] });
-            const embed2 = new Discord.MessageEmbed()
+            const embed2 = new Discord.EmbedBuilder()
               .setColor('#8adb5e')
               .setDescription(`Background da **EMPRESA** de \`${interaction.user.tag} | ${interaction.user.id}\``)
               .setImage(url);
@@ -89,10 +89,10 @@ module.exports = {
               embed
                 .setColor('#8adb5e')
                 .setDescription(`A logo da sua empresa foi definida para:`)
-                .setFooter(`Você pode visualizar as mudanças usando /veremp`)
+                .setFooter({ text: `Você pode visualizar as mudanças usando /veremp` })
                 .setImage(url);
                 await interaction.reply({ embeds: [embed] });
-                const embed2 = new Discord.MessageEmbed()
+                const embed2 = new Discord.EmbedBuilder()
                 .setColor('#8adb5e')
                 .setDescription(`Logo da **EMPRESA** de \`${interaction.user.tag} | ${interaction.user.id}\``)
                 .setImage(url);
@@ -119,10 +119,10 @@ module.exports = {
 
             embed
             .setColor('#8adb5e')
-            .setFooter(`Você pode visualizar as mudanças usando /veremp`)
+            .setFooter({ text: `Você pode visualizar as mudanças usando /veremp` })
             .setDescription(`A descrição da sua empresa foi definida para:
             \`\`\`${valor}\`\`\``)
-            .setFooter('Quantia de caracteres da descrição: ' + valor.length + '/50')
+            .setFooter({ text: 'Quantia de caracteres da descrição: ' + valor.length + '/50' })
             await interaction.reply({ embeds: [embed] });
 
         } else if (edição.startsWith('vaga')) {
@@ -142,7 +142,7 @@ module.exports = {
 
           boo = (valor == 'on' ? boo = true : boo = false)
 
-          const embed = new Discord.MessageEmbed()
+          const embed = new Discord.EmbedBuilder()
           .setColor((boo ? '#5bff45':'#a60000'))
           .setDescription('Você setou as vagas da sua empresa para ' +  (boo ? '🟢':'🔴')  + ' **' + valor + '**')
           await interaction.reply({ embeds: [embed] })
@@ -172,8 +172,8 @@ module.exports = {
           }
 
 
-          const embed = new Discord.MessageEmbed()
-          .setColor('RANDOM')
+          const embed = new Discord.EmbedBuilder()
+          .setColor(Math.floor(Math.random() * 0xffffff))
           .setDescription('Você setou a taxa da sua empresa para __' + taxa + '%__')
           await interaction.reply({ embeds: [embed] })
           const companyid = await companyService.get.idByOwner(interaction.user.id)
@@ -193,17 +193,17 @@ module.exports = {
 
           let novonome = valor
 
-          const embed = new Discord.MessageEmbed();
+          const embed = new Discord.EmbedBuilder();
           embed.setColor('#606060');
-          embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+          embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
           
-          embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-          Você deseja gastar ${pricenome} ⭐ e trocar o nome da sua empresa para **${novonome}**?`)
+          embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+          Você deseja gastar ${pricenome} ⭐ e trocar o nome da sua empresa para **${novonome}**?` })
           
           const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
           const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-          let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+          let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
           const filter = i => i.user.id === interaction.user.id;
           
@@ -220,15 +220,15 @@ module.exports = {
 
               if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Alteração cancelada', `
-                Você cancelou a troca de nome da sua empresa para **${novonome}**.`)
+                embed.addFields({ name: '❌ Alteração cancelada', value: `
+                Você cancelou a troca de nome da sua empresa para **${novonome}**.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
               if ((company.score < pricenome)) {
                   embed.setColor('#a60000');
-                  embed.addField('❌ Falha na alteração', `A sua empresa não possui score o suficiente para realizar a troca de nome!\nScore: **${utility.format(company.score.toFixed(2))}/${utility.format(pricenome)} ⭐**`)
+                  embed.addFields({ name: '❌ Falha na alteração', value: `A sua empresa não possui score o suficiente para realizar a troca de nome!\nScore: **${utility.format(company.score.toFixed(2))}/${utility.format(pricenome)} ⭐**` })
                   interaction.editReply({ embeds: [embed], components: [] });
                   return;
               }
@@ -237,9 +237,9 @@ module.exports = {
 
               embed.setColor('#5bff45')
               .setTitle('')
-              embed.addField('✅ Nome modificado', `
-              Você gastou ${pricenome} ⭐ da empresa para modificar o nome da sua empresa para **${novonome}**.`)
-              embed.setFooter('')
+              embed.addFields({ name: '✅ Nome modificado', value: `
+              Você gastou ${pricenome} ⭐ da empresa para modificar o nome da sua empresa para **${novonome}**.` })
+              embed.setFooter({ text: '' })
               interaction.editReply({ embeds: [embed], components: [] });
 
               companyInfo.set(interaction.user.id, company.company_id, 'name', novonome)
@@ -253,7 +253,7 @@ module.exports = {
               embed.fields = [];
 
               embed.setColor('#a60000')
-              .addField('❌ Tempo expirado', `Você iria gastar ${pricenome} ⭐ para alterar o nome da sua empresa para **${novonome}**, porém o tempo expirou!`)
+              .addFields({ name: '❌ Tempo expirado', value: `Você iria gastar ${pricenome} ⭐ para alterar o nome da sua empresa para **${novonome}**, porém o tempo expirou!` })
               interaction.editReply({ embeds: [embed], components: [] });
 
           });

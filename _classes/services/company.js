@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManagerClass = require('../manager/DatabaseManager');
 const cacheLists = require('./cacheLists');
 const clientService = require('./clientService');
@@ -1007,7 +1007,7 @@ company.create = async function(member, ob) {
         
         try {
             const company = (await DatabaseManager.findMany('companies', { company_id: code }))[0];
-            const embed = new Discord.MessageEmbed();
+            const embed = new Discord.EmbedBuilder();
 
             if (!company) {
                 try {
@@ -1016,7 +1016,7 @@ company.create = async function(member, ob) {
                     townname = await townExtension.getTownName(member.id);
 
                     embed.setTitle(`Nova empresa!`) 
-                    .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
+                    .addFields({ name: `Informações da Empresa`, value: `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**` })
                     embed.setColor('#42f57e')
                     client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                     await DatabaseManager.deleteMany('companies', { user_id: member.id });

@@ -2,7 +2,7 @@ const townsService = require('../../_classes/services/towns');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const playersService = require('../../_classes/services/players');
 const Database = require("../../_classes/manager/DatabaseManager");
@@ -62,12 +62,12 @@ module.exports = {
 
         let total = ((100-plot.adubacao)*3)*pobj2.level*300
 
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja adubar ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}?`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja adubar ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
@@ -89,8 +89,8 @@ module.exports = {
 
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Adubação cancelada', `
-                Você cancelou uma adubação de ${((100-plot.adubacao))}% em seu terreno localizado em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.`)
+                embed.addFields({ name: '❌ Adubação cancelada', value: `
+                Você cancelou uma adubação de ${((100-plot.adubacao))}% em seu terreno localizado em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -101,7 +101,7 @@ module.exports = {
   
             if (!(money >= total)) {
               embed.setColor('#a60000');
-              embed.addField('❌ Falha na adubação', `Você não possui dinheiro suficiente para realizar a adubação!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
+              embed.addFields({ name: '❌ Falha na adubação', value: `Você não possui dinheiro suficiente para realizar a adubação!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
               await interaction.editReply({ embeds: [embed], components: [] });
               return;
             }
@@ -114,8 +114,8 @@ module.exports = {
             DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Adubação realizada', `
-            Você adubou ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.`)
+            embed.addFields({ name: '✅ Adubação realizada', value: `
+            Você adubou ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.` })
             await interaction.editReply({ embeds: [embed], components: [] });
 
             playersService.cooldown.set(interaction.user.id, "landplot", 0);
@@ -128,8 +128,8 @@ module.exports = {
         collector.on('end', async collected => {
             if (reacted) return
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria adubar um terreno, porém o tempo expirou!`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria adubar um terreno, porém o tempo expirou!` })
             interaction.editReply({ embeds: [embed], components: [] });
         });
 

@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -21,11 +21,11 @@ module.exports = {
             stamina = await playersService.stamina.get(interaction.user.id)
         }
 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#e06f0b')
-        if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)
-        else embed.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!`)
-        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
+        if (stamina < staminamax) embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!` })
+        else embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, value: `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!` })
+        const embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true })).resource.message;
         if (stamina == staminamax) return;
         embedinteraction.react('⏰')
 
@@ -37,11 +37,11 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (reaction, user) => {
             reacted = true;
-            const embed2 = new Discord.MessageEmbed()
+            const embed2 = new Discord.EmbedBuilder()
             const e1 = await playersService.stamina.get(interaction.user.id);
             const e2 = 1000
             const e3 = await playersService.stamina.time(interaction.user.id);
-            embed2.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${e1}/${e2}]**`, `Irá recuperar completamente em: \`${utility.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`)
+            embed2.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${e1}/${e2}]**`, value: `Irá recuperar completamente em: \`${utility.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!` })
             embed2.setColor('#42f569')
             interaction.editReply({ embeds: [embed2]});
             collector.stop();
@@ -65,7 +65,7 @@ module.exports = {
             let st = await playersService.stamina.get(interaction.user.id);
             embed.fields = []
             embed.setColor('#e06f0b')
-            embed.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${st}/${1000}]**`, `Irá recuperar completamente em: \`${utility.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!`)
+            embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${st}/${1000}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!` })
             interaction.editReply({ embeds: [embed] });
         });
 

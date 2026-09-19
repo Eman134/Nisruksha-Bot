@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const crateExtensionService = require('../../_classes/services/crateExtension');
@@ -39,10 +39,10 @@ module.exports = {
 
         }
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#606060')
         .setDescription(`🏅 Recompensas disponíveis\n \n${rewardsmap}`)
-        .setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         await interaction.reply({ embeds: [embed] });
 
 	}

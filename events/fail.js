@@ -1,5 +1,5 @@
 const { reportError } = require('../_classes/debug');
-const Discord = require('../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
 const runtime = require('../_classes/services/runtime');
 
@@ -13,15 +13,15 @@ module.exports = {
 
             interaction.author ? interaction.user = interaction.author : null
             
-            const embedfail = new Discord.MessageEmbed()
+            const embedfail = new Discord.EmbedBuilder()
             .setColor('#b8312c')
             .setTimestamp()
             .setTitle(`Falha: ${type}`)
             embedfail.setDescription(`${interaction.user} tentou executar o comando \`/${interaction.commandName}\` em #${interaction.channel.name}`)
-            .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
-            .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+            .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
+            .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
     
-            if (!interaction.content && interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
+            if (!interaction.content && interaction.options.size > 0) embedfail.addFields({ name: 'Argumentos', value: `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\`` })
             
             const failObject = { embeds: [embedfail], flags: Discord.MessageFlags.Ephemeral }
     

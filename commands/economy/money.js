@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -24,18 +24,18 @@ module.exports = {
         const tp = await economyService.tp.get(member.id);
         //const obj = await DatabaseManager.get(member.id, 'players');
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``);
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setTitle(`Conta de \`${member.username}\``)
         .setColor('#32a893')
-        .addField(`${utility.moneyemoji} Dinheiro`, code('js', `${utility.format(money)} ${utility.money}`), true)
-        .addField(`🏦 Saldo Bancário`, code('js', `${utility.format(moneybank)} ${utility.money}`), true)
-        .addField(`${utility.money3emoji} Fichas`, code('js', `${utility.format(token)} ${utility.money3}`), true)
-        .addField(`${utility.money2emoji} Cristais`, code('js', `${utility.format(points)} ${utility.money2}`), true)
-        .addField(`${utility.tp.emoji} Pontos temporais`, code('js', `${utility.format(tp.points)} ${utility.tp.name}`), true)
-        .addField('📃 Extrato [5 ações]', `${economyService.getHistory(member.id)}`, false)
-        //.addField(`📤 Saques`, code('autohotkey', obj.saq), true)
-        //.addField(`📥 Depósitos`, code('autohotkey', obj.dep), true)
-        //.addField(`📭 Transferências`, code('autohotkey', obj.tran), true)
+        .addFields({ name: `${utility.moneyemoji} Dinheiro`, value: code('js', `${utility.format(money)} ${utility.money}`), inline: true })
+        .addFields({ name: `🏦 Saldo Bancário`, value: code('js', `${utility.format(moneybank)} ${utility.money}`), inline: true })
+        .addFields({ name: `${utility.money3emoji} Fichas`, value: code('js', `${utility.format(token)} ${utility.money3}`), inline: true })
+        .addFields({ name: `${utility.money2emoji} Cristais`, value: code('js', `${utility.format(points)} ${utility.money2}`), inline: true })
+        .addFields({ name: `${utility.tp.emoji} Pontos temporais`, value: code('js', `${utility.format(tp.points)} ${utility.tp.name}`), inline: true })
+        .addFields({ name: '📃 Extrato [5 ações]', value: `${economyService.getHistory(member.id)}`, inline: false })
+        //.addFields({ name: `📤 Saques`, value: code('autohotkey', obj.saq), inline: true })
+        //.addFields({ name: `📥 Depósitos`, value: code('autohotkey', obj.dep), inline: true })
+        //.addFields({ name: `📭 Transferências`, value: code('autohotkey', obj.tran), inline: true })
         await interaction.reply({ embeds: [embed] });
 
     },

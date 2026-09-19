@@ -7,9 +7,9 @@ const DatabaseManager = new Database();
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('status').setDescription('Selecione o status')
-  .addChoice('Comandos somente se o membro tiver no servidor oficial', '0')
-  .addChoice('Uso liberado para qualquer membro', '1')
-  .addChoice('Manutenção ligada', '2')
+  .addChoices({ name: 'Comandos somente se o membro tiver no servidor oficial', value: '0' })
+  .addChoices({ name: 'Uso liberado para qualquer membro', value: '1' })
+  .addChoices({ name: 'Manutenção ligada', value: '2' })
 .setRequired(true))
 .addStringOption(option => option.setName('motivo').setDescription('Selecione um motivo para a manutenção').setRequired(true))
 

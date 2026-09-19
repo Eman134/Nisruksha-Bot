@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -50,13 +50,13 @@ module.exports = {
 
         let components = [utility.rowComponents([btn])]
 
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setTitle(`🔎 Procurando tesouro`);
         embed.setDescription(`Escavador: ${interaction.user}`);
-        embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-        embed.setFooter(`Tempo de atualização: ${eventsService.treasure.update} segundos\nTempo escavando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.addFields({ name: `<:treasure:807671407160197141> Informações da escavação`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ${getProgress()}` })
+        embed.setFooter({ text: `Tempo de atualização: ${eventsService.treasure.update} segundos\nTempo escavando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true })).resource.message;
 
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'digging');
 
@@ -76,22 +76,22 @@ module.exports = {
 
                 if (eventsService.treasure.picked) {
                     embed.setTitle(`❌ Tesouro não encontrado`);
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ❌ Parece que alguém o pegou antes!`)
-                    embed.setFooter(`Tempo escavando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                    embed.addFields({ name: `<:treasure:807671407160197141> Informações da escavação`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ❌ Parece que alguém o pegou antes!` })
+                    embed.setFooter({ text: `Tempo escavando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
                     stop = true
                 } else if (prof >= eventsService.treasure.profundidade && eventsService.treasure.picked == false) {
                     console.log(prof)
                     eventsService.treasure.picked = true
                     stop = true
                     embed.setTitle(`✅ Tesouro coletado`);
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ✅ Tesouro coletado com sucesso! (Utilize \`/mochila\`)`)
-                    embed.setFooter(`Tempo escavando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                    embed.addFields({ name: `<:treasure:807671407160197141> Informações da escavação`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ✅ Tesouro coletado com sucesso! (Utilize \`/mochila\`)` })
+                    embed.setFooter({ text: `Tempo escavando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
                     crateExtensionService.give(interaction.user.id, 3, 1)
                     const channel = clientService.current.channels.cache.get(eventsService.getConfig().modules.events.channel)
                     channel.bulkDelete(10).catch((error) => reportError(error, 'command.escavar.bulk_delete'))
                 } else if (prof < eventsService.treasure.profundidade){
-                    embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
-                    embed.setFooter(`Tempo de atualização: ${eventsService.treasure.update} segundos\nTempo escavando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                    embed.addFields({ name: `<:treasure:807671407160197141> Informações da escavação`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nProfundidade: ${Math.round(eventsService.treasure.profundidade/3)}m\nEscavação: ${getProgress()}` })
+                    embed.setFooter({ text: `Tempo de atualização: ${eventsService.treasure.update} segundos\nTempo escavando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
                 }
 
                 try{

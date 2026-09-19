@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const imagesService = require('../../_classes/services/images');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -40,13 +40,13 @@ module.exports = {
 
         DatabaseManager.set(interaction.user.id, 'players', 'bglink', bglink)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setColor('#8adb5e')
         .setDescription(`Seu background foi definido para:`)
         .setImage(bglink);
         await interaction.reply({ embeds: [embed] });
 
-        const embed2 = new Discord.MessageEmbed()
+        const embed2 = new Discord.EmbedBuilder()
         .setColor('#8adb5e')
         .setDescription(`Background de \`${interaction.user.tag} | ${interaction.user.id}\``)
         .setImage(bglink);

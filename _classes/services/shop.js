@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManagerClass = require('../manager/DatabaseManager');
 const clientService = require('./clientService');
 const cacheLists = require('./cacheLists');
@@ -158,11 +158,11 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
     if (p.info) {
       formated += '\n' + p.info
     }
-    embed.addField(`${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}${discount > 0 ? ` ┆ Desconto: ${discount}%` : ''}`, formated, false)
+    embed.addFields({ name: `${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}${discount > 0 ? ` ┆ Desconto: ${discount}%` : ''}`, value: formated, inline: false })
     productscurrentpage.push(p)
   }
 
-  if (product.length == 0) embed.addField('❌ Oops, um problema inesperado ocorreu', 'Esta categoria não possui produtos ainda!');
+  if (product.length == 0) embed.addFields({ name: '❌ Oops, um problema inesperado ocorreu', value: 'Esta categoria não possui produtos ainda!' });
 
   if (stopComponents) return []
 
@@ -331,9 +331,9 @@ shopExtension.execute = async function(interaction, p) {
     return;
   }
 
-  const embed = new Discord.MessageEmbed();
+  const embed = new Discord.EmbedBuilder();
   embed.setColor('#606060');
-  embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+  embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
   
   let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
   let pobj = await DatabaseManager.get(interaction.user.id, 'players');
@@ -344,20 +344,20 @@ shopExtension.execute = async function(interaction, p) {
 
   const formatprice = `${price > 0 ? format(price)  +  ' ' + money + ' ' + moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${money2} ${money2emoji}`:''}${p.price3 > 0 ? `${p.price3} ${tp.name} ${tp.emoji}`:''}`
 
-  embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-  Você deseja comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**?`)
+  embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+  Você deseja comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**?` })
 
   const btn0 = createButton('confirm', 'SECONDARY', '', '✅')
   const btn1 = createButton('cancel', 'SECONDARY', '', '❌')
 
-  const alltoedit = { embeds: [embed], components: [rowComponents([btn0, btn1])], withResponse: true }
+  const alltoedit = { embeds: [embed], components: [rowComponents([btn0, btn1])] }
 
   let embedinteraction
 
   if (interaction.replied) {
     embedinteraction = await interaction.followUp(alltoedit)
   } else {
-    embedinteraction = await interaction.reply(alltoedit)
+    embedinteraction = (await interaction.reply({ ...alltoedit, withResponse: true })).resource.message
   }
 
   const filter = i => i.user.id === interaction.user.id;
@@ -385,24 +385,24 @@ shopExtension.execute = async function(interaction, p) {
 
       if (!(money >= price)) {
         embed.setColor('#a60000');
-        embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${format(money)}/${format(price)} ${money} ${moneyemoji}**`)
+        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${format(money)}/${format(price)} ${money} ${moneyemoji}**` })
         await embedinteraction.edit({ embeds: [embed], components: [] });
 			  return;
 
       }if(p.price2 > 0 && !(points >= p.price2)){
         embed.setColor('#a60000');
-        embed.addField('❌ Falha na compra', `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${format(points)}/${format(p.price2)} ${money2} ${money2emoji}**`)
+        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${format(points)}/${format(p.price2)} ${money2} ${money2emoji}**` })
         await embedinteraction.edit({ embeds: [embed], components: [] });
         return;
 
       }if(p.price3 > 0 && !(convites.points >= p.price3)){
         embed.setColor('#a60000');
-        embed.addField('❌ Falha na compra', `Você não possui ${tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${tp.name} atuais: **${format(convites.points)}/${format(p.price3)} ${tp.name} ${tp.emoji}**`)
+        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui ${tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${tp.name} atuais: **${format(convites.points)}/${format(p.price3)} ${tp.name} ${tp.emoji}**` })
         await embedinteraction.edit({ embeds: [embed], components: [] });
         return; 
       }if (p.level > 0 && obj2.level < p.level) {
         embed.setColor('#a60000');
-        embed.addField('❌ Falha na compra', `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`/perfil\``)
+        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`/perfil\`` })
         await embedinteraction.edit({ embeds: [embed], components: [] });
         return;
       }
@@ -414,7 +414,7 @@ shopExtension.execute = async function(interaction, p) {
 
           if (await cacheLists.waiting.includes(interaction.user.id, 'mining')) {
             embed.setColor('#a60000');
-            embed.addField('❌ Falha na compra', `Você não pode realizar uma compra de uma máquina enquanto estiver minerando!`)
+            embed.addFields({ name: '❌ Falha na compra', value: 'Você não pode realizar uma compra de uma máquina enquanto estiver minerando!' })
             await embedinteraction.edit({ embeds: [embed], components: [] });
             return;
           }
@@ -424,7 +424,7 @@ shopExtension.execute = async function(interaction, p) {
           if (p.id > cmaq+1) {
             const proxmaq = shopExtension.getProduct(cmaq+1)
             embed.setColor('#a60000');
-            embed.addField('❌ Falha na compra', `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**`)
+            embed.addFields({ name: '❌ Falha na compra', value: `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**` })
             await embedinteraction.edit({ embeds: [embed], components: [] });
             return;
           }
@@ -483,9 +483,9 @@ shopExtension.execute = async function(interaction, p) {
       }
           
       embed.setColor('#5bff45');
-      embed.addField('✅ Sucesso na compra', `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${format(cashback)} ${money}** ${moneyemoji})` : ''}${p.type == 5?`\nUtilize \`/maquina\` para visualizar seus chipes!`:''}`)
+       embed.addFields({ name: '✅ Sucesso na compra', value: `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${format(cashback)} ${money}** ${moneyemoji})` : ''}${p.type == 5?`\nUtilize \`/maquina\` para visualizar seus chipes!`:''}` })
 
-      if(debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+       if(debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
 
       embedinteraction.edit({ embeds: [embed], components: [] });
           
@@ -502,22 +502,24 @@ shopExtension.execute = async function(interaction, p) {
       
       await eco.addToHistory(interaction.user.id, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
 
-      const embedcmd = new Discord.MessageEmbed()
+      const embedcmd = new Discord.EmbedBuilder()
           .setColor('#b8312c')
           .setTimestamp()
           .setTitle('🛒 | Loja')
-          .addField('Produto', `**${p.icon + ' ' + p.name}**\n${formatprice}`)
-          .addField('<:mention:788945462283075625> Membro', `${interaction.user.tag} (\`${interaction.user.id}\`)`)
-          .addField('<:channel:788949139390988288> Canal', `\`${interaction.channel.name} (${interaction.channel.id})\``)
-          .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
-          .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
+          .addFields(
+            { name: 'Produto', value: `**${p.icon + ' ' + p.name}**\n${formatprice}` },
+            { name: '<:mention:788945462283075625> Membro', value: `${interaction.user.tag} (\`${interaction.user.id}\`)` },
+            { name: '<:channel:788949139390988288> Canal', value: `\`${interaction.channel.name} (${interaction.channel.id})\`` }
+          )
+          .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
+          .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
           clientService.current?.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
     } if (b.customId == 'cancel'){
 
           embed.setColor('#a60000');
-          embed.addField('❌ Compra cancelada', `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.`)
+           embed.addFields({ name: '❌ Compra cancelada', value: `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.` })
           await embedinteraction.edit({ embeds: [embed], components: [] });
           return;
     }
@@ -530,8 +532,8 @@ shopExtension.execute = async function(interaction, p) {
     if (buyed) return
     embed.fields = []
     embed.setColor('#a60000');
-    embed.addField('❌ Tempo expirado', `
-    Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!`)
+    embed.addFields({ name: '❌ Tempo expirado', value: `
+    Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!` })
     embedinteraction.edit({ embeds: [embed], components: [] });
     return;
 

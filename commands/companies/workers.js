@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -39,11 +39,11 @@ module.exports = {
             let ownerobj = await DatabaseManager.get(interaction.user.id, 'players')
             let ownerobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             .setThumbnail(company.logo)
             .setColor("#34fa3a")
-            .setFooter(("Para demitir um funcionário utilize /demitir <id>"), company.logo)
-            embed.addField('📌 `' + interaction.user.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + interaction.user.id + '\nNível: **' + ownerobj2.level + '**\nÚltima atividade: **' + (ownerobj.companyact == null ? 'Não houve' : compactTime(Date.now() - ownerobj.companyact.last)) + '**\n**Fundador**', false)
+            .setFooter({ text: ("Para demitir um funcionário utilize /demitir <id>"), iconURL: company.logo })
+            embed.addFields({ name: '📌 `' + interaction.user.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', value: 'ID: ' + interaction.user.id + '\nNível: **' + ownerobj2.level + '**\nÚltima atividade: **' + (ownerobj.companyact == null ? 'Não houve' : compactTime(Date.now() - ownerobj.companyact.last)) + '**\n**Fundador**', inline: false })
 
             await interaction.reply({ embeds: [embed] });
             return;
@@ -87,15 +87,15 @@ module.exports = {
 
         const price = 60
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
         .setTitle('Score da empresa: ' + company.score.toFixed(2) + ' ⭐')
         .setThumbnail(company.logo)
         .setColor("#34fa3a")
-        .setFooter((owner.id == interaction.user.id ? "Para demitir um funcionário utilize /demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa ' + price + ' ⭐ da empresa)' : '') : "Para sair da empresa utilize /sairempresa"), company.logo)
-        embed.addField('📌 `' + owner.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', 'ID: ' + owner.id + '\nNível: **' + ownerobj2.level + '**\n**Fundador**', false)
+        .setFooter({ text: (owner.id == interaction.user.id ? "Para demitir um funcionário utilize /demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa ' + price + ' ⭐ da empresa)' : '') : "Para sair da empresa utilize /sairempresa"), iconURL: company.logo })
+        embed.addFields({ name: '📌 `' + owner.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', value: 'ID: ' + owner.id + '\nNível: **' + ownerobj2.level + '**\n**Fundador**', inline: false })
         for (i = 0; i < list.length; i++) {
             const func = list[i]
-            embed.addField( (func.user.id == interaction.user.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : compactTime(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? utility.format(0) : utility.format(func.companyact.rend))  + ' ' + utility.money + ' ' + utility.moneyemoji + '**', false)
+            embed.addFields({ name: (func.user.id == interaction.user.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', value: 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : compactTime(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? utility.format(0) : utility.format(func.companyact.rend))  + ' ' + utility.money + ' ' + utility.moneyemoji + '**', inline: false })
         }
 
         if (!(await companyService.check.hasCompany(interaction.user.id))) return await interaction.reply({ embeds: [embed] })
@@ -104,7 +104,7 @@ module.exports = {
 
         if (maxWorkers >= 8 || company.score.toFixed(2) < price) return await interaction.reply({ embeds: [embed] })
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ utility.rowComponents([utility.createButton('up', 'PRIMARY', '', '🔼')]) ], withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [ utility.rowComponents([utility.createButton('up', 'PRIMARY', '', '🔼')]) ], withResponse: true })).resource.message;
         
         const filter = i => i.user.id === interaction.user.id;
         
@@ -120,7 +120,7 @@ module.exports = {
 
             if ((company.score < price)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha no upgrade', `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${utility.format(company.score.toFixed(2))}/${utility.format(price)} ⭐**`)
+                embed.addFields({ name: '❌ Falha no upgrade', value: `A sua empresa não possui score o suficiente para realizar upgrade!\nScore: **${utility.format(company.score.toFixed(2))}/${utility.format(price)} ⭐**` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -130,9 +130,9 @@ module.exports = {
 
             embed.setColor('#5bff45')
             .setTitle('')
-            embed.addField('✅ Upgrade realizado', `
-            Você gastou ${price} ⭐ da empresa subiu um nível dela, agora a empresa possui maior capacidade de funcionários máximo.`)
-            embed.setFooter('')
+            embed.addFields({ name: '✅ Upgrade realizado', value: `
+            Você gastou ${price} ⭐ da empresa subiu um nível dela, agora a empresa possui maior capacidade de funcionários máximo.` })
+            embed.setFooter({ text: '' })
             interaction.editReply({ embeds: [embed], components: [] });
 
         });

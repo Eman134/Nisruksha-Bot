@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const config = require('../../_classes/config');
@@ -23,13 +23,13 @@ module.exports = {
         const donate = parseFloat(interaction.options.getInteger('valor'));
 
                 
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 		.setDescription(`Deseja gerar a mensagem de doação para R$${donate}?`, ``)
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', 'Confirmar', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         

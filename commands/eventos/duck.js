@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -55,7 +55,7 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "patodourado", 60);
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         
         let monster = {
             name: 'Pato Dourado',
@@ -90,8 +90,8 @@ module.exports = {
         }
         
         embed
-        .addField(`Você deseja iniciar a batalha contra o pato dourado?`, `Derrote o pato dourado e garanta recompensas!`)
-        .addField(`Informações do pato`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
+        .addFields({ name: `Você deseja iniciar a batalha contra o pato dourado?`, value: `Derrote o pato dourado e garanta recompensas!` })
+        .addFields({ name: `Informações do pato`, value: `Nome: **${monster.name}**\nNível: **${monster.level}**` })
         .setImage(monster.image)
 
         const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
@@ -99,7 +99,7 @@ module.exports = {
 
         const rowButton0 = utility.rowComponents([ btn0, btn1 ])
 
-        const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
+        const embedinteraction = (await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } )).resource.message;
 
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'patodourado')
 
@@ -199,51 +199,51 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.MessageEmbed()
+                    const infosEmbed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.`)
                     .setImage('attachment://image.png')
 
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
                     for (const r of equips) {
-                        infosEmbed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, true)
+                        infosEmbed.addFields({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, inline: true })
                     }
 
-                    embed.addField('Informações do ataque atual', `
+                    embed.addFields({ name: 'Informações do ataque atual', value: `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}
-`)
+` })
 
-                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new Discord.EmbedBuilder()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
                     .setThumbnail('attachment://image.png')
 
                     for (const r of equips) {
-                        embed.addField(`${r.icon} **${r.name}**`, `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, true)
+                        embed.addFields({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, inline: true })
                     }
 
-                    embed.addField('Informações do ataque atual', `
+                    embed.addFields({ name: 'Informações do ataque atual', value: `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}
-`)
+` })
 
-                    if (losedesc) embed.addField('Resultado da caçada', losedesc)
+                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
 
                     return [embed]
                 }

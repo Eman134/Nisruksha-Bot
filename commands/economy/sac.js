@@ -1,7 +1,7 @@
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -51,17 +51,17 @@ module.exports = {
             total = money;
         }
         
-		const embed = new Discord.MessageEmbed();
+		const embed = new Discord.EmbedBuilder();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
 
-        embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária?`)
+        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        Você deseja sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -76,19 +76,19 @@ reacted = true;
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addField('❌ Saque cancelado', `
-                Você cancelou o saque de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária.`)
+                embed.addFields({ name: '❌ Saque cancelado', value: `
+                Você cancelou o saque de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária.` })
             } else {
                 const money2 = await economyService.bank.get(interaction.user.id);
                 if (money2 < total) {
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no saque', `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para sacar!`)
+                    embed.addFields({ name: '❌ Falha no saque', value: `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para sacar!` })
                 } else {
                     embed.fields = [];
                     embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso no saque', `
-                    Você sacou o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária!`)
+                    embed.addFields({ name: '✅ Sucesso no saque', value: `
+                    Você sacou o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária!` })
                     economyService.money.add(interaction.user.id, total);
                     economyService.bank.remove(interaction.user.id, total);
                     economyService.addToHistory(interaction.user.id, `📤 Saque | - ${utility.format(total)} ${utility.moneyemoji}`)
@@ -103,8 +103,8 @@ reacted = true;
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

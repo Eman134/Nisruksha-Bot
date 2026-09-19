@@ -1,5 +1,5 @@
 const companyService = require('../../_classes/services/company');
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const townsService = require('../../_classes/services/towns');
@@ -17,7 +17,7 @@ const options = (option) => {
     for (i = 0; i < Object.keys(companyService.e).length; i++) {
         const sector = companyService.e[Object.keys(companyService.e)[i]]
         const name = Object.keys(companyService.e)[i]
-        if (sector.description) option.addChoice(name.toUpperCase(), name)
+        if (sector.description) option.addChoices({ name: name.toUpperCase(), value: name })
     }
     
     return option.setRequired(true)
@@ -87,17 +87,17 @@ module.exports = {
         let townname = await townsService.getTownName(interaction.user.id);
         let cristais = await economyService.points.get(interaction.user.id)
         
-        const embed = new Discord.MessageEmbed()
-        .addField(`📃 Informações da Empresa`, `Nome: **${name}**\nSetor: **${icon} ${setor.charAt(0).toUpperCase() + setor.slice(1)}**\nLocalização: **${townname}**`)
-        .addField(`🧾 Contratos`, `\`Termos de Compromisso\`\n${utility.format(r1)} ${utility.money} ${utility.moneyemoji}\n\`Compensação de Trabalho\`\n${utility.format(r2)} ${utility.money} ${utility.moneyemoji}\n\`Autorização de Recebimento\`\n${utility.format(r3)} ${utility.money} ${utility.moneyemoji}\n\`Instrumento Particular\`\n${utility.format(r4)} ${utility.money} ${utility.moneyemoji}`)
-        .addField(`📑 Requisitos de proposta`, `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${utility.format(c1)} ${utility.money2} ${utility.money2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}`)
+        const embed = new Discord.EmbedBuilder()
+        .addFields({ name: `📃 Informações da Empresa`, value: `Nome: **${name}**\nSetor: **${icon} ${setor.charAt(0).toUpperCase() + setor.slice(1)}**\nLocalização: **${townname}**` })
+        .addFields({ name: `🧾 Contratos`, value: `\`Termos de Compromisso\`\n${utility.format(r1)} ${utility.money} ${utility.moneyemoji}\n\`Compensação de Trabalho\`\n${utility.format(r2)} ${utility.money} ${utility.moneyemoji}\n\`Autorização de Recebimento\`\n${utility.format(r3)} ${utility.money} ${utility.moneyemoji}\n\`Instrumento Particular\`\n${utility.format(r4)} ${utility.money} ${utility.moneyemoji}` })
+        .addFields({ name: `📑 Requisitos de proposta`, value: `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${utility.format(c1)} ${utility.money2} ${utility.money2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}` })
         .setColor('#00e061')
-        .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
+        .setFooter({ text: 'Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa' })
 		
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -111,8 +111,8 @@ module.exports = {
             
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
-                embed.addField('❌ Abertura cancelada', `
-                Você cancelou a abertura da empresa **${icon} ${name}**.`)
+                embed.addFields({ name: '❌ Abertura cancelada', value: `
+                Você cancelou a abertura da empresa **${icon} ${name}**.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -124,34 +124,34 @@ module.exports = {
 
             if (playerobj.level < req) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não possui nível o suficiente para abrir uma empresa!\nSeu nível atual: **${playerobj.level}/${req}**\nVeja seu progresso atual utilizando \`/perfil\``)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui nível o suficiente para abrir uma empresa!\nSeu nível atual: **${playerobj.level}/${req}**\nVeja seu progresso atual utilizando \`/perfil\`` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             if (playerobj2.money < total) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(playerobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(playerobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
             if (cristais < c1) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(cristais)}/${utility.format(c1)} ${utility.money2} ${utility.money2emoji}**`)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(cristais)}/${utility.format(c1)} ${utility.money2} ${utility.money2emoji}**` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             if (await companyService.check.isWorker(interaction.user.id)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você precisa sair da sua empresa atual para abrir outra!`)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Você precisa sair da sua empresa atual para abrir outra!` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             if (await companyService.check.hasCompany(interaction.user.id)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não pode abrir mais de uma empresa!`)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Você não pode abrir mais de uma empresa!` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -172,7 +172,7 @@ module.exports = {
             
             if (cont) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Já possui uma empresa com este nome! Pense em outro`)
+                embed.addFields({ name: '❌ Falha na abertura', value: `Já possui uma empresa com este nome! Pense em outro` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -189,9 +189,9 @@ module.exports = {
             economyService.addToHistory(interaction.user.id, `Nova empresa | - ${utility.format(total)} ${utility.moneyemoji}${c1 > 0 ? ` | - ${utility.format(c1)} ${utility.money2emoji}`:''}`)
             townname = await townsService.getTownName(interaction.user.id);
             embed
-            .addField(`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`)
+            .addFields({ name: `✅ Sucesso na abertura`, value: `Parabéns, você acaba de abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**` })
             .setColor('#00e061')
-            .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
+            .setFooter({ text: 'Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa' })
             interaction.editReply({ embeds: [embed], components: [] });
             return
 
@@ -200,7 +200,7 @@ module.exports = {
         collector.on('end', async collected => {
             if (reacted) return;
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

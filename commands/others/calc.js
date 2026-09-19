@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const config = require('../../_classes/config');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -25,7 +25,7 @@ module.exports = {
             if (resultado.toString().includes(config.app.token)) {
                 return interaction.reply({ content: '**Token do bot**: OdIcBaAzD2NzYxMSA3b2TOa4vca.Xvko_Q.A6F3EHwD3abV-Xabc_as9FEMm6eXD?' });
             }
-            const embed = new Discord.MessageEmbed()
+            const embed = new Discord.EmbedBuilder()
             if (resultado === Infinity || resultado == NaN || resultado == undefined || resultado == null || resultado.toString() == 'NaN') {
                 embed.setImage('https://i.imgur.com/9EDKaRj.gif')
                 .setDescription(`Ao infinito, e além!`)

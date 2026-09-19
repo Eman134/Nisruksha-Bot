@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 
 class UtilityService {
     constructor() {
@@ -71,15 +71,16 @@ class UtilityService {
     }
 
     sendError(interaction, message, usage) {
-        const embed = new Discord.MessageEmbed().setColor('#b8312c')
+        const embed = new Discord.EmbedBuilder().setColor('#b8312c')
             .setDescription('<:error:736274027756388353> ' + message)
-            .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        if (usage) embed.addField('Exemplo de uso', '\n`/' + usage + '`');
+            .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
+        if (usage) embed.addFields({ name: 'Exemplo de uso', value: '\n`/' + usage + '`' });
         return embed;
     }
 
     createButton(id, style, label, emoji, disabled) {
-        const button = new Discord.MessageButton().setStyle(style);
+        const buttonStyle = typeof style === 'string' ? style.charAt(0) + style.slice(1).toLowerCase() : style;
+        const button = new Discord.ButtonBuilder().setStyle(Discord.ButtonStyle[buttonStyle]);
         if (label !== undefined && label !== null && String(label).length > 0) button.setLabel(String(label).slice(0, 80));
         if (emoji) button.setEmoji(this.normalizeEmoji(emoji));
         if (style === 'LINK') button.setURL(id.toString());
@@ -89,11 +90,11 @@ class UtilityService {
     }
 
     rowComponents(components) {
-        return new Discord.MessageActionRow().addComponents(...components);
+        return new Discord.ActionRowBuilder().addComponents(...components);
     }
 
     createMenu({ id, placeholder, min, max }, options) {
-        return new Discord.MessageSelectMenu()
+        return new Discord.StringSelectMenuBuilder()
             .setCustomId(id)
             .setPlaceholder(placeholder)
             .setMinValues(min)

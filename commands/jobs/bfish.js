@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -82,14 +82,14 @@ module.exports = {
             return [utility.rowComponents(buttons)]
         }
 
-        const embed = new Discord.MessageEmbed();
+        const embed = new Discord.EmbedBuilder();
         embed.setTitle(`Pescando`)
         embed.setDescription(`Pescador: ${interaction.user}`);
-        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
-        embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
-        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-        embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), withResponse: true });
+        embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
+        embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸` })
+        embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
+        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: reworkBtns(), withResponse: true })).resource.message;
         
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'fishing');
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
@@ -295,12 +295,12 @@ module.exports = {
                 embed.fields = [];
                 const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
                 let sta2 = await playersService.stamina.get(interaction.user.id);
-                embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
-                embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``)
-                embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-                await embed.addField(`➰ Coletados`, ccmap)
-                if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px).join(inv))
-                embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
+                embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\`` })
+                embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
+                await embed.addFields({ name: `➰ Coletados`, value: ccmap })
+                if (header.retorno && header.retorno.descartados.length > 0) embed.addFields({ name: `❌ Descartados`, value: header.retorno.descartados.map((px) => '1x ' + px).join(inv) })
+                embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
 
                 try{
                     await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
@@ -348,11 +348,11 @@ module.exports = {
                         pd = header.profundidades
 
                         embed.fields = [];
-                        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
-                        embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
-                        embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-                        await embed.addField(`➰ Coletados`, ccmap)
-                        embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                        embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
+                        embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸` })
+                        embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
+                        await embed.addFields({ name: `➰ Coletados`, value: ccmap })
+                        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
                         try{
                             await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                         } catch (error) {

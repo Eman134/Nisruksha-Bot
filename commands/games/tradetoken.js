@@ -1,4 +1,4 @@
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
@@ -35,14 +35,14 @@ module.exports = {
 
         let total = fichas*810;
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new Discord.EmbedBuilder()
 	    .setColor('#32a893')
-        .addField('<a:loading:736625632808796250> Aguardando confirmação', `Você deseja trocar ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}?`)
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `Você deseja trocar ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}?` })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -70,15 +70,15 @@ module.exports = {
                 collector.stop();
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addField('❌ Troca cancelada', `
-                Você cancelou a troca de ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}.`)
+                embed.addFields({ name: '❌ Troca cancelada', value: `
+                Você cancelou a troca de ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}.` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             } else {
                 embed.fields = [];
                 embed.setColor('#5bff45');
-                embed.addField('✅ Sucesso na troca', `
-                Você trocou ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}`)
+                embed.addFields({ name: '✅ Sucesso na troca', value: `
+                Você trocou ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 economyService.token.remove(interaction.user.id, fichas)
                 economyService.money.add(interaction.user.id, total)
@@ -90,8 +90,8 @@ module.exports = {
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `
-            Você iria trocar ${fichas} ${utility.money3} ${utility.money3emoji} pelo valor de ${total} ${utility.money} ${utility.moneyemoji}, porém o tempo expirou!`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `
+            Você iria trocar ${fichas} ${utility.money3} ${utility.money3emoji} pelo valor de ${total} ${utility.money} ${utility.moneyemoji}, porém o tempo expirou!` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

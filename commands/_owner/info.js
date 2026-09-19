@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
@@ -27,9 +27,9 @@ async function sendCmdsExec(interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new Discord.MessageEmbed()
-        .setColor(`RANDOM`)
-        .addField(`📕 Comandos executados`, `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`)
+    const embed = new Discord.EmbedBuilder()
+        .setColor(Math.floor(Math.random() * 0xffffff))
+        .addFields({ name: `📕 Comandos executados`, value: `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}` })
         .setTimestamp()
  await interaction.channel.send({ embeds: [embed] })
 
@@ -43,9 +43,9 @@ async function sendInative(interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new Discord.MessageEmbed()
-        .setColor(`RANDOM`)
-        .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-s.lastcmd))}\``).join('\n')}`)
+    const embed = new Discord.EmbedBuilder()
+        .setColor(Math.floor(Math.random() * 0xffffff))
+        .addFields({ name: `💤 Inativos`, value: `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-s.lastcmd))}\``).join('\n')}` })
         .setTimestamp()
  await interaction.channel.send({ embeds: [embed] })
 
@@ -122,9 +122,9 @@ async function send(interaction) {
         array1 = array1.filter((i) => i.server !== undefined)
         array2 = array2.filter((i) => i.server !== undefined)
         
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         .setTitle(`Painel de Moderação | Visão Geral`)
-        .setColor(`RANDOM`)
+        .setColor(Math.floor(Math.random() * 0xffffff))
         .setDescription(`📃 Registrados: **${array.length}**
 📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
 💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-array2[0].lastcmd))}\``)

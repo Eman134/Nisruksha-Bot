@@ -1,4 +1,4 @@
-const Discord = require('../discordCompat');
+const Discord = require('discord.js');
 const DatabaseManagerClass = require('../manager/DatabaseManager');
 const clientService = require('./clientService');
 const economyService = require('./economy');
@@ -62,7 +62,7 @@ Object.assign(events, {
 
     getRaceEmbed: function(aposta) {
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new Discord.EmbedBuilder()
         embed.setColor('#36393f')
         embed.setTitle('Evento | Corrida de Cavalos')
 
@@ -87,14 +87,13 @@ Object.assign(events, {
             apostasroxo += events.race.apostas.roxo[i].aposta
         }
 
-        embed.addField('<:info:736274028515295262> Informações', (aposta ? 'Sua aposta: `' + format(aposta) + ' ' + money + '` ' + moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta!')
+        embed.addFields({ name: '<:info:736274028515295262> Informações', value: (aposta ? 'Sua aposta: `' + format(aposta) + ' ' + money + '` ' + moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta!' })
 
-        embed.addField(events.race.rodando ? '⏰ Tempo restante: ' + ms(events.race.time-(Date.now()-events.race.started), true) : 'Corrida de cavalos finalizada', 
-        `
+        embed.addFields({ name: events.race.rodando ? '⏰ Tempo restante: ' + ms(events.race.time-(Date.now()-events.race.started), true) : 'Corrida de cavalos finalizada', value: `
 ${vencedor == 1 ? '🎉|🏇' : '🏁|' + inv2}${vencedor != 0 && vencedor != 1 ? '🏇' : inv2}${inv2}${inv2}${inv2}|${vencedor != 0 ? inv : '🏇'}🟧${inv}\`${format(apostaslaranja)} ${money}\` ${moneyemoji}
 ${vencedor == 2 ? '🎉|🏇' : '🏁|' + inv3}${vencedor != 0 && vencedor != 2 ? '🏇' : inv3}${inv3}${inv3}${inv3}|${vencedor != 0 ? inv : '🏇'}🟥${inv}\`${format(apostasvermelho)} ${money}\` ${moneyemoji}
 ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 ? '🏇' : inv4}${inv4}${inv4}${inv4}|${vencedor != 0 ? inv : '🏇'}🟪${inv}\`${format(apostasroxo)} ${money}\` ${moneyemoji}
-        `)
+        ` })
 
         let vencedorcor = ''
         let vencedorcornome = ''
@@ -125,7 +124,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         }
 
         if (vencedor != 0) {
-            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostas e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + format(Math.round(apostas*1.5)) + ' ' + money + '` ' + moneyemoji + ' foi distribuído para os apostadores.')
+            embed.addFields({ name: 'Vencedor: 🏇' + vencedorcor, value: events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostas e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + format(Math.round(apostas*1.5)) + ' ' + money + '` ' + moneyemoji + ' foi distribuído para os apostadores.' })
         }
 
         return embed
@@ -138,8 +137,8 @@ events.getConfig = function(){ return config }
 events.alert = async function(text) {
     
     try {
-        const embed = new Discord.MessageEmbed()
-        embed.setColor('RANDOM')
+        const embed = new Discord.EmbedBuilder()
+        embed.setColor(Math.floor(Math.random() * 0xffffff))
         embed.setTitle("Siga este canal em seu servidor para avisos de eventos")
         embed.setDescription(text)
         const channel = clientService.current?.channels.cache.get(config.modules.events.channel)
@@ -199,7 +198,7 @@ events.forceRace = async function() {
 
     const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + ms(events.race.time, true) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
-    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()], withResponse: true })
+    const embedinteraction = (await interaction.reply({ embeds: [events.getRaceEmbed()], withResponse: true })).resource.message
 
     events.race.interactionid = embedinteraction.id
 

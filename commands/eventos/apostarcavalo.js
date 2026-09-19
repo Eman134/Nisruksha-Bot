@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const eventsService = require('../../_classes/services/events');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -66,7 +66,7 @@ module.exports = {
         if (checkin) return
         
 		const embed = eventsService.getRaceEmbed(total)
-        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
+        const embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true })).resource.message;
         
         await embedinteraction.react('🟧')
         await embedinteraction.react('🟥')
@@ -127,8 +127,8 @@ module.exports = {
             const embed = eventsService.getRaceEmbed(total)
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Aposta realizada', `
-            Você fez uma aposta de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji} no cavalo **🏇${reaction.emoji.name}**!\nO resultado final da corrida sairá em **${compactTime(eventsService.race.time-(Date.now()-eventsService.race.started))}** e se ganhar o valor será creditado automaticamente em seu banco!`)
+            embed.addFields({ name: '✅ Aposta realizada', value: `
+            Você fez uma aposta de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji} no cavalo **🏇${reaction.emoji.name}**!\nO resultado final da corrida sairá em **${compactTime(eventsService.race.time-(Date.now()-eventsService.race.started))}** e se ganhar o valor será creditado automaticamente em seu banco!` })
             await interaction.editReply({ embeds: [embed], components: [] });
 
         });
@@ -137,7 +137,7 @@ module.exports = {
             if (reacted) return;
             const embed = eventsService.getRaceEmbed(total)
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria realizar uma aposta na corrida de cavalos, porém o tempo expirou.`)
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria realizar uma aposta na corrida de cavalos, porém o tempo expirou.` })
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

@@ -1,5 +1,5 @@
 const compactTime = (value) => utility.ms(value, true);
-const Discord = require('../../_classes/discordCompat');
+const Discord = require('discord.js');
 const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -37,7 +37,7 @@ module.exports = {
 	async execute(interaction) {
 
                 
-        const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
+        const embed = new Discord.EmbedBuilder().setColor(`#fc7b03`)
         
         if (!(await companyService.check.hasCompany(interaction.user.id))) {
             const embedtemp = await utility.sendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
@@ -75,14 +75,14 @@ module.exports = {
             if (xy || xx) {
                 await companyInfo.set(interaction.user.id, company.company_id, 'curriculum', array)
                 embed.setColor('#a60000');
-                embed.addField('❌ Houve uma falha no contrato', `Este membro já possui uma empresa ou trabalha em uma!`)
+                embed.addFields({ name: '❌ Houve uma falha no contrato', value: `Este membro já possui uma empresa ou trabalha em uma!` })
                 await interaction.reply({ embeds: [embed] })
                 return;
             }
             
             if (!(vac)) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Houve uma falha no contrato', `Sua empresa não possui vagas disponíveis ou estão desativadas!`)
+                embed.addFields({ name: '❌ Houve uma falha no contrato', value: `Sua empresa não possui vagas disponíveis ou estão desativadas!` })
                 await interaction.reply({ embeds: [embed] })
                 return;
             }
@@ -95,7 +95,7 @@ module.exports = {
                 
                 embed.setColor("#5bff45")
                 .setDescription(`A empresa ${company.name} aceitou seu currículo!\nSeja bem vindo!\nPara visualizar os comandos da sua empresa utilize \`/setores\``)
-                .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
+                .setFooter({ text: `Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})` })
                 await usr.send({ embeds: [embed]})
 
             } catch (error) {
@@ -143,7 +143,7 @@ module.exports = {
                 
                 embed.setColor("#a60000")
                 .setDescription(`A empresa ${company.name} negou seu currículo!`)
-                .setFooter(`Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
+                .setFooter({ text: `Você está em consentimento em receber DM\'S do bot para saber se foi aceito ou negado na empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})` })
                 usr.send({ embeds: [embed]});
 
             } catch (error) {
@@ -165,13 +165,13 @@ module.exports = {
             for (const r of array) {
                 let usr = await clientService.current.users.fetch(r.split(";")[0])
                 const pobjmaq = await DatabaseManager.get(usr.id, 'machines')
-                embed.addField(`📰 Nº ${array.indexOf(r)+1}`, `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${compactTime(Date.now()-parseInt(r.split(";")[1]))}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\``)
+                embed.addFields({ name: `📰 Nº ${array.indexOf(r)+1}`, value: `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${compactTime(Date.now()-parseInt(r.split(";")[1]))}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\`` })
             }
 
             embed.setColor("#5bff45")
             
         } else {
-            embed.addField(`📰 Sem currículos`, `Sua empresa não possui currículos pendentes!`)
+            embed.addFields({ name: `📰 Sem currículos`, value: `Sua empresa não possui currículos pendentes!` })
             embed.setColor("#a60000")
         }
 
