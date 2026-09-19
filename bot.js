@@ -1,3 +1,4 @@
+require('./_classes/loadEnv');
 const ShardingManager = require('./_classes/manager/ShardingManager');
 const config = require('./_classes/config');
 const { reportError } = require('./_classes/debug');

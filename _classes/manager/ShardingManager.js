@@ -3,9 +3,12 @@ const { ShardingManager } = require('discord.js');
 class ShardManager extends ShardingManager {
 
     constructor(options = {}) {
+        if (!options.app?.token) {
+            throw new Error('DISCORD_TOKEN não foi carregado. Configure o arquivo .env ou a variável de ambiente.');
+        }
 
         super('./index.js', {
-            totalShards: options.sharding.shardAmount,
+            totalShards: options.sharding?.shardAmount,
             token: options.app.token
         })
 
@@ -28,7 +31,7 @@ class ShardManager extends ShardingManager {
     }
 
     async connect() {
-        this.spawn()
+        return this.spawn()
     }
 
 }

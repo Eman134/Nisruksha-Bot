@@ -22,6 +22,7 @@
     "colors": "^1.4.0",
     "discord-api-types": "^0.38.55",
     "discord.js": "^14.27.0",
+    "dotenv": "^18.0.1",
     "express": "^4.17.1",
     "fs": "0.0.1-security",
     "glob": "^13.0.6",

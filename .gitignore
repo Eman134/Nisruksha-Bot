@@ -1,5 +1,6 @@
 /node_modules
 /nisruksha.github.io
 /_localdata
+/.env
 _classes/config.js
 _classes/configofc.js
