@@ -131,11 +131,15 @@ class DatabaseManager {
         const key = keyFor(value, column);
         const defaults = { ...(DEFAULTS[table] || {}), [column]: value };
 
-        await prisma.legacyRow.upsert({
-            where: { tableName_key: { tableName: table, key } },
-            create: { tableName: table, key, data: defaults },
-            update: {}
-        });
+        try {
+            await prisma.legacyRow.upsert({
+                where: { tableName_key: { tableName: table, key } },
+                create: { tableName: table, key, data: defaults },
+                update: {}
+            });
+        } catch (error) {
+            if (error?.code !== 'P2002') throw error;
+        }
     }
 
     async get(userId, table, column = 'user_id') {
