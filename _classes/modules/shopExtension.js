@@ -330,7 +330,7 @@ shopExtension.execute = async function(interaction, p) {
   const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
   const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-  const alltoedit = { embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true }
+  const alltoedit = { embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true }
 
   let embedinteraction
 

@@ -90,7 +90,7 @@ module.exports = {
 
         const rowButton0 = API.rowComponents(rb0)
 
-        const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], fetchReply: true } );
+        const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
 		API.cacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
 

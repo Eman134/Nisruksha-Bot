@@ -98,7 +98,7 @@ module.exports = {
 
         reworkButtons({ currentpage, totalpages })
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         if (returned.currentpage == returned.totalpages || returned.totalpages == 0) return
 

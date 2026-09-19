@@ -178,7 +178,7 @@ events.forceRace = async function() {
 
     const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
-    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()], fetchReply: true })
+    const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()], withResponse: true })
 
     events.race.interactionid = embedinteraction.id
 

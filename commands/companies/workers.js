@@ -99,7 +99,7 @@ module.exports = {
 
         if (maxWorkers >= 8 || company.score.toFixed(2) < price) return await interaction.reply({ embeds: [embed] })
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ API.rowComponents([API.createButton('up', 'PRIMARY', '', '🔼')]) ], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ API.rowComponents([API.createButton('up', 'PRIMARY', '', '🔼')]) ], withResponse: true });
         
         const filter = i => i.user.id === interaction.user.id;
         

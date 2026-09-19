@@ -121,7 +121,7 @@ module.exports = {
 
         if (currentpage == totalpages || totalpages == 0) components = []
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
         
         if (currentpage == totalpages || totalpages == 0) return
 

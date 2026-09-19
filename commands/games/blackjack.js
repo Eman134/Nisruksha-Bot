@@ -375,7 +375,7 @@ module.exports = {
             const blackjackcomponents = getBlackJackComponents(token)
             const blackjackembed = getBlackJackEmbed()
             
-            const interactionData = { embeds: [blackjackembed], attachments: [], files: [blackjackimage], components: blackjackcomponents, fetchReply: true }
+            const interactionData = { embeds: [blackjackembed], attachments: [], files: [blackjackimage], components: blackjackcomponents, withResponse: true }
 
             let message
             if (interaction.replied) {
@@ -402,7 +402,7 @@ module.exports = {
             message = await start()
             game.status = 'playing'
         } else {
-            message = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
+            message = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
         }
 
         const filter = i => {

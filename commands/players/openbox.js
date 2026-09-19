@@ -60,7 +60,7 @@ module.exports = {
         const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id && ['confirm', 'cancel', 'skip'].includes(i.customId);
             

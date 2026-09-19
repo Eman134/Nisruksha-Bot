@@ -50,7 +50,7 @@ module.exports = {
         embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn])], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn])], withResponse: true });
 
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'collecting');
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');

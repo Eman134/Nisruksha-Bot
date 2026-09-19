@@ -162,7 +162,7 @@ module.exports = {
 
             const embedtemp = await API.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${API.format(price)} ${API.money}\` ${API.moneyemoji}`)
             
-            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], fetchReply: true } )
+            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [API.rowComponents([API.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )
 
             const filter = i => i.user.id === interaction.user.id;
             
@@ -239,7 +239,7 @@ module.exports = {
 
         const components = plotReturns.components
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

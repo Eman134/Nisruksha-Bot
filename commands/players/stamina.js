@@ -21,7 +21,7 @@ module.exports = {
 	    .setColor('#e06f0b')
         if (stamina < staminamax) embed.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`)
         else embed.addField(`🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!`)
-        const embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
         if (stamina == staminamax) return;
         embedinteraction.react('⏰')
 

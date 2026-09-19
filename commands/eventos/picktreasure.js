@@ -48,7 +48,7 @@ module.exports = {
         embed.addField(`<:treasure:807671407160197141> Informações da escavação`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nProfundidade: ${Math.round(API.events.treasure.profundidade/3)}m\nEscavação: ${getProgress()}`)
         embed.setFooter(`Tempo de atualização: ${API.events.treasure.update} segundos\nTempo escavando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
 
         API.cacheLists.waiting.add(interaction.user.id, interaction, 'digging');
 

@@ -78,7 +78,7 @@ module.exports = {
             interaction.reply('loading').then(async () => {
                 try {
                     await interaction.deleteReply()
-                    const embedinteraction = await interaction.channel.send({ embeds: [embed], fetchReply: true })
+                    const embedinteraction = await interaction.channel.send({ embeds: [embed] })
                     embedinteraction.react('762018420370833488');
                     embedinteraction.react('👍🏽');
                     embedinteraction.react('👎🏽');

@@ -65,7 +65,7 @@ module.exports = {
 
         const components = await API.shopExtension.formatPages(embed, { currentpage, totalpages }, product, interaction.user.id, stopComponents);
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         if (stopComponents) return
 

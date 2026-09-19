@@ -74,9 +74,9 @@ function patchReplyMethod(InteractionClass) {
 
     const reply = InteractionClass.prototype.reply;
     const wrappedReply = function(options) {
-        if (!options || !options.fetchReply) return reply.call(this, options);
+        if (!options || (!options.fetchReply && !options.withResponse)) return reply.call(this, options);
 
-        const { fetchReply, ...payload } = options;
+        const { fetchReply, withResponse, ...payload } = options;
         return reply.call(this, { ...payload, withResponse: true }).then((response) => {
             return response?.resource?.message || this.fetchReply();
         });

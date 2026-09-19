@@ -188,7 +188,7 @@ module.exports = {
 
         const components = reworkButtons(current)
 
-        const embedinteraction = await interaction.reply({ embeds, components, fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds, components, withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

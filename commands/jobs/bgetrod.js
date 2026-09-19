@@ -50,7 +50,7 @@ module.exports = {
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(pobjcheck.rod), fetchReply: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(pobjcheck.rod), withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

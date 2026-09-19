@@ -58,7 +58,7 @@ module.exports = {
 
         }
 
-		let embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

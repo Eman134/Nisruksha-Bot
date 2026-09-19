@@ -34,7 +34,7 @@ module.exports = {
         .setColor('#63b8ae')
         .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
         .setDescription(`\`${API.company.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${API.money} ${API.moneyemoji}**`)
-        let embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true})
+        let embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true})
         embedinteraction.react('🔼')
 
         const filter = (reaction, user) => {

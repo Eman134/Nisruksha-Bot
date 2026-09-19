@@ -67,7 +67,7 @@ module.exports = {
         .setImage(API.frames.get(frames[0]).url)
         .setColor('#60ced6')
         
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

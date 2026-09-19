@@ -60,7 +60,7 @@ module.exports = {
         if (checkin) return
         
 		const embed = API.events.getRaceEmbed(total)
-        const embedinteraction = await interaction.reply({ embeds: [embed], fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
         
         await embedinteraction.react('🟧')
         await embedinteraction.react('🟥')

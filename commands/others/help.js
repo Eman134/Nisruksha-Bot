@@ -65,7 +65,7 @@ ${API.helpExtension.getCategoryList()}`)
 
         }
 
-		const embedinteraction = await interaction.reply({ embeds: [embed], components, fetchReply: true });
+        const embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         

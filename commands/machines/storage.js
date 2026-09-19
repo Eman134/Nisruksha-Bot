@@ -37,7 +37,7 @@ module.exports = {
         const btn0 = API.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
         const btn1 = API.createButton('recursos', 'SECONDARY', 'Recursos', '738429524416528554')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], fetchReply: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
