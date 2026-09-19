@@ -55,18 +55,18 @@ module.exports = {
         const check = await playersService.cooldown.check(interaction.user.id, "hunt");
         if (check) {
 
-            playersService.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
+            await playersService.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
 
             return;
         }
 
-        playersService.cooldown.set(interaction.user.id, "hunt", 60);
+        await playersService.cooldown.set(interaction.user.id, "hunt", 60);
 
-        playersService.stamina.remove(interaction.user.id, cost-1)
+        await playersService.stamina.remove(interaction.user.id, cost - 1)
 
         const embed = new Discord.EmbedBuilder()
         
-        let monster = companyService.jobs.explore.searchMob(pobj2.level);
+        let monster = await companyService.jobs.explore.searchMob(pobj2.level);
 
         if (!monster) {
             embed.setTitle(`Nenhum monstro por perto`)
@@ -100,7 +100,7 @@ module.exports = {
         let reacted = false;
         let inbattle = false;
         let dead = false;
-        let equips = companyService.jobs.explore.equips.get(pobj2.level, 3);
+        let equips = await companyService.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
         let reactequiplist = ['fight', 'run', 'autofight'];
         let fixedembed = embed
@@ -127,9 +127,7 @@ module.exports = {
 
             function getRarity(level) { 
 
-                const equipsobj = companyService.jobs.explore.equips.obj;
-
-                const lastequiplevel = equipsobj[equipsobj.length-1].level;
+                const lastequiplevel = Math.max(...equips.map((equip) => equip.level));
 
                 const raritynum = level*100/lastequiplevel
 
@@ -232,7 +230,7 @@ module.exports = {
                 })
 
                 monster.csta -= td_.monster
-                playersService.stamina.remove(interaction.user.id, td_.player)
+                await playersService.stamina.remove(interaction.user.id, td_.player)
 
                 return { attach: huntimage, plost }
 

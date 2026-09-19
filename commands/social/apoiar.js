@@ -50,7 +50,8 @@ module.exports = {
         let cmaq = await machinesService.get(interaction.user.id)
 
         if (cmaq < 102) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa ter no mínimo a ${shopService.getProduct(102).icon} ${shopService.getProduct(102).name} para apoiar alguém!`)
+            const product = await shopService.getProduct(102);
+            const embedtemp = await utility.sendError(interaction, `Você precisa ter no mínimo a ${product.icon} ${product.name} para apoiar alguém!`)
             await interaction.reply({ embeds: [embedtemp]})
             return
         }

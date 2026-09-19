@@ -14,7 +14,7 @@ const options = (option) => {
     
     option.setName('setor').setDescription('Digite o nome do setor para abrir')
     
-    for (i = 0; i < Object.keys(companyService.e).length; i++) {
+    for (let i = 0; i < Object.keys(companyService.e).length; i++) {
         const sector = companyService.e[Object.keys(companyService.e)[i]]
         const name = Object.keys(companyService.e)[i]
         if (sector.description) option.addChoices({ name: name.toUpperCase(), value: name })

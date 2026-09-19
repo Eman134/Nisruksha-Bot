@@ -36,7 +36,7 @@ module.exports = {
         const obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         const mastery = await playersService.getMastery(member.id)
-        const maqimg = shopService.getProduct(playerobj.machine).img;
+        const maqimg = (await shopService.getProduct(playerobj.machine)).img;
         let bio = obj.bio;
         let perm = obj.perm;
         let textcolor = '#dedcde'
@@ -61,7 +61,7 @@ module.exports = {
                 maq: maqimg,
                 badges: (!obj.badges || obj.badges == null || obj.badges.length == 0 ? undefined : obj.badges)
             },
-            frame: (obj.frames != null && obj.frames[0] != 0 ? framesService.get(obj.frames[0]) : undefined),
+            frame: (obj.frames != null && obj.frames[0] != 0 ? await framesService.get(obj.frames[0]) : undefined),
             reps: Number(obj.reps),
             level: playerobj.level,
             xp: playerobj.xp,

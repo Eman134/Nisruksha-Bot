@@ -174,7 +174,7 @@ module.exports = {
 
                 let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let maqid = playerobj.machine;
-                let maq = shopService.getProduct(maqid);
+                let maq = await shopService.getProduct(maqid);
 
                 const obj2 = await machinesService.ores.gen(maq, profundidade, playerobj.slots == null ? [] : playerobj.slots);
 
@@ -219,7 +219,7 @@ module.exports = {
                                 let fvalue = value
                                 for (const i of array){
                                     const chipId = typeof i === 'object' ? i.id : i;
-                                    const chipproduct = shopService.getProduct(chipId);
+                                    const chipproduct = await shopService.getProduct(chipId);
                                     if (chipproduct?.typeeffect == 3) {
                                         fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
@@ -312,7 +312,7 @@ module.exports = {
                     details.amount += size;
                     for (const chipId of Object.keys(r.orechips || {})) details.chips.add(chipId.toUpperCase());
                     oreDetails.set(ore.name, details);
-                    itemsService.add(member.id, ore.name, size)
+                    await itemsService.add(member.id, ore.name, size)
                     round += size;
 
                     if (r.orechips && r.orechips.chipe7) {
@@ -320,7 +320,7 @@ module.exports = {
                         const totalchipe7 = Math.round(size * (minerioatual?.price?.max || 0))
                         hastotalchipe7 += totalchipe7
                         haschipe7 = true
-                        economyService.money.add(member.id, totalchipe7)
+                        await economyService.money.add(member.id, totalchipe7)
                     }
 
                     if (await machinesService.storage.getSize(member.id)+size >= arMax) break;
@@ -343,7 +343,7 @@ module.exports = {
                 const progress2 = buildProgress(energia + 1 < 0 ? 0 : energia + 1, energiamax);
                 const chipNames = ep == null || ep.length === 0
                     ? 'Nenhum instalado'
-                    : ep.map((i) => shopService.getProduct(i.id)?.name || `Chip ${i.id}`).join(', ');
+                    : (await Promise.all(ep.map(async (i) => (await shopService.getProduct(i.id))?.name || `Chip ${i.id}`))).join(', ');
                 const oreList = [...oreDetails.values()].map((details) => ({
                     ...details,
                     chips: [...details.chips]

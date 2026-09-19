@@ -34,13 +34,13 @@ module.exports = {
         }
 
         let total = 1200*(pobj2.level)
-        let disp = companyService.jobs.fish.rods.possibilities(pobj2.level)
+        let disp = await companyService.jobs.fish.rods.possibilities(pobj2.level)
 
         const embed = new Discord.EmbedBuilder()
         .setColor('#63b8ae')
         .setTitle('🎣 Varas disponíveis')
         .setDescription('**Explicação:** Ao confirmar a reação, o sistema irá sortear uma vara dentre as disponíveis, e a vara de pesca será essa.\n**Preço atual: ' + utility.format(total) + ' ' + utility.money + '** ' + utility.moneyemoji)
-        for (i = 0; i < disp.length; i++) {
+        for (let i = 0; i < disp.length; i++) {
             embed.addFields({ name: disp[i].icon + ' ' + disp[i].name, value: `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**` })
         }
 
@@ -96,7 +96,7 @@ module.exports = {
             economyService.money.remove(interaction.user.id, total)
             economyService.addToHistory(interaction.user.id, `${pobj2.rod ? 'Troca' : 'Compra'} de vara de pesca | - ${utility.format(total)} ${utility.moneyemoji}`)
 
-            let vara = companyService.jobs.fish.rods.get(pobj3.level)
+            let vara = await companyService.jobs.fish.rods.get(pobj3.level)
             embed.fields = []
 
             for (let i = 0; i < disp.length; i++) {

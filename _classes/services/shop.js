@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const prisma = require('../prisma');
 const clientService = require('./clientService');
 const cacheLists = require('./cacheLists');
+const contentCatalog = require('./contentCatalog');
 const economyService = require('./economy');
 const frames = require('./frames');
 const itemExtension = require('./items');
@@ -25,118 +26,33 @@ const rowComponents = utility.rowComponents.bind(utility);
 const sendError = utility.sendError.bind(utility);
 const tp = utility.tp;
 const { reportError } = require('../debug');
-const storageField = (name) => String(name).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
-const getMachines = (user_id, select) => {
-  const key = BigInt(user_id);
-  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
-};
-const getPlayers = (user_id, select) => {
-  const key = BigInt(user_id);
-  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
-};
-const getPlayersUtils = (user_id) => {
-  const key = BigInt(user_id);
-  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
-};
-const getStorage = (user_id) => {
-  const key = BigInt(user_id);
-  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
-};
-
 const shopExtension = this;
 
-shopExtension.obj = {};
-shopExtension.obj2 = {};
-
 shopExtension.loadItens = async function() {
-  const { readFileSync } = require('fs')
-
-  let bigobj = {}
-
-  try {
-
-    
-    const jsonStringores = readFileSync('./_json/ores.json', 'utf8')
-    const customerores = JSON.parse(jsonStringores);
-    bigobj["minerios"] = customerores
-    
-    // Load all itens
-
-    let list = []
-    
-    const jsonStringdrops = readFileSync('./_json/companies/exploration/drops_monsters.json', 'utf8')
-    const customerdrops = JSON.parse(jsonStringdrops);
-    
-    list = list.concat(customerdrops)
-    
-    const jsonStringseeds = readFileSync('./_json/companies/agriculture/seeds.json', 'utf8')
-    const customerseeds = JSON.parse(jsonStringseeds);
-    
-    list = list.concat(customerseeds)
-
-    const jsonStringfish = readFileSync('./_json/companies/fish/mobs.json', 'utf8')
-    const customerfish = JSON.parse(jsonStringfish);
-    
-    list = list.concat(customerfish)
-
-    const jsonStringusaveis = readFileSync('./_json/usaveis.json', 'utf8')
-    const customerusaveis = JSON.parse(jsonStringusaveis);
-    
-    list = list.concat(customerusaveis)
-
-    const jsonStringprocessdrops = readFileSync('./_json/companies/process/drops.json', 'utf8')
-    const customerprocessdrops = JSON.parse(jsonStringprocessdrops);
-    
-    list = list.concat(customerprocessdrops)
-    
-    bigobj["drops"] = list
-      
-  } catch (err) {
-      clientService.current?.emit('error', err)
-  }
-  itemExtension.obj = bigobj;
-
-  return bigobj
+  return contentCatalog.items;
 }
 
 shopExtension.load = async function() {
-
-  const { readFileSync } = require('fs')
-    const path = './_json/shop.json'
-    try {
-      if (path) {
-        const jsonString = readFileSync(path, 'utf8')
-        const customer = JSON.parse(jsonString);
-        shopExtension.obj = customer;
-        shopExtension.obj2 = customer;
-      } else {
-        console.log('File path is missing from shopExtension!')
-        shopExtension.obj = '`Error on load shop list`';
-      }
-    } catch (err) {
-        shopExtension.obj = '`Error on load shop list`';
-        clientService.current?.emit('error', err)
-    }
-
+  return contentCatalog.initialize();
 }
 
-shopExtension.getShopObj = function() {
-  const obj = clone(shopExtension.obj2);
-  return obj;
+shopExtension.getShopObj = async function() {
+  return clone(contentCatalog.shop);
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
-  const playerobj = await getMachines(user_id, { machine: true, level: true });
+  const key = BigInt(user_id);
+  const playerobj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true, level: true } });
   let maqid = playerobj.machine;
-  let maq = shopExtension.getProduct(maqid);
+  let maq = await shopExtension.getProduct(maqid);
   const productscurrentpage = []
 
   const perRow = 3
 
-  let pobj = await getPlayers(user_id, { mvp: true })
+  let pobj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { mvp: true } })
   
-  for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
-    let p = product[i];
+  for (let i = (currentpage - 1) * perRow; i < ((currentpage - 1) * perRow) + perRow; i++) {
+    const p = product[i];
     if (!p) break;
     let discountmvp = Math.round(pobj.mvp ? 5 : 0);
     let discount = Math.round(p.discount + discountmvp);
@@ -155,7 +71,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       formated += `\nMáximo de Tipos: **${p.customitem.typesmax}**\nQuantia máxima por item: **${p.customitem.itensmax}**`
     }
     if (p.tier) {
-      var oreobj = (await itemExtension.getObj()).minerios;
+      let oreobj = (await itemExtension.getObj()).minerios;
       oreobj = oreobj.filter((ore) => !ore.nomine)
       formated += `\nTier: ${p.tier} (${oreobj[p.tier].name} ${oreobj[p.tier].icon})`
     }
@@ -188,9 +104,9 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       butnList.push(createButton('stop', 'SECONDARY', '', '🔴'))
       butnList.push(createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
-      for (i = 0; i < productscurrentpage.length; i++) {
-         if (!productscurrentpage[i]) break
-         butnList.push(createButton(productscurrentpage[i].id.toString(), 'SECONDARY', productscurrentpage[i].id.toString(), productscurrentpage[i].icon.split(':')[2] ? productscurrentpage[i].icon.split(':')[2].replace('>', '') : productscurrentpage[i].icon, !productscurrentpage[i].buyable ? true : false))
+       for (const product of productscurrentpage) {
+          if (!product) break
+          butnList.push(createButton(product.id.toString(), 'SECONDARY', product.id.toString(), product.icon.split(':')[2] ? product.icon.split(':')[2].replace('>', '') : product.icon, !product.buyable))
       }
 
       let totalcomponents = butnList.length % perRow;
@@ -199,7 +115,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
 
       totalcomponents += 1
 
-      for (x = 0; x < totalcomponents; x++) {
+       for (let x = 0; x < totalcomponents; x++) {
           const var1 = (x+1)*perRow-perRow
           const var2 = ((x+1)*perRow)
           const rowBtn = rowComponents(butnList.slice(var1, var2))
@@ -215,32 +131,14 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
 
 }
 
-shopExtension.getShopList = function() {
-    let array;
-    const { readFileSync } = require('fs')
-    const path = './_json/shop.json'
-    try {
-      if (path) {
-        const jsonString = readFileSync(path, 'utf8')
-        const customer = JSON.parse(jsonString);
-        //console.log(customer)
-        array = Object.keys(customer);
-      } else {
-        console.log('File path is missing from shopExtension!')
-        return '`Error on load shop list`';
-      }
-    } catch (err) {
-        clientService.current?.emit('error', err)
-        return '`Error on load shop list`';
-        
-    }
-    return '**' + array.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
+shopExtension.getShopList = async function() {
+    const categories = Object.keys(await shopExtension.getShopObj());
+    return `**${categories.join(', ').replace(/, /g, '**, **').toUpperCase()}**`;
 }
 
-shopExtension.categoryExists = function(cat) {
-  const obj = shopExtension.getShopObj();
-  let array = Object.keys(obj);
-  return array.includes(cat);
+shopExtension.categoryExists = async function(cat) {
+  const obj = await shopExtension.getShopObj();
+  return Object.hasOwn(obj, cat);
 }
 
 shopExtension.editPage = async function(cat, interaction, embedinteraction, products, embed, page, totalpages) {
@@ -277,7 +175,7 @@ shopExtension.editPage = async function(cat, interaction, embedinteraction, prod
 
       embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
 
-      const product = shopExtension.getProduct(b.customId)
+      const product = await shopExtension.getProduct(b.customId)
       
       if (product) stopComponents = true
       components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, interaction.user.id, stopComponents);
@@ -302,41 +200,27 @@ shopExtension.editPage = async function(cat, interaction, embedinteraction, prod
 
 }
 
-shopExtension.checkIdExists = function(id) {
-  const obj = shopExtension.getShopObj();
-  let array = Object.keys(obj);
-  for (i = 0; i < array.length; i++) {
-    for (_i = 0; _i < obj[array[i]].length; _i++) {
-      let _id = obj[array[i]][_i]['id'];
-      if (id == _id) return true;
-    }
+shopExtension.checkIdExists = async function(id) {
+  const obj = await shopExtension.getShopObj();
+  for (const products of Object.values(obj)) {
+    if (products.some((product) => product.id === id || String(product.id) === String(id))) return true;
   }
   return false;
 }
 
-shopExtension.getProduct = function(id) {
-
-  const objProduct = shopExtension.getShopObj()
-
-  const array = Object.keys(objProduct);
-
-  for (i = 0; i < array.length; i++) {
-    for (_i = 0; _i < objProduct[array[i]].length; _i++) {
-      let _id = objProduct[array[i]][_i]['id'];
-      if (id == _id) {
-        var product = objProduct[array[i]][_i];
-        break;
-      }
-    }
+shopExtension.getProduct = async function(id) {
+  const objProduct = await shopExtension.getShopObj();
+  for (const products of Object.values(objProduct)) {
+    const product = products.find((entry) => entry.id === id || String(entry.id) === String(id));
+    if (product) return product;
   }
-
-  return product;
+  return undefined;
 }
 
 shopExtension.execute = async function(interaction, p) {
 
   if (!p.buyable) {
-    const obj = shopExtension.getShopObj();
+    const obj = await shopExtension.getShopObj();
     let array = Object.keys(obj);
     const embedtemp = await sendError(interaction, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
     if (interaction.replied) await interaction.editReply({ embeds: [embedtemp]})
@@ -348,7 +232,8 @@ shopExtension.execute = async function(interaction, p) {
   embed.setColor('#606060');
   embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
   
-  let pobj = await getPlayers(interaction.user.id, { mvp: true });
+  const key = BigInt(interaction.user.id);
+  let pobj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { mvp: true } });
   
   let discountmvp = Math.round(pobj.mvp ? 5 : 0);
   let discount = Math.round(p.discount + discountmvp);
@@ -380,6 +265,7 @@ shopExtension.execute = async function(interaction, p) {
   collector.on('collect', async(b) => {
 
     if (!(b.user.id === interaction.user.id)) return
+    if (buyed) return;
 
     buyed = true;
     collector.stop();
@@ -387,11 +273,11 @@ shopExtension.execute = async function(interaction, p) {
 
     if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'shop.defer_update'));
 
-    if (b.customId == 'confirm'){
+    if (b.customId === 'confirm'){
 
       const money = await eco.money.get(interaction.user.id);
       const points = await eco.points.get(interaction.user.id);
-      const obj2 = await getMachines(interaction.user.id, { level: true })
+      const obj2 = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { level: true } })
 
       const convites = await eco.tp.get(interaction.user.id)
 
@@ -431,17 +317,17 @@ shopExtension.execute = async function(interaction, p) {
             return;
           }
 
-          let cmaq = await maqExtension.get(interaction.user.id)
+           const cmaq = await maqExtension.get(interaction.user.id)
 
           if (p.id > cmaq+1) {
-            const proxmaq = shopExtension.getProduct(cmaq+1)
+            const proxmaq = await shopExtension.getProduct(cmaq+1)
             embed.setColor('#a60000');
             embed.addFields({ name: '❌ Falha na compra', value: `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**` })
             await embedinteraction.edit({ embeds: [embed], components: [] });
             return;
           }
 
-          let prc = shopExtension.getProduct(cmaq).price;
+           const prc = (await shopExtension.getProduct(cmaq)).price;
           if (prc > 0) {
             if (!(7*prc/100 < 1)) {
               cashback = Math.round(7*prc/100);
@@ -456,16 +342,16 @@ shopExtension.execute = async function(interaction, p) {
             pollutants: 0,
             energy: 0
           } });
-          itemExtension.unequipAllChips(interaction.user.id);
+           await itemExtension.unequipAllChips(interaction.user.id);
 
           break;
 
         case 2:
-          eco.token.add(interaction.user.id, p.token)
+           await eco.token.add(interaction.user.id, p.token);
           break;
 
         case 3:
-          await getPlayersUtils(interaction.user.id);
+          await prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
           await prisma.players_utils.update({ where: { user_id: BigInt(interaction.user.id) }, data: { backpack: p.id } })
           break;
         
@@ -475,21 +361,21 @@ shopExtension.execute = async function(interaction, p) {
         
         case 5:
 
-          await getStorage(interaction.user.id);
+          await prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
           await prisma.storage.update({ where: { user_id: BigInt(interaction.user.id) }, data: { [`piece_${p.id}`]: { increment: 1 } } })
 
           break;
             
         case 6:
-          frames.add(interaction.user.id, p.frameid)
+           await frames.add(interaction.user.id, p.frameid);
           break;
         
         case 7:
-          eco.points.add(interaction.user.id, p.size)
+           await eco.points.add(interaction.user.id, p.size);
           break;
 
         case 8:
-          await getPlayersUtils(interaction.user.id);
+          await prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
           await prisma.players_utils.update({ where: { user_id: BigInt(interaction.user.id) }, data: { profile_color: p.pcolorid } })
           break;
 
@@ -503,13 +389,13 @@ shopExtension.execute = async function(interaction, p) {
 
        if(debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
 
-      embedinteraction.edit({ embeds: [embed], components: [] });
+       await embedinteraction.edit({ embeds: [embed], components: [] });
           
       await eco.money.remove(interaction.user.id, price);
           
-      eco.points.remove(interaction.user.id, p.price2);
+       await eco.points.remove(interaction.user.id, p.price2);
           
-      if (p.price3 > 0) eco.tp.remove(interaction.user.id, p.price3)
+       if (p.price3 > 0) await eco.tp.remove(interaction.user.id, p.price3);
           
       if (cashback > 0) {
         await eco.money.add(interaction.user.id, cashback);
@@ -529,10 +415,10 @@ shopExtension.execute = async function(interaction, p) {
           )
           .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
           .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
-          clientService.current?.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
+          await clientService.current?.channels.cache.get('826177953796587530')?.send({ embeds: [embedcmd]});
     
     
-    } if (b.customId == 'cancel'){
+    } if (b.customId === 'cancel'){
 
           embed.setColor('#a60000');
            embed.addFields({ name: '❌ Compra cancelada', value: `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.` })
@@ -559,11 +445,11 @@ shopExtension.execute = async function(interaction, p) {
 
 shopExtension.forceDiscount = async function() {
 
-  const obj = shopExtension.getShopObj()
+  const obj = await shopExtension.getShopObj()
 
   let array = Object.keys(obj);
 
-  for (i = 0; i < array.length; i++) {
+  for (let i = 0; i < array.length; i++) {
 
     const discountpercategory = random(0, Math.round(obj[array[i]].length/4))
 
@@ -574,7 +460,7 @@ shopExtension.forceDiscount = async function() {
 
   }
 
-  shopExtension.obj2 = obj;
+  await contentCatalog.saveShop(obj);
 
 }
 

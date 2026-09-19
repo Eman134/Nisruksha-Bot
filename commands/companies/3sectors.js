@@ -19,7 +19,7 @@ module.exports = {
             embed.fields = []
             embed.setTitle('👨🏽‍🌾 | Setores de Empresas')
             embed.setDescription('')
-            for (i = 0; i < Object.keys(companyService.e).length; i++) {
+            for (let i = 0; i < Object.keys(companyService.e).length; i++) {
                 const sector = companyService.e[Object.keys(companyService.e)[i]]
                 const name = Object.keys(companyService.e)[i]
                 if (sector.description) embed.addFields({ name: `**${sector.icon} ${name.charAt(0).toUpperCase() + name.slice(1)}**`, value: sector.description })
@@ -41,7 +41,7 @@ module.exports = {
 
             butnList.push(utility.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
-            for (i = 0; i < Object.keys(companyService.e).length; i++) {
+            for (let i = 0; i < Object.keys(companyService.e).length; i++) {
                 const sector = companyService.e[Object.keys(companyService.e)[i]]
                 if (sector.description) butnList.push(utility.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'SUCCESS': 'SECONDARY'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
             }
@@ -52,7 +52,7 @@ module.exports = {
 
             totalcomponents += 1
 
-            for (x = 0; x < totalcomponents; x++) {
+            for (let x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = utility.rowComponents(butnList.slice(var1, var2))

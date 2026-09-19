@@ -226,14 +226,14 @@ module.exports = {
 
                     const slotsrow = [];
 
-                    const genSlotBtn = (slot, { disableall, mvp }) => {
+                    const genSlotBtn = async (slot, { disableall, mvp }) => {
                         let slotBtnText = `[${slot+1}] `
                         let slotBtnIcon
                         let slotBtnColor = 'SECONDARY'
                         let type = 0
                         let isEquipBtn = false
                         if (equippedchips[slot]) {
-                            const chipe = shopService.getProduct(equippedchips[slot].id);
+                            const chipe = await shopService.getProduct(equippedchips[slot].id);
                             slotBtnText += `Desequipar`
                             slotBtnIcon = chipe.icon
                             slotBtnColor = 'PRIMARY'
@@ -258,7 +258,7 @@ module.exports = {
                     let hasEquipBtn = false
 
                     for (let i = 0; i < maxslots; i++) {
-                        const { slotBtn, isEquipBtn } = genSlotBtn(i, { disableall, mvp })
+                        const { slotBtn, isEquipBtn } = await genSlotBtn(i, { disableall, mvp })
                         if (!hasEquipBtn && isEquipBtn) {
                             hasEquipBtn = true
                             slotsrow.push(slotBtn)

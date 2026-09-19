@@ -167,7 +167,7 @@ module.exports = {
             }
 
             
-            const fish = companyService.jobs.fish.list.get(profundidades[0], profundidades[2])
+            const fish = await companyService.jobs.fish.list.get(profundidades[0], profundidades[2])
             
             if (header) {
                 levels = header.levels
@@ -268,7 +268,7 @@ module.exports = {
             else totalpages = ((cclist.length-totalpages)/5)+1;
 
             let ccmap = ""
-            for (i = totalpages; i > 0; i--){
+            for (let i = totalpages; i > 0; i--){
                 let ic = totalpages+1-i
                 ccmap += cclist.slice((ic-1)*5, ic*5).map((peixe) => peixe.quantia + 'x ' + peixe.icon).join(inv) + '\n'
             }

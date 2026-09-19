@@ -21,11 +21,6 @@ const ms = utility.ms.bind(utility);
 const random = utility.random.bind(utility);
 const shopExtension = shopService;
 const townExtension = townsService;
-const getGlobals = (user_id) => {
-    const key = BigInt(user_id);
-    return prisma.globals.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, keys: [], remember: [], processing: [] } });
-};
-
 const events = this;
 Object.assign(events, {
 
@@ -79,13 +74,13 @@ Object.assign(events, {
         let apostasvermelho = 0
         let apostasroxo = 0
 
-        for (i = 0; i < events.race.apostas.laranja.length; i++) {
+        for (let i = 0; i < events.race.apostas.laranja.length; i++) {
             apostaslaranja += events.race.apostas.laranja[i].aposta
         }
-        for (i = 0; i < events.race.apostas.vermelho.length; i++) {
+        for (let i = 0; i < events.race.apostas.vermelho.length; i++) {
             apostasvermelho += events.race.apostas.vermelho[i].aposta
         }
-        for (i = 0; i < events.race.apostas.roxo.length; i++) {
+        for (let i = 0; i < events.race.apostas.roxo.length; i++) {
             apostasroxo += events.race.apostas.roxo[i].aposta
         }
 
@@ -121,7 +116,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
 
         let apostas = 0
 
-        for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
+        for (let i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             apostas += events.race.apostas[vencedorcornome][i].aposta
         }
 
@@ -204,7 +199,7 @@ events.forceRace = async function() {
 
     events.race.interactionid = embedinteraction.id
 
-    const globalobj = await getGlobals(id);
+    const globalobj = await prisma.globals.upsert({ where: { user_id: BigInt(id) }, update: { user_id: BigInt(id) }, create: { user_id: BigInt(id), keys: [], remember: [], processing: [] }, select: { events: true } });
 
     const globalevents = globalobj.events
 
@@ -259,7 +254,7 @@ async function editRace(embedinteraction) {
                 break;
         }
 
-        for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
+        for (let i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             const user = events.race.apostas[vencedorcornome][i]
             await eco.money.add(user.id, Math.round(user.aposta*1.5))
             await eco.money.globalremove(Math.round(user.aposta*1.5))
@@ -274,13 +269,12 @@ async function editRace(embedinteraction) {
             roxo: []
         }
 
-        const globalobj = await getGlobals(id);
+        const globalobj = await prisma.globals.upsert({ where: { user_id: BigInt(id) }, update: { user_id: BigInt(id) }, create: { user_id: BigInt(id), keys: [], remember: [], processing: [] }, select: { events: true } });
 
         const globalevents = globalobj.events
 
-        let globalevents2 = globalevents
-
-        delete globalevents2.race
+        const globalevents2 = { ...(globalevents || {}) };
+        delete globalevents2.race;
 
         await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { events: globalevents2 } })
 
@@ -293,7 +287,7 @@ events.load = async function() {
 
     let intervalEvents = (random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
-    const globalobj = await getGlobals(config.app.id)
+    const globalobj = await prisma.globals.upsert({ where: { user_id: BigInt(config.app.id) }, update: { user_id: BigInt(config.app.id) }, create: { user_id: BigInt(config.app.id), keys: [], remember: [], processing: [] }, select: { events: true } })
     const globalevents = globalobj.events
 
     if (globalevents != null) {
@@ -344,20 +338,20 @@ events.load = async function() {
 
     setInterval(async () => {
         
-        maqExtension.forceCot()
+        await maqExtension.forceCot()
         maqExtension.proxcot = Date.now()
 
     }, 60000*config.modules.cotacao);
 
     setInterval(async () => {
         
-        shopExtension.forceDiscount()
+        await shopExtension.forceDiscount()
 
         try {
             const botmoney = await eco.money.get(clientService.current.user.id)
             if (botmoney > 1000000) {
-                eco.money.remove(clientService.current.user.id, 1000000)
-                eco.token.add(clientService.current.user.id, 500)
+                await eco.money.remove(clientService.current.user.id, 1000000)
+                await eco.token.add(clientService.current.user.id, 500)
             }
         } catch (error) {
             clientService.current?.emit('error', error)

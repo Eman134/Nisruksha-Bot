@@ -84,7 +84,7 @@ module.exports = async function execute(imageServices, options) {
     tempx += 45
 
     if (options.url.badges) {
-        for (i = 0; i < options.url.badges.length; i++) {
+        for (let i = 0; i < options.url.badges.length; i++) {
             let tempbadge = await imageServices.img.loadImage(imageServices.badges.get(options.url.badges[i]).url);
             ctx.drawImage(tempbadge, tempx, tempy, 35, 35);
             if (tempx < 1100) tempx += 45

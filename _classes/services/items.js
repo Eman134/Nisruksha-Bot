@@ -5,164 +5,114 @@ const shopExtension = {
   getShopObj: (...args) => require('./shop').getShopObj(...args)
 };
 const UtilityService = require('./utilityService');
-const cacheLists = require('./cacheLists');
+const contentCatalog = require('./contentCatalog');
 const { reportError } = require('../debug');
-const ITEM_FILES = [
-  './_json/ores.json',
-  './_json/companies/exploration/drops_monsters.json',
-  './_json/companies/agriculture/seeds.json',
-  './_json/companies/fish/mobs.json',
-  './_json/usaveis.json',
-  './_json/companies/process/drops.json'
-];
 class ItemsService {
 constructor() {
 const utility = new UtilityService();
 const clone = utility.clone.bind(utility);
 const itemExtension = this;
-const storageField = (name) => String(name).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
-const getPlayersUtils = (user_id) => {
-  const key = BigInt(user_id);
-  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
-};
-const getStorage = (user_id) => {
-  const key = BigInt(user_id);
-  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
-};
-const getMachines = (user_id) => {
-  const key = BigInt(user_id);
-  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
-};
-const updateStorage = (user_id, name, value) => {
-  const key = BigInt(user_id);
+const normalizeItemName = (name) => String(name ?? '')
+  .replace(/^"|"$/g, '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase();
+const storageField = (name) => normalizeItemName(name).replace(/[: ]/g, '_');
+const getStorage = (userId, select) => {
+  const user_id = BigInt(userId);
   return prisma.storage.upsert({
-    where: { user_id: key },
-    update: { [storageField(name)]: value },
-    create: { user_id: key, [storageField(name)]: value }
+    where: { user_id },
+    update: { user_id },
+    create: { user_id },
+    ...(select ? { select } : {})
   });
 };
-const incrementStorage = (user_id, name, value) => {
-  const key = BigInt(user_id);
+const updateStorage = (userId, name, value) => {
+  const user_id = BigInt(userId);
+  const field = storageField(name);
   return prisma.storage.upsert({
-    where: { user_id: key },
-    update: { [storageField(name)]: { increment: value } },
-    create: { user_id: key, [storageField(name)]: value }
+    where: { user_id },
+    update: { [field]: value },
+    create: { user_id, [field]: value }
+  });
+};
+const incrementStorage = (userId, name, value) => {
+  const user_id = BigInt(userId);
+  const field = storageField(name);
+  return prisma.storage.upsert({
+    where: { user_id },
+    update: { [field]: { increment: value } },
+    create: { user_id, [field]: value }
   });
 };
 itemExtension.getObj = async function() {
-  return cacheLists.json.composite('items', ITEM_FILES.map((filePath) => ({ path: filePath })), ([ores, ...dropLists]) => ({
-    minerios: ores,
-    drops: dropLists.flat()
-  }));
+  return contentCatalog.items;
 }
 
 itemExtension.saveObj = async function(obj) {
-  const version = await cacheLists.json.version(ITEM_FILES.map((filePath) => ({ path: filePath })));
-  return cacheLists.json.save(null, 'items', obj, version);
+  return contentCatalog.saveItems(obj);
 }
 
 itemExtension.exists = async function(args, k) {
+  if (args == null) return false;
   const obj = await itemExtension.getObj();
-  let id = args.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-  if (!k) key = "minerios"
-  else key = k
-  for (const r of obj[key]) {
-    
-    let _id = r.name;
-    let _id2
-    
-    if (r.displayname) _id2 = r.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    else _id2 = r.displayname
-
-    if (_id2) {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return true;
-    } else {
-      if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return true;
-    }
-
-  }
-  return false;
+  const id = normalizeItemName(args);
+  const items = obj[k || 'minerios'] || [];
+  return items.some((item) => id === normalizeItemName(item.name) || id === normalizeItemName(item.displayname));
 }
 
 itemExtension.give = async function(interaction, dp) {
+  const discarded = [];
+  const placed = [];
+  const userId = interaction.user.id;
+  const user_id = BigInt(userId);
+  const drops = dp.map((drop) => {
+    const size = Number(drop.size) || 1;
+    return { ...drop, size, sz: size };
+  });
 
-    let descartados = []
-    let colocados = []
+  const { backpack: backpackId } = await prisma.players_utils.upsert({
+    where: { user_id },
+    update: { user_id },
+    create: { user_id },
+    select: { backpack: true }
+  });
+  const backpack = await shopExtension.getProduct(backpackId);
+  const maxItems = Number(backpack.customitem.itensmax);
+  const maxTypes = Number(backpack.customitem.typesmax);
+  const storage = await getStorage(userId);
+  let itemTypeCount = (await itemExtension.getInv(userId, true, true));
 
-    for (const y of dp) {
-        if (!y.size) y.size = 1
-        y.sz = y.size
+  for (const drop of drops) {
+    const currentSize = Number(storage[storageField(drop.name)]) || 0;
+    const requestedSize = Number(drop.sz) || 1;
+    const acceptedSize = Math.min(requestedSize, Math.max(0, maxItems - currentSize));
+
+    if ((currentSize === 0 && itemTypeCount >= maxTypes) || acceptedSize === 0) {
+      discarded.push(drop);
+      continue;
     }
 
-    const utilsobj = await getPlayersUtils(interaction.user.id)
+    drop.size = acceptedSize;
+    drop.sz = acceptedSize;
+    const newSize = currentSize + acceptedSize;
+    await updateStorage(userId, drop.name, newSize);
+    storage[storageField(drop.name)] = newSize;
+    if (currentSize === 0) itemTypeCount += 1;
+    placed.push(drop);
+  }
 
-    let backpackid = utilsobj.backpack;
-    let backpack = await shopExtension.getProduct(backpackid);
-
-    const maxitens = backpack.customitem.itensmax
-    const maxtypes = backpack.customitem.typesmax
-
-    
-    for (const y of dp) {
-        
-        let arrayitens = await itemExtension.getInv(interaction.user.id, true, true)
-        let curinfo = await getStorage(interaction.user.id)
-        let rsize = curinfo[storageField(y.name)];
-        let csize = await getStorage(interaction.user.id)
-        csize2 = csize[storageField(y.name)]
-        let s = parseInt(csize2) + parseInt(y.sz)
-
-        if (s >= maxitens) {
-            if (s == maxitens) {
-                s -= (s-maxitens)
-            } else {
-                if (y.sz - (s-maxitens) <= 0) {
-                    s = 0
-                } else {
-
-                    y.sz -= (s-maxitens);
-                    y.size -= (s-maxitens);
-                    s -= (s-maxitens)
-                }
-            }
-        }
-
-        if ((arrayitens >= maxtypes && rsize == 0 || csize2 >= maxitens && rsize == 0 || s > maxitens && rsize ==  0) || s == 0) {
-            
-            descartados.push(y)
-            
-        } else {
-            
-            colocados.push(y)
-            await updateStorage(interaction.user.id, y.name, s)
-            
-        }
-    }
-
-    for (const y of dp) {
-        y.size = y.sz
-    }
-
-    return { descartados, colocados }
-
+  return { descartados: discarded, colocados: placed };
 }
 
 itemExtension.get = async function(args) {
-    let obj = await this.getObj();
-    let id = args
-    for (const key in obj) {
-        for (const r of obj[key]) {
-            let _id = r.name;
-            let _id2 = r.displayname;
-
-            if (_id2) {
-              if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase()) || (id.replace(/"/g, '').toLowerCase() == _id2.replace(/"/g, '').toLowerCase())) return r;
-            } else {
-              if ((id.replace(/"/g, '').toLowerCase() == _id.replace(/"/g, '').toLowerCase())) return r;
-            }
-        }
-    }
-
+  if (args == null) return undefined;
+  const obj = await this.getObj();
+  const id = normalizeItemName(args);
+  for (const items of Object.values(obj)) {
+    const item = items.find((entry) => id === normalizeItemName(entry.name) || id === normalizeItemName(entry.displayname));
+    if (item) return item;
+  }
   return undefined;
 }
 
@@ -171,7 +121,6 @@ itemExtension.add = async function(user_id, ore, value) {
 }
 
 itemExtension.set = async function(user_id, ore, value) {
-  await getStorage(user_id);
   await updateStorage(user_id, ore, value);
 }
 
@@ -179,17 +128,7 @@ itemExtension.getChips = async function(user_id) {
 
     const obj = await shopExtension.getShopObj();
 
-    let placasobjkeys = Object.keys(obj)
-
-    let placas = []
-
-    for (i = 0; i < placasobjkeys.length; i++) {
-      for (ai = 0; ai < obj[placasobjkeys[i]].length; ai++){
-        if (obj[placasobjkeys[i]][ai].type == 5) {
-          placas.push(obj[placasobjkeys[i]][ai])
-        }
-      }
-    }
+    const placas = Object.values(obj).flat().filter((product) => product.type === 5);
     
     let res;
     let array = [];
@@ -199,12 +138,12 @@ itemExtension.getChips = async function(user_id) {
         clientService.current?.emit('error', err)
     }
 
-    if (res == null || res == undefined) return [];
+    if (res == null) return [];
     
     for (const r of placas) {
       if (res[`piece_${r.id}`] > 0) {
-          let robj = clone(r);
-        robj.size = res[`piece_${r.id}`]
+          const robj = clone(r);
+        robj.size = res[`piece_${r.id}`];
         array.push(robj)
       }
     }
@@ -213,14 +152,16 @@ itemExtension.getChips = async function(user_id) {
 }
 
 itemExtension.getEquippedChips = async function(user_id) {
-  const obj = await getMachines(user_id)
-  const chips = obj.slots == null ? [] : obj.slots
+  const key = BigInt(user_id);
+  const obj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { slots: true } })
+  const chips = obj.slots == null ? [] : obj.slots;
   for (const chip of chips) {
-    if (typeof chip == 'object') {
-      chip.durabilitypercent = chip.durability / (await shopExtension.getProduct(chip.id)).durability * 100;
+    if (chip && typeof chip === 'object') {
+      const product = await shopExtension.getProduct(chip.id);
+      if (product?.durability) chip.durabilitypercent = chip.durability / product.durability * 100;
     }
   }
-  return obj.slots == null ? [] : obj.slots;
+  return chips;
 }
 
 itemExtension.unequipChip = async function(user_id, slot) {
@@ -228,10 +169,12 @@ itemExtension.unequipChip = async function(user_id, slot) {
     let chips = await itemExtension.getEquippedChips(user_id);
     if (!chips[slot]) return;
     if (chips[slot].durabilitypercent == 100) {
-      await incrementStorage(user_id, `piece_${chips[slot].id}`, 1)
+      const field = `piece_${chips[slot].id}`;
+      await incrementStorage(user_id, field, 1);
     }
-    chips.length == 1 ? chips = null : chips.splice(slot, 1)
-    await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: chips || [] } })
+    if (chips.length === 1) chips = [];
+    else chips.splice(slot, 1);
+    await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: chips } });
     return chips
   } catch (error) {
     reportError(error, 'items.unequip_chip', { userId: user_id, slot });
@@ -241,9 +184,9 @@ itemExtension.unequipChip = async function(user_id, slot) {
 itemExtension.unequipAllChips = async function(user_id) {
   try {
     let chips = await itemExtension.getEquippedChips(user_id);
-    for (i = 0; i < chips.length; i++){
-      if (chips[i].durabilitypercent == 100) {
-        await incrementStorage(user_id, `piece_${chips[i].id}`, 1)
+    for (const chip of chips) {
+      if (chip.durabilitypercent === 100) {
+        await incrementStorage(user_id, `piece_${chip.id}`, 1);
       }
     }
     await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: [] } })
@@ -259,8 +202,8 @@ itemExtension.removeChipsDurability = async function(user_id, amount) {
 
     chips = chips.filter((chip) => chip.durability - amount > 0)
 
-    for (i = 0; i < chips.length; i++){
-      chips[i].durability -= amount
+    for (const chip of chips) {
+      chip.durability -= amount;
     }
     
     await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: chips || [] } })
@@ -296,28 +239,24 @@ itemExtension.translateRarity = function(rarity) {
 }
 
 itemExtension.getInv = async function(user_id, filtered, length) {
-  let obj = await itemExtension.getObj();
-  let obj2 = obj
+  const obj = await itemExtension.getObj();
   let res;
-  await getStorage(user_id)
-    try {
-      res = await getStorage(user_id);
+  try {
+    res = await getStorage(user_id);
   } catch (err) {
-      clientService.current?.emit('error', err)
-  }
-  
-  let arrayitens = []
-  for (const rddd of obj2.drops) {
-      let t1 = clone(rddd)
-      let rsize = res[storageField(t1.name)];
-      t1.size = rsize
-      t1.qnt = rsize
-      arrayitens.push(t1);
+    clientService.current?.emit('error', err);
+    return length ? 0 : [];
   }
 
-  if (filtered) arrayitens = arrayitens.filter(x => x.size > 0)
-  if (length) return arrayitens.length
-  return arrayitens
+  const items = obj.drops.map((drop) => {
+    const item = clone(drop);
+    const size = Number(res[storageField(item.name)]) || 0;
+    item.size = size;
+    item.qnt = size;
+    return item;
+  });
+  const inventory = filtered ? items.filter((item) => item.size > 0) : items;
+  return length ? inventory.length : inventory;
 }
 
 }

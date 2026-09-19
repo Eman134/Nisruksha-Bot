@@ -87,8 +87,7 @@ module.exports = {
             
 
             if (!pobj2.rod.maxprofundidade) {
-                if (Object.keys(companyService.jobs.fish.rods.obj).length == 0) companyService.jobs.fish.rods.load();
-                let equipobj = companyService.jobs.fish.rods.obj;
+                let equipobj = await companyService.jobs.fish.rods.all();
         
                 for (const r of equipobj) {
                     

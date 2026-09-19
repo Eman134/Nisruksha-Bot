@@ -102,14 +102,14 @@ module.exports = {
                 if (total < 1) {
                     assaltado = false;
                 } else {
-                    economyService.money.remove(interaction.user.id, total);
-                    economyService.money.globaladd(total);
-                    economyService.addToHistory(interaction.user.id, `Assalto | - ${utility.format(total)} ${utility.moneyemoji}`)
+                    await economyService.money.remove(interaction.user.id, total);
+                    await economyService.money.globaladd(total);
+                    await economyService.addToHistory(interaction.user.id, `Assalto | - ${utility.format(total)} ${utility.moneyemoji}`)
                 }
             }
         }
         
-        playersService.stamina.remove(interaction.user.id, 149)
+        await playersService.stamina.remove(interaction.user.id, 149)
 		const embed = new Discord.EmbedBuilder()
 	    .setColor('#32a893')
         .setDescription(`Você usou 100 pontos de Estamina 🔸 e se moveu da vila **${townsService.getTownNameByNum(atual)}** para a vila **${townsService.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${utility.format(total)} ${utility.money} ${utility.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)

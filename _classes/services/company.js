@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 const prisma = require('../prisma');
 const cacheLists = require('./cacheLists');
+const contentCatalog = require('./contentCatalog');
 const clientService = require('./clientService');
 const companyInfo = require('./companyInfo');
 const itemExtension = require('./items');
@@ -22,28 +23,12 @@ const setCompanieInfo = companyInfo.set.bind(companyInfo);
 const townExtension = townsService;
 const company = this;
 const debugmode = false
-const getPlayers = (user_id, select) => {
-    const key = BigInt(user_id);
-    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
-};
-const getPlayersUtils = (user_id, select) => {
-    const key = BigInt(user_id);
-    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, ...(select ? { select } : {}) });
-};
-const getMachines = (user_id, select) => {
-    const key = BigInt(user_id);
-    return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
-};
-const getGlobals = (user_id) => {
-    const key = BigInt(user_id);
-    return prisma.globals.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, keys: [], remember: [], processing: [] } });
-};
-
 const stars = {};
 {
     stars.add = async function(user_id, company_id, options) {
         
-        let memberobj = await getPlayers(user_id, { companyact: true })
+        const key = BigInt(user_id);
+        let memberobj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { companyact: true } })
         let company = await get.companyById(company_id)
         
         let obj = (memberobj.companyact != null ? memberobj.companyact : {
@@ -100,7 +85,8 @@ check.hasCompany = async function(user_id){
 }
 
 check.isWorker = async function(user_id) {
-    const obj = await getPlayers(user_id, { company: true })
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { company: true } })
     const company = await get.companyById(obj.company)
     if (!company) {
         await prisma.players.update({ where: { user_id: BigInt(user_id) }, data: { company: null } })
@@ -213,7 +199,8 @@ get.idByOwner = async function(user_id) {
 }
 
 get.currentForUser = async function(user_id) {
-    const player = await getPlayers(user_id, { company: true });
+    const key = BigInt(user_id);
+    const player = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { company: true } });
     if (player.company != null) return get.companyById(player.company);
     return get.companyByOwnerId(user_id);
 }
@@ -239,30 +226,20 @@ get.companyByOwnerId = async function(user_id) {
 
 const jobs = { 
     explore: {
-        mobs: {
-            obj: {}
-        },
-        equips: {
-            obj: {}
-        },
+        mobs: {},
+        equips: {},
     },
     fish: {
         update: 5,
-        rods: {
-            obj: {}
-        },
-        list: {
-            obj: {}
-        }
+        rods: {},
+        list: {}
     },
     agriculture: {
         update: 15
     },
     process: {
         update: 40,
-        tools: {
-            obj: {}
-        },
+        tools: {},
         current: [],
         lastprocess: new Map()
     }
@@ -271,35 +248,15 @@ const jobs = {
 // Exploração
 {
 
-    jobs.explore.mobs.get = function() {
-        if (Object.keys(jobs.explore.mobs.obj).length == 0) jobs.explore.mobs.load();
-        return jobs.explore.mobs.obj;
+    jobs.explore.mobs.get = async function() {
+        return contentCatalog.company.exploration.mobs;
     }
 
-    jobs.explore.mobs.load = function() {
+    jobs.explore.mobs.load = () => jobs.explore.mobs.get();
 
-        const { readFileSync } = require('fs')
-        const path = './_json/companies/exploration/mobs.json'
-        try {
-        if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            jobs.explore.mobs.obj = customer;
-            if (debug) console.log(`Mob list loaded`)
-        } else {
-            console.log('File path is missing from shopExtension!')
-            jobs.explore.mobs.obj = '`Error on load mob list`';
-        }
-        } catch (err) {
-            jobs.explore.mobs.obj = '`Error on load mob list`';
-            client.emit('error', err)
-        }
-    
-    }
+    jobs.explore.searchMob = async function(level) {
 
-    jobs.explore.searchMob = function(level) {
-
-        let mobs = jobs.explore.mobs.get();
+        let mobs = utility.clone(await jobs.explore.mobs.get());
 
         let filteredmobs = mobs.filter((mob) => level+1 >= mob.level)
 
@@ -309,9 +266,7 @@ const jobs = {
 
             if (filteredmobs.length == 0) {
 
-                company.jobs.explore.mobs.obj = []
-
-                mobs = jobs.explore.mobs.get();
+                mobs = utility.clone(await jobs.explore.mobs.get());
 
                 filteredmobs = mobs.filter((mob) => level+1 >= mob.level)
 
@@ -344,7 +299,7 @@ const jobs = {
               finalResults = [];
               
               //create a series of random numbers and push them into an array
-             for (var i = 1; i <= segments; i++) {
+             for (let i = 1; i <= segments; i++) {
                  var r = Math.random() * segmentMax;
               if (i === segments) {
                   // the final segment is just what's left after the other randoms are added up
@@ -408,10 +363,8 @@ const jobs = {
 
     }
 
-    jobs.explore.equips.get = function(level, qnt) {
-        if (Object.keys(jobs.explore.equips.obj).length == 0) jobs.explore.equips.load();
-
-        let equipobj = jobs.explore.equips.obj;
+    jobs.explore.equips.get = async function(level, qnt) {
+        let equipobj = utility.clone(contentCatalog.company.exploration.equips);
         
         let filteredequips = equipobj.filter((r) => level+1 >= r.level).sort(function(a, b){
             return b.level - a.level;
@@ -458,24 +411,7 @@ const jobs = {
 
     }
 
-    jobs.explore.equips.load = function() {
-        const { readFileSync } = require('fs')
-        const path = './_json/companies/exploration/equip.json'
-        try {
-        if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            jobs.explore.equips.obj = customer;
-            if (debug) console.log(`Equip list loaded`.yellow)
-        } else {
-            console.log('File path is missing from shopExtension!')
-            jobs.explore.equips.obj = '`Error on load equip list`';
-        }
-        } catch (err) {
-            jobs.explore.equips.obj = '`Error on load equip list`';
-            client.emit('error', err)
-        }
-    }
+    jobs.explore.equips.load = () => jobs.explore.equips.get(0, 0);
 
 }
 
@@ -501,7 +437,7 @@ const jobs = {
         return '⭐'.repeat(stars)
     }
 
-    jobs.fish.rods.get = function(level) {
+    jobs.fish.rods.get = async function(level) {
 
         function shuffle(array) {
             var currentIndex = array.length, temporaryValue, randomIndex;
@@ -522,7 +458,7 @@ const jobs = {
             return array;
         }
 
-        let filteredequips = jobs.fish.rods.possibilities(level)
+        let filteredequips = await jobs.fish.rods.possibilities(level)
 
         shuffle(filteredequips)
 
@@ -530,10 +466,8 @@ const jobs = {
 
     }
 
-    jobs.fish.rods.possibilities = function(level) {
-        if (Object.keys(jobs.fish.rods.obj).length == 0) jobs.fish.rods.load();
-
-        let equipobj = jobs.fish.rods.obj;
+    jobs.fish.rods.possibilities = async function(level) {
+        let equipobj = contentCatalog.company.fish.rods;
         
         let num = 0;
         let filteredequips = [];
@@ -559,30 +493,13 @@ const jobs = {
 
     }
 
-    jobs.fish.rods.load = function() {
-        const { readFileSync } = require('fs')
-        const path = './_json/companies/fish/rods.json'
-        try {
-        if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            jobs.fish.rods.obj = customer;
-            if (debug) console.log(`rods list loaded`.yellow)
-        } else {
-            console.log('File path is missing from shopExtension!')
-            jobs.fish.rods.obj = '`Error on load rods list`';
-        }
-        } catch (err) {
-            jobs.fish.rods.obj = '`Error on load rods list`';
-            client.emit('error', err)
-        }
-    }
+    jobs.fish.rods.all = () => contentCatalog.company.fish.rods;
 
-    jobs.fish.list.get = function(profundidademin, profundidademax) {
+    jobs.fish.rods.load = () => jobs.fish.rods.possibilities(0);
 
-        if (Object.keys(jobs.fish.list.obj).length == 0) jobs.fish.list.load();
+    jobs.fish.list.get = async function(profundidademin, profundidademax) {
 
-        let fishobj = jobs.fish.list.obj;
+        let fishobj = contentCatalog.company.fish.mobs;
         
         let filteredfish = fishobj.filter((r) => {
             return r.profundidade >= profundidademin && r.profundidade <= profundidademax
@@ -596,24 +513,7 @@ const jobs = {
 
     }
 
-    jobs.fish.list.load = function() {
-        const { readFileSync } = require('fs')
-        const path = './_json/companies/fish/mobs.json'
-        try {
-        if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            jobs.fish.list.obj = customer;
-            if (debug) console.log(`fish list loaded`.yellow)
-        } else {
-            console.log('File path is missing from shopExtension!')
-            jobs.fish.list.obj = '`Error on load fish list`';
-        }
-        } catch (err) {
-            jobs.fish.list.obj = '`Error on load fish list`';
-            client.emit('error', err)
-        }
-    }
+    jobs.fish.list.load = () => jobs.fish.list.get(0, 0);
 
 
 }
@@ -637,7 +537,7 @@ const jobs = {
 
             const list2 = await jobs.process.get()
 
-            for (xilist = 0; xilist < list2.length; xilist++) {
+            for (let xilist = 0; xilist < list2.length; xilist++) {
 
                 const member = await client.users.fetch(list2[xilist])
 
@@ -667,7 +567,8 @@ const jobs = {
 
             try {
                 
-                const players_utils = await getPlayersUtils(user_id, { process: true })
+                const key = BigInt(user_id);
+                const players_utils = await prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { process: true } })
 
                 let processjson = players_utils.process
 
@@ -687,9 +588,9 @@ const jobs = {
 
                     if (!shopExtension) return
 
-                    const obj = await getMachines(user_id, { machine: true })
+                    const obj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true } })
 
-                    let maq = shopExtension.getProduct(obj.machine);
+                     let maq = await shopExtension.getProduct(obj.machine);
 
                     for (let inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
 
@@ -787,7 +688,7 @@ const jobs = {
 
                                     if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
 
-                                        const newtool = company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
+                                        const newtool = await company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
 
                                         if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
                                             processjson.tools[inprocs[inprocsi].tool] = newtool
@@ -848,7 +749,7 @@ const jobs = {
 
     jobs.process.get = async function() {
 
-        const globalobj = await getGlobals(id);
+        const globalobj = await prisma.globals.upsert({ where: { user_id: BigInt(id) }, update: { user_id: BigInt(id) }, create: { user_id: BigInt(id), keys: [], remember: [], processing: [] }, select: { processing: true } });
         const processinglist = (globalobj.processing || []).map(String)
         
         if (processinglist == null) return []
@@ -892,32 +793,13 @@ const jobs = {
     
     }
 
-    jobs.process.tools.load = function() {
-        const { readFileSync } = require('fs')
-        const path = './_json/companies/process/tools.json'
-        try {
-        if (path) {
-            const jsonString = readFileSync(path, 'utf8')
-            const customer = JSON.parse(jsonString);
-            jobs.process.tools.obj = customer;
-            if (debug) console.log(`Tools list loaded`.yellow)
-        } else {
-            console.log('File path is missing from shopExtension!')
-            jobs.process.tools.obj = '`Error on load tools list`';
-        }
-        } catch (err) {
-            jobs.process.tools.obj = '`Error on load tools list`';
-            client.emit('error', err)
-        }
-
-    }
+    jobs.process.tools.load = () => contentCatalog.company.process.tools;
 
     
-    jobs.process.tools.search = function(level, tooltype) {
+    jobs.process.tools.search = async function(level, tooltype) {
 
-        if (Object.keys(jobs.process.tools.obj.length == 0)) jobs.process.tools.load();
-
-        let equipobj = jobs.process.tools.obj[tooltype];
+        let tools = contentCatalog.company.process.tools;
+        let equipobj = tools[tooltype];
         
         let filteredequip = equipobj.filter((r) => level >= r.level).sort(function(a, b){
             return b.level - a.level;
@@ -1007,7 +889,7 @@ company.create = async function(member, ob) {
             var result = '';
             var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ012345678901234567890123456789012345678901234567890123456789';
             var charactersLength = characters.length;
-            for ( var i = 0; i < length; i++ ) {
+            for (let i = 0; i < length; i++ ) {
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));
             }
             return result;

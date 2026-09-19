@@ -132,21 +132,21 @@ module.exports = {
                         embed.setColor('#5bff45');
                         embed.addFields({ name: '✅ Sucesso na transferência', value: `
                         Você transferiu o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member} com sucesso!` })
-                        economyService.bank.remove(interaction.user.id, total);
-                        economyService.bank.add(member.id, total);
-                        economyService.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${utility.format(total)} ${utility.moneyemoji}`)
-                        economyService.addToHistory(member.id, `📥 Transferência de ${interaction.user} | + ${utility.format(total)} ${utility.moneyemoji}`)
+                        await economyService.bank.remove(interaction.user.id, total);
+                        await economyService.bank.add(member.id, total);
+                        await economyService.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${utility.format(total)} ${utility.moneyemoji}`)
+                        await economyService.addToHistory(member.id, `📥 Transferência de ${interaction.user} | + ${utility.format(total)} ${utility.moneyemoji}`)
                         const user_id = BigInt(interaction.user.id)
                         let obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
                         await prisma.players.update({ where: { user_id }, data: { tran: obj.tran + 1 } });
                         if (nivel < 50) {
                             if (total > mat/2.5) {
-                                playersService.cooldown.set(member.id, "receivetr", 43200);
+                                await playersService.cooldown.set(member.id, "receivetr", 43200);
                             }
                         }
                     }
                 }
-                playersService.cooldown.set(interaction.user.id, "transferir", 0);
+                await playersService.cooldown.set(interaction.user.id, "transferir", 0);
                 interaction.editReply({ embeds: [embed], components: [] });
             } catch (error) {
                 reportError(error, 'command.transfer.execute', { userId: interaction.user?.id });

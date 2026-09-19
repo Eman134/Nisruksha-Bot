@@ -121,8 +121,10 @@ module.exports = {
     
         if (types[choose].requireid == true){
             size = parseInt(args2)
-            types[choose].icon = crateExtensionService.obj[id.toString()].icon
-            types[choose].name = crateExtensionService.obj[id.toString()].name
+            const crate = await crateExtensionService.getCrate(id)
+            if (!crate) return;
+            types[choose].icon = crate.icon
+            types[choose].name = crate.name
         }
         if (types[choose].requiresize == true){
             size = parseInt(id)
@@ -159,7 +161,7 @@ module.exports = {
                 var result = '';
                 var characters = '012345678901234567890123456789012345678901234567890123456789';
                 var charactersLength = characters.length;
-                for ( var i = 0; i < length; i++ ) {
+                for (let i = 0; i < length; i++ ) {
                     result += characters.charAt(Math.floor(Math.random() * charactersLength));
                 }
                 return result;

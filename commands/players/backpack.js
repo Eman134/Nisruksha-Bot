@@ -34,7 +34,7 @@ module.exports = {
         const utilsobj = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
         let backpackid = utilsobj.backpack;
-        let backpack = shopService.getProduct(backpackid);
+        let backpack = await shopService.getProduct(backpackid);
 
         let arrayitens = await itemsService.getInv(member.id, true)
 
@@ -52,7 +52,10 @@ module.exports = {
 
         async function setInfosEmbed(embed, member) {
     
-            const map = array2.map(crate => `**${crate.split(';')[1]}x** ${crateExtensionService.obj[crate.split(';')[0]].icon} ${crateExtensionService.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
+            const map = (await Promise.all(array2.map(async (crate) => {
+                const info = await crateExtensionService.getCrate(crate.split(';')[0]);
+                return `**${crate.split(';')[1]}x** ${info.icon} ${info.name} | **ID: ${crate.split(';')[0]}**`;
+            }))).join('\n');
             
             arrayitens = arrayitens.sort(function(a, b){
 
@@ -92,11 +95,9 @@ module.exports = {
             .addFields({ name: `📦 Caixas misteriosas`, value: `Para abrir uma caixa utilize \`/abrircaixa <ID DA CAIXA> [quantia]\`\nPara visualizar recompensas de uma caixa use \`/recompensascaixa <ID DA CAIXA>\`\n` + (array2.length <= 0 ? '**Não possui caixas misteriosas**' : `${map}`) })
             
             embed.addFields({ name: `💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, value: `Para vender itens utilize \`/venderitem\`\nPara usar itens utilize \`/usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫` })
-            //for (i = 1; i < totalpages; i++) {
             const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${itemsService.translateRarity(i2.rarity)}] `:''}**${i2.size}x** ${i2.icon} ${i2.displayname}${i2.usavel ? ` 💫` : ''}`).join('\n')
             embed.addFields({ name: `Itens Página ${currentpage}/${totalpages} ${sorter == 0 ? '🔢' : sorter == 1 ? '<:raro:852302870074359838>' : '🔠'}${sortermode == 0 ? '<:up:833837888634486794>':'<:down:833837888546275338>'}`, value: (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`) })
-           // }
-            return embed
+             return embed
         }
 
         function reworkButtons({ currentpage, totalpages }) {

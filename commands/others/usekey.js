@@ -92,23 +92,23 @@ module.exports = {
                     const user_id = BigInt(interaction.user.id)
                     const pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
                     const perm = pobj.perm
-                    badgesService.add(interaction.user.id, 1)
+                    await badgesService.add(interaction.user.id, 1)
                     await framesService.add(interaction.user.id, 3)
                     await framesService.add(interaction.user.id, 4)
                     await prisma.players.update({ where: { user_id }, data: { mvp: pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time) } })
                     if (perm == 1) await prisma.players.update({ where: { user_id }, data: { perm: 3 } })
                     break;
                 case 1:
-                    economyService.money.add(interaction.user.id, item.size)
+                    await economyService.money.add(interaction.user.id, item.size)
                     break;
                 case 2:
-                    economyService.token.add(interaction.user.id, item.size)
+                    await economyService.token.add(interaction.user.id, item.size)
                     break;
                 case 3:
-                    economyService.points.add(interaction.user.id, item.size)
+                    await economyService.points.add(interaction.user.id, item.size)
                     break;
                 case 4:
-                    crateExtensionService.give(interaction.user.id, item.id, item.size)
+                    await crateExtensionService.give(interaction.user.id, item.id, item.size)
                 default:
                     break;
             }

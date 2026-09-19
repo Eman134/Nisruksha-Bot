@@ -130,7 +130,7 @@ module.exports = {
 
             //butnList.push(utility.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
-            for (i = 0; i < Object.keys(vare).length; i++) {
+            for (let i = 0; i < Object.keys(vare).length; i++) {
                 butnList.push(utility.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
             }
 
@@ -140,7 +140,7 @@ module.exports = {
 
             totalcomponents += 1
 
-            for (x = 0; x < totalcomponents; x++) {
+            for (let x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
@@ -181,7 +181,7 @@ module.exports = {
                 
                 const arr2check = []
 
-                for (i = 0; i < array.length; i++) {
+                for (let i = 0; i < array.length; i++) {
 
                     try {
                         const x = await interaction.guild.members.fetch(array[i].user_id)
@@ -200,7 +200,7 @@ module.exports = {
 
             array = array.slice(0, 10)
 
-            for (var i = 0; i < array.length; i++) {
+            for (let i = 0; i < array.length; i++) {
 
                 let member = await client.users.fetch(`${array[i].user_id}`);
 

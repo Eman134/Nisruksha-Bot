@@ -197,7 +197,7 @@ module.exports = {
 
                     //for (const key in obj) {
                         for (const r of obj.drops) {
-                            itemsService.set(interaction.user.id, r.name, 0)
+                            await itemsService.set(interaction.user.id, r.name, 0)
                         }
                     //}
                     break;
@@ -209,7 +209,7 @@ module.exports = {
                         return;
                     }
 
-                    itemsService.set(interaction.user.id, realname, 0)
+                    await itemsService.set(interaction.user.id, realname, 0)
                     break;
                 case 2:
 
@@ -225,7 +225,7 @@ module.exports = {
                         return;
                     }
 
-                    itemsService.set(interaction.user.id, realname, obj3[drop.name.replace(/"/g, '')]-parseInt(quantia))
+                    await itemsService.set(interaction.user.id, realname, obj3[drop.name.replace(/"/g, '')] - parseInt(quantia))
                     break;
             }
 
@@ -254,19 +254,19 @@ module.exports = {
             embed.addFields({ name: '✅ Sucesso na venda', value: `
             Você vendeu **${totalsize}x** de **${type == 0 ? 'Tudo' : `${drop.icon} ${drop.displayname}`}** da sua mochila pelo preço de **${utility.format(totalantes)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa)**`}.` })
             if(runtime.debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
-            interaction.editReply({ embeds: [embed], components: [] });
-            economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
+            await interaction.editReply({ embeds: [embed], components: [] });
+            await economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
 
-            economyService.money.add(interaction.user.id, total)
+            await economyService.money.add(interaction.user.id, total)
             
             if (!company || (owner && interaction.user.id == owner.id)) return
             let rend = company.rend || []
             rend.unshift(totaltaxa)
             rend = rend.slice(0, 10)
 
-            companyInfo.set(owner.id, company.company_id, 'rend', rend)
+            await companyInfo.set(owner.id, company.company_id, 'rend', rend)
 
-            economyService.bank.add(owner.id, totaltaxa)
+            await economyService.bank.add(owner.id, totaltaxa)
 
             companyService.stars.add(interaction.user.id, company.company_id, { rend: totaltaxa })
 

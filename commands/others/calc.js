@@ -26,7 +26,7 @@ module.exports = {
                 return interaction.reply({ content: '**Token do bot**: OdIcBaAzD2NzYxMSA3b2TOa4vca.Xvko_Q.A6F3EHwD3abV-Xabc_as9FEMm6eXD?' });
             }
             const embed = new Discord.EmbedBuilder()
-            if (resultado === Infinity || resultado == NaN || resultado == undefined || resultado == null || resultado.toString() == 'NaN') {
+            if (resultado == null || !Number.isFinite(Number(resultado))) {
                 embed.setImage('https://i.imgur.com/9EDKaRj.gif')
                 .setDescription(`Ao infinito, e além!`)
                 return interaction.reply({ embeds: [embed]});

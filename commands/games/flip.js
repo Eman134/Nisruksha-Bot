@@ -197,7 +197,7 @@ module.exports = {
 
                     let chancemedia = 0
             
-                    for (i = 0; i < jsonbet.flip.length; i++) {
+                    for (let i = 0; i < jsonbet.flip.length; i++) {
                         chancemedia += jsonbet.flip[i]
                     }
 

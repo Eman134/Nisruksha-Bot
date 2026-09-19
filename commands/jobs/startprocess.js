@@ -39,8 +39,8 @@ module.exports = {
 
             const defaultjson = {
                 tools: {
-                    0: companyService.jobs.process.tools.search(level, 0),
-                    1: companyService.jobs.process.tools.search(level, 1),
+                    0: await companyService.jobs.process.tools.search(level, 0),
+                    1: await companyService.jobs.process.tools.search(level, 1),
                 },
     
                 in: []
@@ -52,7 +52,7 @@ module.exports = {
             await prisma.players_utils.update({ where: { user_id }, data: { process: defaultjson } })
         }
 
-        if (storage['fragmento'] <= quantia) {
+        if (storage.fragmento < quantia) {
             const embedtemp = await utility.sendError(interaction, `Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
@@ -66,10 +66,10 @@ module.exports = {
 
         function setProcess() {
             if (processjson.in.length > 0) {
-                for (i = 0; i < processjson.in.length; i++) {
-                    const checkfi = processjson.in[i].fragments.current == 0
+                for (const process of processjson.in) {
+                    const checkfi = process.fragments.current === 0;
                     
-                    if (processjson.in[i]) embed.addFields({ name: `⏳ Processo ${processjson.in[i].id} ${(checkfi ? 'Finalizado ✅' : '')}`, value: `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + compactTime(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, inline: true })
+                    embed.addFields({ name: `⏳ Processo ${process.id} ${checkfi ? 'Finalizado ✅' : ''}`, value: `ID de Processo: ${process.id}${!checkfi ? '\nTempo decorrido: ' + compactTime(Date.now() - process.started) : ''}\nMétodo de Limpeza: ${processjson.tools[process.tool].icon} ${processjson.tools[process.tool].name}\nFragmentos em Limpeza: [${process.fragments.current}/${process.fragments.total}]\nXP ganho: ${process.xp}\nScore ganho: ${process.score} ⭐`, inline: true });
                 }
             } else {
                 embed.addFields({ name: `❌ Algo inesperado aconteceu`, value: `Você não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`, inline: true })
@@ -115,7 +115,7 @@ module.exports = {
             const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
             let processjson = players_utils.process
 
-            const tool = (b.customId == 'ferr' ? processjson.tools[0] : processjson.tools[1])
+            const tool = b.customId === 'ferr' ? processjson.tools[0] : processjson.tools[1];
             const toolid = (b.customId == 'ferr' ? 0 : 1)
 
             let stamina = await playersService.stamina.get(interaction.user.id)
@@ -123,13 +123,10 @@ module.exports = {
             if (stamina < custostart) {
                 
                 const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)
-                await interaction.reply({ embeds: [embedtemp]})
-                interaction.editReply({ embeds: [embed], components: [] })
+                await interaction.editReply({ embeds: [embedtemp], components: [] });
                 return;
 
             }
-
-            playersService.stamina.remove(interaction.user.id, custostart)
 
             if (quantia < Math.round(tool.process.maxfragments*0.15)) {
                 const embedtemp = await utility.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
@@ -142,7 +139,7 @@ module.exports = {
                 return;
             }
 
-            if (storage['fragmento'] <= quantia) {
+            if (storage.fragmento < quantia) {
                 const embedtemp = await utility.sendError(interaction, `Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
                 await interaction.editReply({ embeds: [embedtemp] })
                 return;
@@ -154,7 +151,9 @@ module.exports = {
                 return;
             }
 
-            if (b.customId == 'ferr') {
+            await playersService.stamina.remove(interaction.user.id, custostart);
+
+            if (b.customId === 'ferr') {
         
                 embed.setDescription(
 `${tool.icon} ${tool.name}
@@ -185,13 +184,8 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 `)
             }
 
-            let id = 1
-            for (i = 1; processjson.in.length+processjson.in.length; i++) {
-                if (processjson.in.filter((pi) => pi.id == i).length < 1) {
-                    id = i
-                    break;
-                }
-            }
+            let id = 1;
+            while (processjson.in.some((process) => process.id === id)) id += 1;
 
             const defaultjsonprocess = {
                 id,
@@ -206,7 +200,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 score: 0
             }
 
-            itemsService.set(interaction.user.id, 'fragmento', storage['fragmento']-quantia)
+            await itemsService.set(interaction.user.id, 'fragmento', storage.fragmento - quantia);
 
             processjson.in.push(defaultjsonprocess)
 

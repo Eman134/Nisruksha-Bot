@@ -29,12 +29,13 @@ module.exports = {
 			return;
         }
 
-        const crateobj = crateExtensionService.obj[id.toString()]
+        const crateobj = await crateExtensionService.getCrate(id)
+        if (!crateobj) return;
         let rewardsmap = "Esta caixa possui recompensas randômicas... Nunca se sabe o que pode vir dela."
 
         if (typeof crateobj.rewards != 'string') {
             
-            rewardsmap = crateExtensionService.obj[id.toString()].rewards.sort(function(a, b){
+            rewardsmap = [...crateobj.rewards].sort(function(a, b){
                 return b.chance - a.chance;
             }).map(r => `${r.icon} ${r.name} - \`(Chance de ${r.chance}%)\``).join('\n');
 

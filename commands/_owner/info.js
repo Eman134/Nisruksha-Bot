@@ -70,7 +70,7 @@ async function send(interaction) {
         array1 = array1.slice(0, 10)
 
         var rank1 = 1;
-        for (var i = 0; i < array1.length; i++) {
+        for (let i = 0; i < array1.length; i++) {
 
             let server = await clientService.current.guilds.cache.get(String(array1[i].server_id));
             if (server) {
@@ -99,7 +99,7 @@ async function send(interaction) {
         array2 = array2.slice(0, 10)
 
         var rank2 = 1;
-        for (var i = 0; i < array2.length; i++) {
+        for (let i = 0; i < array2.length; i++) {
 
             let server = await clientService.current.guilds.cache.get(String(array2[i].server_id));
             if (server) {

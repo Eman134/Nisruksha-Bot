@@ -94,7 +94,7 @@ module.exports = {
             async function roll(){
 
                 if (array.length == 0) {
-                    for (i = 0; i < 11; i++) {
+                    for (let i = 0; i < 11; i++) {
                         let random = utility.random(0, 100);
 
                         if (random < 45) {

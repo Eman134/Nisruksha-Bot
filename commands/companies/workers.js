@@ -95,7 +95,7 @@ module.exports = {
         .setColor("#34fa3a")
         .setFooter({ text: (owner.id == interaction.user.id ? "Para demitir um funcionário utilize /demitir <id>" + (company.funcmax < 8 ? '\nReaja com 🔼 para realizar upgrade nos funcionários máximos (Custa ' + price + ' ⭐ da empresa)' : '') : "Para sair da empresa utilize /sairempresa"), iconURL: company.logo })
         embed.addFields({ name: '📌 `' + owner.tag + '` [⭐ ' + (ownerobj.companyact == null ? 0 : ownerobj.companyact.score) + ']', value: 'ID: ' + owner.id + '\nNível: **' + ownerobj2.level + '**\n**Fundador**', inline: false })
-        for (i = 0; i < list.length; i++) {
+        for (let i = 0; i < list.length; i++) {
             const func = list[i]
             embed.addFields({ name: (func.user.id == interaction.user.id ? ' ⏩ '  : '') + (parseInt(i)+1) + 'º `' + func.user.tag + '` [⭐ ' + (func.companyact == null ? 0 : func.companyact.score) + ']', value: 'ID: ' + func.user.id + '\nNível: **' + func.level + '**\nÚltima atividade: **' + (func.companyact == null ? 'Não houve' : compactTime(Date.now() - func.companyact.last)) + '**\nRendeu: **' + (func.companyact == null ? utility.format(0) : utility.format(func.companyact.rend))  + ' ' + utility.money + ' ' + utility.moneyemoji + '**', inline: false })
         }

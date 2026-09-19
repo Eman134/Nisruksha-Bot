@@ -49,7 +49,7 @@ ${helpService.getCategoryList()}`)
 
             butnList.push(utility.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
-            for (i = 0; i < categorylist.length; i++) {
+            for (let i = 0; i < categorylist.length; i++) {
                 butnList.push(utility.createButton(categorylist[i], (current == categorylist[i] ? 'SUCCESS': 'SECONDARY'), categorylist[i], undefined, (current == categorylist[i] || allDisabled ? true : false)))
             }
 
@@ -59,7 +59,7 @@ ${helpService.getCategoryList()}`)
 
             totalcomponents += 1
 
-            for (x = 0; x < totalcomponents; x++) {
+            for (let x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
                 const rowBtn = utility.rowComponents(butnList.slice(var1, var2))

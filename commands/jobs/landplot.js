@@ -134,7 +134,7 @@ module.exports = {
                 
                 if (row0.length > 0) components.push(utility.rowComponents(row0))
 
-                for (i = 0; i < grow.length; i++) {
+                for (let i = 0; i < grow.length; i++) {
                     growBtnList.push(utility.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
                 }
 
@@ -144,7 +144,7 @@ module.exports = {
 
                 totalcomponents += 1
 
-                for (x = 0; x < totalcomponents; x++) {
+                for (let x = 0; x < totalcomponents; x++) {
                     if (growBtnList[x]) {
                         const var1 = (x+1)*5-5
                         const var2 = ((x+1)*5)

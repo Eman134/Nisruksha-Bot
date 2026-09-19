@@ -132,7 +132,7 @@ module.exports = {
 
                             let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                             let maqid = playerobj.machine;
-                            const maq1 = shopService.getProduct(maqid);
+                            const maq1 = await shopService.getProduct(maqid);
                             const maq = utility.clone(maq1);
                             
                             maq.tier = drop.tier+2
@@ -160,7 +160,7 @@ module.exports = {
                                 if (coletadox.has(ore.name)) coletadox.set(ore.name, coletadox.get(ore.name)+size)
                                 else coletadox.set(ore.name, size)
                                 sizeMap.set(ore.name, size)
-                                itemsService.add(interaction.user.id, ore.name, size)
+                                await itemsService.add(interaction.user.id, ore.name, size)
                                 round += size;
                 
                                 if (await machinesService.storage.getSize(interaction.user.id)+size >= arMax) break;
@@ -208,7 +208,7 @@ module.exports = {
                     break;
 
                 case 3:
-                    playersService.execExp(interaction, drop.value, true);
+                    await playersService.execExp(interaction, drop.value, true);
                     sucessEmbed()
                     break;
 
@@ -217,12 +217,12 @@ module.exports = {
                     interaction.reply({ content: 'Ocorreu um erro ao utilizar o item, contate algum moderador do bot.'})
 
             }
-            itemsService.add(interaction.user.id, drop.name, -quantia)
+            await itemsService.add(interaction.user.id, drop.name, -quantia)
 
         });
         
         collector.on('end', async collected => {
-            playersService.cooldown.set(interaction.user.id, "usaritem", 0);
+            await playersService.cooldown.set(interaction.user.id, "usaritem", 0);
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');

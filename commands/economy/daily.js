@@ -70,12 +70,12 @@ module.exports = {
         .setDescription(`Você recebeu \`${reward}\` ${utility.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${utility.money2}\` ${utility.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
         .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         await interaction.reply({ embeds: [embed] });
-        economyService.money.add(interaction.user.id, reward)
-        economyService.points.add(interaction.user.id, cristal)
+        await economyService.money.add(interaction.user.id, reward)
+        await economyService.points.add(interaction.user.id, cristal)
         await prisma.players.update({ where: { user_id }, data: { streak } })
-        economyService.addToHistory(interaction.user.id, `Recompensa diária | + ${utility.format(reward)} ${utility.moneyemoji}`)
-        playersService.cooldown.set(interaction.user.id, "daily", 86400);
-        playersService.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
-        if (obj.perm >= 3)crateExtensionService.give(interaction.user.id, 1, 2)
+        await economyService.addToHistory(interaction.user.id, `Recompensa diária | + ${utility.format(reward)} ${utility.moneyemoji}`)
+        await playersService.cooldown.set(interaction.user.id, "daily", 86400);
+        await playersService.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
+        if (obj.perm >= 3) await crateExtensionService.give(interaction.user.id, 1, 2)
 	},
 };

@@ -67,8 +67,8 @@ module.exports = {
         btnRow1 = utility.rowComponents([btn3, btn4, btn5, btn6])
         
 		const embed = new Discord.EmbedBuilder()
-        .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + framesService.get(frames[0]).name)
-        .setImage(framesService.get(frames[0]).url)
+        .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + (await framesService.get(frames[0])).name)
+        .setImage((await framesService.get(frames[0])).url)
         .setColor('#60ced6')
         
         const embedinteraction = (await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true })).resource.message;
@@ -116,7 +116,7 @@ module.exports = {
             btnRow0 = utility.rowComponents([btn1, btn2])
             btnRow1 = utility.rowComponents([btn3, btn4, btn5, btn6])
 
-            const frame = framesService.get(frames[current-1])
+            const frame = await framesService.get(frames[current-1])
 
             embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
@@ -126,7 +126,7 @@ module.exports = {
 
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
-                embed.setImage(framesService.get(frames[0]).url)
+                embed.setImage((await framesService.get(frames[0])).url)
                 await interaction.editReply({ embeds: [embed], components: [] });
 
                 return collector.stop();

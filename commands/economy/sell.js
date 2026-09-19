@@ -212,7 +212,7 @@ module.exports = {
 
                     //for (const key in obj) {
                         for (const r of obj.minerios) {
-                            itemsService.set(interaction.user.id, r.name, 0)
+                            await itemsService.set(interaction.user.id, r.name, 0)
                         }
                     //}
                     break;
@@ -224,7 +224,7 @@ module.exports = {
                         return;
                     }
 
-                    itemsService.set(interaction.user.id, id, 0)
+                    await itemsService.set(interaction.user.id, id, 0)
                     break;
                 case 2:
 
@@ -240,7 +240,7 @@ module.exports = {
                         return;
                     }
 
-                    itemsService.set(interaction.user.id, id, obj2[id]-parseInt(quantia))
+                    await itemsService.set(interaction.user.id, id, obj2[id] - parseInt(quantia))
                     break;
             }
             
@@ -249,11 +249,11 @@ module.exports = {
             embed.addFields({ name: '✅ Sucesso na venda', value: `
             Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` })
             if(runtime.debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
-            interaction.editReply({ embeds: [embed], components: [] });
-            economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
-            economyService.money.add(interaction.user.id, total)
+            await interaction.editReply({ embeds: [embed], components: [] });
+            await economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
+            await economyService.money.add(interaction.user.id, total)
             if (totaltaxa > 0) {
-                economyService.money.globaladd(totaltaxa)
+                await economyService.money.globaladd(totaltaxa)
             }
         });
         

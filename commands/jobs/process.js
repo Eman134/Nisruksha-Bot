@@ -47,8 +47,8 @@ module.exports = {
 
             const defaultjson = {
                 tools: {
-                    0: companyService.jobs.process.tools.search(level, 0),
-                    1: companyService.jobs.process.tools.search(level, 1),
+                    0: await companyService.jobs.process.tools.search(level, 0),
+                    1: await companyService.jobs.process.tools.search(level, 1),
                 },
     
                 in: []
@@ -71,7 +71,7 @@ module.exports = {
             
             if (processjson.in.length > 0) {
                 embeds = []
-                for (i = 0; i < processjson.in.length; i++) {
+                for (let i = 0; i < processjson.in.length; i++) {
     
                     const eproctemp = new Discord.EmbedBuilder()
 
@@ -101,7 +101,7 @@ module.exports = {
                                 if (totalpages_rar == 0) totalpages_rar = (cclist_rar.length)/5;
                                 else totalpages_rar = ((cclist_rar.length-totalpages_rar)/5)+1;
                                 
-                                for (iil = 0; iil < totalpages_rar; iil++){
+                                for (let iil = 0; iil < totalpages_rar; iil++){
                                     const sliced = cclist_rar.slice(((iil+1)*5)-5, ((iil+1)*5))
                                     if (sliced.length > 0) {
                                         ccmap_rar += sliced.map((item) => item.quantia + 'x ' + item.icon).join('<:inv:781993473331036251>') + '\n'
@@ -172,7 +172,7 @@ module.exports = {
 
                 let butnList = []
 
-                for (i = 0; i < endprocs.length; i++) {1
+                for (let i = 0; i < endprocs.length; i++) {
                     butnList.push(utility.createButton('proc:' + endprocs[i].id, 'SECONDARY', ' ' + custoretirar + ' | Processo: ' + endprocs[i].id, '🔸', (allDisabled ? true : false)))
                 }
 
@@ -182,7 +182,7 @@ module.exports = {
 
                 totalcomponents += 1
 
-                for (x = 0; x < totalcomponents; x++) {
+                for (let x = 0; x < totalcomponents; x++) {
                     const var1 = (x+1)*5-5
                     const var2 = ((x+1)*5)
                     const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
@@ -325,7 +325,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                 } else {
 
-                    playersService.stamina.remove(interaction.user.id, custoretirar)
+                    await playersService.stamina.remove(interaction.user.id, custoretirar)
 
                     const id = parseInt(b.customId.replace(/proc:/g, ''))
                     const oldproc = processjson.in.find((x) => x.id == id)
@@ -336,7 +336,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                     let xp = await playersService.execExp(interaction, oldproc.xpbase)
                     let score = parseFloat(oldproc.score)
-                    companyService.stars.add(interaction.user.id, company.company_id, { score })
+                    await companyService.stars.add(interaction.user.id, company.company_id, { score })
 
                     const retorno = await itemsService.give(interaction, oldproc.drops || [])
                     

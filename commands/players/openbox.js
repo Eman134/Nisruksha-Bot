@@ -28,6 +28,8 @@ module.exports = {
                 
         const id = interaction.options.getInteger('id-caixa');
         const quantia = interaction.options.getInteger('quantia');
+        const crate = await crateExtensionService.getCrate(id);
+        if (!crate) return;
 
         const check = await playersService.cooldown.check(interaction.user.id, "crate");
         if (check) {
@@ -64,7 +66,7 @@ module.exports = {
         
 		const embed = new Discord.EmbedBuilder()
 	    .setColor('#606060')
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `📦 Você deseja abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
+        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `📦 Você deseja abrir **${boxl}x ${crate.icon} ${crate.name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
         .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
@@ -89,7 +91,7 @@ module.exports = {
                 
                 embed.fields = [];
                 embed.setColor('#5bff45');
-                embed.setDescription(`${arraywin.map(rr => `<a:aberto:758105619269156864>  ⤳  ${rr.icon} ${rr.displayname ? rr.displayname : rr.name}`).join('\n')}${currnum < rewards.length ? `\n \n**<a:abrindo:758105619281870898> ${rewards.length-currnum}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}** restantes...`:`\n \n✅ Todas as caixas foram abertas (${boxl}x)`}`)
+                embed.setDescription(`${arraywin.map(rr => `<a:aberto:758105619269156864>  ⤳  ${rr.icon} ${rr.displayname ? rr.displayname : rr.name}`).join('\n')}${currnum < rewards.length ? `\n \n**<a:abrindo:758105619281870898> ${rewards.length-currnum}x ${crate.icon} ${crate.name}** restantes...`:`\n \n✅ Todas as caixas foram abertas (${boxl}x)`}`)
                 if(runtime.debug) {
                     embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nBoxl: ${boxl}\nRewardsLength: ${rewards.length}\nÚltimo recebido em: ${1000+(100-rewards[currnum-1].chance)*30}ms\nFinalizado em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
                 }
@@ -98,16 +100,16 @@ module.exports = {
                     const obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
                     const crateField = `crate_${id}`;
                     await prisma.storage.update({ where: { user_id }, data: { [crateField]: obj[crateField]-1 } });
-                    economyService.addToHistory(interaction.user.id, `${crateExtensionService.obj[id.toString()].name} | ${reward.size > 0 ? '+ ' + utility.format(reward.size) + ' ':''}${reward.icon}`)
+                    await economyService.addToHistory(interaction.user.id, `${crate.name} | ${reward.size > 0 ? '+ ' + utility.format(reward.size) + ' ':''}${reward.icon}`)
                     switch (reward.type) {
                         case 0:
-                            economyService.money.add(interaction.user.id, reward.size)
+                            await economyService.money.add(interaction.user.id, reward.size)
                             break;
                         case 1:
-                            economyService.token.add(interaction.user.id, reward.size)
+                            await economyService.token.add(interaction.user.id, reward.size)
                             break;
                         case 2:
-                            economyService.points.add(interaction.user.id, reward.size)
+                            await economyService.points.add(interaction.user.id, reward.size)
                             break;
                         case 3:
                             playerobj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
@@ -115,7 +117,7 @@ module.exports = {
                             await prisma.storage.update({ where: { user_id }, data: { [pieceField]: playerobj[pieceField] + reward.size } })
                             break;
                         case 4:
-                            economyService.tp.add(interaction.user.id, reward.size)
+                            await economyService.tp.add(interaction.user.id, reward.size)
                             break;
                         case 5:
 
@@ -132,13 +134,9 @@ module.exports = {
                                 console.log(reward)
                             }
 
-                            const drop = itemsService.get((rewardname || reward.name))
+                            const drop = await itemsService.get((rewardname || reward.name))
 
-                            if (!drop) {
-                                console.log('TYPE 5 DROP')
-                                console.log(drop)
-                                console.log((rewardname || reward.name))
-                            }
+                             if (!drop) throw new Error(`Recompensa de item não encontrada: ${rewardname || reward.name}`);
 
                             drop.size = (reward.size || 1)
 
@@ -151,7 +149,7 @@ module.exports = {
                             }
                             break;
                         case 6:
-                            badgesService.add(interaction.user.id, reward.size)
+                            await badgesService.add(interaction.user.id, reward.size)
                             break;
                         default:
                             break;
@@ -183,7 +181,7 @@ module.exports = {
                     if (!skipping) setTimeout(function(){ editBox(rewards[currnum], rewards)} , 1500);
                     else editBox(rewards[currnum], rewards)
                 } else {
-                    playersService.cooldown.set(interaction.user.id, "crate", 0);
+                    await playersService.cooldown.set(interaction.user.id, "crate", 0);
                 }
 
             } catch (error) {
@@ -206,18 +204,18 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.fields = [];
                 embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Abertura de caixa cancelada', value: `Você cancelou a abertura de **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
+                embed.addFields({ name: '❌ Abertura de caixa cancelada', value: `Você cancelou a abertura de **${boxl}x ${crate.icon} ${crate.name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
                 interaction.editReply({ embeds: [embed], components: [] });
                 playersService.cooldown.set(interaction.user.id, "crate", 0);
                 return;
             } 
 
-            let rewards = boxl > 1 ? crateExtensionService.getReward(id, boxl):crateExtensionService.getReward(id);
+            let rewards = await crateExtensionService.getReward(id, boxl);
             if(runtime.debug) console.log(rewards)
 
             embed.fields = [];
             embed.setColor('#606060');
-            embed.setDescription(`<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**`)
+            embed.setDescription(`<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${crate.icon} ${crate.name}**`)
             interaction.editReply({ embeds: [embed], components: [] });
 
             //let t1 = 1000+(100-rewards[0].chance)*30;
@@ -229,7 +227,7 @@ module.exports = {
             if (reacted) return;
             embed.fields = [];
             embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir **${boxl}x ${crateExtensionService.obj[id.toString()].icon} ${crateExtensionService.obj[id.toString()].name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
+            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir **${boxl}x ${crate.icon} ${crate.name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
             interaction.editReply({ embeds: [embed], components: [] });
         });
 

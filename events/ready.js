@@ -2,9 +2,9 @@ const trustedguilds = ['693150851396796446']
 const { reportError } = require('../_classes/debug');
 const clientService = require('../_classes/services/clientService');
 const cacheListsService = require('../_classes/services/cacheLists');
+const contentCatalog = require('../_classes/services/contentCatalog');
 const companyService = require('../_classes/services/company');
 const eventsService = require('../_classes/services/events');
-const shopService = require('../_classes/services/shop');
 const UtilityService = require('../_classes/services/utilityService');
 const utility = new UtilityService();
 
@@ -43,9 +43,9 @@ module.exports = {
         console.log(`         Versão ${require('../package.json').version}\n`.green)
 
         await cacheListsService.connect()
+        await contentCatalog.initialize()
         await cacheListsService.remember.load()
         companyService.jobs.process.load()
-        shopService.load()
         eventsService.load()
         
     }

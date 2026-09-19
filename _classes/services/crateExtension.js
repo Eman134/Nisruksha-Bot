@@ -1,6 +1,6 @@
 const prisma = require('../prisma');
-const clientService = require('./clientService');
 const itemService = require('./items');
+const contentCatalog = require('./contentCatalog');
 const UtilityService = require('./utilityService');
 
 function shuffle(array) {
@@ -14,41 +14,42 @@ function shuffle(array) {
 class CrateService {
     constructor() {
         this.utility = new UtilityService();
-        this.obj = {};
-        this.load();
     }
 
     async load() {
-        try {
-            this.obj = JSON.parse(require('fs').readFileSync('./_json/crates.json', 'utf8'));
-        } catch (error) {
-            clientService.current?.emit('error', error);
-        }
+        return contentCatalog.crates;
     }
 
     async getCrates(userId) {
         const user_id = BigInt(userId);
         const storage = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
-        return Object.keys(this.obj).map((key) => `${key};${storage[`crate_${key}`]}`);
+        const crates = contentCatalog.crates;
+        return Object.keys(crates).map((key) => `${key};${storage[`crate_${key}`]}`);
     }
 
-    getReward(id, size = 1) {
-        const crate = this.obj[String(id)];
+    async getCrate(id) {
+        const crates = contentCatalog.crates;
+        return crates[String(id)];
+    }
+
+    async getReward(id, size = 1) {
+        const crate = await this.getCrate(id);
         if (!crate) return [];
-        if (size > 1) return Array.from({ length: size }, () => this.getReward(id)[0]);
+        if (size > 1) return Promise.all(Array.from({ length: size }, () => this.getReward(id).then((reward) => reward[0])));
 
         const reward = typeof crate.rewards === 'string'
-            ? this.randomDrop()
+            ? await this.randomDrop()
             : this.randomReward(crate.rewards);
         return reward ? [reward] : [];
     }
 
-    randomDrop() {
-        const drops = shuffle([...itemService.getObj().drops]);
+    async randomDrop() {
+        const drops = shuffle((await itemService.getObj()).drops.map((drop) => this.utility.clone(drop)));
         const drop = drops[this.utility.random(0, drops.length - 1)];
-        drop.type = 5;
-        if (drop.size === 0) drop.size = 1;
-        return drop;
+        const result = this.utility.clone(drop);
+        result.type = 5;
+        if (result.size === 0) result.size = 1;
+        return result;
     }
 
     randomReward(rewards) {
@@ -56,7 +57,7 @@ class CrateService {
         let accumulated = 0;
         for (const reward of [...rewards].sort((a, b) => a.chance - b.chance)) {
             accumulated += reward.chance;
-            if (chance < accumulated) return reward;
+            if (chance < accumulated) return this.utility.clone(reward);
         }
         return undefined;
     }

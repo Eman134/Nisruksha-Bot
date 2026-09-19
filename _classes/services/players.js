@@ -18,7 +18,7 @@ class PlayersService {
         if (!interaction || xpp == null) return;
         const user_id = BigInt(interaction.user.id);
         const machine = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
-        const product = shopService.getProduct(machine.machine);
+        const product = await shopService.getProduct(machine.machine);
         const xp = pure ? xpp : Math.round((xpp * (product.tier + 1)) / 1.35);
 
         if (machine.xp + xp >= machine.level * 1980) {

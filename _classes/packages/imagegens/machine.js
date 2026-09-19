@@ -91,7 +91,7 @@ module.exports = async function execute(imageServices, {
     if (equippedchips.length !== 0) {
         if (equippedchips[0]) {
             const equipedchip = equippedchips[0]
-            const chip = imageServices.shopExtension.getProduct(equipedchip.id);
+            const chip = await imageServices.shopExtension.getProduct(equipedchip.id);
             const chipimg = await loadOptionalImage(imageServices, chip?.img, () => createWhiteImage(imageServices, 60, 60), 'imagegen.machine.chip.1');
             if (chipimg) ctx.drawImage(chipimg, 19, 219, 60, 60)
 
@@ -105,7 +105,7 @@ module.exports = async function execute(imageServices, {
         }
         if (equippedchips[1]) {
             const equipedchip = equippedchips[1]
-            const chip = imageServices.shopExtension.getProduct(equipedchip.id);
+            const chip = await imageServices.shopExtension.getProduct(equipedchip.id);
             const chipimg = await loadOptionalImage(imageServices, chip?.img, () => createWhiteImage(imageServices, 60, 60), 'imagegen.machine.chip.2');
             if (chipimg) ctx.drawImage(chipimg, 117, 255, 60, 60)
 
@@ -119,7 +119,7 @@ module.exports = async function execute(imageServices, {
         }
         if (equippedchips[2]) {
             const equipedchip = equippedchips[2]
-            const chip = imageServices.shopExtension.getProduct(equipedchip.id);
+            const chip = await imageServices.shopExtension.getProduct(equipedchip.id);
             const chipimg = await loadOptionalImage(imageServices, chip?.img, () => createWhiteImage(imageServices, 60, 60), 'imagegen.machine.chip.3');
             if (chipimg) ctx.drawImage(chipimg, 220, 242, 60, 60)
 
@@ -133,7 +133,7 @@ module.exports = async function execute(imageServices, {
         }
         if (equippedchips[3]) {
             const equipedchip = equippedchips[3]
-            const chip = imageServices.shopExtension.getProduct(equipedchip.id);
+            const chip = await imageServices.shopExtension.getProduct(equipedchip.id);
             const chipimg = await loadOptionalImage(imageServices, chip?.img, () => createWhiteImage(imageServices, 60, 60), 'imagegen.machine.chip.4');
             if (chipimg) ctx.drawImage(chipimg, 312, 252, 60, 60)
 
@@ -147,7 +147,7 @@ module.exports = async function execute(imageServices, {
         }
         if (equippedchips[4]) {
             const equipedchip = equippedchips[4]
-            const chip = imageServices.shopExtension.getProduct(equipedchip.id);
+            const chip = await imageServices.shopExtension.getProduct(equipedchip.id);
             const chipimg = await loadOptionalImage(imageServices, chip?.img, () => createWhiteImage(imageServices, 60, 60), 'imagegen.machine.chip.5');
             if (chipimg) ctx.drawImage(chipimg, 398, 220, 60, 60)
 

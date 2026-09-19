@@ -79,10 +79,10 @@ module.exports = {
                 embed.setColor('#5bff45');
                 embed.addFields({ name: '✅ Sucesso na troca', value: `
                 Você trocou ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}` })
-                interaction.editReply({ embeds: [embed], components: [] });
-                economyService.token.remove(interaction.user.id, fichas)
-                economyService.money.add(interaction.user.id, total)
-                economyService.addToHistory(interaction.user.id, `Troca | - ${utility.format(fichas)} ${utility.money3emoji} : + ${utility.format(total)} ${utility.moneyemoji}`)
+                await interaction.editReply({ embeds: [embed], components: [] });
+                await economyService.token.remove(interaction.user.id, fichas)
+                await economyService.money.add(interaction.user.id, total)
+                await economyService.addToHistory(interaction.user.id, `Troca | - ${utility.format(fichas)} ${utility.money3emoji} : + ${utility.format(total)} ${utility.moneyemoji}`)
             }
         });
         

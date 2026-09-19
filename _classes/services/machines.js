@@ -11,32 +11,18 @@ const utility = new UtilityService();
 const getFormatedDate = utility.getFormatedDate.bind(utility);
 const random = utility.random.bind(utility);
 const ores = {};
-const storageField = (name) => String(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
-const getStorage = (user_id, select) => {
-  const key = BigInt(user_id);
-  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, ...(select ? { select } : {}) });
-};
-const getMachines = (user_id, select) => {
-  const key = BigInt(user_id);
-  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
-};
-const getPlayers = (user_id, select) => {
-  const key = BigInt(user_id);
-  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
-};
-
+const storageField = (name) => String(name ?? '')
+  .replace(/^"|"$/g, '')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .toLowerCase()
+  .replace(/[: ]/g, '_');
 ores.gen = async function(maq, profundidade, chips) {
 
     const itemCatalog = await itemExtension.getObj();
     const oreobj = itemCatalog.minerios.map((ore) => ({ ...ore }));
 
-    let oreobj2nomine = 1
-
-    if (!5) {
-      oreobj = oreobj.filter((ore) => !ore.nomine )
-    } else {
-      oreobj2nomine = 2
-    }
+    const oreobj2nomine = 2;
 
     const genchips = { }
     
@@ -67,7 +53,7 @@ ores.gen = async function(maq, profundidade, chips) {
 
     let por = maq.tier * 10;
     let array = [];
-    for (i = 0; i < maq.tier+oreobj2nomine; i++) {
+    for (let i = 0; i < maq.tier + oreobj2nomine; i++) {
         if (oreobj[i]) {
             if (oreobj[i].name.includes('fragmento')) {
               if (genchips.chipe5) {
@@ -134,24 +120,23 @@ const storage = {
 };
 
 storage.getMax = async function(user_id) {
-  const obj = await getStorage(user_id, { storage: true });
+  const key = BigInt(user_id);
+  const obj = await prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { storage: true } });
   let sizeperlevel = storage.sizeperlevel;
   let x = obj.storage * sizeperlevel;
   return x;
 }
 
 storage.getSize = async function(user_id) {
-  let size = 0;
-    const obj = await itemExtension.getObj();
-  const res = await getStorage(user_id);
-  for (const r of obj.minerios) {
-    size += res[storageField(r.name)];
-  }
-  return size;
+  const obj = await itemExtension.getObj();
+  const key = BigInt(user_id);
+  const res = await prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+  return obj.minerios.reduce((size, ore) => size + (Number(res[storageField(ore.name)]) || 0), 0);
 }
 
 storage.getPrice = async function(user_id, level, max2) {
-   const obj = await getStorage(user_id, { storage: true });
+   const key = BigInt(user_id);
+   const obj = await prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { storage: true } });
   let max
   let pricetotal = 0
   if (!level) {
@@ -162,7 +147,7 @@ storage.getPrice = async function(user_id, level, max2) {
   } else {
     let levelatual = obj.storage
 
-    for (i = 0; i < level; i++) {
+    for (let i = 0; i < level; i++) {
 
       max = levelatual * storage.sizeperlevel;
       if (max2) max = max2
@@ -213,7 +198,7 @@ maqExtension.forceCot = async function() {
   const itemCatalog = await itemExtension.getObj();
   const oreslist = itemCatalog.minerios
 
-  for (i = 0; i < oreslist.length; i++) {
+  for (let i = 0; i < oreslist.length; i++) {
     if (random(0, 100) < 30) {
       
       
@@ -248,19 +233,22 @@ maqExtension.forceCot = async function() {
 }
 
 maqExtension.get = async function(user_id) {
-   const obj = await getMachines(user_id, { machine: true })
+   const key = BigInt(user_id);
+   const obj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true } })
   return obj.machine;
 }
 
 maqExtension.has = async function(user_id) {
-   const obj = await getMachines(user_id, { machine: true })
+   const key = BigInt(user_id);
+   const obj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true } })
   return obj.machine != 0;
 }
 
 maqExtension.getEnergy = async function(user_id) {
 
-   const obj = await getMachines(user_id, { energy: true, energymax: true, slots: true })
-   const obj2 = await getPlayers(user_id, { perm: true })
+   const key = BigInt(user_id);
+   const obj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { energy: true, energymax: true, slots: true } })
+   const obj2 = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { perm: true } })
 
   let energia = obj.energy;
 
@@ -292,7 +280,7 @@ maqExtension.getEnergy = async function(user_id) {
     energia = (energiamax-((time-(time%recover))/recover))-1;
   }
 
-  if (!energia || energia == null || energia == NaN) energia = 0
+  if (!Number.isFinite(energia)) energia = 0;
 
   time *= 1000
 
@@ -309,7 +297,8 @@ maqExtension.setEnergy = async function(user_id, valor) {
 maqExtension.removeEnergy = async function(user_id, valor) {
   let r = 0;
 
-   const obj2 = await getPlayers(user_id, { perm: true })
+   const key = BigInt(user_id);
+   const obj2 = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { perm: true } })
   let recover = maqExtension.recoverenergy[obj2.perm]
 
   const energyobj = await maqExtension.getEnergy(user_id)
@@ -335,7 +324,8 @@ maqExtension.getSlotMax = function(level, mvp) {
 }
 
 maqExtension.getDepth = async function(user_id) {
-  let playerobj = await getMachines(user_id, { machine: true });
+  const key = BigInt(user_id);
+  let playerobj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true } });
   let maqid = playerobj.machine;
   let maq = await shopExtension.getProduct(maqid);
   let r = 0;
@@ -349,20 +339,19 @@ maqExtension.getDepth = async function(user_id) {
 
 maqExtension.getMaintenance = async function(user_id, getDefault) {
 
-  const machinesobj = await getMachines(user_id, { machine: true, durability: true, pressure: true, pollutants: true, refrigeration: true })
+  const key = BigInt(user_id);
+  const machinesobj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true, durability: true, pressure: true, pollutants: true, refrigeration: true } })
   const machineproduct = await shopExtension.getProduct(machinesobj.machine);
 
   function genMaintenance(name, pricemultiplier, defaultValue, invert) {
-    if (!getDefault) {
-      var user_maintenance = machinesobj[name] == 0 ? Math.round(defaultValue/100*machineproduct[name]) : machinesobj[name];
-    } else {
-      var user_maintenance = machinesobj[name]
-    }
+    const userMaintenance = !getDefault
+      ? (machinesobj[name] === 0 ? Math.round(defaultValue / 100 * machineproduct[name]) : machinesobj[name])
+      : machinesobj[name];
     const max_maintenance = machineproduct[name]
-    const maintenance_percent = parseFloat((user_maintenance / max_maintenance * 100).toFixed(2))
-    const percenttemp = name == 'pressure' && maintenance_percent < 20 ? 100-maintenance_percent : (invert ? (100-maintenance_percent) : maintenance_percent)
-    const maintenance_price = Math.round(((percenttemp/100*max_maintenance)*pricemultiplier)*(machineproduct.tier+1))
-    return [user_maintenance, max_maintenance, maintenance_percent, maintenance_price]
+    const maintenance_percent = parseFloat((userMaintenance / max_maintenance * 100).toFixed(2))
+    const percenttemp = name === 'pressure' && maintenance_percent < 20 ? 100 - maintenance_percent : (invert ? 100 - maintenance_percent : maintenance_percent)
+    const maintenance_price = Math.round(((percenttemp / 100 * max_maintenance) * pricemultiplier) * (machineproduct.tier + 1))
+    return [userMaintenance, max_maintenance, maintenance_percent, maintenance_price]
   }
 
   const durability = genMaintenance("durability", 0.45, 100, false)
