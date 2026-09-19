@@ -251,7 +251,9 @@ API.createButton = function(id, style, label, emoji, disabled) {
 
     let button = new MessageButton()
         .setStyle(ButtonStyle[style.charAt(0).toUpperCase() + style.slice(1).toLowerCase()])
-        .setLabel(label)
+    if (label !== undefined && label !== null && String(label).length > 0) {
+        button.setLabel(String(label).slice(0, 80))
+    }
     if (emoji) button.setEmoji(API.normalizeEmoji(emoji))
     if (style == 'LINK') button.setURL(id.toString()) 
     else button.setCustomId(id)

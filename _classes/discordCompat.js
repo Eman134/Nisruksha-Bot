@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportWarning } = require('./debug');
 
 function sanitizeEmojiText(value) {
     if (typeof value !== 'string') return value;
@@ -27,11 +28,20 @@ class LegacyEmbedBuilder extends Discord.EmbedBuilder {
     }
 
     addFields(...fields) {
-        return super.addFields(...fields.flat().map((field) => ({
+        const normalizedFields = fields.flat().map((field) => ({
             ...field,
-            name: sanitizeEmojiText(field.name),
-            value: sanitizeEmojiText(field.value)
-        })));
+            name: sanitizeEmojiText(String(field.name ?? '')).slice(0, 256),
+            value: sanitizeEmojiText(String(field.value ?? '')).slice(0, 1024)
+        }));
+        const availableFields = Math.max(0, 25 - (this.data.fields?.length ?? 0));
+        if (normalizedFields.length > availableFields && !this._fieldLimitWarningShown) {
+            reportWarning('Embed field limit reached; extra fields were discarded', 'discord.embed.fields', {
+                discarded: normalizedFields.length - availableFields
+            });
+            this._fieldLimitWarningShown = true;
+        }
+        if (availableFields === 0) return this;
+        return super.addFields(...normalizedFields.slice(0, availableFields));
     }
 
     setTitle(title) {

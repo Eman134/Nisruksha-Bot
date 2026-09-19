@@ -20,7 +20,7 @@ module.exports = {
     
             if (!interaction.content && interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
             
-            const failObject = { embeds: [embedfail], ephemeral: true }
+            const failObject = { embeds: [embedfail], flags: API.Discord.MessageFlags.Ephemeral }
     
             API.client.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
     

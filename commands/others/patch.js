@@ -89,7 +89,7 @@ module.exports = {
         }
 
         if (frameadded.includes('Added') || badgeadded.includes('Added')) {
-            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, ephemeral: true })
+            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, flags: API.Discord.MessageFlags.Ephemeral })
         }
         
 	}

@@ -45,7 +45,7 @@ async function replyInteractionError(interaction, command, error) {
         if (interaction.deferred || interaction.replied) {
             await interaction.editReply({ content, embeds: [], components: [] });
         } else {
-            await interaction.reply({ content, ephemeral: true });
+            await interaction.reply({ content, flags: API.Discord.MessageFlags.Ephemeral });
         }
     } catch (replyError) {
         reportError(replyError, 'discord.interaction.error_reply', {

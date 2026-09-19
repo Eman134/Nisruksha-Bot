@@ -383,7 +383,7 @@ module.exports = {
             embed2.addField(`<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, `Irá recuperar completamente em: \`${API.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
             embed2.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
-            await interaction.followUp({ embeds: [embed2], ephemeral: true });
+            await interaction.followUp({ embeds: [embed2], flags: API.Discord.MessageFlags.Ephemeral });
 
             if (API.cacheLists.remember.includes(member.id, "energia")) return;
             API.cacheLists.remember.add(member.id, interaction.channel.id, "energia");
