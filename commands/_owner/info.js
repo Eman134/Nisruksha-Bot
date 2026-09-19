@@ -56,7 +56,7 @@ async function send(interaction) {
 
         let array = [];
         try {
-            array = await prisma.servers.findMany();
+            array = await prisma.servers.findMany({ select: { server_id: true, lastcmd: true, cmdsexec: true } });
         } catch (err) {
             clientService.current.emit('error', err)
         }

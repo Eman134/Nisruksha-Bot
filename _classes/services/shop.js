@@ -26,21 +26,21 @@ const sendError = utility.sendError.bind(utility);
 const tp = utility.tp;
 const { reportError } = require('../debug');
 const storageField = (name) => String(name).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
-const getMachines = (user_id) => {
+const getMachines = (user_id, select) => {
   const key = BigInt(user_id);
-  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
 };
-const getPlayers = (user_id) => {
+const getPlayers = (user_id, select) => {
   const key = BigInt(user_id);
-  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
 };
 const getPlayersUtils = (user_id) => {
   const key = BigInt(user_id);
-  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
 };
 const getStorage = (user_id) => {
   const key = BigInt(user_id);
-  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { user_id: true } });
 };
 
 const shopExtension = this;
@@ -126,14 +126,14 @@ shopExtension.getShopObj = function() {
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
-  const playerobj = await getMachines(user_id);
+  const playerobj = await getMachines(user_id, { machine: true, level: true });
   let maqid = playerobj.machine;
   let maq = shopExtension.getProduct(maqid);
   const productscurrentpage = []
 
   const perRow = 3
 
-  let pobj = await getPlayers(user_id)
+  let pobj = await getPlayers(user_id, { mvp: true })
   
   for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
     let p = product[i];
@@ -348,8 +348,7 @@ shopExtension.execute = async function(interaction, p) {
   embed.setColor('#606060');
   embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
   
-  let playerobj = await getMachines(interaction.user.id);
-  let pobj = await getPlayers(interaction.user.id);
+  let pobj = await getPlayers(interaction.user.id, { mvp: true });
   
   let discountmvp = Math.round(pobj.mvp ? 5 : 0);
   let discount = Math.round(p.discount + discountmvp);
@@ -392,7 +391,7 @@ shopExtension.execute = async function(interaction, p) {
 
       const money = await eco.money.get(interaction.user.id);
       const points = await eco.points.get(interaction.user.id);
-      const obj2 = await getMachines(interaction.user.id)
+      const obj2 = await getMachines(interaction.user.id, { level: true })
 
       const convites = await eco.tp.get(interaction.user.id)
 
@@ -476,7 +475,7 @@ shopExtension.execute = async function(interaction, p) {
         
         case 5:
 
-          playerobj = await getStorage(interaction.user.id);
+          await getStorage(interaction.user.id);
           await prisma.storage.update({ where: { user_id: BigInt(interaction.user.id) }, data: { [`piece_${p.id}`]: { increment: 1 } } })
 
           break;

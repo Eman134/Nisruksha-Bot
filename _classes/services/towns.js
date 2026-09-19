@@ -17,7 +17,7 @@ class TownsService {
     }
 
     async loadPopulation() {
-        const towns = await prisma.towns.findMany();
+        const towns = await prisma.towns.findMany({ select: { user_id: true, loc: true } });
         for (const town of towns) {
             if (town.user_id && town.loc) this.population[this.getTownNameByNum(town.loc)]++;
         }
@@ -58,7 +58,7 @@ class TownsService {
 
     async getTownTax(userId) {
         const key = BigInt(userId);
-        const player = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+        const player = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { mvp: true } });
         return player.mvp != null || player.mvp > 0 ? 2 : 5;
     }
 

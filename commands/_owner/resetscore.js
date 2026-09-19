@@ -45,7 +45,7 @@ reacted = true;
             }
 
             try {
-                const rows = await prisma.players.findMany({ where: { mastery: { gt: BigInt(0) } } });
+                const rows = await prisma.players.findMany({ where: { mastery: { gt: BigInt(0) } }, select: { user_id: true, mastery: true } });
 
                 async function addTp(user_id, mastery) {
 

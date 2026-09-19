@@ -115,7 +115,7 @@ module.exports = {
 
             try {
                 const user_id = BigInt(interaction.user.id);
-                const currentCompany = await prisma.companies.findFirst({ where: { user_id } });
+                const currentCompany = await prisma.companies.findFirst({ where: { user_id }, select: { company_id: true } });
                 if (currentCompany) {
                     await prisma.companies.delete({
                         where: { company_id_user_id: { company_id: String(currentCompany.company_id), user_id } }

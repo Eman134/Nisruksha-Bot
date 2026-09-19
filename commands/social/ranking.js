@@ -88,7 +88,8 @@ async function setRankCache() {
 
         let array = [];
         try {
-            array = data.source.table === 'players' ? await prisma.players.findMany() : await prisma.machines.findMany();
+            const select = { user_id: true, [data.source.column]: true };
+            array = data.source.table === 'players' ? await prisma.players.findMany({ select }) : await prisma.machines.findMany({ select });
         } catch (err) {
             clientService.current?.emit('error', err)
         }

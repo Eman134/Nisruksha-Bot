@@ -60,10 +60,10 @@ module.exports = {
             const id = BigInt(v.id);
             const where = va === 'server_id' ? { server_id: id } : { user_id: id };
             const base = createDefaults(table, id, va);
-            const before = await delegates[table].upsert({ where, update: where, create: base });
+            const before = await delegates[table].upsert({ where, update: where, create: base, select: { [field]: true } });
             const increment = bigintFields.has(field) ? BigInt(valor) : Number(valor);
             await delegates[table].update({ where, data: { [field]: { increment } } });
-            const after = await delegates[table].findUnique({ where });
+            const after = await delegates[table].findUnique({ where, select: { [field]: true } });
 
             embed.setDescription(`✅ Dados de ${v} atualizados! ${before[field]} -> ${after[field]}`)
 

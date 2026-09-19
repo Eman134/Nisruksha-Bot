@@ -22,17 +22,17 @@ const setCompanieInfo = companyInfo.set.bind(companyInfo);
 const townExtension = townsService;
 const company = this;
 const debugmode = false
-const getPlayers = (user_id) => {
+const getPlayers = (user_id, select) => {
     const key = BigInt(user_id);
-    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
 };
-const getPlayersUtils = (user_id) => {
+const getPlayersUtils = (user_id, select) => {
     const key = BigInt(user_id);
-    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, ...(select ? { select } : {}) });
 };
-const getMachines = (user_id) => {
+const getMachines = (user_id, select) => {
     const key = BigInt(user_id);
-    return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+    return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
 };
 const getGlobals = (user_id) => {
     const key = BigInt(user_id);
@@ -43,7 +43,7 @@ const stars = {};
 {
     stars.add = async function(user_id, company_id, options) {
         
-        let memberobj = await getPlayers(user_id)
+        let memberobj = await getPlayers(user_id, { companyact: true })
         let company = await get.companyById(company_id)
         
         let obj = (memberobj.companyact != null ? memberobj.companyact : {
@@ -89,13 +89,8 @@ const check = {};
 check.hasCompany = async function(user_id){
     let cont = false;
     try {
-        const rows = await prisma.companies.findMany();
-        for (const r of rows) {
-            if (r.user_id == user_id && r.type != 0) {
-                cont = true;
-                break;
-            }
-        }
+        const row = await prisma.companies.findFirst({ where: { user_id: BigInt(user_id), type: { not: 0 } }, select: { user_id: true } });
+        cont = row != null;
     }catch (err) { 
         client.emit('error', err)
         throw err 
@@ -105,7 +100,7 @@ check.hasCompany = async function(user_id){
 }
 
 check.isWorker = async function(user_id) {
-    const obj = await getPlayers(user_id)
+    const obj = await getPlayers(user_id, { company: true })
     const company = await get.companyById(obj.company)
     if (!company) {
         await prisma.players.update({ where: { user_id: BigInt(user_id) }, data: { company: null } })
@@ -119,7 +114,7 @@ check.hasVacancies = async function(company_id) {
 
     try {
         const owner = await company.get.ownerById(company_id)
-        const company = await prisma.companies.findUnique({ where: { company_id_user_id: { company_id: String(company_id), user_id: BigInt(owner.id) } } });
+        const company = await prisma.companies.findUnique({ where: { company_id_user_id: { company_id: String(company_id), user_id: BigInt(owner.id) } }, select: { workers: true, funcmax: true, openvacancie: true } });
         if (company.workers != null && company.workers != undefined && company.workers.length >= company.funcmax) result = false;
         if (company.openvacancie == false) result = false;
 
@@ -185,7 +180,7 @@ get.ownerById = async function(company_id) {
     let res
     try {
         
-        res = await prisma.companies.findFirst({ where: { company_id: String(company_id) } });
+        res = await prisma.companies.findFirst({ where: { company_id: String(company_id) }, select: { user_id: true } });
 
     }catch (err){
         client.emit('error', err)
@@ -203,7 +198,7 @@ get.idByOwner = async function(user_id) {
     let res
     try {
 
-        res = await prisma.companies.findFirst({ where: { user_id: BigInt(user_id) } });
+        res = await prisma.companies.findFirst({ where: { user_id: BigInt(user_id) }, select: { company_id: true } });
 
     }catch (err){
         client.emit('error', err)
@@ -218,7 +213,7 @@ get.idByOwner = async function(user_id) {
 }
 
 get.currentForUser = async function(user_id) {
-    const player = await getPlayers(user_id);
+    const player = await getPlayers(user_id, { company: true });
     if (player.company != null) return get.companyById(player.company);
     return get.companyByOwnerId(user_id);
 }
@@ -672,7 +667,7 @@ const jobs = {
 
             try {
                 
-                const players_utils = await getPlayersUtils(user_id)
+                const players_utils = await getPlayersUtils(user_id, { process: true })
 
                 let processjson = players_utils.process
 
@@ -692,7 +687,7 @@ const jobs = {
 
                     if (!shopExtension) return
 
-                    const obj = await getMachines(user_id)
+                    const obj = await getMachines(user_id, { machine: true })
 
                     let maq = shopExtension.getProduct(obj.machine);
 
@@ -1021,7 +1016,7 @@ company.create = async function(member, ob) {
         let code = `${makeid(6)}`;
         
         try {
-            const company = await prisma.companies.findFirst({ where: { company_id: code } });
+            const company = await prisma.companies.findFirst({ where: { company_id: code }, select: { company_id: true } });
             const embed = new Discord.EmbedBuilder();
 
             if (!company) {

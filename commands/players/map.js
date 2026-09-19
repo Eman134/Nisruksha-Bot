@@ -27,10 +27,10 @@ module.exports = {
         const townname = await townsService.getTownName(interaction.user.id);
         const townnum = await townsService.getTownNumByName(townname);
         const pos = await townsService.getTownPos(interaction.user.id);
-        const companies = await prisma.companies.findMany({ where: { loc: townnum } });
+        const companies = await prisma.companies.count({ where: { loc: townnum } });
         const hasTreasure = (eventsService.treasure.loc != 0 && eventsService.treasure.picked == false)
         const hasDuck = (eventsService.duck.loc != 0 && eventsService.duck.killed == false)
-        let content = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies.length}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`
+        let content = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`
         
         if (hasTreasure) {
             content += "\n<:treasure:807671407160197141> Há um tesouro não explorado no mapa!\nPara pegá-lo utilize `/pegartesouro`"

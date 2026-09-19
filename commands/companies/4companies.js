@@ -13,7 +13,10 @@ async function formatList(embed2, page2) {
     let page = page2
     let array = [];
     try {
-        array = (await prisma.companies.findMany()).filter((x) => x.company_id != null && x.company_id != '');
+        array = await prisma.companies.findMany({
+            where: { company_id: { not: '' } },
+            select: { company_id: true, user_id: true, score: true, type: true, name: true, loc: true, taxa: true, workers: true, curriculum: true }
+        });
     } catch (error) {
         clientService.current.emit('error', err)
         throw error

@@ -158,13 +158,11 @@ module.exports = {
 
             let cont = false;
             try {
-                const companies = await prisma.companies.findMany();
-                for (const r of companies) {
-                    if (r.name.toLowerCase() == name.toLowerCase()) {
-                        cont = true;
-                        break;
-                    }
-                }
+                const company = await prisma.companies.findFirst({
+                    where: { name: { equals: name, mode: 'insensitive' } },
+                    select: { company_id: true }
+                });
+                cont = company != null;
             }catch (err) { 
                 clientService.current.emit('error', err)
                 throw err 

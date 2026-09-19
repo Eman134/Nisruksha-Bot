@@ -8,16 +8,16 @@ constructor() {
 const client = clientService.current;
 const utility = new UtilityService();
 const id = config.app.id;
-const getPlayers = (user_id) => {
+const getPlayers = (user_id, select) => {
     const key = BigInt(user_id);
-    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
 };
 const getPlayersUtils = (user_id) => {
     const key = BigInt(user_id);
-    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, select: { invite: true } });
 };
 const updatePlayers = async (user_id, data) => {
-    await getPlayers(user_id);
+    await getPlayers(user_id, { user_id: true });
     return prisma.players.update({ where: { user_id: BigInt(user_id) }, data });
 };
 const tp = {};
@@ -66,7 +66,7 @@ tp.get = async function (user_id) {
 
 tp.check = async function (code) {
 
-    const array = await prisma.players_utils.findMany({ where: { invite: { not: null } } });
+    const array = await prisma.players_utils.findMany({ where: { invite: { not: null } }, select: { user_id: true, invite: true } });
 
     let exists = false
 
@@ -119,7 +119,7 @@ tp.set = async function (user_id, po) {
 const bank = {};
 
 bank.get = async function (user_id) {
-    let { bank } = await getPlayers(user_id);
+    let { bank } = await getPlayers(user_id, { bank: true });
     return bank;
 }
 
@@ -139,7 +139,7 @@ const points = {};
 
 points.get = async function (user_id) {
     let result
-    let obj = await getPlayers(user_id);
+    let obj = await getPlayers(user_id, { points: true });
     result = obj["points"];
     return result;
 }
@@ -159,7 +159,7 @@ points.set = async function (user_id, points) {
 const money = {};
 
 money.get = async function (user_id) {
-    let { money } = await getPlayers(user_id);
+    let { money } = await getPlayers(user_id, { money: true });
     return parseInt(money);
 }
 
@@ -190,7 +190,7 @@ const token = {};
 
 token.get = async function (user_id) {
     //let result
-    let { token } = await getPlayers(user_id);
+    let { token } = await getPlayers(user_id, { token: true });
     //result = obj["money"];
     return token;
 }

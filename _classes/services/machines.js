@@ -12,17 +12,17 @@ const getFormatedDate = utility.getFormatedDate.bind(utility);
 const random = utility.random.bind(utility);
 const ores = {};
 const storageField = (name) => String(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
-const getStorage = (user_id) => {
+const getStorage = (user_id, select) => {
   const key = BigInt(user_id);
-  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key }, ...(select ? { select } : {}) });
 };
-const getMachines = (user_id) => {
+const getMachines = (user_id, select) => {
   const key = BigInt(user_id);
-  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, ...(select ? { select } : {}) });
 };
-const getPlayers = (user_id) => {
+const getPlayers = (user_id, select) => {
   const key = BigInt(user_id);
-  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, ...(select ? { select } : {}) });
 };
 
 ores.gen = async function(maq, profundidade, chips) {
@@ -134,7 +134,7 @@ const storage = {
 };
 
 storage.getMax = async function(user_id) {
-  const obj = await getStorage(user_id);
+  const obj = await getStorage(user_id, { storage: true });
   let sizeperlevel = storage.sizeperlevel;
   let x = obj.storage * sizeperlevel;
   return x;
@@ -151,7 +151,7 @@ storage.getSize = async function(user_id) {
 }
 
 storage.getPrice = async function(user_id, level, max2) {
-  const obj = await getStorage(user_id);
+   const obj = await getStorage(user_id, { storage: true });
   let max
   let pricetotal = 0
   if (!level) {
@@ -248,19 +248,19 @@ maqExtension.forceCot = async function() {
 }
 
 maqExtension.get = async function(user_id) {
-  const obj = await getMachines(user_id)
+   const obj = await getMachines(user_id, { machine: true })
   return obj.machine;
 }
 
 maqExtension.has = async function(user_id) {
-  const obj = await getMachines(user_id)
+   const obj = await getMachines(user_id, { machine: true })
   return obj.machine != 0;
 }
 
 maqExtension.getEnergy = async function(user_id) {
 
-  const obj = await getMachines(user_id)
-  const obj2 = await getPlayers(user_id)
+   const obj = await getMachines(user_id, { energy: true, energymax: true, slots: true })
+   const obj2 = await getPlayers(user_id, { perm: true })
 
   let energia = obj.energy;
 
@@ -309,7 +309,7 @@ maqExtension.setEnergy = async function(user_id, valor) {
 maqExtension.removeEnergy = async function(user_id, valor) {
   let r = 0;
 
-  const obj2 = await getPlayers(user_id)
+   const obj2 = await getPlayers(user_id, { perm: true })
   let recover = maqExtension.recoverenergy[obj2.perm]
 
   const energyobj = await maqExtension.getEnergy(user_id)
@@ -335,7 +335,7 @@ maqExtension.getSlotMax = function(level, mvp) {
 }
 
 maqExtension.getDepth = async function(user_id) {
-  let playerobj = await getMachines(user_id);
+  let playerobj = await getMachines(user_id, { machine: true });
   let maqid = playerobj.machine;
   let maq = await shopExtension.getProduct(maqid);
   let r = 0;
@@ -349,7 +349,7 @@ maqExtension.getDepth = async function(user_id) {
 
 maqExtension.getMaintenance = async function(user_id, getDefault) {
 
-  const machinesobj = await getMachines(user_id)
+  const machinesobj = await getMachines(user_id, { machine: true, durability: true, pressure: true, pollutants: true, refrigeration: true })
   const machineproduct = await shopExtension.getProduct(machinesobj.machine);
 
   function genMaintenance(name, pricemultiplier, defaultValue, invert) {
