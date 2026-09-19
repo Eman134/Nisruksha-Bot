@@ -3,6 +3,7 @@ const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'votar',
@@ -38,13 +39,15 @@ module.exports = {
             if (res.statusCode == 204) {
 
                 votedbest = false
-                const embed = new Discord.EmbedBuilder()
-                .setColor('#36393f')
-                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
-                .addFields({ name: (votedbest ? '🔴' : '🟢') + ' **Best**', value: `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum` })
-                .addFields({ name: (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', value: `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}` })
-                interaction.reply({ embeds: [embed]});
+                const container = new ContainerBuilder()
+                 .setAccentColor(0x36393f)
+                 .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                     `**${interaction.user.tag}**`,
+                     'Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!',
+                     `${votedbest ? '🔴' : '🟢'} **Best**\n🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`,
+                     `${votedtopgg ? '🔴' : '🟢'} **Top.gg**\n🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}`
+                 ].join('\n\n')));
+                interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
             } else {
 
@@ -55,13 +58,15 @@ module.exports = {
                     } catch (error) {
                         reportError(error, 'command.votar.response_json', { userId: interaction.user.id });
                     }
-                    const embed = new Discord.EmbedBuilder()
-                    .setColor('#36393f')
-                    .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                    .setDescription('Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!')
-                    .addFields({ name: (votedbest ? '🔴' : '🟢') + ' **Best**', value: `🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum` })
-                    .addFields({ name: (votedtopgg ? '🔴' : '🟢') + ' **Top.gg**', value: `🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}` })
-                    interaction.reply({ embeds: [embed]});
+                    const container = new ContainerBuilder()
+                     .setAccentColor(0x36393f)
+                     .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                         `**${interaction.user.tag}**`,
+                         'Votando no bot você nos ajudará com o crescimento do mesmo, além de você também ser recompensado!',
+                         `${votedbest ? '🔴' : '🟢'} **Best**\n🗳 [Clique aqui](https://www.bestlist.online/bots/763815343507505183)\n**Recompensas:**\n1x 📦 Caixa Comum`,
+                         `${votedtopgg ? '🔴' : '🟢'} **Top.gg**\n🗳 [Clique aqui](https://top.gg/bot/763815343507505183)\n**Recompensas:**\n1x ${utility.money2} ${utility.money2emoji}`
+                     ].join('\n\n')));
+                    interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
                 })
 

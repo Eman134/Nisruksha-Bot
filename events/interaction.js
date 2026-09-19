@@ -1,6 +1,7 @@
 const prisma = require('../_classes/prisma');
 const config = require('../_classes/config');
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const clientService = require('../_classes/services/clientService');
 const companyService = require('../_classes/services/company');
 const playersService = require('../_classes/services/players');
@@ -44,12 +45,18 @@ module.exports = {
 };
 
 async function replyInteractionError(interaction, command, error) {
-    const content = `Ocorreu um erro ao executar /${command}. O erro foi registrado para investigação.`;
+    const errorMessage = `Ocorreu um erro ao executar /${command}. O erro foi registrado para investigação.`;
     try {
         if (interaction.deferred || interaction.replied) {
-            await interaction.editReply({ content, embeds: [], components: [] });
+            await interaction.editReply({
+                components: [new TextDisplayBuilder().setContent(errorMessage)],
+                flags: Discord.MessageFlags.IsComponentsV2
+            });
         } else {
-            await interaction.reply({ content, flags: Discord.MessageFlags.Ephemeral });
+            await interaction.reply({
+                components: [new TextDisplayBuilder().setContent(errorMessage)],
+                flags: Discord.MessageFlags.Ephemeral | Discord.MessageFlags.IsComponentsV2
+            });
         }
     } catch (replyError) {
         reportError(replyError, 'discord.interaction.error_reply', { command, originalError: error.stack });
@@ -66,7 +73,12 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
     const client = clientService.current;
 
     if (config.app.id === '726943606761324645' && interaction.channel.id !== '703293776788979812' && player.perm < 4) {
-        await interaction.reply({ embeds: [utility.sendError(interaction, 'Você não pode utilizar o bot BETA neste canal!')] });
+        await interaction.reply({
+            components: [new ContainerBuilder().setAccentColor(0xb8312c).addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> Você não pode utilizar o bot BETA neste canal!`)
+            )],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
         return true;
     }
 
@@ -112,7 +124,12 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
 
     if (req > 1 && player.perm < req) {
         playersService.cooldown.set(interaction.user.id, 'antispam', 3);
-        await interaction.reply({ embeds: [utility.sendError(interaction, 'Você não possui permissões necessárias para executar isto.')] });
+        await interaction.reply({
+            components: [new ContainerBuilder().setAccentColor(0xb8312c).addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> Você não possui permissões necessárias para executar isto.`)
+            )],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
         return true;
     }
 
@@ -130,11 +147,13 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
     }
 
     if (player.mvp != null && Date.now() - player.mvp > 0) {
-        const embed = new Discord.EmbedBuilder()
-            .setColor('#f21a0f')
-            .setTitle('Opa, deslizou ai?')
-            .setDescription('Seu **MVP** acaba de ter seu tempo expirado!');
-        await interaction.channel.send({ embeds: [embed] });
+        const message = new ContainerBuilder()
+            .setAccentColor(0xf21a0f)
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent('## Opa, deslizou ai?'),
+                new TextDisplayBuilder().setContent('Seu **MVP** acaba de ter seu tempo expirado!')
+            );
+        await interaction.channel.send({ components: [message], flags: Discord.MessageFlags.IsComponentsV2 });
         await prisma.players.update({ where: { user_id }, data: { mvp: null } });
         if (player.perm === 3) await prisma.players.update({ where: { user_id }, data: { perm: 1 } });
     }
@@ -160,7 +179,12 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
     else playersService.cooldown.set(interaction.user.id, 'mastery', 120);
 
     if (companytype && companytype > 0 && !(await companyService.check.hasCompany(interaction.user.id)) && !(await companyService.check.isWorker(interaction.user.id))) {
-        await interaction.reply({ embeds: [utility.sendError(interaction, 'Você deve ser funcionário ou possuir uma empresa para realizar esta ação!')] });
+        await interaction.reply({
+            components: [new ContainerBuilder().setAccentColor(0xb8312c).addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> Você deve ser funcionário ou possuir uma empresa para realizar esta ação!`)
+            )],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
         return true;
     }
 

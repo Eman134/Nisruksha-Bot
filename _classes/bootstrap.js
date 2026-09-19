@@ -8,11 +8,8 @@ const { Routes } = require('discord-api-types/v10');
 const clientService = require('./services/clientService');
 const helpService = require('./services/help');
 const imageService = require('./services/images');
-const componentsV2 = require('./componentsV2');
 
 function createBot(config) {
-    // Keep every interaction and channel message on the Components V2 transport.
-    componentsV2.install();
     const client = new Discord.Client({
         allowedMentions: { parse: ['users', 'roles'], repliedUser: true },
         intents: [Discord.GatewayIntentBits.Guilds, Discord.GatewayIntentBits.GuildMessageReactions, Discord.GatewayIntentBits.GuildMessages]

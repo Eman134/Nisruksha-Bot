@@ -4,6 +4,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
 const prisma = require('../../_classes/prisma');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'info',
@@ -26,11 +27,8 @@ async function sendCmdsExec(interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new Discord.EmbedBuilder()
-        .setColor(Math.floor(Math.random() * 0xffffff))
-        .addFields({ name: `📕 Comandos executados`, value: `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}` })
-        .setTimestamp()
- await interaction.channel.send({ embeds: [embed] })
+    const container = new ContainerBuilder().setAccentColor(Math.floor(Math.random() * 0xffffff)).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**📕 Comandos executados**\n${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`));
+ await interaction.channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
 }
 
@@ -42,11 +40,8 @@ async function sendInative(interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new Discord.EmbedBuilder()
-        .setColor(Math.floor(Math.random() * 0xffffff))
-        .addFields({ name: `💤 Inativos`, value: `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-s.lastcmd))}\``).join('\n')}` })
-        .setTimestamp()
- await interaction.channel.send({ embeds: [embed] })
+    const container = new ContainerBuilder().setAccentColor(Math.floor(Math.random() * 0xffffff)).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**💤 Inativos**\n${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-s.lastcmd))}\``).join('\n')}`));
+ await interaction.channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
 }
 
@@ -121,14 +116,14 @@ async function send(interaction) {
         array1 = array1.filter((i) => i.server !== undefined)
         array2 = array2.filter((i) => i.server !== undefined)
         
-        const embed = new Discord.EmbedBuilder()
-        .setTitle(`Painel de Moderação | Visão Geral`)
-        .setColor(Math.floor(Math.random() * 0xffffff))
-        .setDescription(`📃 Registrados: **${array.length}**
+        const container = new ContainerBuilder()
+        .setAccentColor(Math.floor(Math.random() * 0xffffff))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Painel de Moderação | Visão Geral
+📃 Registrados: **${array.length}**
 📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
 💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-array2[0].lastcmd))}\``)
-        .setTimestamp()
-        await interaction.reply({ embeds: [embed] })
+        );
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
         await sendCmdsExec(interaction, array1)
         await sendInative(interaction, array2)

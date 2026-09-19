@@ -12,13 +12,13 @@ module.exports = {
 	async execute(interaction) {
 
                 
-		const embed = new Discord.EmbedBuilder()
-		.setDescription(`**Reaja com os itens abaixo p/ interação**\n \n👨🏽‍🌾 Tipos de Empresas\n \n📃 Empresas Existentes`, ``)
+        const container = new Discord.ContainerBuilder()
+            .addTextDisplayComponents(new Discord.TextDisplayBuilder().setContent('**Reaja com os itens abaixo p/ interação**\n\n👨🏽‍🌾 Tipos de Empresas\n\n📃 Empresas Existentes'));
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-	        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, utility.rowComponents([btn0, btn1])], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -29,29 +29,25 @@ module.exports = {
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             collector.stop();
-            embed.fields = [];
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'template.defer_update'); });
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Currículo cancelado', value: `
-                Você cancelou o envio de currículo para a empresa **${company.name}**.` })
-                interaction.editReply({ embeds: [embed] });
+                const container = new Discord.ContainerBuilder().setAccentColor(0xa60000)
+                    .addTextDisplayComponents(new Discord.TextDisplayBuilder().setContent(`## ❌ Currículo cancelado\nVocê cancelou o envio de currículo para a empresa **${company.name}**.`));
+                interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
-            embed.setColor('#5bff45');
-            embed.addFields({ name: '✅ Currículo enviado', value: `
-            Você enviou o currículo para a empresa **${company.name}**!\nAguarde uma resposta da empresa.\nOBS: Para receber uma resposta você deve manter sua DM liberada.` })
-            interaction.editReply({ embeds: [embed] });
+            const container = new Discord.ContainerBuilder().setAccentColor(0x5bff45)
+                .addTextDisplayComponents(new Discord.TextDisplayBuilder().setContent(`## ✅ Currículo enviado\nVocê enviou o currículo para a empresa **${company.name}**!\nAguarde uma resposta da empresa.\nOBS: Para receber uma resposta você deve manter sua DM liberada.`));
+            interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.EmbedBuilder();
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria enviar o currículo para a empresa **${companyService.e[companyService.types[1]].icon}**, porém o tempo expirou.` })
-            interaction.editReply({ embeds: [embed] });
+            const container = new Discord.ContainerBuilder().setAccentColor(0xa60000)
+                .addTextDisplayComponents(new Discord.TextDisplayBuilder().setContent(`## ❌ Tempo expirado\nVocê iria enviar o currículo para a empresa **${companyService.e[companyService.types[1]].icon}**, porém o tempo expirou.`));
+            interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

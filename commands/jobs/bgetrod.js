@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
@@ -22,26 +23,24 @@ module.exports = {
         let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para pegar uma vara de pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui nível o suficiente para pegar uma vara de pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode comprar/trocar uma vara enquanto estiver pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`);
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não pode comprar/trocar uma vara enquanto estiver pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         let total = 1200*(pobj2.level)
         let disp = await companyService.jobs.fish.rods.possibilities(pobj2.level)
 
-        const embed = new Discord.EmbedBuilder()
-        .setColor('#63b8ae')
-        .setTitle('🎣 Varas disponíveis')
-        .setDescription('**Explicação:** Ao confirmar a reação, o sistema irá sortear uma vara dentre as disponíveis, e a vara de pesca será essa.\n**Preço atual: ' + utility.format(total) + ' ' + utility.money + '** ' + utility.moneyemoji)
+        const container = new ContainerBuilder().setAccentColor(0x63b8ae).addTextDisplayComponents(
+            new TextDisplayBuilder().setContent('## 🎣 Varas disponíveis'),
+            new TextDisplayBuilder().setContent('**Explicação:** Ao confirmar a reação, o sistema irá sortear uma vara dentre as disponíveis, e a vara de pesca será essa.\n**Preço atual: ' + utility.format(total) + ' ' + utility.money + '** ' + utility.moneyemoji)
+        )
         for (let i = 0; i < disp.length; i++) {
-            embed.addFields({ name: disp[i].icon + ' ' + disp[i].name, value: `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**` })
+            container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${disp[i].icon} ${disp[i].name}**\n\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`))
         }
 
         function reworkBtns(hasrod) {
@@ -49,14 +48,14 @@ module.exports = {
             const btn0 = utility.createButton(hasrod ? 'troca' : 'compra', 'SECONDARY', hasrod ? 'Trocar vara' : 'Comprar vara', hasrod ? '🔁' : '✅')
             const btn1 = utility.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
-            return [utility.rowComponents([btn0, btn1])]
+            return [new ActionRowBuilder().addComponents(btn0, btn1)]
         }
 
         let pobjcheck = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: reworkBtns(pobjcheck.rod), withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, ...reworkBtns(pobjcheck.rod)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -76,9 +75,8 @@ module.exports = {
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.bgetrod.defer_update'); });
 
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada`, value: `Você cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.` })
-                interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ ${pobj2.rod ? 'Troca' : 'Compra'} cancelada**\nVocê cancelou a ${pobj2.rod ? 'troca' : 'compra'} da sua vara de pesca!.`))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
 				collector.stop();
                 return;
             }
@@ -86,9 +84,8 @@ module.exports = {
             playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             if (pobj2.money < total) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}`, value: `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
-                interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha na ${pobj2.rod ? 'troca' : 'compra'}**\nVocê não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
 				collector.stop();
                 return
             }
@@ -97,16 +94,14 @@ module.exports = {
             economyService.addToHistory(interaction.user.id, `${pobj2.rod ? 'Troca' : 'Compra'} de vara de pesca | - ${utility.format(total)} ${utility.moneyemoji}`)
 
             let vara = await companyService.jobs.fish.rods.get(pobj3.level)
-            embed.fields = []
-
+            const result = new ContainerBuilder().setAccentColor(0x5bff45)
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${disp.find(d => d == vara)?.icon || ''} ${disp.find(d => d == vara)?.name || ''}`))
             for (let i = 0; i < disp.length; i++) {
-                embed.addFields({ name: (disp[i] == vara ? ( troca ? '🔁':'✅') : ' ') + disp[i].icon + ' ' + disp[i].name, value: `\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**` })
+                result.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${(disp[i] == vara ? ( troca ? '🔁':'✅') : ' ')}${disp[i].icon} ${disp[i].name}**\n\`${companyService.jobs.formatStars(disp[i].stars)}\`\nGasto por turno: **${disp[i].sta} 🔸**\nProfundidade: **${disp[i].profundidade}m**\nProfundidade Máxima: **${disp[i].maxprofundidade}m**`))
             }
 
-            embed
-            .addFields({ name: `✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, value: `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`/pescar\`!` })
-            .setColor('#5bff45')
-            interaction.editReply({ embeds: [embed], components: reworkBtns(true) });
+            result.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}**\nVocê acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`/pescar\`!`))
+            interaction.editReply({ components: [result, ...reworkBtns(true)], flags: Discord.MessageFlags.IsComponentsV2 });
             await prisma.players.update({ where: { user_id }, data: { rod: vara } })
 
             collector.resetTimer();
@@ -115,11 +110,10 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted) {
-                return interaction.editReply({ embeds: [embed] });;
+                return interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             }
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Tempo expirado**\nVocê iria ${pobj2.rod ? 'trocar sua' : 'comprar uma'} vara de pesca, porém o tempo expirou.`))
+            interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

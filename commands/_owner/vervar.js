@@ -4,6 +4,7 @@ const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('id').setDescription('Selecione um id de usuário').setRequired(true))
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela').setRequired(true));
@@ -27,17 +28,17 @@ module.exports = {
     async execute(interaction) {
         const id = interaction.options.getString('id');
         const table = interaction.options.getString('tabela');
-        if (!delegates[table?.toLowerCase()]) return interaction.reply({ content: 'Essa tabela não é permitida.' });
+        if (!delegates[table?.toLowerCase()]) return interaction.reply({ components: [new TextDisplayBuilder().setContent('Essa tabela não é permitida.')], flags: Discord.MessageFlags.IsComponentsV2 });
         const target = await resolveTarget(clientService.current, id);
 
         if (!target) {
-            return interaction.reply({ content: 'id undefined' });
+            return interaction.reply({ components: [new TextDisplayBuilder().setContent('id undefined')], flags: Discord.MessageFlags.IsComponentsV2 });
         }
         if ((table.toLowerCase() === 'servers') !== (target.column === 'server_id')) {
-            return interaction.reply({ content: 'O identificador não corresponde à tabela permitida.' });
+            return interaction.reply({ components: [new TextDisplayBuilder().setContent('O identificador não corresponde à tabela permitida.')], flags: Discord.MessageFlags.IsComponentsV2 });
         }
 
-        const embed = new Discord.EmbedBuilder();
+        let result;
 
         try {
             const targetId = BigInt(target.entity.id);
@@ -45,20 +46,19 @@ module.exports = {
             const row = rows[0];
 
             if (!row) {
-                embed
-                    .setDescription(`⚠️ Nenhum dado encontrado para ${target.entity} em \`${table}\``)
-                    .setColor(WARNING_COLOR);
+                result = { color: WARNING_COLOR, description: `⚠️ Nenhum dado encontrado para ${target.entity} em \`${table}\``, fields: [] };
             } else {
-                addDataToEmbed(embed, target.entity, table, JSON.stringify(row, (_, value) => typeof value === 'bigint' ? value.toString() : value, '\t'));
+                result = addDataToContainer(target.entity, table, JSON.stringify(row, (_, value) => typeof value === 'bigint' ? value.toString() : value, '\t'));
             }
         } catch (error) {
-            embed
-                .setDescription(`❌ Houve um erro ao ver dados de ${target.entity} em \`${table}\``)
-                .addFields({ name: 'Erro:', value: codeBlock(getErrorDetails(error)) })
-                .setColor(ERROR_COLOR);
+            result = { color: ERROR_COLOR, description: `❌ Houve um erro ao ver dados de ${target.entity} em \`${table}\``, fields: [{ name: 'Erro:', value: codeBlock(getErrorDetails(error)) }] };
         }
 
-        await interaction.reply({ embeds: [embed] });
+        const container = new ContainerBuilder().setAccentColor(parseInt(result.color.slice(1), 16)).addTextDisplayComponents(new TextDisplayBuilder().setContent([
+            result.description,
+            ...result.fields.map(field => `**${field.name}**\n${field.value}`)
+        ].join('\n\n')));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
     }
 };
 
@@ -82,17 +82,15 @@ async function resolveTarget(client, id) {
     return guild ? { entity: guild, column: 'server_id' } : null;
 }
 
-function addDataToEmbed(embed, entity, table, serializedData) {
+function addDataToContainer(entity, table, serializedData) {
     const chunks = splitData(serializedData);
     const [description, ...fields] = chunks;
 
-    embed
-        .setDescription(`✅ Dados de ${entity} em \`${table}\`\n${codeBlock(description)}`)
-        .setColor(SUCCESS_COLOR);
-
-    fields.forEach((chunk) => {
-        embed.addFields({ name: '.', value: `\n${codeBlock(chunk)}` });
-    });
+    return {
+        color: SUCCESS_COLOR,
+        description: `✅ Dados de ${entity} em \`${table}\`\n${codeBlock(description)}`,
+        fields: fields.map(chunk => ({ name: '.', value: `\n${codeBlock(chunk)}` }))
+    };
 }
 
 function splitData(data) {

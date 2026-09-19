@@ -3,6 +3,7 @@ const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 module.exports = {
     name: 'estamina',
     aliases: ['stamina', 'est', 'st'],
@@ -21,11 +22,14 @@ module.exports = {
             stamina = await playersService.stamina.get(interaction.user.id)
         }
 
-		const embed = new Discord.EmbedBuilder()
-	    .setColor('#e06f0b')
-        if (stamina < staminamax) embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!` })
-        else embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`, value: `Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!` })
-        const embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true })).resource.message;
+		const buildStaminaContainer = (value, description, color) => new ContainerBuilder()
+            .setAccentColor(color)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(`**🔸 Estamina de \`${interaction.user.tag}\`: [${value}/${staminamax}]**\n${description}`));
+        const initialDescription = stamina < staminamax
+            ? `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Reaja com ⏰ para ser relembrado quando sua estamina recarregar**\nOBS: A estamina não recupera enquanto estiver usando!`
+            : 'Estamina já está completamente cheia!\nOBS: A estamina não recupera enquanto estiver usando!';
+        const container = buildStaminaContainer(stamina, initialDescription, 0xe06f0b);
+        const embedinteraction = (await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
         if (stamina == staminamax) return;
         embedinteraction.react('⏰')
 
@@ -37,19 +41,17 @@ module.exports = {
         let reacted = false;
         collector.on('collect', async (reaction, user) => {
             reacted = true;
-            const embed2 = new Discord.EmbedBuilder()
             const e1 = await playersService.stamina.get(interaction.user.id);
             const e2 = 1000
             const e3 = await playersService.stamina.time(interaction.user.id);
-            embed2.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${e1}/${e2}]**`, value: `Irá recuperar completamente em: \`${utility.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!` })
-            embed2.setColor('#42f569')
-            interaction.editReply({ embeds: [embed2]});
+            const updatedContainer = buildStaminaContainer(e1, `Irá recuperar completamente em: \`${utility.ms(e3)}\`\n**Você será relembrado quando sua estamina recarregar!**\nOBS: A estamina não recupera enquanto estiver usando!`, 0x42f569);
+            interaction.editReply({ components: [updatedContainer], flags: Discord.MessageFlags.IsComponentsV2 });
             collector.stop();
             if (await cacheListsService.remember.includes(interaction.user.id, "estamina")) return;
             await cacheListsService.remember.add(interaction.user.id, interaction.channel.id, "estamina");
             async function rem(){
                 if (await playersService.stamina.get(interaction.user.id) >= 1000) {
-                 await interaction.reply({ content: `Relatório de estamina: ${await playersService.stamina.get(interaction.user.id)}/1000`, mention: true})
+                  await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Relatório de estamina: ${await playersService.stamina.get(interaction.user.id)}/1000`)], flags: Discord.MessageFlags.IsComponentsV2 })
                     await cacheListsService.remember.remove(interaction.user.id, "estamina")
                     return;
                 } else {
@@ -63,10 +65,8 @@ module.exports = {
             if (reacted) return;
             let time = await playersService.stamina.time(interaction.user.id);
             let st = await playersService.stamina.get(interaction.user.id);
-            embed.fields = []
-            embed.setColor('#e06f0b')
-            embed.addFields({ name: `🔸 Estamina de \`${interaction.user.tag}\`: **[${st}/${1000}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!` })
-            interaction.editReply({ embeds: [embed] });
+            const expiredContainer = buildStaminaContainer(st, `Irá recuperar completamente em: \`${utility.ms(time)}\`\nOBS: A estamina não recupera enquanto estiver usando!`, 0xe06f0b);
+            interaction.editReply({ components: [expiredContainer], flags: Discord.MessageFlags.IsComponentsV2 });
         });
 
 	}

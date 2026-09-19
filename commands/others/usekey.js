@@ -12,6 +12,7 @@ const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const prisma = require('../../_classes/prisma');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('chave').setDescription('Coloque a chave para resgatar a recompensa da mesma').setRequired(true))
 
@@ -35,8 +36,8 @@ module.exports = {
             const item = objgkeys.find(x => x.key == key)
         
             if (!item) {
-                const embedtemp = await utility.sendError(interaction, 'Essa chave de ativação é inexistente!')
-                return await interaction.reply({ embeds: [embedtemp]})
+                const errorContainer = new ContainerBuilder().setAccentColor(0xb8312c).addTextDisplayComponents(new TextDisplayBuilder().setContent(`<:error:736274027756388353> ${interaction.user.tag}\nEssa chave de ativação é inexistente!`));
+                return await interaction.reply({ components: [errorContainer], flags: Discord.MessageFlags.IsComponentsV2 })
             }
 
             return { item, objgkeys }
@@ -55,13 +56,15 @@ module.exports = {
         let size = item.size || 0
         let time = item.time || 0
 
-        const embed = new Discord.EmbedBuilder()
-		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
+        const buildContainer = (color, title, value) => new ContainerBuilder()
+            .setAccentColor(color)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(title ? `## ${title}\n\n${value}` : value));
+        const initialContainer = buildContainer(0x36393f, null, `Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`);
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [initialContainer, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -73,12 +76,8 @@ module.exports = {
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.usarchave.defer_update'));
             reacted = true;
             collector.stop();
-            const embed = new Discord.EmbedBuilder()
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Uso de chave cancelado', value: `
-                Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildContainer(0xa60000, '❌ Uso de chave cancelado', `Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
             
@@ -115,24 +114,19 @@ module.exports = {
 
             await prisma.globals.update({ where: { user_id: global_id }, data: { keys: objgkeys } })
 
-            embed.setColor('#5bff45');
-            embed.addFields({ name: '✅ Chave usada com sucesso', value: `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, inline: `` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [buildContainer(0x5bff45, '✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)], flags: Discord.MessageFlags.IsComponentsV2 });
 
 			let cchannel = await clientService.current.channels.cache.get(interaction.channel.id)
 
-            const embed2 = new Discord.EmbedBuilder()
-            .setTitle(`✅ Chave usada`)
-            .setDescription(`Quem usou: ${interaction.user} \`${interaction.user.id}\`
+            const container2 = buildContainer(0x5bff45, '✅ Chave usada', `Quem usou: ${interaction.user} \`${interaction.user.id}\`
 Local em que usou: #${cchannel.name} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
 Chave usada: **${item.key}**
 
 Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração do ${item.form.name}: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
 
-`)
-            .setColor(`#5bff45`)
+`);
             let ch = await clientService.current.channels.cache.get('758711135284232263')
-            ch.send({ embeds: [embed2] });
+            ch.send({ components: [container2], flags: Discord.MessageFlags.IsComponentsV2 });
 
             playersService.cooldown.set(interaction.user.id, "usekey", 0);
 
@@ -140,10 +134,7 @@ Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.EmbedBuilder();
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [buildContainer(0xa60000, '❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)], flags: Discord.MessageFlags.IsComponentsV2 });
             playersService.cooldown.set(interaction.user.id, "usekey", 0);
             return;
         });

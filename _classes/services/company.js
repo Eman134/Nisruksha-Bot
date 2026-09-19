@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const prisma = require('../prisma');
 const cacheLists = require('./cacheLists');
 const contentCatalog = require('./contentCatalog');
@@ -899,18 +900,19 @@ company.create = async function(member, ob) {
         
         try {
             const company = await prisma.companies.findFirst({ where: { company_id: code }, select: { company_id: true } });
-            const embed = new Discord.EmbedBuilder();
-
             if (!company) {
                 try {
 
                     townnum = await townExtension.getTownNum(member.id);
                     townname = await townExtension.getTownName(member.id);
 
-                    embed.setTitle(`Nova empresa!`) 
-                    .addFields({ name: `Informações da Empresa`, value: `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**` })
-                    embed.setColor('#42f57e')
-                    client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
+                    const container = new ContainerBuilder()
+                        .setAccentColor(0x42f57e)
+                        .addTextDisplayComponents(
+                            new TextDisplayBuilder().setContent('## Nova empresa!'),
+                            new TextDisplayBuilder().setContent(`**Informações da Empresa**\nFundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
+                        );
+                    client.channels.cache.get('747490313765126336').send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
                     await prisma.companies.deleteMany({ where: { user_id: BigInt(member.id) } });
                     await setCompanieInfo(member.id, code, 'company_id', code)
                     await setCompanieInfo(member.id, code, 'type', ob.type)
@@ -923,9 +925,10 @@ company.create = async function(member, ob) {
                 }
             } else {
                 try{
-                    embed.setDescription(`Failed on generating company ${ob.type}:${ob.name} with code ${code}; Try by ${member}`)
-                    embed.setColor('#eb4828')
-                    client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
+                    const container = new ContainerBuilder()
+                        .setAccentColor(0xeb4828)
+                        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`Failed on generating company ${ob.type}:${ob.name} with code ${code}; Try by ${member}`));
+                    client.channels.cache.get('747490313765126336').send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
                 }catch (err){
                     client.emit('error', err)
                 }

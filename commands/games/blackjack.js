@@ -7,11 +7,30 @@ const config = require('../../_classes/config');
 const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
 const imagesService = require('../../_classes/services/images');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
 .addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(true))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder()
+        .setAccentColor(color)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message, usage) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`, 0xb8312c);
+}
+
+function blackjackConfirmationContainer({ color, description, field, buttons }) {
+    const sections = ['**<:hide:855906056865316895> BlackJack**', description, field && `**${field.name}**\n${field.value}`].filter(Boolean);
+    const container = textContainer(sections.join('\n\n'), color);
+    if (buttons) container.addActionRowComponents(new ActionRowBuilder().addComponents(...buttons));
+    return container;
+}
 
 module.exports = {
     name: 'blackjack',
@@ -36,14 +55,12 @@ module.exports = {
         const townauthor = await townsService.getTownName(interaction.user.id)
 
         if (!(townsService.games[townauthor].includes('blackjack'))) {
-            const embedtemp = await utility.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **BLACKJACK**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)
-			await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A casa de jogos da sua vila não possui o jogo **BLACKJACK**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)], flags: v2Flags });
             return;
         }
 
         if (member == null || member.id == interaction.user.id) {
-            const embedtemp = await utility.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')], flags: v2Flags });
             return
         }
 
@@ -58,37 +75,32 @@ module.exports = {
 
             const townmember = await townsService.getTownName(member.id)
             if (!(townsService.games[townmember].includes('blackjack'))) {
-                const embedtemp = await utility.sendError(interaction, `A casa de jogos de ${member} não possui o jogo **BLACKJACK**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [errorContainer(interaction, `A casa de jogos de ${member} não possui o jogo **BLACKJACK**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)], flags: v2Flags });
                 return;
             }
         }
 
         if (aposta < 20) {
-            const embedtemp = await utility.sendError(interaction, `A quantia mínima de apostas é de 20 fichas!`, `blackjack 20`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia mínima de apostas é de 20 fichas!`, 'blackjack 20')], flags: v2Flags });
             return;
         }
 
         if (aposta > 2500) {
-            const embedtemp = await utility.sendError(interaction, `A quantia máxima de apostas é de 2500 fichas!`, `blackjack <aposta>`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia máxima de apostas é de 2500 fichas!`, 'blackjack <aposta>')], flags: v2Flags });
             return;
         }
 
         const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)], flags: v2Flags });
             return;
         }
         
         const tokenmember = await economyService.token.get(member.id)
 
         if (tokenmember < aposta) {
-            const embedtemp = await utility.sendError(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)], flags: v2Flags });
             return;
         }
         
@@ -358,33 +370,32 @@ module.exports = {
                 }
                 
                 let row1components = [currentBtn, hitBtn, standBtn, doubleBtn]
-                row1 = utility.rowComponents(row1components)
+                row1 = new ActionRowBuilder().addComponents(...row1components)
 
                 blackjackcomponents.push(row1)
 
                 return blackjackcomponents
             }
 
-            function getBlackJackEmbed () {
+            function getBlackJackContainer () {
                 const playsMap = `\n \nJogadas:\nCartas iniciais dadas\n${game.plays.map(play => `${players[play.player].name} usou ${play.playtype.toUpperCase()}`).join('\n')}`
-                const embed = new Discord.EmbedBuilder()
-                .setColor('#4e5052')
-                .setTitle(`<:hide:855906056865316895> BlackJack`)
-                .setImage('attachment://image.png')
-                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${utility.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
-                .setFooter({ text: playsMap })
+                const description = `${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${utility.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`;
+                const sections = [`**<:hide:855906056865316895> BlackJack**`, description];
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
-                    embed.addFields({ name: `${players[game.current].name}`, value: `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${utility.money3emoji}` })
-                    embed.setFooter({ text: `${players[game.current].name} está jogando${playsMap}` })
+                    sections.push(`**${players[game.current].name}**\nPontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${utility.money3emoji}`);
+                    sections.push(`${players[game.current].name} está jogando${playsMap}`);
+                } else {
+                    sections.push(playsMap);
                 }
-                return embed
+                return textContainer(sections.join('\n\n'), 0x4e5052)
+                    .addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: 'attachment://image.png' } }));
             }
             const token = await economyService.token.get(players[game.current].id)
             const blackjackimage = await getBlackJackImage()
             const blackjackcomponents = getBlackJackComponents(token)
-            const blackjackembed = getBlackJackEmbed()
+            const blackjackcontainer = getBlackJackContainer()
             
-            const interactionData = { embeds: [blackjackembed], attachments: [], files: [blackjackimage], components: blackjackcomponents, withResponse: true }
+            const interactionData = { files: [blackjackimage], components: [blackjackcontainer, ...blackjackcomponents], flags: v2Flags, withResponse: true }
 
             let message
             if (interaction.replied) {
@@ -397,21 +408,16 @@ module.exports = {
 
         }
 
-        const embed = new Discord.EmbedBuilder()
-        .setTitle(`<:hide:855906056865316895> BlackJack`)
-        .setColor('#42e3d0')
-		.setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` })
-        
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
+        const blackjackDescription = `O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`;
 
         let message 
         if (member.id == config.app.id) {
             message = await start()
             game.status = 'playing'
         } else {
-            message = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+            message = (await interaction.reply({ components: [blackjackConfirmationContainer({ color: 0x42e3d0, description: blackjackDescription, field: { name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` }, buttons: [btn0, btn1] })], flags: v2Flags, withResponse: true })).resource.message;
         }
 
         const filter = i => {
@@ -445,26 +451,18 @@ module.exports = {
                 }
                 if (b && !b.deferred) await b.deferUpdate()
 
-                const embed = new Discord.EmbedBuilder()
-                .setTitle('<:hide:855906056865316895> BlackJack')
-                .setColor('#a60000')
-                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
                 if (game.confirm[interaction.user.id] == '<a:loading:736625632808796250>' || game.confirm[member.id] == '<a:loading:736625632808796250>') {
-                    embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` })
-                    return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
+                    return interaction.editReply({ components: [blackjackConfirmationContainer({ color: 0xa60000, description: blackjackDescription, field: { name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}` }, buttons: [btn0, btn1] })], flags: v2Flags })
                 }
                 if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
-                    embed.addFields({ name: '❌ Aposta cancelada', value: `Os dois jogadores cancelaram a aposta!` })
                     game.status = 'nostart'
-                    return interaction.editReply({ embeds: [embed], components: [] })
+                    return interaction.editReply({ components: [blackjackConfirmationContainer({ color: 0xa60000, description: blackjackDescription, field: { name: '❌ Aposta cancelada', value: 'Os dois jogadores cancelaram a aposta!' } })], flags: v2Flags })
                 } else if (game.confirm[interaction.user.id] == '❌') {
-                    embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` })
                     game.status = 'nostart'
-                    return interaction.editReply({ embeds: [embed], components: [] })
+                    return interaction.editReply({ components: [blackjackConfirmationContainer({ color: 0xa60000, description: blackjackDescription, field: { name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` } })], flags: v2Flags })
                 } else if (game.confirm[member.id] == '❌') {
-                    embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` })
                     game.status = 'nostart'
-                    return interaction.editReply({ embeds: [embed], components: [] })
+                    return interaction.editReply({ components: [blackjackConfirmationContainer({ color: 0xa60000, description: blackjackDescription, field: { name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` } })], flags: v2Flags })
                 } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
                     game.status = 'playing'
                     start()
@@ -528,12 +526,7 @@ module.exports = {
             if (member.id != config.app.id) playersService.cooldown.set(member.id, "blackjack", 0);
             playersService.cooldown.set(interaction.user.id, "blackjack", 0);
             if (game.status == 'confirm' && (!game.reacted[interaction.user.id] || !game.reacted[member.id])) {
-                const embed = new Discord.EmbedBuilder()
-                .setTitle('<:hide:855906056865316895> BlackJack')
-                .setColor('#a60000')
-                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
-                .addFields({ name: '❌ Tempo expirado', value: `Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [blackjackConfirmationContainer({ color: 0xa60000, description: blackjackDescription, field: { name: '❌ Tempo expirado', value: 'Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!' } })], flags: v2Flags });
                 return
             }
             if (['bust', 'blackjack', 'draw', 'lost', 'nostart'].includes(game.status)) return

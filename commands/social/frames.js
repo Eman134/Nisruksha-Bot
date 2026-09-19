@@ -6,6 +6,10 @@ const playersService = require('../../_classes/services/players');
 const framesService = require('../../_classes/services/frames');
 const { reportError } = require('../../_classes/debug');
 const prisma = require('../../_classes/prisma');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, MediaGalleryItemBuilder, ActionRowBuilder } = require('@discordjs/builders');
+const errorContainer = (interaction, message) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`));
 
 module.exports = {
     name: 'molduras',
@@ -22,8 +26,7 @@ module.exports = {
         let frames = obj.frames
 
         if (frames == null || frames.length == 0) {
-            const embedtemp = await utility.sendError(interaction, 'Você não possui molduras disponíveis para serem apresentadas.')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você não possui molduras disponíveis para serem apresentadas.')], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -63,15 +66,18 @@ module.exports = {
             btn6.setDisabled(false)
         }
 
-        btnRow0 = utility.rowComponents([btn1, btn2])
-        btnRow1 = utility.rowComponents([btn3, btn4, btn5, btn6])
+        btnRow0 = new ActionRowBuilder().addComponents(btn1, btn2)
+        btnRow1 = new ActionRowBuilder().addComponents(btn3, btn4, btn5, btn6)
         
-		const embed = new Discord.EmbedBuilder()
-        .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + (await framesService.get(frames[0])).name)
-        .setImage((await framesService.get(frames[0])).url)
-        .setColor('#60ced6')
+        let frameColor = 0x60ced6;
+        let frameDescription = '';
+        const buildFrameContainer = frame => new ContainerBuilder()
+            .setAccentColor(frameColor)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## 🖼 Moldura ${current}/${total} | ${frame.name}${frameDescription ? `\n${frameDescription}` : ''}`))
+            .addMediaGalleryComponents(new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL(frame.url)));
         
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true })).resource.message;
+        const initialFrame = await framesService.get(frames[0]);
+        const embedinteraction = (await interaction.reply({ components: [buildFrameContainer(initialFrame), btnRow0, btnRow1], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -113,21 +119,18 @@ module.exports = {
                 btn6.setDisabled(false)
             }
 
-            btnRow0 = utility.rowComponents([btn1, btn2])
-            btnRow1 = utility.rowComponents([btn3, btn4, btn5, btn6])
+            btnRow0 = new ActionRowBuilder().addComponents(btn1, btn2)
+            btnRow1 = new ActionRowBuilder().addComponents(btn3, btn4, btn5, btn6)
 
             const frame = await framesService.get(frames[current-1])
-
-            embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
             if (b.customId == 'nBtn') {
                 
                 framesService.reforge(interaction.user.id, 0)
 
-                embed.setColor('#a60000');
-                embed.setDescription('❌ Moldura desequipada')
-                embed.setImage((await framesService.get(frames[0])).url)
-                await interaction.editReply({ embeds: [embed], components: [] });
+                frameColor = 0xa60000;
+                frameDescription = '❌ Moldura desequipada';
+                await interaction.editReply({ components: [buildFrameContainer(await framesService.get(frames[0]))], flags: Discord.MessageFlags.IsComponentsV2 });
 
                 return collector.stop();
 
@@ -135,17 +138,17 @@ module.exports = {
 
                 framesService.reforge(interaction.user.id, frame.id)
 
-                embed.setColor('#5bff45');
-                embed.setDescription('✅ Moldura equipada')
-                embed.setImage(frame.url)
-                await interaction.editReply({ embeds: [embed], components: [] });
+                frameColor = 0x5bff45;
+                frameDescription = '✅ Moldura equipada';
+                await interaction.editReply({ components: [buildFrameContainer(frame)], flags: Discord.MessageFlags.IsComponentsV2 });
                 
                 return collector.stop();
 
             } else {
                 
-                embed.setImage(frame.url)
-                await interaction.editReply({ embeds: [embed], components: [ btnRow0, btnRow1] });
+                frameColor = 0x60ced6;
+                frameDescription = '';
+                await interaction.editReply({ components: [buildFrameContainer(frame), btnRow0, btnRow1], flags: Discord.MessageFlags.IsComponentsV2 });
 
             }
             

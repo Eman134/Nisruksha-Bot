@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, FileBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -27,14 +28,12 @@ module.exports = {
         let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await utility.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você já encontra-se caçando no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -45,8 +44,7 @@ module.exports = {
 
         if (stamina < cost) {
             
-            const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
 
         }
@@ -63,21 +61,20 @@ module.exports = {
 
         await playersService.stamina.remove(interaction.user.id, cost - 1)
 
-        const embed = new Discord.EmbedBuilder()
+        let container
         
         let monster = await companyService.jobs.explore.searchMob(pobj2.level);
 
         if (!monster) {
-            embed.setTitle(`Nenhum monstro por perto`)
-            .setDescription(`Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`)
-            await interaction.reply({ embeds: [embed] });
+            container = new ContainerBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Nenhum monstro por perto\nVocê gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`))
+            await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         }
         
-        embed
-        .addFields({ name: `Você deseja iniciar uma nova caçada?`, value: `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.` })
-        .addFields({ name: `Informações do monstro`, value: `Nome: **${monster.name}**\nNível: **${monster.level}**` })
-        .setImage(monster.image)
+        container = new ContainerBuilder().addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`**Você deseja iniciar uma nova caçada?**\nVocê gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.`),
+            new TextDisplayBuilder().setContent(`**Informações do monstro**\nNome: **${monster.name}**\nNível: **${monster.level}**`)
+        ).addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: monster.image } }))
 
         const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
         const btn1 = utility.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
@@ -87,9 +84,9 @@ module.exports = {
 
         if (pobj.mvp != null) rb0.push(btn2)
 
-        const rowButton0 = utility.rowComponents(rb0)
+        const rowButton0 = new ActionRowBuilder().addComponents(...rb0)
 
-        const embedinteraction = (await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } )).resource.message;
+        const embedinteraction = (await interaction.reply( { components: [container, rowButton0], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true } )).resource.message;
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'hunting')
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
 
@@ -116,7 +113,7 @@ module.exports = {
                 currentmode = currentmode == 0 ? 1 : 0
                 equipsBtn[0].label = currentmode == 0 ? 'Compacto' : 'Detalhado'
                 if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
-                return interaction.editReply({ embeds: await getEmbeds(), components: [ utility.rowComponents(equipsBtn) ] })
+                return interaction.editReply({ components: [...await getEmbeds(), new ActionRowBuilder().addComponents(...equipsBtn)], flags: Discord.MessageFlags.IsComponentsV2 })
             }
 
             if (Date.now()-timing < 0) return
@@ -144,54 +141,43 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
-                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
-                    .setImage('attachment://image.png')
-
-                    const embed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
+                    const infosEmbed = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Caçada\nOBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)).addFileComponents(new FileBuilder().setURL('attachment://image.png'))
+                    const embed = new ContainerBuilder().setAccentColor(0x5bff45)
 
                     for (const r of equips) {
-                        infosEmbed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
+                        infosEmbed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**[${getRarity(r.level).rarityIcon}] ${r.icon} ${r.name}**\nForça: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``))
                     }
 
-                    embed.addFields({ name: 'Informações do ataque atual', value: `
+                    embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**Informações do ataque atual**\n
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
-` })
+`))
 
-                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
+                    if (losedesc) embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**Resultado da caçada**\n${losedesc}`))
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
-                    .setDescription(`
+                    const embed = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Caçada
 OBS: Os equipamentos são randômicos de acordo com o seu nível.
 **CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**
-`)
-                    .setThumbnail('attachment://image.png')
+`)).addFileComponents(new FileBuilder().setURL('attachment://image.png'))
 
                     for (const r of equips) {
-                        embed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
+                        embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**[${getRarity(r.level).rarityIcon}] ${r.icon} ${r.name}**\nForça: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``))
                     }
 
-                    embed.addFields({ name: 'Informações do ataque atual', value: `
+                    embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**Informações do ataque atual**\n
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}
-` })
+`))
 
-                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
+                    if (losedesc) embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**Resultado da caçada**\n${losedesc}`))
 
                     return [embed]
                 }
@@ -414,7 +400,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     reactequiplist.splice(index2, 1);
                 }
 
-                await interaction.editReply({ content: 'Carregando caça...', components: [] })
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent('Carregando caça...')], flags: Discord.MessageFlags.IsComponentsV2 })
                 
                 if (pobj.mvp && b.customId == 'autofight') {
                     autohunt = true
@@ -435,12 +421,12 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     reactequiplist.push(id)
                 }
 
-                if (!autohunt) components = [ utility.rowComponents(equipsBtn) ]
+                if (!autohunt) components = [ new ActionRowBuilder().addComponents(...equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
                 
                 try {
-                    await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
+                    await interaction.editReply({ components: [...await getEmbeds(), ...components], files: [firstbuild.attach], flags: Discord.MessageFlags.IsComponentsV2 });
                 } catch (error) {
                     reportError(error, 'command.newhunt.reply', { userId: interaction.user?.id });
                 }
@@ -459,7 +445,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
             }
 
-            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
+                    if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
             
             if(!inbattle) return
 
@@ -530,27 +516,27 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 }
                 if (buildlost.plost) {
                     currinteraction = `\n🎗 ${interaction.user.username} perdeu o combate!`
-                    await playerlost(interaction.user, embed)
+                        await playerlost(interaction.user)
                 } else if (monster.csta <= 0) {
                     currinteraction = `\n🎗 ${monster.name} perdeu o combate!`
-                    await monsterlost(monster, embed)
+                        await monsterlost(monster)
                 }
                 }
             
                 try {
                     if (dead) {
-                        await interaction.editReply({ embeds: await getEmbeds(currinteraction), attachments: [], components: [], files: [buildlost.attach]})
+                        await interaction.editReply({ components: await getEmbeds(currinteraction), attachments: [], files: [buildlost.attach], flags: Discord.MessageFlags.IsComponentsV2})
                     } else {
-                        await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
+                        await interaction.editReply({ components: await getEmbeds(currinteraction), flags: Discord.MessageFlags.IsComponentsV2 })
                     }
                 } catch (error) {
                     reportError(error, 'command.novaca.edit_progress', { userId: interaction.user.id });
                     setTimeout(async function(){
                         try {
                             if (dead) {
-                                await interaction.editReply({ embeds: await getEmbeds(currinteraction), attachments: [], components: [], files: [buildlost.attach]})
+                                await interaction.editReply({ components: [...await getEmbeds(currinteraction), ...components], attachments: [], files: [buildlost.attach], flags: Discord.MessageFlags.IsComponentsV2})
                             } else {
-                                await interaction.editReply({ embeds: await getEmbeds(currinteraction) })
+                                await interaction.editReply({ components: [...await getEmbeds(currinteraction), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
                             }
                         } catch (error) {
                             reportError(error, 'command.novaca.cleanup', { userId: interaction.user.id });
@@ -594,19 +580,11 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
             if (dead) return
 
             if (reacted) {
-                embed.fields = []
-                embed.setTitle(`Mas que covarde!`)
-                embed.setColor('#a60000');
-                embed.setDescription(`❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`)
-                interaction.editReply({ embeds: [embed], attachments: [], components: [] });
+                interaction.editReply({ components: [new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Mas que covarde!\n❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`))], attachments: [], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             
             }
-            embed.fields = []
-            embed.setTitle(`Oops, o monstro percebeu sua presença!`)
-            embed.setColor('#a60000');
-            embed.setDescription(`❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`)
-            interaction.editReply({ embeds: [embed], attachments: [], components: [] });
+            interaction.editReply({ components: [new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Oops, o monstro percebeu sua presença!\n❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`))], attachments: [], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

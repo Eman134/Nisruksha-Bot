@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const clientService = require('./clientService');
 
 class SiteService {
@@ -6,14 +7,14 @@ class SiteService {
     const client = clientService.current;
     const member = await client.users.fetch(id)
 
-    const embed = new Discord.EmbedBuilder()
-    embed.setTitle('<:info:736274028515295262> Informações de ação')
-    embed.setDescription(`
+    const container = new ContainerBuilder()
+        .setAccentColor(0x5d7fc7)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## <:info:736274028515295262> Informações de ação
 Usuário acionador: ${member} | ${member.tag} | ${member.id}
 Ação executada: ${action}
-    `).setColor('#5d7fc7')
+    `));
 
-    client.channels.cache.get('773223319603904522').send({ embeds: [embed]});
+    client.channels.cache.get('773223319603904522').send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
     }
 }
 

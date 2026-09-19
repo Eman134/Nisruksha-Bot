@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, MediaGalleryItemBuilder } = require('@discordjs/builders');
 const prisma = require('../prisma');
 const crateService = require('./crateExtension');
 const imageService = require('./images');
@@ -28,14 +29,16 @@ class PlayersService {
                 level: machine.level,
                 avatar: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
             });
-            const embed = new Discord.EmbedBuilder()
-                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                .setImage('attachment://image.png')
-                .addFields({ name: '🥇 Recompensas', value: `**3x <:caixaup:782307290295435304> Caixa up**! Utilize \`/mochila\` para visualizar suas caixas.${slot ? '\nVocê recebeu +1 Slot de Aprimoramento para máquinas!' : ''}` })
-                .setFooter({ text: `Você evoluiu do nível ${machine.level} para o nível ${machine.level + 1}` })
-                .setColor(Math.floor(Math.random() * 0xffffff));
+            const container = new ContainerBuilder()
+                .setAccentColor(Math.floor(Math.random() * 0xffffff))
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`**${interaction.user.tag}**`),
+                    new TextDisplayBuilder().setContent(`**🥇 Recompensas**\n**3x <:caixaup:782307290295435304> Caixa up**! Utilize \`/mochila\` para visualizar suas caixas.${slot ? '\nVocê recebeu +1 Slot de Aprimoramento para máquinas!' : ''}`),
+                    new TextDisplayBuilder().setContent(`-# Você evoluiu do nível ${machine.level} para o nível ${machine.level + 1}`)
+                )
+                .addMediaGalleryComponents(new MediaGalleryBuilder().addItems(new MediaGalleryItemBuilder().setURL('attachment://image.png')));
             await crateService.give(interaction.user.id, 2, 3);
-            await interaction.channel.send({ embeds: [embed], mention: true, files: [levelupImage] });
+            await interaction.channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2, mention: true, files: [levelupImage] });
         } else {
             await prisma.machines.update({ where: { user_id }, data: { xp: { increment: xp } } });
         }
@@ -64,11 +67,12 @@ class PlayersService {
             return prisma.cooldowns.upsert({ where: { user_id }, update: { [name]: value }, create: { user_id, [name]: value } });
         };
         this.cooldown.message = async (interaction, name, text) => {
-            const embed = new Discord.EmbedBuilder()
-                .setColor('#b8312c')
-                .setDescription(`🕑 Aguarde mais \`${this.utility.ms(await this.cooldown.get(interaction.user.id, name))}\` para ${text}.`)
-                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
-            return interaction.reply({ embeds: [embed] });
+            const container = new ContainerBuilder()
+                .setAccentColor(0xb8312c)
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`**${interaction.user.tag}**\n🕑 Aguarde mais \`${this.utility.ms(await this.cooldown.get(interaction.user.id, name))}\` para ${text}.`)
+                );
+            return interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
         };
     }
 

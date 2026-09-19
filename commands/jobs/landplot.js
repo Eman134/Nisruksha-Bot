@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -75,17 +76,13 @@ module.exports = {
             return plot
         }
 
-        async function makeEmbed(pobj) {
+        async function makeContainer(pobj) {
 
             const plot = await getTerrain(pobj.plots)
             
             let adubacao = utility.getProgress(8, '<:adub:765647640238227510>', '<:energyempty:741675234796503041>', (!plot.adubacao ? 100 : plot.adubacao), 100, true)
 
-            embed.fields = []
-
-            embed.setColor(`#a4e05a`)
-            .setTitle(`<:terreno:765944910179336202> Informações do seu terreno`) // \nConservação do terreno: \`${plot.cons}%\`
-            .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\`\nAdubação: ${adubacao}`)
+            const texts = [new TextDisplayBuilder().setContent(`## <:terreno:765944910179336202> Informações do seu terreno\n ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\`\nAdubação: ${adubacao}`)]
 
             const grow = []
 
@@ -111,14 +108,14 @@ module.exports = {
 
                     let crescimento = utility.getProgress(12, '<:cresc:765647640594481183>', '<:energyempty:741675234796503041>', ob.percent, 100, true)
                     
-                    embed.addFields({ name: `Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, value: `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':utility.ms(ob.ms, true)}` })
+                    texts.push(new TextDisplayBuilder().setContent(`**Lote ${x}: ${r.seed.icon} ${r.seed.displayname}**\nÁrea da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':utility.ms(ob.ms, true)}`))
                     
                     grow.push(r)
     
                     x++
                 }
             } else {
-                embed.addFields({ name: `❌ Não possui plantações`, value: `Utilize \`/coletar\` para coletar plantas ou sementes e começar a plantar` })
+                texts.push(new TextDisplayBuilder().setContent(`**❌ Não possui plantações**\nUtilize \`/coletar\` para coletar plantas ou sementes e começar a plantar`))
             }
 
             function reworkButtons(grow) {
@@ -132,7 +129,7 @@ module.exports = {
                     row0.push(utility.createButton('upgrade', 'SECONDARY', 'Upgrade', '833837888634486794'))
                 }
                 
-                if (row0.length > 0) components.push(utility.rowComponents(row0))
+                if (row0.length > 0) components.push(new ActionRowBuilder().addComponents(...row0))
 
                 for (let i = 0; i < grow.length; i++) {
                     growBtnList.push(utility.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
@@ -148,7 +145,7 @@ module.exports = {
                     if (growBtnList[x]) {
                         const var1 = (x+1)*5-5
                         const var2 = ((x+1)*5)
-                        const rowBtn = utility.rowComponents(growBtnList.slice(var1, var2))
+                        const rowBtn = new ActionRowBuilder().addComponents(...growBtnList.slice(var1, var2))
                         if (rowBtn.components.length > 0) components.push(rowBtn)
                     } else break
 
@@ -158,19 +155,15 @@ module.exports = {
             }
             
 
-            return { plot, grow, components: reworkButtons(grow) }
+            return { plot, grow, components: reworkButtons(grow), container: new ContainerBuilder().setAccentColor(0xa4e05a).addTextDisplayComponents(...texts) }
 
         }
         
-        const embed = new Discord.EmbedBuilder()
-
         if (!hasTerrain(pobj.plots, townnum)) {
 
             const price = 100000
 
-            const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${utility.format(price)} ${utility.money}\` ${utility.moneyemoji}`)
-            
-            const embedinteraction = (await interaction.reply({ embeds: [embedtemp], components: [utility.rowComponents([utility.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )).resource.message
+            const embedinteraction = (await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${utility.format(price)} ${utility.money}\` ${utility.moneyemoji}`), new ActionRowBuilder().addComponents(utility.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202'))], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true } )).resource.message
 
             const filter = i => i.user.id === interaction.user.id;
             
@@ -182,16 +175,14 @@ module.exports = {
                 reacted = true;
                 collector.stop();
                 if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.terreno.defer_update'); });
-                embed.fields = [];
 
                 pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
                 const money = await economyService.money.get(interaction.user.id);
       
                 if (!(money >= price)) {
-                  embed.setColor('#a60000');
-                  embed.addFields({ name: '❌ Falha na compra', value: `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
-                  await interaction.editReply({ embeds: [embed], components: [] });
+                  const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha na compra**\nVocê não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`))
+                  await interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
                   return;
                 }
 
@@ -205,9 +196,8 @@ module.exports = {
                 let plots = pobj.plots
                 if (plots) {
                   if (Object.keys(plots).includes(townnum.toString())) {
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Falha na compra', value: `Você já possui um terreno nessa vila!\nUtilize \`/terrenos\` para visualizar seus terrenos` })
-                    await interaction.editReply({ embeds: [embed], components: [] });
+                    const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha na compra**\nVocê já possui um terreno nessa vila!\nUtilize \`/terrenos\` para visualizar seus terrenos`))
+                    await interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
                     return;
                   }
                 } else {
@@ -218,10 +208,9 @@ module.exports = {
   
                 await prisma.players.update({ where: { user_id }, data: { plots } })
     
-                embed.setColor('#5bff45');
-                embed.addFields({ name: '✅ Terreno adquirido', value: `
-                Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.` })
-                await interaction.editReply({ embeds: [embed], components: [] });
+                 const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**✅ Terreno adquirido**\n
+                Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.`))
+                await interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
 
                 playersService.cooldown.set(interaction.user.id, "landplot", 0);
 
@@ -232,10 +221,9 @@ module.exports = {
             
             collector.on('end', async collected => {
                 if (reacted) return
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Tempo expirado', value: `
-                Você iria comprar um terreno, porém o tempo expirou!` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                 const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Tempo expirado**\n
+                Você iria comprar um terreno, porém o tempo expirou!`))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             });
 
             return;
@@ -243,11 +231,11 @@ module.exports = {
 
         const priceupgrade = 10
 
-        const plotReturns = await makeEmbed(pobj)
+        const plotReturns = await makeContainer(pobj)
 
         const components = plotReturns.components
 
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
+        const embedinteraction = (await interaction.reply({ components: [plotReturns.container, ...components], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -262,7 +250,7 @@ module.exports = {
             collector.resetTimer()
 
             let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
-            let plotReturns = await makeEmbed(pobj)
+            let plotReturns = await makeContainer(pobj)
 
             let plot = plotReturns.plot
             let allplots = pobj.plots
@@ -273,16 +261,14 @@ module.exports = {
                 const points = await economyService.points.get(interaction.user.id);
 
                 if (!(points >= priceupgrade)) {
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Falha no upgrade', value: `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${utility.format(points)}/${utility.format(priceupgrade)} ${utility.money2} ${utility.money2emoji}**` })
-                    interaction.editReply({ embeds: [embed], components });
+                    const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${utility.format(points)}/${utility.format(priceupgrade)} ${utility.money2} ${utility.money2emoji}**`))
+                    interaction.editReply({ components: [plotReturns.container, result, ...components], flags: Discord.MessageFlags.IsComponentsV2 });
                     return;
                 }
 
                 if (plot.area+10 > 100) {
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Falha no upgrade', value: `Você atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!` })
-                    interaction.editReply({ embeds: [embed], components });
+                    const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê atingiu o limite de área de 100m² para um terreno!\nCaso deseja ter mais terrenos basta comprá-los em outras vilas!`))
+                    interaction.editReply({ components: [plotReturns.container, result, ...components], flags: Discord.MessageFlags.IsComponentsV2 });
                     return;
                 }
 
@@ -297,14 +283,13 @@ module.exports = {
                 await economyService.addToHistory(interaction.user.id, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${utility.money2emoji}`)
 
                 pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
-                plotReturns = await makeEmbed(pobj)
+                plotReturns = await makeContainer(pobj)
                 components = plotReturns.components
 
-                embed.setColor('#5bff45');
-                embed.addFields({ name: '✅ Upgrade realizado', value: `
-                Você pagou \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²` })
+                 const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**✅ Upgrade realizado**\n
+                Você pagou \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`))
                 
-                await interaction.editReply({ embeds: [embed], components });
+                await interaction.editReply({ components: [plotReturns.container, result, ...components], flags: Discord.MessageFlags.IsComponentsV2 });
 
                 return
 
@@ -313,8 +298,8 @@ module.exports = {
                 let selectedplant = plot.plants[parseInt(b.customId)-1]
 
                 if (selectedplant.percent < 100) {
-                    embed.addFields({ name: '❌ Falha na colheita', value: `Esta plantação ainda não está crescida!\nUtilize \`/terrenoatual\` para visualizar seus lotes` })
-                    await interaction.editReply({ embeds: [embed], components })
+                    const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha na colheita**\nEsta plantação ainda não está crescida!\nUtilize \`/terrenoatual\` para visualizar seus lotes`))
+                    await interaction.editReply({ components: [plotReturns.container, result, ...components], flags: Discord.MessageFlags.IsComponentsV2 })
                     return;
                 }
 
@@ -352,13 +337,12 @@ module.exports = {
                 let score = ((companyService.stars.gen()*2.5).toFixed(2)) 
 
                 pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
-                plotReturns = await makeEmbed(pobj)
+                plotReturns = await makeContainer(pobj)
                 components = plotReturns.components
 
-                embed.setColor('#5bff45')
-                embed.addFields({ name: '✅ Colheita realizada ', value: `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**` })
+                 const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**✅ Colheita realizada**\nVocê colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`))
                 
-                await interaction.editReply({ embeds: [embed], components })
+                await interaction.editReply({ components: [plotReturns.container, result, ...components], flags: Discord.MessageFlags.IsComponentsV2 })
 
                 economyService.addToHistory(interaction.user.id, `Colheita ${selectedplant.seed.icon} | + ${utility.format(total)} ${utility.moneyemoji}`)
 
@@ -382,7 +366,7 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            interaction.editReply({ embeds: [embed], components: [] })
+            interaction.editReply({ components: [new TextDisplayBuilder().setContent('O tempo para interagir com o terreno expirou.')], flags: Discord.MessageFlags.IsComponentsV2 })
         });
 
 	}

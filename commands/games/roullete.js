@@ -5,10 +5,32 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const config = require('../../_classes/config');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder()
+        .setAccentColor(color)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message, usage) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`, 0xb8312c);
+}
+
+function rouletteContainer({ color, description, fields, footer }) {
+    const content = [
+        `${fields.author}\n**${fields.title}**`,
+        description,
+        ...fields.values.map(({ name, value }) => `**${name}**\n${value}`),
+        footer
+    ].filter(Boolean).join('\n\n');
+    return textContainer(content, color);
+}
 
 module.exports = {
     name: 'roleta',
@@ -31,28 +53,24 @@ module.exports = {
         }
 
         if (!(townsService.games[await townsService.getTownName(interaction.user.id)].includes('roleta'))) {
-            const embedtemp = await utility.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}.**`)
-			await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A casa de jogos da sua vila não possui o jogo **ROLETA**!\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}.**`)], flags: v2Flags });
             return;
         }
 
         if (aposta < 5) {
-            const embedtemp = await utility.sendError(interaction, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia mínima de apostas é de 5 fichas!`, `roleta 5`)], flags: v2Flags });
             return;
         }
 
         if (aposta > 5000) {
-            const embedtemp = await utility.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `roleta 5000`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `roleta 5000`)], flags: v2Flags });
             return;
         }
 
         const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)], flags: v2Flags });
             return;
         }
         
@@ -63,19 +81,19 @@ module.exports = {
             '🍇': 6.5
         }
 
-        const embed = new Discord.EmbedBuilder()
-        .setColor('#4e5052')
-        .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-        .setTitle(`⭕ Roleta`)
-        .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
-        .setFooter({ text: `⭕ Informações da sua aposta:\nEscolha uma fruta para apostar`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-        
         const btn0 = utility.createButton('🍊', 'SECONDARY', '', '🍊')
         const btn1 = utility.createButton('🍓', 'SECONDARY', '', '🍓')
         const btn2 = utility.createButton('🍐', 'SECONDARY', '', '🍐')
         const btn3 = utility.createButton('🍇', 'SECONDARY', '', '🍇')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1, btn2, btn3])], withResponse: true })).resource.message;
+        const gameInfo = `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`;
+        const initialContainer = rouletteContainer({
+            color: 0x4e5052,
+            fields: { author: interaction.user.tag, title: '⭕ Roleta', values: [{ name: 'Informações de Jogo', value: gameInfo }] },
+            footer: '⭕ Informações da sua aposta:\nEscolha uma fruta para apostar'
+        });
+        initialContainer.addActionRowComponents(new ActionRowBuilder().addComponents(btn0, btn1, btn2, btn3));
+        let embedinteraction = (await interaction.reply({ components: [initialContainer], flags: v2Flags, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
             
@@ -122,41 +140,48 @@ module.exports = {
                     }
                 }
                 
-                const embed2 = new Discord.EmbedBuilder()
-                .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                .setColor('#4e5052')
-                .setTitle(`⭕ Roleta`)
-                .addFields({ name: `Sua aposta`, value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)`, inline: true })
-                .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
-                .setDescription(`**<a:loading:736625632808796250> Girando a roleta**\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
+                let resultColor = 0x4e5052;
+                let resultTitle = '';
+                let resultEmote = '';
+                const resultDescription = `**<a:loading:736625632808796250> Girando a roleta**\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`;
+                let resultContainer = rouletteContainer({
+                    color: resultColor,
+                    description: resultDescription,
+                    fields: { author: interaction.user.tag, title: '⭕ Roleta', values: [
+                        { name: 'Sua aposta', value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)` },
+                        { name: 'Informações de Jogo', value: gameInfo }
+                    ] }
+                });
                 currentnum++;
                 if (rolnum > currentnum) {
                     currentnum++;
                     setTimeout(function(){roll()}, 1550);
                 } else {
-                    let title
-                    let emote
                     if (selected == array[5]) {
                         economyService.addToHistory(interaction.user.id, `Roleta | + ${utility.format(Math.round(aposta*multiplier[selected])-aposta)} ${utility.money3emoji}`);
-                        embed2.setColor('#56fc03');title = '**✅ VOCÊ GANHOU!!**'; emote = '✅'; 
+                        resultColor = 0x56fc03; resultTitle = '**✅ VOCÊ GANHOU!!**'; resultEmote = '✅';
                         await economyService.token.add(interaction.user.id, (Math.round(aposta*multiplier[selected])-aposta));playersService.cooldown.set(interaction.user.id, "roullete", 0);
                     }
                     else {
                         economyService.addToHistory(interaction.user.id, `Roleta | - ${utility.format(aposta)} ${utility.money3emoji}`);
-                        embed2.setColor('#fc0324');
-                        title = '**❌ VOCÊ PERDEU!!**'; 
-                        emote = '❌'; 
+                        resultColor = 0xfc0324;
+                        resultTitle = '**❌ VOCÊ PERDEU!!**';
+                        resultEmote = '❌';
                         await economyService.token.remove(interaction.user.id, aposta);
                         economyService.token.add(config.app.id, aposta);
                         playersService.cooldown.set(interaction.user.id, "roullete", 0);
                     }
-                    embed2.fields = [];
-                    embed2.addFields({ name: `Sua aposta`, value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${emote} ${emote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${utility.money3} ${utility.money3emoji}`, inline: true })
-                    .addFields({ name: `Informações de Jogo`, value: `\`🍊\` ${multiplier['🍊']}x\n\`🍓\` ${multiplier['🍓']}x\n\`🍐\` ${multiplier['🍐']}x\n\`🍇\` ${multiplier['🍇']}x`, inline: true })
-                    .setDescription(`${title}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`)
+                    resultContainer = rouletteContainer({
+                        color: resultColor,
+                        description: `${resultTitle}\n${'<:rol2:742058057110126674>'.repeat(5)}<:rol2s:742058927163965620>${'<:rol2:742058057110126674>'.repeat(5)}\n${array.join('')}\n${'<:rol1:742058057051144272>'.repeat(5)}<:rol1s:742058927021359145>${'<:rol1:742058057051144272>'.repeat(5)}`,
+                        fields: { author: interaction.user.tag, title: '⭕ Roleta', values: [
+                            { name: 'Sua aposta', value: `Aposta: ${utility.format(aposta)} ${utility.money3} ${utility.money3emoji}\nFruta: ${selected} (${multiplier[selected]}x)\n${resultEmote} ${resultEmote == '✅' ? `Lucro: ${(Math.round(aposta*multiplier[selected])-aposta)}`: `Prejuízo: ${aposta}`} ${utility.money3} ${utility.money3emoji}` },
+                            { name: 'Informações de Jogo', value: gameInfo }
+                        ] }
+                    });
                     playersService.cooldown.set(interaction.user.id, "roullete", 0);
                 }
-                interaction.editReply({ embeds: [embed2], components: [] });
+                interaction.editReply({ components: [resultContainer], flags: v2Flags });
             }
 
             roll();
@@ -168,7 +193,7 @@ module.exports = {
 
             if (reacted) return
 
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [initialContainer], flags: v2Flags });
 
             return;
         });

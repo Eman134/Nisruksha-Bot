@@ -6,6 +6,7 @@ const townsService = require('../../_classes/services/towns');
 const playersService = require('../../_classes/services/players');
 const economyService = require('../../_classes/services/economy');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('vila').setDescription('Selecione a vila para a qual deseja se mover')
   .addChoices({ name: 'Nishigami', value: 'Nishigami' })
@@ -15,6 +16,9 @@ const data = new SlashCommandBuilder()
   .setRequired(true))
 
 const prisma = require('../../_classes/prisma');
+const errorContainer = (interaction, message) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`));
 
 module.exports = {
     name: 'mover',
@@ -29,28 +33,23 @@ module.exports = {
         let vila = interaction.options.getString('vila');
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'mining')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(interaction.user.id, 'mining')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(interaction.user.id, 'mining')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode se mover enquanto pesca! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode se mover enquanto pesca! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         if (await cacheListsService.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode se mover enquanto caça! [[VER CAÇA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode se mover enquanto caça! [[VER CAÇA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         if (await cacheListsService.waiting.includes(interaction.user.id, 'collecting')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode se mover enquanto coleta! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode se mover enquanto coleta! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         if (await cacheListsService.waiting.includes(interaction.user.id, 'digging')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${await cacheListsService.waiting.getLink(interaction.user.id, 'digging')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${await cacheListsService.waiting.getLink(interaction.user.id, 'digging')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -59,8 +58,7 @@ module.exports = {
         let prox = townsService.getTownNumByName(vila);
 
         if (atual == prox) {
-            const embedtemp = await utility.sendError(interaction, `Você já se encontra nesta vila!\nUtilize \`/mapa\` para visualizar as vilas existentes.`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você já se encontra nesta vila!\nUtilize \`/mapa\` para visualizar as vilas existentes.`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -69,8 +67,7 @@ module.exports = {
 
         if (stamina < 100) {
             
-            const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 100 pontos de Estamina.\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui estamina o suficiente para se mover!\nPara mover entre vilas gasta 100 pontos de Estamina.\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${staminamax}]**`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
 
         }
@@ -110,10 +107,10 @@ module.exports = {
         }
         
         await playersService.stamina.remove(interaction.user.id, 149)
-		const embed = new Discord.EmbedBuilder()
-	    .setColor('#32a893')
-        .setDescription(`Você usou 100 pontos de Estamina 🔸 e se moveu da vila **${townsService.getTownNameByNum(atual)}** para a vila **${townsService.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${utility.format(total)} ${utility.money} ${utility.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`)
-        await interaction.reply({ embeds: [embed], mention: true });
+		const container = new ContainerBuilder()
+	    .setAccentColor(0x32a893)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`Você usou 100 pontos de Estamina 🔸 e se moveu da vila **${townsService.getTownNameByNum(atual)}** para a vila **${townsService.getTownNameByNum(prox)}**${assaltado ? `\n🏴‍☠️ No meio de sua travessia você foi assaltado por ${assaltantes} assaltantes e perdeu ${assaltantes*5}% (${utility.format(total)} ${utility.money} ${utility.moneyemoji}) do seu dinheiro!\n**Dica: Deposite seu dinheiro no banco para não ser assaltado!**` : ''}`));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
 	}
 };

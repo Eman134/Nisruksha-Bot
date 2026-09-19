@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 module.exports = {
     name: 'ping',
     category: 'Outros',
@@ -8,11 +9,11 @@ module.exports = {
 	async execute(interaction) {
         
                 
-		const embed = new Discord.EmbedBuilder()
-	    .setColor('#32a893')
-        .setDescription('🏓 Latência: ' + client.ws.ping + ' ms')
+		const container = new ContainerBuilder()
+	    .setAccentColor(0x32a893)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent('🏓 Latência: ' + client.ws.ping + ' ms'));
 
-        await interaction.reply({ embeds: [embed] });
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
 	}
 };

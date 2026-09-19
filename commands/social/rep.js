@@ -3,6 +3,11 @@ const utility = new UtilityService();
 const playersService = require('../../_classes/services/players');
 const machinesService = require('../../_classes/services/machines');
 const shopService = require('../../_classes/services/shop');
+const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
+const errorContainer = (interaction, message, usage) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`));
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Mencione o membro que deseja dar a reputação').setRequired(true))
@@ -21,8 +26,7 @@ module.exports = {
         let member = interaction.options.getUser('membro') || interaction.user
 
         if (member.id == interaction.user.id) {
-            const embedtemp = await utility.sendError(interaction, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você precisa mencionar outra pessoa para dar reputação', 'rep @membro')], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
@@ -38,8 +42,7 @@ module.exports = {
 
         if (cmaq < 102) {
             const product = await shopService.getProduct(102);
-            const embedtemp = await utility.sendError(interaction, `Você precisa ter no mínimo a ${product.icon} ${product.name} para dar rep á alguém!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você precisa ter no mínimo a ${product.icon} ${product.name} para dar rep á alguém!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
         
@@ -49,7 +52,7 @@ module.exports = {
         await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         await prisma.players.update({ where: { user_id }, data: { reps: { increment: BigInt(1) } } })
 
-        await interaction.reply({ content: 'Você deu **+1 REP** para **' + member.tag + '**!' })
+        await interaction.reply({ components: [new TextDisplayBuilder().setContent('Você deu **+1 REP** para **' + member.tag + '**!')], flags: Discord.MessageFlags.IsComponentsV2 })
 
     },
 };

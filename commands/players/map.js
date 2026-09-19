@@ -3,6 +3,8 @@ const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const imagesService = require('../../_classes/services/images');
 const prisma = require('../../_classes/prisma');
+const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, FileBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'mapa',
@@ -22,7 +24,7 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "map", 15);
 
-        await interaction.reply({ content: `<a:loading:736625632808796250> Carregando mapa` })
+        await interaction.reply({ components: [new TextDisplayBuilder().setContent('<a:loading:736625632808796250> Carregando mapa')], flags: Discord.MessageFlags.IsComponentsV2 })
 
         const townname = await townsService.getTownName(interaction.user.id);
         const townnum = await townsService.getTownNumByName(townname);
@@ -30,13 +32,13 @@ module.exports = {
         const companies = await prisma.companies.count({ where: { loc: townnum } });
         const hasTreasure = (eventsService.treasure.loc != 0 && eventsService.treasure.picked == false)
         const hasDuck = (eventsService.duck.loc != 0 && eventsService.duck.killed == false)
-        let content = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`
+        let mapDescription = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`
         
         if (hasTreasure) {
-            content += "\n<:treasure:807671407160197141> Há um tesouro não explorado no mapa!\nPara pegá-lo utilize `/pegartesouro`"
+            mapDescription += "\n<:treasure:807671407160197141> Há um tesouro não explorado no mapa!\nPara pegá-lo utilize `/pegartesouro`"
         }
         if (hasDuck) {
-            content += "\n<:pato:919946658941399091> Há um pato dourado vivo no mapa!\nPara matá-lo utilize `/patodourado`"
+            mapDescription += "\n<:pato:919946658941399091> Há um pato dourado vivo no mapa!\nPara matá-lo utilize `/patodourado`"
         }
 
         const mapimage = await imagesService.imagegens.get('map.js')({
@@ -56,7 +58,15 @@ module.exports = {
 
         })
 
-        await interaction.editReply({ content, files: [mapimage] } );
+        await interaction.editReply({
+            components: [
+                new ContainerBuilder()
+                    .addTextDisplayComponents(new TextDisplayBuilder().setContent(mapDescription))
+                    .addFileComponents(new FileBuilder().setURL('attachment://image.png'))
+            ],
+            files: [mapimage],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
         
 	}
 };

@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -23,24 +24,22 @@ module.exports = {
         if (pobj.rod == null) delete pobj.rod
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode upar uma vara enquanto estiver pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`);
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não pode upar uma vara enquanto estiver pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (!pobj.rod) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
         let total = Math.round(1200*pobj.rod.level*2)
 
-        const embed = new Discord.EmbedBuilder()
-        .setColor('#63b8ae')
-        .setTitle(pobj.rod.icon + ' ' + pobj.rod.name)
-        .setDescription(`\`${companyService.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-        let embedinteraction = (await interaction.reply({ embeds: [embed], withResponse: true})).resource.message
+        const container = new ContainerBuilder().setAccentColor(0x63b8ae).addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## ${pobj.rod.icon} ${pobj.rod.name}`),
+            new TextDisplayBuilder().setContent(`\`${companyService.jobs.formatStars(pobj.rod.stars)}\`\nGasto por turno: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
+        )
+        let embedinteraction = (await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true})).resource.message
         embedinteraction.react('🔼')
 
         const filter = (reaction, user) => {
@@ -61,17 +60,15 @@ module.exports = {
             playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             if (!pobj2.rod) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\`` })
-                interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê precisa ter uma vara de pesca para poder dar upgrade!\nCompre uma vara de pesca utilizando \`/pegarvara\``))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
                 return
             }
     
 
             if (pobj2.money < total) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
-                interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê não possui dinheiro o suficiente para ${pobj2.rod ? 'trocar' : 'comprar'} sua vara de pesca!\nSeu dinheiro atual: **${utility.format(pobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
                 return
             }
 
@@ -104,9 +101,8 @@ module.exports = {
             }
 
             if (list.length == 0) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui mais upgrades disponíveis nessa vara de pesca!` })
-                return interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê não possui mais upgrades disponíveis nessa vara de pesca!`))
+                return interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             }
 			upgraded = true
 
@@ -117,18 +113,22 @@ module.exports = {
 
                 pobj2.rod.stars += 1
                 await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
-                embed.setColor('#5bff45')
-                .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!` })
-                return interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`## ${pobj2.rod.icon} ${pobj2.rod.name}`),
+                    new TextDisplayBuilder().setContent(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`),
+                    new TextDisplayBuilder().setContent(`**✅ Sucesso no upgrade**\nVocê gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!`)
+                )
+                return interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
 
             } if (list.includes(1)) {
                 pobj2.rod.sta -= 1
                 await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
-                embed.setColor('#5bff45')
-                .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!` })
-                return interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`## ${pobj2.rod.icon} ${pobj2.rod.name}`),
+                    new TextDisplayBuilder().setContent(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`),
+                    new TextDisplayBuilder().setContent(`**✅ Sucesso no upgrade**\nVocê gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!`)
+                )
+                return interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
 
             } if (list.includes(2)) {
                 pobj2.rod.profundidade = (parseFloat(pobj2.rod.profundidade) + parseFloat("0." + utility.random(2, 5))).toFixed(1)
@@ -137,14 +137,15 @@ module.exports = {
 
                 await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
 
-                embed.setColor('#5bff45')
-                .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
-                embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!` })
-                return interaction.editReply({ embeds: [embed] })
+                const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`## ${pobj2.rod.icon} ${pobj2.rod.name}`),
+                    new TextDisplayBuilder().setContent(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`),
+                    new TextDisplayBuilder().setContent(`**✅ Sucesso no upgrade**\nVocê gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e aumentou a profundidade alcançada pela sua vara de pesca!`)
+                )
+                return interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 })
             } else {
-                embed.setColor('#a60000');
-                embed.addFields({ name: `❌ Falha no upgrade`, value: `Você não possui mais upgrades disponíveis nessa vara de pesca!` })
-                return interaction.editReply({ embeds: [embed] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Falha no upgrade**\nVocê não possui mais upgrades disponíveis nessa vara de pesca!`))
+                return interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             }
             
             
@@ -152,10 +153,8 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted || upgraded) return;
-            const embed = new Discord.EmbedBuilder();
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria upar sua vara de pesca, porém o tempo expirou.` })
-            interaction.editReply({ embeds: [embed] });
+            const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Tempo expirado**\nVocê iria upar sua vara de pesca, porém o tempo expirou.`))
+            interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

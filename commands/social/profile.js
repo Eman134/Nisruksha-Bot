@@ -3,6 +3,8 @@ const shopService = require('../../_classes/services/shop');
 const imagesService = require('../../_classes/services/images');
 const framesService = require('../../_classes/services/frames');
 const prisma = require('../../_classes/prisma');
+const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, FileBuilder } = require('@discordjs/builders');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -29,7 +31,7 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "profile", 10);
 
-        await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações do perfil` })
+        await interaction.reply({ components: [new TextDisplayBuilder().setContent('<a:loading:736625632808796250> Carregando informações do perfil')], flags: Discord.MessageFlags.IsComponentsV2 })
 
         const user_id = BigInt(member.id)
         const playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
@@ -70,7 +72,11 @@ module.exports = {
 
         })
 
-        await interaction.editReply({ content: null, files: [profileimage] } );
+        await interaction.editReply({
+            components: [new ContainerBuilder().addFileComponents(new FileBuilder().setURL('attachment://image.png'))],
+            files: [profileimage],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
 
 	}
 };

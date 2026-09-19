@@ -4,6 +4,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 
 module.exports = {
 	name: 'ajuda',
@@ -14,11 +15,17 @@ module.exports = {
 	async execute(interaction) {
 
 		const categorylist = helpService.getCategoryListObj()
+		let display = { color: 0x32a893, title: 'Olá, meu nome é Nisruksha!', description: '' };
+
+		function buildContainer() {
+			return new ContainerBuilder().setAccentColor(display.color).addTextDisplayComponents(new TextDisplayBuilder().setContent([
+				`## ${display.title}`,
+				display.description
+			].filter(Boolean).join('\n\n')));
+		}
 		
 		function home() {
-			embed.setColor('#32a893')
-			.setTitle('Olá, meu nome é Nisruksha!')
-			.setDescription(`<:info:736274028515295262> Olá ${interaction.user}, sou o **Nisruksha**.
+            display = { color: 0x32a893, title: 'Olá, meu nome é Nisruksha!', description: `<:info:736274028515295262> Olá ${interaction.user}, sou o **Nisruksha**.
 ↳ Para me convidar para seu servidor ou entrar no meu, basta usar \`/convite\`
 
 Acesse o tutorial do bot para saber a história e como usá-lo (Em construção) \`/tutorial\`
@@ -29,10 +36,8 @@ Caso não tenha o código, peça para a pessoa utilizar \`/meucodigo\`
 <:book:703298827888623647> Para saber mais sobre os comandos, separei algumas categorias para você listar!
 
 <:list:736274028179750922> **Categorias**
-${helpService.getCategoryList()}`)
+${helpService.getCategoryList()}` };
 		}
-
-		const embed = new Discord.EmbedBuilder()
 			
 		home()
 
@@ -62,14 +67,14 @@ ${helpService.getCategoryList()}`)
             for (let x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
-                const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
+                 const rowBtn = new ActionRowBuilder().addComponents(...butnList.slice(var1, var2))
                 if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
 
         }
 
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
+        const embedinteraction = (await interaction.reply({ components: [buildContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -85,15 +90,12 @@ ${helpService.getCategoryList()}`)
 
 				const cmdlist = clientService.current.commands.filter((cmd) => cmd.category == current )
                 const cmdmap = cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${'\n › Maestria média: \`🔰\ ' + (cmd.mastery || 1) + '\`\n'}`).join('\n')
-				embed.setTitle(`<:info:736274028515295262> Categoria ${b.customId.toUpperCase()}`);
-				embed.setColor("#03d7fc");
-				embed.setDescription(cmdmap);
-				//embed.setDescription(`${cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
+				display = { title: `<:info:736274028515295262> Categoria ${b.customId.toUpperCase()}`, color: 0x03d7fc, description: cmdmap };
 			}
         
             reworkButtons(current)
 
-            await interaction.editReply({ embeds: [embed], components })
+            await interaction.editReply({ components: [buildContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
 
             collector.resetTimer()
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.ajuda.defer_update'); });
@@ -102,7 +104,7 @@ ${helpService.getCategoryList()}`)
         
         collector.on('end', collected => {
 			reworkButtons(current, true)
-            interaction.editReply({ embeds: [embed], components })
+             interaction.editReply({ components: [buildContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
         });
 		
 	}

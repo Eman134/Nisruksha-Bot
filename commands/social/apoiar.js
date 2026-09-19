@@ -6,6 +6,10 @@ const machinesService = require('../../_classes/services/machines');
 const shopService = require('../../_classes/services/shop');
 const clientService = require('../../_classes/services/clientService');
 const framesService = require('../../_classes/services/frames');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
+const errorContainer = (interaction, message, usage) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`));
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -28,22 +32,19 @@ module.exports = {
         const check = await economyService.tp.check(codigo)
 
         if (!check.exists) {
-            const embedtemp = await utility.sendError(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'apoiar <codigo>')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Este código de convite não existe, verifique com seu amigo o código!', 'apoiar <codigo>')], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
         if (check.owner == interaction.user.id) {
-            const embedtemp = await utility.sendError(interaction, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você não pode utilizar seu próprio código de convite bobinho!\nChame seus amigos para o bot para poder ganhar as recompensas!')], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
         const invitejson = await economyService.tp.get(interaction.user.id)
 
         if (invitejson.usedinvite) {
-            const embedtemp = await utility.sendError(interaction, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `/convite` e veja as instruções.')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você só pode utilizar UM código de convite!\nCaso você deseja ganhar recompensas, utilize `/convite` e veja as instruções.')], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
@@ -51,30 +52,27 @@ module.exports = {
 
         if (cmaq < 102) {
             const product = await shopService.getProduct(102);
-            const embedtemp = await utility.sendError(interaction, `Você precisa ter no mínimo a ${product.icon} ${product.name} para apoiar alguém!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você precisa ter no mínimo a ${product.icon} ${product.name} para apoiar alguém!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
         const owner = await clientService.current.users.fetch(check.owner)
         
-        const embed = new Discord.EmbedBuilder()
+        const container = new ContainerBuilder()
+            .setAccentColor(0x5bff45)
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent('## 💚 Código de convite utilizado com sucesso!'),
+                new TextDisplayBuilder().setContent('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + utility.tp.name + ' ' + utility.tp.emoji + ', enquanto seu amigo recebeu 1 ' + utility.tp.name + ' ' + utility.tp.emoji),
+                new TextDisplayBuilder().setContent('-# Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize /convite para mais informações')
+            );
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
-        .setTitle('💚 Código de convite utilizado com sucesso!')
-        .setColor('#5bff45')
-        .setDescription('Você utilizou o código do seu amigo `' + owner.tag + ' (' + owner.id + ')` e você recebeu 5 ' + utility.tp.name + ' ' + utility.tp.emoji + ', enquanto seu amigo recebeu 1 ' + utility.tp.name + ' ' + utility.tp.emoji)
-        .setFooter({ text: 'Sabia que você também pode convidar seus amigos e ganhar recompensas?\nUtilize /convite para mais informações' })
-        await interaction.reply({ embeds: [embed] })
-
-        const embedcmd = new Discord.EmbedBuilder()
-          .setColor('#b8312c')
-          .setTimestamp()
-          .setDescription(`O membro ${interaction.user} apoiou ${owner}`)
-          .addFields({ name: '<:mention:788945462283075625> Membro', value: `${interaction.user.tag} (\`${interaction.user.id}\`)` })
-          .addFields({ name: '<:channel:788949139390988288> Canal', value: `\`${interaction.channel.name} (${interaction.channel.id})\`` })
-          .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-          .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
-          clientService.current.channels.cache.get('826184097814020116').send({ embeds: [embedcmd]});
+        const logContainer = new ContainerBuilder()
+            .setAccentColor(0xb8312c)
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`O membro ${interaction.user} apoiou ${owner}\n\n**<:mention:788945462283075625> Membro**\n${interaction.user.tag} (\`${interaction.user.id}\`)\n\n**<:channel:788949139390988288> Canal**\n\`${interaction.channel.name} (${interaction.channel.id})\`\n\n-# ${interaction.guild.name} | ${interaction.guild.id}`)
+            );
+        clientService.current.channels.cache.get('826184097814020116').send({ components: [logContainer], flags: Discord.MessageFlags.IsComponentsV2 });
 
         updateInviteJson(interaction.user, owner)
 

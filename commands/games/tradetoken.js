@@ -2,10 +2,22 @@ const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Digite a quantia de fichas que deseja trocar').setRequired(true))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder()
+        .setAccentColor(color)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message, usage) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`, 0xb8312c);
+}
 
 module.exports = {
     name: 'trocarfichas',
@@ -20,29 +32,28 @@ module.exports = {
         const fichas = interaction.options.getInteger('fichas');
 
         if (fichas < 20) {
-            const embedtemp = await utility.sendError(interaction, `A quantia mínima de fichas para troca é 20 fichas!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia mínima de fichas para troca é 20 fichas!`)], flags: v2Flags });
             return;
         }
 		
 	const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para trocar `)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para trocar `)], flags: v2Flags });
             return;
         }
 
         let total = fichas*810;
-        
-		const embed = new Discord.EmbedBuilder()
-	    .setColor('#32a893')
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `Você deseja trocar ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}?` })
-        
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        const buildTradeContainer = (color, title, value) => textContainer(`**${title}**\n${value}`, color);
+        let embedinteraction = (await interaction.reply({
+            components: [buildTradeContainer(0x32a893, '<a:loading:736625632808796250> Aguardando confirmação', `Você deseja trocar ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}?`)
+                .addActionRowComponents(new ActionRowBuilder().addComponents(btn0, btn1))],
+            flags: v2Flags,
+            withResponse: true
+        })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -61,25 +72,16 @@ module.exports = {
 	const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para trocar `)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.followUp({ components: [errorContainer(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para trocar `)], flags: v2Flags });
             return;
         }
 		
             if (b.customId == 'cancel'){
                 collector.stop();
-                embed.fields = [];
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Troca cancelada', value: `
-                Você cancelou a troca de ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}.` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildTradeContainer(0xa60000, '❌ Troca cancelada', `Você cancelou a troca de ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}.`)], flags: v2Flags });
                 return;
             } else {
-                embed.fields = [];
-                embed.setColor('#5bff45');
-                embed.addFields({ name: '✅ Sucesso na troca', value: `
-                Você trocou ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}` })
-                await interaction.editReply({ embeds: [embed], components: [] });
+                await interaction.editReply({ components: [buildTradeContainer(0x5bff45, '✅ Sucesso na troca', `Você trocou ${utility.format(fichas)} ${utility.money3} ${utility.money3emoji} pelo valor de ${utility.format(total)} ${utility.money} ${utility.moneyemoji}`)], flags: v2Flags });
                 await economyService.token.remove(interaction.user.id, fichas)
                 await economyService.money.add(interaction.user.id, total)
                 await economyService.addToHistory(interaction.user.id, `Troca | - ${utility.format(fichas)} ${utility.money3emoji} : + ${utility.format(total)} ${utility.moneyemoji}`)
@@ -88,11 +90,7 @@ module.exports = {
         
         collector.on('end', collected => {
             if (reacted) return
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `
-            Você iria trocar ${fichas} ${utility.money3} ${utility.money3emoji} pelo valor de ${total} ${utility.money} ${utility.moneyemoji}, porém o tempo expirou!` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [buildTradeContainer(0xa60000, '❌ Tempo expirado', `Você iria trocar ${fichas} ${utility.money3} ${utility.money3emoji} pelo valor de ${total} ${utility.money} ${utility.moneyemoji}, porém o tempo expirou!`)], flags: v2Flags });
             return;
         });
 

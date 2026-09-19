@@ -8,13 +8,16 @@ const runtime = require('../../_classes/services/runtime');
 const economyService = require('../../_classes/services/economy');
 const itemsService = require('../../_classes/services/items');
 const badgesService = require('../../_classes/services/badges');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('id-caixa').setDescription('Escreva o id da caixa da sua mochila para abrir').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Escolha uma quantia de caixas para abrir').setRequired(true))
 
 const prisma = require('../../_classes/prisma');
+const errorContainer = (interaction, message, usage) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`));
 
 module.exports = {
     name: 'abrircaixa',
@@ -44,14 +47,12 @@ module.exports = {
         
         const crateField = `crate_${id}`;
         if (obj[crateField] == null || obj[crateField] < 1 || obj[crateField] == undefined) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui uma caixa com este id!\nUtilize \`/mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-			await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui uma caixa com este id!\nUtilize \`/mochila\` para visualizar suas caixas`, 'abrircaixa 1')], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         
         if (obj[crateField] < quantia) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de caixas [${obj[crateField]}/${quantia}]!\nUtilize \`/mochila\` para visualizar suas caixas`, `abrircaixa 1`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui essa quantia de caixas [${obj[crateField]}/${quantia}]!\nUtilize \`/mochila\` para visualizar suas caixas`, 'abrircaixa 1')], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -59,20 +60,24 @@ module.exports = {
         if (boxl < 1) boxl = 1
         
         if (boxl > 30) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode abrir mais do que 30 caixas simultaneamente!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode abrir mais do que 30 caixas simultaneamente!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         
-		const embed = new Discord.EmbedBuilder()
-	    .setColor('#606060')
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `📦 Você deseja abrir **${boxl}x ${crate.icon} ${crate.name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
-        .setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
+        let boxColor = 0x606060;
+        let boxDescription = '';
+        let boxFields = [['<a:loading:736625632808796250> Aguardando confirmação', `📦 Você deseja abrir **${boxl}x ${crate.icon} ${crate.name}**?\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``]];
+        const buildBoxContainer = () => {
+            const container = new ContainerBuilder().setAccentColor(boxColor).addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${interaction.user.tag}`));
+            if (boxDescription) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(boxDescription));
+            for (const [name, value] of boxFields) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${name}**\n${value}`));
+            return container;
+        };
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [buildBoxContainer(), new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id && ['confirm', 'cancel', 'skip'].includes(i.customId);
             
@@ -89,11 +94,11 @@ module.exports = {
                 arraywin.push(reward)
                 currnum++;
                 
-                embed.fields = [];
-                embed.setColor('#5bff45');
-                embed.setDescription(`${arraywin.map(rr => `<a:aberto:758105619269156864>  ⤳  ${rr.icon} ${rr.displayname ? rr.displayname : rr.name}`).join('\n')}${currnum < rewards.length ? `\n \n**<a:abrindo:758105619281870898> ${rewards.length-currnum}x ${crate.icon} ${crate.name}** restantes...`:`\n \n✅ Todas as caixas foram abertas (${boxl}x)`}`)
+                boxFields = [];
+                boxColor = 0x5bff45;
+                boxDescription = `${arraywin.map(rr => `<a:aberto:758105619269156864>  ⤳  ${rr.icon} ${rr.displayname ? rr.displayname : rr.name}`).join('\n')}${currnum < rewards.length ? `\n \n**<a:abrindo:758105619281870898> ${rewards.length-currnum}x ${crate.icon} ${crate.name}** restantes...`:`\n \n✅ Todas as caixas foram abertas (${boxl}x)`}`
                 if(runtime.debug) {
-                    embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nBoxl: ${boxl}\nRewardsLength: ${rewards.length}\nÚltimo recebido em: ${1000+(100-rewards[currnum-1].chance)*30}ms\nFinalizado em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
+                    boxFields.push(['<:error:736274027756388353> Depuração', `\n\`\`\`js\nBoxl: ${boxl}\nRewardsLength: ${rewards.length}\nÚltimo recebido em: ${1000+(100-rewards[currnum-1].chance)*30}ms\nFinalizado em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``])
                 }
 
                 try {
@@ -157,22 +162,22 @@ module.exports = {
                     
                 } catch (err) {
                     clientService.current.emit('error', err)
-                    interaction.channel.send({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
+                    interaction.channel.send({ components: [new TextDisplayBuilder().setContent('Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.')], flags: Discord.MessageFlags.IsComponentsV2 })
                 }
 
                 if (descartou && currnum >= rewards.length) {
-                    embed.addFields({ name: '❌ Oops, um problema ao abrir as caixas!', value: `Um ou mais itens foram descartados da sua mochila.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`/venderitem\`` })
+                    boxFields.push(['❌ Oops, um problema ao abrir as caixas!', `Um ou mais itens foram descartados da sua mochila.\nVocê pode esvaziar sua mochila vendendo alguns itens com \`/venderitem\``])
                 }
                 
                 let components = []
 
                 if (rewards.length-currnum > 5) {
                     const skipBtn = utility.createButton('skip', 'SECONDARY', 'Pular', '⏩')
-                    components.push(utility.rowComponents([skipBtn]))
+                    components.push(new ActionRowBuilder().addComponents(skipBtn))
                 }
 
                 if (!skipping || (skipping && currnum >= rewards.length)) {
-                    await interaction.editReply({ embeds: [embed], components });
+                    await interaction.editReply({ components: [buildBoxContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2 });
                 }
                 
                 if (currnum < rewards.length) {
@@ -202,10 +207,10 @@ module.exports = {
             }
 
             if (b.customId == 'cancel'){
-                embed.fields = [];
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Abertura de caixa cancelada', value: `Você cancelou a abertura de **${boxl}x ${crate.icon} ${crate.name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                boxFields = [['❌ Abertura de caixa cancelada', `Você cancelou a abertura de **${boxl}x ${crate.icon} ${crate.name}**.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``]];
+                boxDescription = '';
+                boxColor = 0xa60000;
+                interaction.editReply({ components: [buildBoxContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
                 playersService.cooldown.set(interaction.user.id, "crate", 0);
                 return;
             } 
@@ -213,10 +218,10 @@ module.exports = {
             let rewards = await crateExtensionService.getReward(id, boxl);
             if(runtime.debug) console.log(rewards)
 
-            embed.fields = [];
-            embed.setColor('#606060');
-            embed.setDescription(`<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${crate.icon} ${crate.name}**`)
-            interaction.editReply({ embeds: [embed], components: [] });
+            boxFields = [];
+            boxColor = 0x606060;
+            boxDescription = `<a:abrindo:758105619281870898>  ⤳  Abrindo **${boxl}x ${crate.icon} ${crate.name}**`;
+            interaction.editReply({ components: [buildBoxContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
 
             //let t1 = 1000+(100-rewards[0].chance)*30;
             setTimeout(function(){ editBox(rewards[0], rewards) }, 1500);
@@ -225,10 +230,10 @@ module.exports = {
 
         collector.on('end', async collected => {
             if (reacted) return;
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir **${boxl}x ${crate.icon} ${crate.name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\`` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            boxFields = [['❌ Tempo expirado', `Você iria abrir **${boxl}x ${crate.icon} ${crate.name}**, porém o tempo expirou.\nPara visualizar as recompensas disponíveis use \`/recompensascaixa ${id}\``]];
+            boxDescription = '';
+            boxColor = 0xa60000;
+            interaction.editReply({ components: [buildBoxContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
         });
 
         playersService.cooldown.set(interaction.user.id, "crate", 30);

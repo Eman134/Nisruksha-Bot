@@ -5,6 +5,7 @@ const economyService = require('../../_classes/services/economy');
 const runtime = require('../../_classes/services/runtime');
 const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'resetscore',
@@ -17,13 +18,13 @@ module.exports = {
 
         const scoremin = 80
 
-		        const embed = new Discord.EmbedBuilder()
-        embed.setDescription('Reaja para continuar o reset de temporada')
+        const buildContainer = (color, content) => new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+        const initialContainer = buildContainer(0x36393f, 'Reaja para continuar o reset de temporada');
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [initialContainer, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -35,15 +36,12 @@ module.exports = {
 reacted = true;
             collector.stop();
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.resetscore.defer_update'); });
-            embed.fields = [];
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.setDescription('❌ Reset cancelado', `
-                Você cancelou o reset de ` + args[0])
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildContainer(0xa60000, `❌ Reset cancelado\n\nVocê cancelou o reset da temporada`)], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
+            let resultContainer;
             try {
                 const rows = await prisma.players.findMany({ where: { mastery: { gt: BigInt(0) } }, select: { user_id: true, mastery: true } });
 
@@ -66,25 +64,19 @@ reacted = true;
                     await prisma.companies.updateMany({ where: { score: { gt: scoremin } }, data: { score: scoremin } });
                     await prisma.players.updateMany({ where: { mastery: { gt: BigInt(0) } }, data: { mastery: BigInt(0) } });
     
-                embed.setDescription(`✅ Temporada foi resetada!`)
-                embed.setColor('#32a893');
     
+                resultContainer = buildContainer(0x32a893, '✅ Temporada foi resetada!');
             } catch (e) {
-                embed.setDescription(`❌ Houve um erro ao tentar resetar os scores`)
-                embed.addFields({ name: 'Erro', value: `\`\`\`js\n${e.stack}\`\`\`` });
-                embed.setColor('#eb4034')
+                resultContainer = buildContainer(0xeb4034, `❌ Houve um erro ao tentar resetar os scores\n\n**Erro**\n\`\`\`js\n${e.stack}\n\`\`\``);
             } finally {
-                await interaction.editReply({ embeds: [embed], components: []  });
+                await interaction.editReply({ components: [resultContainer], flags: Discord.MessageFlags.IsComponentsV2 });
             }
             
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.EmbedBuilder();
-            embed.setColor('#a60000');
-            embed.setDescription('❌ Tempo expirado', `Você iria resetar a temporada, porém o tempo expirou.`)
-            interaction.editReply({ embeds: [embed], components: []  });
+            interaction.editReply({ components: [buildContainer(0xa60000, '❌ Tempo expirado\n\nVocê iria resetar a temporada, porém o tempo expirou.')], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

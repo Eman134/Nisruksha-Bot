@@ -1,5 +1,7 @@
 const clientService = require('../../_classes/services/clientService');
 const config = require('../../_classes/config');
+const Discord = require('discord.js');
+const { TextDisplayBuilder } = require('@discordjs/builders');
 module.exports = {
     name: 'reloadslash',
     aliases: ['loadslash', 'reloadsl'],
@@ -10,7 +12,7 @@ module.exports = {
 
         clientService.current.loadSlashCommands({ force: true, id: config.app.id })
 
-        interaction.reply({ content: 'Comandos de Slash foram recarregados com sucesso!' })
+        interaction.reply({ components: [new TextDisplayBuilder().setContent('Comandos de Slash foram recarregados com sucesso!')], flags: Discord.MessageFlags.IsComponentsV2 })
 
     }
 };

@@ -5,6 +5,7 @@ const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela').setRequired(true))
 
@@ -18,13 +19,13 @@ module.exports = {
 	async execute(interaction) {
 
         const tabela = interaction.options.getString('tabela');
-		        const embed = new Discord.EmbedBuilder()
-        embed.setDescription('Reaja para continuar o reset de ' + tabela)
+        const buildContainer = (color, content) => new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+        const initialContainer = buildContainer(0x36393f, 'Reaja para continuar o reset de ' + tabela);
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [initialContainer, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -36,24 +37,19 @@ module.exports = {
 reacted = true;
             collector.stop();
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.reset.defer_update'); });
-            embed.fields = [];
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.setDescription('❌ Reset cancelado', `
-                Você cancelou o reset de ` + tabela)
-                interaction.editReply({ embeds: [embed] });
+                interaction.editReply({ components: [buildContainer(0xa60000, `❌ Reset cancelado\n\nVocê cancelou o reset de ${tabela}`)], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             const table = tabela.toLowerCase();
             const allowedTables = new Set(['players', 'servers', 'globals', 'storage', 'players_utils', 'machines', 'cooldowns', 'companies', 'towns', 'site']);
             if (table !== 'all' && !allowedTables.has(table)) {
-                embed.setDescription('❌ Tabela não permitida.');
-                embed.setColor('#eb4034');
-                await interaction.editReply({ embeds: [embed] });
+                await interaction.editReply({ components: [buildContainer(0xeb4034, '❌ Tabela não permitida.')], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
             if (table == 'all') {
+                let resultContainer;
                 try {
                     await Promise.all([
                         prisma.players.deleteMany(), prisma.servers.deleteMany(), prisma.globals.deleteMany(),
@@ -61,18 +57,16 @@ reacted = true;
                         prisma.cooldowns.deleteMany(), prisma.companies.deleteMany(), prisma.towns.deleteMany(), prisma.site.deleteMany()
                     ]);
     
-                    embed.setDescription(`✅ Todos os dados foram resetados!`)
-                    embed.setColor('#32a893');
     
+                    resultContainer = buildContainer(0x32a893, '✅ Todos os dados foram resetados!');
                 } catch (e) {
-                    embed.setDescription(`❌ Houve um erro ao tentar resetar todos os dados`)
-                    embed.addFields({ name: 'Erro', value: `\`\`\`js\n${e.stack}\`\`\`` });
-                    embed.setColor('#eb4034')
+                    resultContainer = buildContainer(0xeb4034, `❌ Houve um erro ao tentar resetar todos os dados\n\n**Erro**\n\`\`\`js\n${e.stack}\n\`\`\``);
                 } finally {
-                    await interaction.editReply({ embeds: [embed] });
+                    await interaction.editReply({ components: [resultContainer], flags: Discord.MessageFlags.IsComponentsV2 });
                 }
     
             } else {
+                let resultContainer;
                 try {
                     const resetters = {
                         players: () => prisma.players.deleteMany(),
@@ -88,15 +82,12 @@ reacted = true;
                     };
                     await resetters[table]();
     
-                    embed.setDescription(`✅ Dados da tabela \`${tabela.toLowerCase()}\` foram resetados!`)
-                    embed.setColor('#32a893');
     
+                    resultContainer = buildContainer(0x32a893, `✅ Dados da tabela \`${tabela.toLowerCase()}\` foram resetados!`);
                 } catch (e) {
-                    embed.setDescription(`❌ Houve um erro ao tentar resetar os dados de \`${tabela.toLowerCase()}\``)
-                    embed.addFields({ name: 'Erro', value: `\`\`\`js\n${e.stack}\`\`\`` });
-                    embed.setColor('#eb4034')
+                    resultContainer = buildContainer(0xeb4034, `❌ Houve um erro ao tentar resetar os dados de \`${tabela.toLowerCase()}\`\n\n**Erro**\n\`\`\`js\n${e.stack}\n\`\`\``);
                 } finally {
-                    await interaction.editReply({ embeds: [embed] });
+                        await interaction.editReply({ components: [resultContainer], flags: Discord.MessageFlags.IsComponentsV2 });
                 }
             }
 
@@ -104,10 +95,7 @@ reacted = true;
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new Discord.EmbedBuilder();
-            embed.setColor('#a60000');
-            embed.setDescription('❌ Tempo expirado', `Você iria resetar ${tabela}, porém o tempo expirou.`)
-            interaction.editReply({ embeds: [embed] });
+            interaction.editReply({ components: [buildContainer(0xa60000, `❌ Tempo expirado\n\nVocê iria resetar ${tabela}, porém o tempo expirou.`)], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

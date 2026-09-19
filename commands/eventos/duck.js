@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, FileBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const UtilityService = require('../../_classes/services/utilityService');
@@ -11,6 +12,25 @@ const clientService = require('../../_classes/services/clientService');
 const runtime = require('../../_classes/services/runtime');
 const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
+
+function buildMessage(interaction, { color = '#36393f', title, description, fields = [], image, file = false }) {
+    const lines = [
+        `**${interaction.user.tag}**`,
+        title ? `## ${title}` : '',
+        description || '',
+        ...fields.map(({ name, value }) => `**${name}**\n${value}`)
+    ].filter(Boolean);
+    const container = new ContainerBuilder()
+        .setAccentColor(typeof color === 'number' ? color : parseInt(color.slice(1), 16))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(lines.join('\n\n')));
+    if (image) container.addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: image } }));
+    if (file) container.addFileComponents(new FileBuilder().setURL('attachment://image.png'));
+    return container;
+}
+
+function buildError(interaction, message) {
+    return buildMessage(interaction, { color: '#b8312c', fields: [{ name: '<:error:736274027756388353>', value: message }] });
+}
 
 module.exports = {
     name: 'patodourado',
@@ -25,22 +45,19 @@ module.exports = {
         let townnum = await townsService.getTownNum(interaction.user.id);
 
         if (parseInt(eventsService.duck.loc) != parseInt(townnum)) {
-            const embedtemp = await utility.sendError(interaction, `Não possui nenhum pato dourado vivo na sua vila atual!\nUtilize \`/mapa\` para procurar algum pato em outras vilas\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Não possui nenhum pato dourado vivo na sua vila atual!\nUtilize \`/mapa\` para procurar algum pato em outras vilas\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         const hasKilled = eventsService.duck.killed.find((killed) => killed.id == interaction.user.id)
 
         if (hasKilled && hasKilled.amount >= 2) {
-            const embedtemp = await utility.sendError(interaction, `Você já batalhou o máximo de vezes contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você já batalhou o máximo de vezes contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'patodourado')) {
-            const embedtemp = await utility.sendError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'patodourado')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'patodourado')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -54,8 +71,6 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "patodourado", 60);
 
-        const embed = new Discord.EmbedBuilder()
-        
         let monster = {
             name: 'Pato Dourado',
             level: eventsService.duck.level,
@@ -89,17 +104,14 @@ module.exports = {
             stamax: 400,
         }
         
-        embed
-        .addFields({ name: `Você deseja iniciar a batalha contra o pato dourado?`, value: `Derrote o pato dourado e garanta recompensas!` })
-        .addFields({ name: `Informações do pato`, value: `Nome: **${monster.name}**\nNível: **${monster.level}**` })
-        .setImage(monster.image)
-
         const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
         const btn1 = utility.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
-
-        const rowButton0 = utility.rowComponents([ btn0, btn1 ])
-
-        const embedinteraction = (await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } )).resource.message;
+        const rowButton0 = new ActionRowBuilder().addComponents(btn0, btn1)
+        const container = buildMessage(interaction, { title: 'Caçada', fields: [
+            { name: 'Você deseja iniciar a batalha contra o pato dourado?', value: 'Derrote o pato dourado e garanta recompensas!' },
+            { name: 'Informações do pato', value: `Nome: **${monster.name}**\nNível: **${monster.level}**` }
+        ], image: monster.image });
+        const embedinteraction = (await interaction.reply( { components: [container, rowButton0], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true } )).resource.message;
 
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'patodourado')
 
@@ -189,7 +201,7 @@ module.exports = {
             return components
         }
 
-        async function getEmbeds(currinteraction) {
+        async function getContainers(currinteraction) {
 
             try {
                 const baruser = getLifeBar(player.sta, player.stamax)
@@ -199,53 +211,30 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
-                    .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.`)
-                    .setImage('attachment://image.png')
-
-                    const embed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
-
-                    for (const r of equips) {
-                        infosEmbed.addFields({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, inline: true })
-                    }
-
-                    embed.addFields({ name: 'Informações do ataque atual', value: `
+                    const equipFields = equips.map((r) => ({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}` }));
+                    const attack = `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}
-` })
-
-                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
-                    
-                    return [infosEmbed, embed]
+`;
+                    if (losedesc) attack += `\n**Resultado da caçada**\n${losedesc}`;
+                    return [
+                        buildMessage(interaction, { color: '#5bff45', title: 'Caçada', description: 'OBS: Os equipamentos são randômicos de acordo com o seu nível.', fields: equipFields, image: 'attachment://image.png', file: true }),
+                        buildMessage(interaction, { color: '#5bff45', title: 'Caçada', fields: [{ name: 'Informações do ataque atual', value: attack }], image: 'attachment://image.png' })
+                    ];
                 } else {
-                    const embed = new Discord.EmbedBuilder()
-                    .setTitle(`Caçada`)
-                    .setColor('#5bff45')
-
-                    .setThumbnail('attachment://image.png')
-
-                    for (const r of equips) {
-                        embed.addFields({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}`, inline: true })
-                    }
-
-                    embed.addFields({ name: 'Informações do ataque atual', value: `
+                    const fields = equips.map((r) => ({ name: `${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`${r.points > 0 ? `\nPontos: \`[${points}/${r.points}]\``:''}` }));
+                    let attack = `
 ${combostring}
 
 ${interaction.user.username} ${baruser}
 ${monster.name} ${barmonster}
 ${currinteraction ? currinteraction : ''}
-` })
-
-                    if (losedesc) embed.addFields({ name: 'Resultado da caçada', value: losedesc })
-
-                    return [embed]
+`;
+                    if (losedesc) attack += `\n**Resultado da caçada**\n${losedesc}`;
+                    return [buildMessage(interaction, { color: '#5bff45', title: 'Caçada', fields: [...fields, { name: 'Informações do ataque atual', value: attack }], image: 'attachment://image.png', file: true })];
                 }
             } catch (error) {
                 reportError(error, 'command.duck.execute');
@@ -297,7 +286,7 @@ ${currinteraction ? currinteraction : ''}
                     currentmode = currentmode == 0 ? 1 : 0
                     if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.duck.defer_update'); });
                     const components = getComponents()
-                    return interaction.editReply({ embeds: await getEmbeds(), components })
+                    return interaction.editReply({ components: [...await getContainers(), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
                     return reportError(error, 'command.duck.reply');
                 }
@@ -435,7 +424,7 @@ ${currinteraction ? currinteraction : ''}
                     reactequiplist.splice(index, 1);
                 }
 
-                await interaction.editReply({ content: 'Carregando caça...', components: [] })
+                await interaction.editReply({ components: [buildMessage(interaction, { color: '#36393f', description: 'Carregando caça...' })], flags: Discord.MessageFlags.IsComponentsV2 })
 
                 try {
                     await cacheListsService.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
@@ -446,7 +435,7 @@ ${currinteraction ? currinteraction : ''}
                     
                     const firstbuild = await build()
                     
-                    await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
+                    await interaction.editReply({ components: [...await getContainers(), ...components], files: [firstbuild.attach], flags: Discord.MessageFlags.IsComponentsV2 });
 
                 } catch (error) {
                     reportError(error, 'command.duck.collector');
@@ -591,10 +580,10 @@ ${currinteraction ? currinteraction : ''}
                 }
                 if (buildlost.plost) {
                     currinteraction = `\n🎗 ${interaction.user.username} perdeu o combate!`
-                    await playerlost(interaction.user, embed)
+                    await playerlost(interaction.user)
                 } else if (monster.csta <= 0) {
                     currinteraction = `\n🎗 ${monster.name} perdeu o combate!`
-                    await monsterlost(monster, embed)
+                    await monsterlost(monster)
                 }
 
                 if (dead) {
@@ -603,7 +592,7 @@ ${currinteraction ? currinteraction : ''}
                     collector.stop();
                 }
 
-                await interaction.editReply({ embeds: await getEmbeds(currinteraction), components})
+                await interaction.editReply({ components: [...await getContainers(currinteraction), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
 
             }
 
@@ -620,19 +609,11 @@ ${currinteraction ? currinteraction : ''}
             if (dead) return
 
             if (reacted) {
-                embed.fields = []
-                embed.setTitle(`Mas que covarde!`)
-                embed.setColor('#a60000');
-                embed.setDescription(`❌ Você não teve coragem de atacar o pato dourado e saiu correndo do combate!`)
-                interaction.editReply({ embeds: [embed], attachments: [], components: [] });
+                interaction.editReply({ components: [buildMessage(interaction, { color: '#a60000', title: 'Mas que covarde!', description: '❌ Você não teve coragem de atacar o pato dourado e saiu correndo do combate!' })], attachments: [], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             
             }
-            embed.fields = []
-            embed.setTitle(`Oops, o pato dourado percebeu sua presença!`)
-            embed.setColor('#a60000');
-            embed.setDescription(`❌ Você demorou demais para a caçada e o pato dourado conseguiu fugir a tempo`)
-            interaction.editReply({ embeds: [embed], attachments: [], components: [] });
+            interaction.editReply({ components: [buildMessage(interaction, { color: '#a60000', title: 'Oops, o pato dourado percebeu sua presença!', description: '❌ Você demorou demais para a caçada e o pato dourado conseguiu fugir a tempo' })], attachments: [], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
         

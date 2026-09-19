@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, FileBuilder } = require('@discordjs/builders');
 const cacheLists = require('./cacheLists');
 const clientService = require('./clientService');
 class ImagesService {
@@ -450,9 +451,14 @@ img.sendImage = async function (channel, image, interactionidreference, text) {
     if (!image) return;
     const attachment = await img.getAttachment(image, 'image.png');
     try {
-        return await channel.send(text ? { content: text, files: [attachment] } : { files: [attachment] });
+        const container = new ContainerBuilder().addFileComponents(new FileBuilder().setURL('attachment://image.png'));
+        if (text) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(text));
+        return await channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2, files: [attachment] });
     } catch (error) {
-        await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' });
+        await channel.send({
+            components: [new TextDisplayBuilder().setContent('Um erro ocorreu ao tentar enviar a imagem!')],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
         clientService.current?.emit('error', error);
     }
 };

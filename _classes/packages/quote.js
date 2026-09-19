@@ -1,4 +1,5 @@
-const { Message } = require("discord.js");
+const { MessageFlags } = require('discord.js');
+const { TextDisplayBuilder } = require('@discordjs/builders');
 const { reportError } = require('../debug');
 
 async function quote(x) {
@@ -12,7 +13,12 @@ async function quote(x) {
   let interaction 
   try {
   
-    interaction = await this.channel.send(x);
+    interaction = await this.channel.send({
+      components: [new TextDisplayBuilder().setContent(x.content || '')],
+      allowedMentions: x.allowedMentions,
+      reply: x.reply,
+      flags: MessageFlags.IsComponentsV2
+    });
     
   } catch (error) {
     reportError(error, 'quote.send');

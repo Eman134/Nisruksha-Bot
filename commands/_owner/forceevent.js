@@ -1,6 +1,8 @@
 const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Discord = require('discord.js');
+const { TextDisplayBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('evento').setDescription('Evento')
     .addChoices(
@@ -22,7 +24,7 @@ module.exports = {
 
         const loc = interaction.options.getBoolean('vila-atual')
         const evento = interaction.options.getString('evento')
-        await interaction.reply({ content: `Evento ${evento} executado!`})
+        await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Evento ${evento} executado!`)], flags: Discord.MessageFlags.IsComponentsV2 })
         if(loc){
             var townnum = await townsService.getTownNum(interaction.user.id)
         }

@@ -4,10 +4,27 @@ const utility = new UtilityService();
 const machinesService = require('../../_classes/services/machines');
 const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia para upar o armazém').setRequired(true))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`, 0xb8312c);
+}
+
+function storageContainer({ color, title, fields, footer, buttons }) {
+    const content = [`**${title}**`, ...fields.map(({ name, value }) => `**${name}**\n${value}`), footer].filter(Boolean).join('\n\n');
+    const container = textContainer(content, color);
+    if (buttons) container.addActionRowComponents(new ActionRowBuilder().addComponents(...buttons));
+    return container;
+}
 
 module.exports = {
     name: 'upararmazém',
@@ -22,13 +39,11 @@ module.exports = {
         let quantia = interaction.options.getInteger('quantia')
 
         if (quantia < 1) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode upar essa quantia de níveis!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não pode upar essa quantia de níveis!`)], flags: v2Flags });
             return;
         }
         if (quantia > 25) {
-            const embedtemp = await utility.sendError(interaction, `Você só pode upar até 25 níveis de armazém por vez!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você só pode upar até 25 níveis de armazém por vez!`)], flags: v2Flags });
             return;
         }
 
@@ -41,15 +56,14 @@ module.exports = {
         let obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
         let lvl = obj.storage;
         
-		const embed = new Discord.EmbedBuilder()
-        .setColor('#5634eb')
-        .setTitle('Armazém de ' + interaction.user.username)
-        .addFields({ name: '<:storageinfo:738427915531845692> Informações', value: `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\`` })
-        embed.addFields({ name: '<:waiting:739967127502454916> Aguardando resposta', value: 'Aprimorar o armazém [<:upgrade:738434840457642054>]' })
-
         const btn0 = utility.createButton('upgrade', 'SECONDARY', 'Upgrade', '738434840457642054')
 
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0])], withResponse: true })).resource.message;
+        const storageInfo = `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\``;
+        const initialContainer = storageContainer({ color: 0x5634eb, title: 'Armazém de ' + interaction.user.username, fields: [
+            { name: '<:storageinfo:738427915531845692> Informações', value: storageInfo },
+            { name: '<:waiting:739967127502454916> Aguardando resposta', value: 'Aprimorar o armazém [<:upgrade:738434840457642054>]' }
+        ], buttons: [btn0] });
+        const embedinteraction = (await interaction.reply({ components: [initialContainer], flags: v2Flags, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -69,21 +83,19 @@ module.exports = {
             const money = await economyService.money.get(interaction.user.id);
 
             reacted = true;
-            embed.fields = [];
+            let resultContainer = initialContainer;
             if (b.customId == 'upgrade'){
                 if (price > money) {
-                    embed.setColor('#a60000')
-                    .addFields({ name: '❌ Aprimoramento mal sucedido!', value: `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
-                    .setFooter({ text: '' })
+                    const failedContainer = storageContainer({ color: 0xa60000, title: 'Armazém de ' + interaction.user.username, fields: [{ name: '❌ Aprimoramento mal sucedido!', value: `Você não possui dinheiro suficiente para realizar este aprimoramento!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` }] });
+                    resultContainer = failedContainer;
                     err = true;
                 } else {
-                    embed.setColor('#5bff45');
                     pago += price;
                     await prisma.storage.update({ where: { user_id }, data: { storage: lvl+r1 } })
                     let obj55 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
                     let lvl55 = obj55.storage;
-                    embed.addFields({ name: '<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', value: `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**` })
-                    .setFooter({ text: '' })
+                    const successContainer = storageContainer({ color: 0x5bff45, title: 'Armazém de ' + interaction.user.username, fields: [{ name: '<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', value: `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**` }] });
+                    resultContainer = successContainer;
                     economyService.money.remove(interaction.user.id, price)
                     economyService.addToHistory(interaction.user.id, `Aprimoramento Armazém | - ${utility.format(price)} ${utility.moneyemoji}`)
                     ap = true;
@@ -91,7 +103,7 @@ module.exports = {
                 collector.stop()
             }
             try {
-                if (embedinteraction)interaction.editReply({ embeds: [embed], components: [] });
+                if (embedinteraction) interaction.editReply({ components: [resultContainer], flags: v2Flags });
             }catch (err){
                 clientService.current.emit('error', err)
             }
@@ -103,11 +115,11 @@ module.exports = {
             try {
                 if (embedinteraction){
                     if (!reacted) {
-                    embed.fields = [];
-                    embed.addFields({ name: '<:storageinfo:738427915531845692> Informações', value: `Peso atual: **[${utility.format(size)}/${utility.format(max)}]g**\nNível do armazém: **${utility.format(lvl)} (+${r1})**\nPreço do aprimoramento: **${utility.format(price)} ${utility.moneyemoji}**\n\nOBS: Um custo adicional foi implementado para\n aumentar diversos níveis de uma vez [+\`${Math.round(price-pricea)} ${utility.money}\` ${utility.moneyemoji}]\nCaso não deseja pagar esta taxa, aumente o nível 1 por vez com \`/armazém\`` })
-                    embed.addFields({ name: '❌ Sessão encerrada', value: 'O tempo de reação foi expirado!' })
-                    .setFooter({ text: '' })
-                    interaction.editReply({ embeds: [embed], components: [] });}
+                    const expiredContainer = storageContainer({ color: 0x5634eb, title: 'Armazém de ' + interaction.user.username, fields: [
+                        { name: '<:storageinfo:738427915531845692> Informações', value: storageInfo },
+                        { name: '❌ Sessão encerrada', value: 'O tempo de reação foi expirado!' }
+                    ] });
+                    interaction.editReply({ components: [expiredContainer], flags: v2Flags });}
                 }
             }catch (err){
                 clientService.current.emit('error', err)

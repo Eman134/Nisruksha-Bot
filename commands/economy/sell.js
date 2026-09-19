@@ -4,6 +4,7 @@ const utility = new UtilityService();
 const itemsService = require('../../_classes/services/items');
 const playersService = require('../../_classes/services/players');
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const runtime = require('../../_classes/services/runtime');
 const economyService = require('../../_classes/services/economy');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -16,6 +17,20 @@ const jsonStringores = readFileSync('./_json/ores.json', 'utf8')
 const customerores = JSON.parse(jsonStringores);
 
 const minérios = customerores
+
+function buildMessage(interaction, { color = '#b8312c', title, value }) {
+    return new ContainerBuilder()
+        .setAccentColor(parseInt(color.slice(1), 16))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+            `**${interaction.user.tag}**`,
+            title ? `**${title}**` : '',
+            value
+        ].filter(Boolean).join('\n\n')));
+}
+
+function buildError(interaction, message, usage) {
+    return buildMessage(interaction, { value: `<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}` });
+}
 
 const options = (option) => {
     option.setName('minério').setDescription('Selecione um minério para venda')
@@ -44,14 +59,12 @@ module.exports = {
         const armsize = await machinesService.storage.getSize(interaction.user.id);
 
         if (armsize <= 0) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui recursos no seu armazém para vender!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você não possui recursos no seu armazém para vender!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (minério != null && (!await itemsService.exists(minério))) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -59,14 +72,12 @@ module.exports = {
         quantia = quantia.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
         if ((utility.isInt(quantia) == false) && quantia != 'tudo') {
-            const embedtemp = await utility.sendError(interaction, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (utility.isInt(quantia) && minério == null) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [buildError(interaction, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -85,8 +96,7 @@ module.exports = {
         if (quantia == 'tudo' && minério != null) {
 
             if (obj2[id] <= 0) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
@@ -96,19 +106,16 @@ module.exports = {
         if (utility.isInt(quantia) && minério != null) {
             type = 2;
             if (parseInt(quantia) <= 0) {
-                const embedtemp = await utility.sendError(interaction, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildError(interaction, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
             if (obj2[id] <= 0) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
             if (parseInt(quantia) > obj2[id]) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildError(interaction, `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
         }
@@ -165,17 +172,13 @@ module.exports = {
 
         total = Math.round(total - totaltaxa);
 
-        const embed = new Discord.EmbedBuilder();
-        embed.setColor('#606060');
-        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-
-        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        let container = buildMessage(interaction, { color: '#606060', title: '<a:loading:736625632808796250> Aguardando confirmação', value: `
         Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -187,13 +190,11 @@ module.exports = {
 
             selled = true;
             collector.stop();
-            embed.fields = [];
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.vender.defer_update'); });
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Venda cancelada', value: `
-                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                container = buildMessage(interaction, { color: '#a60000', title: '❌ Venda cancelada', value: `
+                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` });
+                interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
@@ -205,8 +206,8 @@ module.exports = {
                     let armsize2 = await machinesService.storage.getSize(interaction.user.id);
 
                     if (armsize2 <= 0) {
-                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui recursos no seu armazém para vender!` })
-                        interaction.editReply({ embeds: [embed], components: [] })
+                        container = buildMessage(interaction, { color: '#a60000', title: '❌ Venda cancelada', value: 'Você não possui recursos no seu armazém para vender!' });
+                        interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                         return;
                     }
 
@@ -219,8 +220,8 @@ module.exports = {
                 case 1:
 
                     if (obj3[id] <= 0) {
-                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
-                        interaction.editReply({ embeds: [embed], components: [] })
+                        container = buildMessage(interaction, { color: '#a60000', title: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` });
+                        interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                         return;
                     }
 
@@ -229,14 +230,14 @@ module.exports = {
                 case 2:
 
                     if (obj3[id] <= 0) {
-                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
-                        interaction.editReply({ embeds: [embed], components: [] })
+                        container = buildMessage(interaction, { color: '#a60000', title: '❌ Venda cancelada', value: `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` });
+                        interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                         return;
                     }
 
                     if (parseInt(quantia) > obj3[id]) {
-                        embed.addFields({ name: '❌ Venda cancelada', value: `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` })
-                        interaction.editReply({ embeds: [embed], components: [] })
+                        container = buildMessage(interaction, { color: '#a60000', title: '❌ Venda cancelada', value: `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!` });
+                        interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                         return;
                     }
 
@@ -244,12 +245,11 @@ module.exports = {
                     break;
             }
             
-            embed.fields = [];
-            embed.setColor('#5bff45');
-            embed.addFields({ name: '✅ Sucesso na venda', value: `
-            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.` })
-            if(runtime.debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
-            await interaction.editReply({ embeds: [embed], components: [] });
+            let successValue = `
+            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**.`
+            if(runtime.debug) successValue += `\n\n**<:error:736274027756388353> Depuração**\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${utility.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``
+            container = buildMessage(interaction, { color: '#5bff45', title: '✅ Sucesso na venda', value: successValue });
+            await interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             await economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
             await economyService.money.add(interaction.user.id, total)
             if (totaltaxa > 0) {
@@ -260,11 +260,9 @@ module.exports = {
         collector.on('end', collected => {
             playersService.cooldown.set(interaction.user.id, "venda", 0);
             if (selled) return
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `
-            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**, porém o tempo expirou!` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            container = buildMessage(interaction, { color: '#a60000', title: '❌ Tempo expirado', value: `
+            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} **(${taxa*100}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa)**, porém o tempo expirou!` });
+            interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

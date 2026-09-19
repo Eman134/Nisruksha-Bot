@@ -7,11 +7,15 @@ const machinesService = require('../../_classes/services/machines');
 const shopService = require('../../_classes/services/shop');
 const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('item').setDescription('Escreva o nome do item que você deseja usar').setRequired(true))
 
 const prisma = require('../../_classes/prisma');
+const errorContainer = (interaction, message) => new ContainerBuilder()
+    .setAccentColor(0xb8312c)
+    .addTextDisplayComponents(new TextDisplayBuilder().setContent(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`));
 
 module.exports = {
     name: 'usaritem',
@@ -26,8 +30,7 @@ module.exports = {
         let id = interaction.options.getString('item');
         
         if (!await itemsService.exists(id, 'drops')) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`/mochila\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`/mochila\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         
@@ -35,16 +38,14 @@ module.exports = {
         id = id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
         
         if (!drop.usavel) {
-            const embedtemp = await utility.sendError(interaction, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         
         const user_id = BigInt(interaction.user.id)
         const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -60,17 +61,18 @@ module.exports = {
 
         const quantia = 1
         
-        const embed = new Discord.EmbedBuilder();
-        embed.setColor('#606060');
-        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-        
-        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
-        Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\`` })
+        let itemColor = 0x606060;
+        let itemFields = [['<a:loading:736625632808796250> Aguardando confirmação', `Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\``]];
+        const buildItemContainer = () => {
+            const container = new ContainerBuilder().setAccentColor(itemColor).addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${interaction.user.tag}`));
+            for (const [name, value] of itemFields) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${name}**\n${value}`));
+            return container;
+        };
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [buildItemContainer(), new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -80,30 +82,27 @@ module.exports = {
 
             reacted = true;
             collector.stop();
-            embed.fields = [];
             b.deferUpdate()
 
             const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Uso cancelado', value: `
-                Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                itemColor = 0xa60000;
+                itemFields = [['❌ Uso cancelado', `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`]];
+                interaction.editReply({ components: [buildItemContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Uso cancelado', value: `
-                Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\`` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                itemColor = 0xa60000;
+                itemFields = [['❌ Uso cancelado', `Você cancelou o uso de **${drop.icon} ${drop.displayname}**.\nDescrição do item: \`${drop.desc}\``]];
+                interaction.editReply({ components: [buildItemContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             function sucessEmbed() {
-                embed.setColor('#5bff45');
-                embed.addFields({ name: '✅ Item usado', value: `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\`` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                itemColor = 0x5bff45;
+                itemFields = [['✅ Item usado', `Você usou **${drop.icon} ${drop.displayname}**\nDescrição do item: \`${drop.desc}\``]];
+                interaction.editReply({ components: [buildItemContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
             }
 
             switch (drop.type) {
@@ -112,14 +111,21 @@ module.exports = {
                     const isFull = await machinesService.storage.isFull(interaction.user.id);
 
                     if (isFull) {
-                        embed.setColor('#a60000');
-                        embed.addFields({ name: '❌ Uso cancelado', value: `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos` })
-                        interaction.editReply({ embeds: [embed], components: [] });
+                        itemColor = 0xa60000;
+                        itemFields = [['❌ Uso cancelado', `Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`]];
+                        interaction.editReply({ components: [buildItemContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
                         return
                     }
 
-                    const embed2 = new Discord.EmbedBuilder();
-                    embed2.setTitle(`${drop.icon} ${drop.displayname}`).setColor("#2ed1ce")
+                    let miningDescription = '';
+                    let miningFields = [];
+                    const buildMiningContainer = () => {
+                        const container = new ContainerBuilder().setAccentColor(0x2ed1ce)
+                            .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${drop.icon} ${drop.displayname}`));
+                        if (miningDescription) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(miningDescription));
+                        for (const [name, value] of miningFields) container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${name}**\n${value}`));
+                        return container;
+                    };
                     
                     let totalcoletado = 0;
                     let coletadox = new Map();
@@ -168,13 +174,13 @@ module.exports = {
                             }
                             
                             let armazemmax2 = await machinesService.storage.getMax(interaction.user.id);
-                            embed2.fields = [];
+                            miningFields = [];
                             const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                             const arsize = await machinesService.storage.getSize(interaction.user.id);
 
-                            await embed2.setDescription(`Minerador: ${interaction.user}`);
-                            await embed2.addFields({ name: `<:storageinfo:738427915531845692> Informações do armazém`, value: `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g` })
-                            await embed2.addFields({ name: `💥 Informações de explosão`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nTier da dinamite: ${drop.tier}` })
+                            miningDescription = `Minerador: ${interaction.user}`;
+                            miningFields.push([`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`]);
+                            miningFields.push([`💥 Informações de explosão`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nTier da dinamite: ${drop.tier}`]);
 
                             for await (const r of obj2) {
 
@@ -184,11 +190,11 @@ module.exports = {
                                 if (qnt == undefined) qnt = 0;
                                 if (qnt < 1) qnt = 0;
 
-                                embed2.addFields({ name: `${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g`, value: `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``, inline: true })
+                                miningFields.push([`${ore.icon} ${ore.name.charAt(0).toUpperCase() + ore.name.slice(1)} +${qnt}g`, `\`\`\`autohotkey\nColetado: ${coletadox.get(ore.name) == undefined ? '0':coletadox.get(ore.name)}g\`\`\``])
                             }
 
                             try{
-                                await interaction.editReply({ embeds: [embed2], components: [] })
+                                await interaction.editReply({ components: [buildMiningContainer()], flags: Discord.MessageFlags.IsComponentsV2 })
                             } catch (error) {
                                 reportError(error, 'command.usaritem.edit_reply', { userId: interaction.user.id });
                                 return
@@ -214,7 +220,7 @@ module.exports = {
 
                 default:
                     embedinteraction.delete()
-                    interaction.reply({ content: 'Ocorreu um erro ao utilizar o item, contate algum moderador do bot.'})
+                    interaction.reply({ components: [new TextDisplayBuilder().setContent('Ocorreu um erro ao utilizar o item, contate algum moderador do bot.')], flags: Discord.MessageFlags.IsComponentsV2 })
 
             }
             await itemsService.add(interaction.user.id, drop.name, -quantia)
@@ -224,11 +230,9 @@ module.exports = {
         collector.on('end', async collected => {
             await playersService.cooldown.set(interaction.user.id, "usaritem", 0);
             if (reacted) return
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `
-            Você iria usar **${drop.icon} ${drop.displayname}**, porém o tempo expirou!\nDescrição do item: \`${drop.desc}\`` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            itemColor = 0xa60000;
+            itemFields = [['❌ Tempo expirado', `Você iria usar **${drop.icon} ${drop.displayname}**, porém o tempo expirou!\nDescrição do item: \`${drop.desc}\``]];
+            interaction.editReply({ components: [buildItemContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

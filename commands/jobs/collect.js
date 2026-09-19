@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
@@ -26,22 +27,19 @@ module.exports = {
         let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'collecting')) {
-            const embedtemp = await utility.sendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você já encontra-se coletando no momento! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         const sta = await playersService.stamina.get(interaction.user.id);
 
         if (sta < 40) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`/estamina\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`/estamina\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -55,12 +53,13 @@ module.exports = {
         if (runtime.debug) console.log(seedobj)
 
         let obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
-        const embed = new Discord.EmbedBuilder();
-        embed.setTitle(`Coletando`)
-        embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-        await embed.addFields({ name: `🍁 Informações de coleta`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸` })
-        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn])], withResponse: true })).resource.message;
+        const container = new ContainerBuilder().addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## Coletando`),
+            new TextDisplayBuilder().setContent(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`),
+            new TextDisplayBuilder().setContent(`**🍁 Informações de coleta**\nNível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`),
+            new TextDisplayBuilder().setContent(`-# Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`)
+        )
+        const embedinteraction = (await interaction.reply({ components: [container, new ActionRowBuilder().addComponents(btn)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'collecting');
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
@@ -116,30 +115,32 @@ module.exports = {
                     
                 }
 
-                embed.fields = [];
                 const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let sta2 = await playersService.stamina.get(interaction.user.id);
-                embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-                await embed.addFields({ name: `🍁 Informações de coleta`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\`` })
-                embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
+                const progress = new ContainerBuilder().addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`## Coletando`),
+                    new TextDisplayBuilder().setContent(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`),
+                    new TextDisplayBuilder().setContent(`**🍁 Informações de coleta**\nNível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\``),
+                    new TextDisplayBuilder().setContent(`-# Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`)
+                )
 
                 for await (const r of colocados) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
                     
-                    embed.addFields({ name: `${r.icon} ${r.displayname} +${qnt}`, value: `\`\`\`autohotkey\nColetado: ${r.size}\`\`\``, inline: true })
+                    progress.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${r.icon} ${r.displayname} +${qnt}**\n\`\`\`autohotkey\nColetado: ${r.size}\`\`\``))
                 }
 
                 for await (const r of descartados) {
                     let qnt = sizeMap.get(r.name);
                     if (qnt == undefined) qnt = 0;
                     if (qnt < 1) qnt = 0;
-                    embed.addFields({ name: `${r.icon} ${r.displayname} -${r.size}`, value: `\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``, inline: true })
+                    progress.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${r.icon} ${r.displayname} -${r.size}**\n\`\`\`autohotkey\n❌ Descartado: ${r.size}\`\`\``))
                 }
 
                 try{
-                    await interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn])] })
+                    await interaction.editReply({ components: [progress, new ActionRowBuilder().addComponents(btn)], flags: Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
                     reportError(error, 'command.coletar.edit_progress', { userId: interaction.user.id });
                     await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
@@ -147,16 +148,14 @@ module.exports = {
                 }
 
                 if (descartados.length == seedobj.length) {
-                    const embedtemp = await utility.sendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
-                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)], flags: Discord.MessageFlags.IsComponentsV2, mention: true } )
                     await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
                     await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 if (sta2 < gastoestamina) {
-                    const embedtemp = await utility.sendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
-                    await interaction.reply({ embeds: [embedtemp], mention: true } )
+                    await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui estamina para continuar coletando! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)], flags: Discord.MessageFlags.IsComponentsV2, mention: true } )
                     await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
                     await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     return;
@@ -178,9 +177,8 @@ module.exports = {
                     if (reacted) {
                         await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
                         await cacheListsService.waiting.remove(interaction.user.id, 'working');
-                        await interaction.editReply({ embeds: [embed], components: [] })
-                        const embedtemp = await utility.sendError(interaction, `Você parou a coleta!`)
-                        await interaction.followUp({ embeds: [embedtemp]})
+                        await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Coleta interrompida.`)], flags: Discord.MessageFlags.IsComponentsV2 })
+                        await interaction.followUp({ components: [new TextDisplayBuilder().setContent(`Você parou a coleta!`)], flags: Discord.MessageFlags.IsComponentsV2})
                     } else {
                         edit()
                     }

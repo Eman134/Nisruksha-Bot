@@ -2,6 +2,7 @@ const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -10,6 +11,16 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a transferência').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para transferência').setRequired(true))
+
+function buildMessage(interaction, { color = '#606060', title, value }) {
+    return new ContainerBuilder()
+        .setAccentColor(parseInt(color.slice(1), 16))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+            `**${interaction.user.tag}**`,
+            title ? `**${title}**` : '',
+            value
+        ].filter(Boolean).join('\n\n')));
+}
 
 module.exports = {
     name: 'transferir',
@@ -29,27 +40,23 @@ module.exports = {
         if (quantia != 'tudo') {
 
             if (!utility.isInt(utility.toNumber(quantia))) {
-                const embedtemp = await utility.sendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!`, `transferir @membro <quantia | tudo>`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildMessage(interaction, { color: '#b8312c', value: '<:error:736274027756388353> Você precisa especificar uma quantia de dinheiro (NÚMERO) para transferir!\n\n**Exemplo de uso**\n`/transferir @membro <quantia | tudo>`' })], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
             if (money < utility.toNumber(quantia)) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize \`/depositar\` para depositar dinheiro no banco`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildMessage(interaction, { color: '#b8312c', value: '<:error:736274027756388353> Você não possui essa quantia de dinheiro __no banco__ para transferir!\nUtilize `/depositar` para depositar dinheiro no banco' })], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
             if (utility.toNumber(quantia) < 1) {
-                const embedtemp = await utility.sendError(interaction, `Você não pode transferir essa quantia de dinheiro!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildMessage(interaction, { color: '#b8312c', value: '<:error:736274027756388353> Você não pode transferir essa quantia de dinheiro!' })], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
             total = utility.toNumber(quantia)
         } else {
             if (money < 1) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui dinheiro __no banco__ para transferir!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildMessage(interaction, { color: '#b8312c', value: '<:error:736274027756388353> Você não possui dinheiro __no banco__ para transferir!' })], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
             total = money;
@@ -74,19 +81,15 @@ module.exports = {
             if (check2) {
 
                 let cooldown = await playersService.cooldown.get(member.id, "receivetr");
-                const embed = new Discord.EmbedBuilder()
-                .setColor('#b8312c')
-                .setDescription('❌ Este membro já recebeu uma transferência nas últimas 12 horas!\nAguarde mais `' + utility.ms(cooldown) + '` para fazer uma transferência para ele!')
-                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                await interaction.reply({ embeds: [embed] });
+                const container = buildMessage(interaction, { color: '#b8312c', value: '❌ Este membro já recebeu uma transferência nas últimas 12 horas!\nAguarde mais `' + utility.ms(cooldown) + '` para fazer uma transferência para ele!' });
+                await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             var mat = Math.round(Math.pow(nivel, 2) * 500);
             
             if (total > mat) {
-                const embedtemp = await utility.sendError(interaction, `O limite de transferência recebido por ${member} é de ${utility.format(mat)} ${utility.money} ${utility.moneyemoji}!`)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [buildMessage(interaction, { color: '#b8312c', value: `<:error:736274027756388353> O limite de transferência recebido por ${member} é de ${utility.format(mat)} ${utility.money} ${utility.moneyemoji}!` })], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
@@ -94,17 +97,13 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "transferir", 20);
         
-		const embed = new Discord.EmbedBuilder();
-        embed.setColor('#606060');
-        embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-
-        embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+        let container = buildMessage(interaction, { title: '<a:loading:736625632808796250> Aguardando confirmação', value: `
         Você deseja transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}?` })
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -117,21 +116,15 @@ module.exports = {
                 reacted = true;
                 collector.stop();
                 if (b.customId == 'cancel'){
-                    embed.fields = [];
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Transferência cancelado', value: `
-                    Você cancelou a transferência de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}.` })
+                    container = buildMessage(interaction, { color: '#a60000', title: '❌ Transferência cancelado', value: `
+                    Você cancelou a transferência de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}.` });
                 } else {
                     const money2 = await economyService.bank.get(interaction.user.id);
                     if (money2 < total) {
-                        embed.fields = [];
-                        embed.setColor('#a60000');
-                        embed.addFields({ name: '❌ Falha na transferência', value: `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para transferir!` })
+                        container = buildMessage(interaction, { color: '#a60000', title: '❌ Falha na transferência', value: `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para transferir!` });
                     } else {
-                        embed.fields = [];
-                        embed.setColor('#5bff45');
-                        embed.addFields({ name: '✅ Sucesso na transferência', value: `
-                        Você transferiu o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member} com sucesso!` })
+                        container = buildMessage(interaction, { color: '#5bff45', title: '✅ Sucesso na transferência', value: `
+                        Você transferiu o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member} com sucesso!` });
                         await economyService.bank.remove(interaction.user.id, total);
                         await economyService.bank.add(member.id, total);
                         await economyService.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${utility.format(total)} ${utility.moneyemoji}`)
@@ -147,7 +140,7 @@ module.exports = {
                     }
                 }
                 await playersService.cooldown.set(interaction.user.id, "transferir", 0);
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             } catch (error) {
                 reportError(error, 'command.transfer.execute', { userId: interaction.user?.id });
             }
@@ -157,11 +150,9 @@ module.exports = {
         collector.on('end', collected => {
             if (reacted) return
             playersService.cooldown.set(interaction.user.id, "transferir", 0);
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `
-            Você iria transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}, porém o tempo expirou.` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            container = buildMessage(interaction, { color: '#a60000', title: '❌ Tempo expirado', value: `
+            Você iria transferir o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** para ${member}, porém o tempo expirou.` });
+            interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

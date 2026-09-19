@@ -5,6 +5,7 @@ module.exports = {
 
         const client = require('../_classes/services/clientService').current;
         const Discord = require('discord.js');
+        const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
         const UtilityService = require('../_classes/services/utilityService');
         const utility = new UtilityService();
 
@@ -31,16 +32,18 @@ module.exports = {
         
         if (interaction.content.match(mentionRegex)) {
 
-            const embed = new Discord.EmbedBuilder()
-            .setColor('#36393f')
-            .setAuthor({ name: interaction.author.tag, iconURL: interaction.author.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-            .setDescription(`Olá ${interaction.author}` + ', meu prefixo é `/`, caso precise de ajuda use `/ajuda`')
+            const embed = new ContainerBuilder()
+                .setAccentColor(0x36393f)
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`-# ${interaction.author.tag}`),
+                    new TextDisplayBuilder().setContent(`Olá ${interaction.author}, meu prefixo é \`/\`, caso precise de ajuda use \`/ajuda\``)
+                );
 
             const btn1 = utility.createButton('https://discord.com/invite/jK3eNA5GkM', 'LINK', 'Meu servidor', '📨')
             const btn2 = utility.createButton('https://discord.com/oauth2/authorize?client_id=763815343507505183&permissions=388160&scope=bot%20applications.commands', 'LINK', 'Convidar', '📩')
             const btn3 = utility.createButton('https://top.gg/bot/763815343507505183', 'LINK', 'Vote em mim', '🗳')
             
-            return await interaction.channel.send({ embeds: [embed], components: [utility.rowComponents([btn1, btn2, btn3])] });
+            return await interaction.channel.send({ components: [embed, new ActionRowBuilder().addComponents(btn1, btn2, btn3)], flags: Discord.MessageFlags.IsComponentsV2 });
         }
     }
 }

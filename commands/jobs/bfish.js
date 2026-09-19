@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -25,20 +26,17 @@ module.exports = {
         let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (!pobj.rod) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
         if (pobj2.level < 3) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await utility.sendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você já encontra-se pescando no momento! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -48,8 +46,7 @@ module.exports = {
 
         if (stamina < cost) {
             
-            const embedtemp = await utility.sendError(interaction, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
             
         }
@@ -79,17 +76,17 @@ module.exports = {
                 buttons.push(btn2) 
             }
 
-            return [utility.rowComponents(buttons)]
+            return [new ActionRowBuilder().addComponents(...buttons)]
         }
 
-        const embed = new Discord.EmbedBuilder();
-        embed.setTitle(`Pescando`)
-        embed.setDescription(`Pescador: ${interaction.user}`);
-        embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
-        embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸` })
-        embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
-        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: reworkBtns(), withResponse: true })).resource.message;
+        let container = new ContainerBuilder().addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## Pescando\nPescador: ${interaction.user}`),
+            new TextDisplayBuilder().setContent(`**${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\`**\nGasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``),
+            new TextDisplayBuilder().setContent(`**💦 Informações da pesca**\nNível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`),
+            new TextDisplayBuilder().setContent(`**🔹 Pescaria**\n${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`),
+            new TextDisplayBuilder().setContent(`-# Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`)
+        )
+        let embedinteraction = (await interaction.reply({ components: [container, ...reworkBtns()], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
         
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'fishing');
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
@@ -292,18 +289,20 @@ module.exports = {
 
                 if (header.stars > 0 ) companyService.stars.add(interaction.user.id, company.company_id, { score: header.stars })
 
-                embed.fields = [];
                 const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let sta2 = await playersService.stamina.get(interaction.user.id);
-                embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
-                embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\`` })
-                embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
-                await embed.addFields({ name: `➰ Coletados`, value: ccmap })
-                if (header.retorno && header.retorno.descartados.length > 0) embed.addFields({ name: `❌ Descartados`, value: header.retorno.descartados.map((px) => '1x ' + px).join(inv) })
-                embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
+                container = new ContainerBuilder().addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent(`## Pescando\nPescador: ${interaction.user}`),
+                    new TextDisplayBuilder().setContent(`**${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\`**\nGasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``),
+                    new TextDisplayBuilder().setContent(`**💦 Informações da pesca**\nNível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``),
+                    new TextDisplayBuilder().setContent(`**🔹 Pescaria**\n${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`),
+                    new TextDisplayBuilder().setContent(`**➰ Coletados**\n${ccmap}`),
+                    ...(header.retorno && header.retorno.descartados.length > 0 ? [new TextDisplayBuilder().setContent(`**❌ Descartados**\n${header.retorno.descartados.map((px) => '1x ' + px).join(inv)}`)] : []),
+                    new TextDisplayBuilder().setContent(`-# Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`)
+                )
 
                 try{
-                    await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
+                    await embedinteraction.edit({ components: [container, ...reworkBtns()], flags: Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
                     reportError(error, 'command.pescar.edit_progress', { userId: interaction.user.id });
                     await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
@@ -314,16 +313,14 @@ module.exports = {
                 if (header.retorno && header.retorno.descartados.length > 0) {
                     await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
                     await cacheListsService.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await utility.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
-                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ components: [new TextDisplayBuilder().setContent(`Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)], flags: Discord.MessageFlags.IsComponentsV2, mention: true } )
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
                     await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
                     await cacheListsService.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await utility.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
-                    await interaction.followUp({ embeds: [embedtemp], mention: true } )
+                    await interaction.followUp({ components: [new TextDisplayBuilder().setContent(`Você não possui estamina para continuar pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)], flags: Discord.MessageFlags.IsComponentsV2, mention: true } )
                     return;
                 }
 
@@ -347,14 +344,8 @@ module.exports = {
                         body = header.levels
                         pd = header.profundidades
 
-                        embed.fields = [];
-                        embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
-                        embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸` })
-                        embed.addFields({ name: `🔹 Pescaria`, value: `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m` })
-                        await embed.addFields({ name: `➰ Coletados`, value: ccmap })
-                        embed.setFooter({ text: `Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
                         try{
-                            await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
+                            await embedinteraction.edit({ components: [container, ...reworkBtns()], flags: Discord.MessageFlags.IsComponentsV2 })
                         } catch (error) {
                             reportError(error, 'command.pescar.cleanup', { userId: interaction.user.id });
                             await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
@@ -365,11 +356,11 @@ module.exports = {
                 });
 
                 collector.on('end', async collected => {
-                    await embedinteraction.edit({ embeds: [embed], components: [] })
+                    await embedinteraction.edit({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                     if (reacted) {
                         await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
                         await cacheListsService.waiting.remove(interaction.user.id, 'working');
-                        await embedinteraction.edit({ embeds: [embed], components: [] })
+                        await embedinteraction.edit({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
                     } else {
                         edit(interaction, company);

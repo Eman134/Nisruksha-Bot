@@ -4,13 +4,13 @@ const townsService = require('../../_classes/services/towns');
 const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const prisma = require('../../_classes/prisma');
 
-async function formatList(embed2, page2) {
-
-    embed2.setColor('#4870c7')
-    let page = page2
+async function formatList(page2) {
+    let page = page2;
     let array = [];
     try {
         array = await prisma.companies.findMany({
@@ -18,51 +18,39 @@ async function formatList(embed2, page2) {
             select: { company_id: true, user_id: true, score: true, type: true, name: true, loc: true, taxa: true, workers: true, curriculum: true }
         });
     } catch (error) {
-        clientService.current.emit('error', err)
-        throw error
+        clientService.current.emit('error', error);
+        throw error;
     }
 
-    array.sort(function(a, b) {
-        return b.score - a.score;
-    })
+    array.sort((a, b) => b.score - a.score);
+    let description;
+    const fields = [];
+    let totalpages = 0;
 
-    embed2.fields = []
-
-    embed2.setTitle(`📃 | Lista de Empresas`)
-    
     if (array.length < 1) {
-        embed2.setDescription(`❌ Ainda não possui empresas registradas!\nAbra sua empresa agora usando \`/abrirempresa\``)
+        description = '❌ Ainda não possui empresas registradas!\nAbra sua empresa agora usando `/abrirempresa`';
     } else {
-        
-        let totalpages = array.length % 6;
-        if (totalpages == 0) totalpages = (array.length)/6;
-        else totalpages = ((array.length-totalpages)/6)+1;
-        
+        totalpages = array.length % 6 === 0 ? array.length / 6 : Math.floor(array.length / 6) + 1;
         if (page > totalpages) page = 1;
-        
-            embed2.setDescription(`**Página atual: ${page}/${totalpages}**\nPara navegar entre as páginas use \`/empresas <página>\`\nUtilize \`/verempresa <código>\` para visualizar as informações de uma empresa`)
-            
-            array = array.slice((page*6)-6, page*6);
-            
-            for (const r of array) {
-                let owner = await clientService.current.users.fetch(String(r.user_id));
-                let vagas = await companyService.check.hasVacancies(r.company_id);
-                let func = (r.workers == null ? `0/${await companyService.get.maxWorkers(r.company_id)}`: `${r.workers.length}/${await companyService.get.maxWorkers(r.company_id)}`)
-                let locname = townsService.getTownNameByNum(r.loc)
-                let curriculum = r.curriculum == null ? 0 : r.curriculum.length;
-                embed2.addFields({ name: `${companyService.e[companyService.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, value: `Setor: ${companyService.e[companyService.types[r.type]].icon} **${companyService.types[r.type].charAt(0).toUpperCase() + companyService.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`/enviarcurriculo ${r.company_id}\``: `🔴`}` });
-            }
-
-        return { totalpages, currentpage: page2 }
-        
+        description = `**Página atual: ${page}/${totalpages}**\nPara navegar entre as páginas use \`/empresas <página>\`\nUtilize \`/verempresa <código>\` para visualizar as informações de uma empresa`;
+        for (const r of array.slice((page * 6) - 6, page * 6)) {
+            const owner = await clientService.current.users.fetch(String(r.user_id));
+            const vagas = await companyService.check.hasVacancies(r.company_id);
+            const func = r.workers == null ? `0/${await companyService.get.maxWorkers(r.company_id)}` : `${r.workers.length}/${await companyService.get.maxWorkers(r.company_id)}`;
+            const locname = townsService.getTownNameByNum(r.loc);
+            const curriculum = r.curriculum == null ? 0 : r.curriculum.length;
+            fields.push({
+                name: `${companyService.e[companyService.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`,
+                value: `Setor: ${companyService.e[companyService.types[r.type]].icon} **${companyService.types[r.type].charAt(0).toUpperCase() + companyService.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas ? `🟢 \`/enviarcurriculo ${r.company_id}\`` : '🔴'}`
+            });
+        }
     }
 
+    return { totalpages, currentpage: page, description, fields };
 }
 
-const { SlashCommandBuilder } = require('@discordjs/builders');
-const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
-.addIntegerOption(option => option.setName('página').setDescription('Digite o número da página para pesquisar empresas').setRequired(false))
+    .addIntegerOption(option => option.setName('página').setDescription('Digite o número da página para pesquisar empresas').setRequired(false));
 
 module.exports = {
     name: 'empresas',
@@ -71,71 +59,47 @@ module.exports = {
     description: 'Visualiza as empresas existentes',
     data,
     mastery: 30,
-	async execute(interaction) {
+    async execute(interaction) {
+        const página = interaction.options.getInteger('página');
+        let components;
+        let returned = await formatList(página != null && página > 0 ? página : 1);
 
-        const página = interaction.options.getString('página')
-		
-        const embed = new Discord.EmbedBuilder()
-
-        let components
-
-        function reworkButtons({ currentpage, totalpages }) {
-
-            const butnList = []
-            components = []
-      
-            butnList.push(utility.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
-            butnList.push(utility.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
-
-            components.push(utility.rowComponents(butnList))
-      
-            return components
-      
-        }
-        let returned
-        if (página != null && página > 0) {
-            returned = await formatList(embed, página);
-        } else {
-            returned = await formatList(embed, 1);
+        function reworkButtons() {
+            const buttons = [
+                utility.createButton('backward', 'PRIMARY', '', '852241487064596540', returned.currentpage === 1),
+                utility.createButton('forward', 'PRIMARY', '', '737370913204600853', returned.currentpage === returned.totalpages)
+            ];
+            components = [new ActionRowBuilder().addComponents(...buttons)];
         }
 
-        let currentpage = returned.currentpage
-        let totalpages = returned.totalpages
+        function buildContainer() {
+            return new ContainerBuilder()
+                .setAccentColor(0x4870c7)
+                .addTextDisplayComponents(
+                    new TextDisplayBuilder().setContent('## 📃 | Lista de Empresas'),
+                    new TextDisplayBuilder().setContent(returned.description),
+                    ...returned.fields.map(field => new TextDisplayBuilder().setContent(`**${field.name}**\n${field.value}`))
+                );
+        }
 
-        reworkButtons({ currentpage, totalpages })
-
-        const embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
-
-        if (returned.currentpage == returned.totalpages || returned.totalpages == 0) return
+        reworkButtons();
+        const message = (await interaction.reply({ components: [buildContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
+        if (returned.currentpage === returned.totalpages || returned.totalpages === 0) return;
 
         const filter = i => i.user.id === interaction.user.id;
-        
-        let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
-        
-        collector.on('collect', async(b) => {
-
-            if (!(b.user.id === interaction.user.id)) return
-            
-            if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.empresas.defer_update'); });
-
-            if (b.customId == 'forward'){
-                if (currentpage < totalpages) currentpage += 1;
-            } else if (b.customId == 'backward') {
-                if (currentpage > 1) currentpage -= 1;
-            } 
-
-            reworkButtons({ currentpage, totalpages })
-            
-            returned = await formatList(embed, currentpage);
-           
-            interaction.editReply({ embeds: [embed], components });
-
+        const collector = message.createMessageComponentCollector({ filter, time: 30000 });
+        collector.on('collect', async b => {
+            if (b.user.id !== interaction.user.id) return;
+            if (!b.deferred) b.deferUpdate().catch(error => { throw reportError(error, 'command.empresas.defer_update'); });
+            if (b.customId === 'forward' && returned.currentpage < returned.totalpages) returned.currentpage += 1;
+            if (b.customId === 'backward' && returned.currentpage > 1) returned.currentpage -= 1;
+            returned = await formatList(returned.currentpage);
+            reworkButtons();
+            await interaction.editReply({ components: [buildContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2 });
             collector.resetTimer();
         });
-        
-        collector.on('end', collected => {
-            interaction.editReply({ embeds: [embed], components: [] });
+        collector.on('end', () => {
+            interaction.editReply({ components: [buildContainer()], flags: Discord.MessageFlags.IsComponentsV2 });
         });
-        
-	}
+    }
 };

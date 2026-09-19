@@ -4,6 +4,8 @@ const utility = new UtilityService();
 const playersService = require('../../_classes/services/players');
 const clientService = require('../../_classes/services/clientService');
 const imagesService = require('../../_classes/services/images');
+const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, FileBuilder } = require('@discordjs/builders');
 
 const prisma = require('../../_classes/prisma');
 
@@ -35,8 +37,10 @@ module.exports = {
 			const isWorker = await companyService.check.isWorker(member.id)
 
 			if (!hasCompany && !isWorker) {
-				const embedtemp = await utility.sendError(interaction, `Você deve especificar o código da empresa para visualizar!\nPesquise empresas utilizando \`/empresas\``)
-            	await interaction.reply({ embeds: [embedtemp]})
+				await interaction.reply({
+					components: [new TextDisplayBuilder().setContent(`<:error:736274027756388353> ${interaction.user.tag}\nVocê deve especificar o código da empresa para visualizar!\nPesquise empresas utilizando \`/empresas\``)],
+					flags: Discord.MessageFlags.IsComponentsV2
+				})
 				return;
 			}
 
@@ -60,12 +64,17 @@ module.exports = {
         playersService.cooldown.set(interaction.user.id, "seecompany", 0);
 		
 		if (!company){
-			const embedtemp = await utility.sendError('Houve um erro ao tentar carregar informações da empresa desse membro!')
-            await interaction.reply({ embeds: [embedtemp]})
+			await interaction.reply({
+				components: [new TextDisplayBuilder().setContent(`<:error:736274027756388353> Houve um erro ao tentar carregar informações da empresa desse membro!`)],
+				flags: Discord.MessageFlags.IsComponentsV2
+			})
 			return
 		}
 
-		await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da empresa` })
+		await interaction.reply({
+			components: [new TextDisplayBuilder().setContent('<a:loading:736625632808796250> Carregando informações da empresa')],
+			flags: Discord.MessageFlags.IsComponentsV2
+		})
 
 		let rend = '0,0'
 		let rends = []
@@ -109,7 +118,15 @@ module.exports = {
 			company_id,
         })
 
-        await interaction.editReply({ content: null, files: [companyimage] } );
+        await interaction.editReply({
+            components: [
+                new ContainerBuilder().addFileComponents(
+                    new FileBuilder().setURL('attachment://image.png')
+                )
+            ],
+            files: [companyimage],
+            flags: Discord.MessageFlags.IsComponentsV2
+        });
 
 	}
 };

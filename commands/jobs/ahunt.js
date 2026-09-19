@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, FileBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -28,14 +29,12 @@ module.exports = {
         let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await utility.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você já encontra-se caçando no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -46,8 +45,7 @@ module.exports = {
 
         if (stamina < cost) {
             
-            const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
 
         }
@@ -64,21 +62,20 @@ module.exports = {
 
         await playersService.stamina.remove(interaction.user.id, cost - 1)
 
-        const embed = new Discord.EmbedBuilder()
+        let container
         
         let monster = await companyService.jobs.explore.searchMob(pobj2.level);
 
         if (!monster) {
-            embed.setTitle(`Nenhum monstro por perto`)
-            .setDescription(`Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`)
-            await interaction.reply({ embeds: [embed] });
+            container = new ContainerBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Nenhum monstro por perto\nVocê gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual\n❌ Você não encontrou nenhum monstro nessa caçada.`))
+            await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         }
         
-        embed
-        .addFields({ name: `Você deseja iniciar uma nova caçada?`, value: `Você gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.` })
-        .addFields({ name: `Informações do monstro`, value: `Nome: **${monster.name}**\nNível: **${monster.level}**` })
-        .setImage(monster.image)
+        container = new ContainerBuilder().addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`**Você deseja iniciar uma nova caçada?**\nVocê gastou ${cost} pontos de Estamina 🔸 para procurar um monstro!\nUtilize \`/estamina\` para visualizar suas estamina atual.`),
+            new TextDisplayBuilder().setContent(`**Informações do monstro**\nNome: **${monster.name}**\nNível: **${monster.level}**`)
+        ).addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: monster.image } }))
 
         const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
         const btn1 = utility.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
@@ -88,9 +85,9 @@ module.exports = {
 
         if (pobj.mvp != null) rb0.push(btn2)
 
-        const rowButton0 = utility.rowComponents(rb0)
+        const rowButton0 = new ActionRowBuilder().addComponents(...rb0)
 
-        const embedinteraction = (await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } )).resource.message;
+        const embedinteraction = (await interaction.reply( { components: [container, rowButton0], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true } )).resource.message;
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'hunting')
 		await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
 
@@ -103,12 +100,13 @@ module.exports = {
         let equips = await companyService.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
         let reactequiplist = ['fight', 'run', 'autofight'];
-        let fixedembed = embed
+        let fixedembed = container
         let autohunt = false
         const equipsBtn = []
         let components = []
         let combo = []
         let timing = 0
+        let resultDescription = ''
         collector.on('collect', async (b) => {
 
             if (Date.now()-timing < 0) return
@@ -236,7 +234,7 @@ module.exports = {
 
             }
 
-            async function monsterlost(mo, embed) {
+            async function monsterlost(mo) {
 
                 let cr = utility.random(0, 100)
                 let array2 = mo.drops;
@@ -290,18 +288,16 @@ module.exports = {
                 let score = ((companyService.stars.gen())*1.2).toFixed(2)
                 companyService.stars.add(interaction.user.id, company.company_id, { score })
 
-                embed.fields = []
-                embed.setDescription(`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`)
+                return `✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`
                 
             }
             
-            async function playerlost(member, embed) {
+            async function playerlost(member) {
                 
-                embed.fields = []
-                embed.setDescription(`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
                 const member_id = BigInt(member.id)
                 await prisma.machines.upsert({ where: { user_id: member_id }, update: { xp: 0 }, create: { user_id: member_id, xp: 0, slots: [] } })
                 playersService.stamina.subset(member.id, 0)
+                return `❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``
 
             }
             
@@ -317,10 +313,7 @@ module.exports = {
 
                 inbattle = true
                 
-                const embed = new Discord.EmbedBuilder()
-                embed.setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}]**`: ''}`)
+                const embed = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Caçada\nOBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}]**`: ''}`))
                 
                 for (const r of equips) {
                     let id = r.icon.split(':')[2].replace('>', '');
@@ -330,17 +323,16 @@ module.exports = {
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
-                    embed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
+                    embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**[${getRarity(r.level).rarityIcon}] ${r.icon} ${r.name}**\nForça: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``))
                 }
 
-                if (!autohunt) components = [ utility.rowComponents(equipsBtn) ]
+                if (!autohunt) components = [ new ActionRowBuilder().addComponents(...equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
 
-                embed.setImage('attachment://image.png')
+                embed.addFileComponents(new FileBuilder().setURL('attachment://image.png'))
 
-                //await interaction.editReply({ embeds: [embed], components })//, files: [firstbuild.attach] });
-                await interaction.editReply({ embeds: [embed], components, files: [firstbuild.attach] });
+                await interaction.editReply({ components: [embed, ...components], flags: Discord.MessageFlags.IsComponentsV2, files: [firstbuild.attach] });
 
                 
                 fixedembed = embed
@@ -411,18 +403,15 @@ module.exports = {
                 
                 if (runtime.debug) console.log(`${eq.name}`.yellow)
                 
-                const embed = new Discord.EmbedBuilder()
-                embed.setTitle(`Caçada`)
-                .setColor('#5bff45')
-                .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}] ${youhasbeencombedmeuamigo ? ' 💥':''}**`: ''}`)
+                const embed = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Caçada\nOBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**${!autohunt ? `\n**COMBO: [${combo[0] || ' '}] [${combo[1] || ' '}] [${combo[2] || ' '}] [${combo[3] || ' '}] [${combo[4] || ' '}] ${youhasbeencombedmeuamigo ? ' 💥':''}**`: ''}`))
                     
                 for (const r of equips) {
-                    embed.addFields({ name: `[${getRarity(r.level).rarityIcon}] ${r.icon} **${r.name}**`, value: `Força: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``, inline: true })
+                    embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**[${getRarity(r.level).rarityIcon}] ${r.icon} ${r.name}**\nForça: \`${r.dmg} DMG\` 🗡🔸\nAcerto: \`${r.chance}%\`\nCrítico: \`${r.crit}%\``))
                 }
                 
                 let buildlost = await build(lost)
                 
-                embed.setImage('attachment://image.png')
+                embed.addFileComponents(new FileBuilder().setURL('attachment://image.png'))
                 
                 let currinteraction = ""
                 {
@@ -440,33 +429,29 @@ module.exports = {
                 }
                 if (buildlost.plost) {
                     currinteraction = `\n🎗 ${interaction.user.username} perdeu o combate!`
-                    await playerlost(interaction.user, embed)
+                    resultDescription = await playerlost(interaction.user)
                 } else if (monster.csta <= 0) {
                     currinteraction = `\n🎗 ${monster.name} perdeu o combate!`
-                    await monsterlost(monster, embed)
+                    resultDescription = await monsterlost(monster)
                 }
                 }
                 
-                await embed.setFooter({ text: `Informações do ataque atual\n${currinteraction}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}` })
+                embed.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**Informações do ataque atual**\n${currinteraction}${autohunt && !dead ? '\n \n🤖 Caça automática a cada 16 segundos': ''}${resultDescription ? `\n\n${resultDescription}` : ''}`))
 
                 try {
                     if (dead) {
-                        //await interaction.editReply({ embeds: [embed], components: []})//, files: [buildlost.attach]})
-                        await interaction.editReply({ embeds: [embed], attachments: [], components: [], files: [buildlost.attach]})
+                        await interaction.editReply({ components: [embed], attachments: [], flags: Discord.MessageFlags.IsComponentsV2, files: [buildlost.attach]})
                     } else {
-                        //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
-                        await interaction.editReply({ embeds: [embed], attachments: [], components, files: [buildlost.attach] })
+                        await interaction.editReply({ components: [embed, ...components], attachments: [], flags: Discord.MessageFlags.IsComponentsV2, files: [buildlost.attach] })
                     }
                 } catch (error) {
                     reportError(error, 'command.cacar.edit_progress', { userId: interaction.user.id });
                     setTimeout(async function(){
                         try {
                             if (dead) {
-                                //await interaction.editReply({ embeds: [embed], components: []})//, files: [buildlost.attach]})
-                                await interaction.editReply({ embeds: [embed], components: [], files: [buildlost.attach]})
+                                await interaction.editReply({ components: [embed], flags: Discord.MessageFlags.IsComponentsV2, files: [buildlost.attach]})
                             } else {
-                                //await interaction.editReply({ embeds: [embed], components})//, files: [buildlost.attach] })
-                                await interaction.editReply({ embeds: [embed], components, files: [buildlost.attach] })
+                                await interaction.editReply({ components: [embed, ...components], flags: Discord.MessageFlags.IsComponentsV2, files: [buildlost.attach] })
                             }
                         } catch (error) {
                             reportError(error, 'command.cacar.cleanup', { userId: interaction.user.id });
@@ -512,19 +497,11 @@ module.exports = {
             if (dead) return
 
             if (reacted) {
-                fixedembed.fields = []
-                fixedembed.setTitle(`Mas que covarde!`)
-                fixedembed.setColor('#a60000');
-                fixedembed.setDescription(`❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`)
-                interaction.editReply({ embeds: [fixedembed], components: [] });
+                interaction.editReply({ components: [new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Mas que covarde!\n❌ Você não teve coragem de atacar o monstro e saiu correndo do combate!`))], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             
             }
-            embed.fields = []
-            embed.setTitle(`Oops, o monstro percebeu sua presença!`)
-            embed.setColor('#a60000');
-            embed.setDescription(`❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`)
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`## Oops, o monstro percebeu sua presença!\n❌ Você demorou demais para a caçada e o monstro conseguiu fugir a tempo`))], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
 

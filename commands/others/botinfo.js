@@ -1,6 +1,9 @@
 const clientService = require('../../_classes/services/clientService');
-const botInfo = require('../../_classes/services/botInfo');
+const runtime = require('../../_classes/services/runtime');
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
+const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'botinfo',
@@ -11,9 +14,22 @@ module.exports = {
 	async execute(interaction) {
 
         const client = clientService.current
-        
-		const embed = await botInfo.get()
-		await interaction.reply({ embeds: [embed]});
+        const user_id = BigInt(require('../../_classes/config').app.id);
+        const globals = await prisma.globals.upsert({
+            where: { user_id },
+            update: { user_id },
+            create: { user_id, keys: [], remember: [], processing: [] }
+        });
+        const version = `${require('../../package.json').version} (Rework)`;
+        const container = new ContainerBuilder()
+            .setAccentColor(0x36393f)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                `## (/) ${client.user.username}`,
+                '**🕐 Tempo online**\n`' + new (require('../../_classes/services/utilityService'))().uptime() + '`',
+                '**📓 Comandos executados**\nApós iniciar: `' + runtime.commandsExecuted + '`\nTotal: `' + globals.totalcmd + '`\nPlayers após iniciar: `' + runtime.playersSeen.size + '`',
+                '**📎 Versões**\nNode.js `' + process.versions.node + '`\nDiscord.js `' + Discord.version + '`\nNisruksha `' + version + '`'
+            ].join('\n\n')));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
         const AsciiTable = require('ascii-table')
 
@@ -91,7 +107,7 @@ module.exports = {
             *NOTA: "Eu particularmente, tentei por em embed, não funciona bem, fica quebrado."
             * O "prolog", nada mais é que um Markdown (Markdown é uma linguagem simples de marcação originalmente criada por John Gruber e Aaron Swartz. Markdown converte seu texto em HTML válido)  
             */
-            interaction.followUp(`\`\`\`prolog\n${table.toString()}\`\`\``)
+            interaction.followUp({ components: [new TextDisplayBuilder().setContent(`\`\`\`prolog\n${table.toString()}\`\`\``)], flags: Discord.MessageFlags.IsComponentsV2 })
 
             // É necessário limpar os Rows, sempre, depois de usar o comando, caso não limpe, as informações ficam se sobrepondo.
             table.clearRows()

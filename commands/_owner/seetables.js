@@ -1,6 +1,8 @@
 const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const Discord = require('discord.js');
+const { TextDisplayBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela para ver as colunas').setRequired(false))
 
@@ -22,7 +24,7 @@ module.exports = {
         if (selectedtable != null) {
             const tables = ['players', 'servers', 'globals', 'storage', 'players_utils', 'machines', 'cooldowns', 'companies', 'towns', 'site'];
             if (!tables.includes(selectedtable.toLowerCase())) {
-                return interaction.reply({ content: 'Essa tabela não existe! Utilize `/seetables`'})
+                return interaction.reply({ components: [new TextDisplayBuilder().setContent('Essa tabela não existe! Utilize `/seetables`')], flags: Discord.MessageFlags.IsComponentsV2 })
             }
 
             const columns = prisma._runtimeDataModel.models[selectedtable.toLowerCase()].fields.map((field) => field.name);
@@ -30,7 +32,7 @@ module.exports = {
                 middle += "|--" + column + "\n"
 
             }
-            await interaction.reply(istring + middle.slice(0, 1980) + fstring)
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(istring + middle.slice(0, 1980) + fstring)], flags: Discord.MessageFlags.IsComponentsV2 })
             return
         }
 
@@ -39,7 +41,7 @@ module.exports = {
             middle += "|-" + table + "\n"
         }
 
-        await interaction.reply(istring + middle.slice(0, 1980) + fstring)
+        await interaction.reply({ components: [new TextDisplayBuilder().setContent(istring + middle.slice(0, 1980) + fstring)], flags: Discord.MessageFlags.IsComponentsV2 })
 
 	}
 };

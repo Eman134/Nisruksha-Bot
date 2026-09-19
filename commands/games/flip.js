@@ -6,12 +6,31 @@ const utility = new UtilityService();
 const townsService = require('../../_classes/services/towns');
 const economyService = require('../../_classes/services/economy');
 const config = require('../../_classes/config');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a aposta').setRequired(true))
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder()
+        .setAccentColor(color)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message, usage) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`, 0xb8312c);
+}
+
+function flipContainer({ color, description, field, buttons }) {
+    const sections = ['**Giro**', description, field && `**${field.name}**\n${field.value}`].filter(Boolean);
+    const container = textContainer(sections.join('\n\n'), color);
+    if (buttons) container.addActionRowComponents(new ActionRowBuilder().addComponents(...buttons));
+    return container;
+}
 
 module.exports = {
     name: 'girar',
@@ -35,8 +54,7 @@ module.exports = {
         const member = interaction.options.getUser('membro')
         
         if (member.id == interaction.user.id) {
-            const embedtemp = await utility.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')], flags: v2Flags });
             return
         }
 
@@ -44,39 +62,33 @@ module.exports = {
         const townmember = await townsService.getTownName(member.id)
 
         if (!(townsService.games[townauthor].includes('flip'))) {
-            const embedtemp = await utility.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)
-			await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)], flags: v2Flags });
             return;
         }
         if (!(townsService.games[townmember].includes('flip'))) {
-            const embedtemp = await utility.sendError(interaction, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)
-			await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)], flags: v2Flags });
             return;
         }
 
         if (aposta < 1) {
-            const embedtemp = await utility.sendError(interaction, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)], flags: v2Flags });
             return;
         }
         if (aposta > 5000) {
-            const embedtemp = await utility.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)], flags: v2Flags });
             return;
         }
 
         const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)], flags: v2Flags });
             return;
         }
         const tokenmember = await economyService.token.get(member.id)
 
         if (tokenmember < aposta) {
-            const embedtemp = await utility.sendError(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [errorContainer(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)], flags: v2Flags });
             return;
         }
 
@@ -88,16 +100,11 @@ module.exports = {
         playersService.cooldown.set(interaction.user.id, "flip", 60);
         playersService.cooldown.set(member.id, "flip", 60);
 
-        const embed = new Discord.EmbedBuilder()
-        .setTitle('Giro')
-        .setColor('#42e3d0')
-		.setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` })
-        
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
+        const flipDescription = `O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`;
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [flipContainer({ color: 0x42e3d0, description: flipDescription, field: { name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` }, buttons: [btn0, btn1] })], flags: v2Flags, withResponse: true })).resource.message;
 
         const filter = (button) => true
 
@@ -120,35 +127,32 @@ module.exports = {
 
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.flip.defer_update'); });
 
-            const embed = new Discord.EmbedBuilder()
-            .setTitle('Giro')
-            .setColor('#a60000')
-            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
+            let flipView = flipContainer({ color: 0xa60000, description: flipDescription, buttons: [] });
             if (confirm[interaction.user.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
-                embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` })
-                return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
+                flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '<a:loading:736625632808796250> Aguardando confirmações', value: `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}` }, buttons: [btn0, btn1] });
+                return interaction.editReply({ components: [flipView], flags: v2Flags });
             }
 
             collector.stop()
             if (confirm[interaction.user.id] == '❌' && confirm[member.id] == '❌') {
-                embed.addFields({ name: '❌ Aposta cancelada', value: `Os dois jogadores cancelaram a aposta!` })
+                flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Aposta cancelada', value: 'Os dois jogadores cancelaram a aposta!' } });
             } else if (confirm[interaction.user.id] == '❌') {
-                embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` })
+                flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Aposta cancelada', value: `O membro ${interaction.user} cancelou a aposta!` } });
             } else if (confirm[member.id] == '❌') {
-                embed.addFields({ name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` })
+                flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Aposta cancelada', value: `O membro ${member} não aceitou a aposta!` } });
             } else if (confirm[interaction.user.id] == '✅' && confirm[member.id] == '✅') {
 
                 const token = await economyService.token.get(interaction.user.id)
 
                 if (token < aposta) {
-                    embed.addFields({ name: '❌ Aposta cancelada', value: `${interaction.user} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` })
-                    return interaction.editReply({ embeds: [embed], components: [] });
+                    flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Aposta cancelada', value: `${interaction.user} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` } });
+                    return interaction.editReply({ components: [flipView], flags: v2Flags });
                 }
                 const tokenmember = await economyService.token.get(member.id)
 
                 if (tokenmember < aposta) {
-                    embed.addFields({ name: '❌ Aposta cancelada', value: `${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` })
-                    return interaction.editReply({ embeds: [embed], components: [] });
+                    flipView = flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Aposta cancelada', value: `${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\`` } });
+                    return interaction.editReply({ components: [flipView], flags: v2Flags });
                 }
 
                 let fresponse = ""
@@ -205,13 +209,12 @@ module.exports = {
                 }
 
                 const chances = await applyBet(rd, response) 
-                embed.setColor('#5bff45');
-                embed.addFields({ name: '✅ Aposta realizada', value: fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:'') })
+                flipView = flipContainer({ color: 0x5bff45, description: flipDescription, field: { name: '✅ Aposta realizada', value: fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:'') } });
                 playersService.cooldown.set(interaction.user.id, "flip", 0);
                 playersService.cooldown.set(member.id, "flip", 0);
             }
             
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [flipView], flags: v2Flags });
 
         });
         
@@ -220,12 +223,7 @@ module.exports = {
             playersService.cooldown.set(member.id, "flip", 0);
             if (reacted[interaction.user.id] == true && reacted[member.id] == true) return;
 
-            const embed = new Discord.EmbedBuilder()
-            .setTitle('Giro')
-            .setColor('#a60000')
-            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-            .addFields({ name: '❌ Tempo expirado', value: `Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [flipContainer({ color: 0xa60000, description: flipDescription, field: { name: '❌ Tempo expirado', value: 'Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!' } })], flags: v2Flags });
 
             return;
         });

@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const playersService = require('../../_classes/services/players');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -65,11 +66,12 @@ module.exports = {
             cristal = 1
         }
         
-		const embed = new Discord.EmbedBuilder()
-        .setColor(colors[streak] || colors["10"])
-        .setDescription(`Você recebeu \`${reward}\` ${utility.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${utility.money2}\` ${utility.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
-        .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-        await interaction.reply({ embeds: [embed] });
+        const container = new ContainerBuilder()
+            .setAccentColor(parseInt((colors[streak] || colors["10"]).slice(1), 16))
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent(
+                `**${interaction.user.tag}**\nVocê recebeu \`${reward}\` ${utility.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${utility.money2}\` ${utility.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`
+            ));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
         await economyService.money.add(interaction.user.id, reward)
         await economyService.points.add(interaction.user.id, cristal)
         await prisma.players.update({ where: { user_id }, data: { streak } })

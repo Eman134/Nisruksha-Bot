@@ -4,6 +4,7 @@ const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('id').setDescription('Selecione um id de usuário').setRequired(true))
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela').setRequired(true))
@@ -39,7 +40,7 @@ module.exports = {
         const table = tabela?.toLowerCase();
         const field = coluna?.replace(/^"|"$/g, '');
         if (!addableFields[table]?.has(field) || !/^-?\d+(\.\d+)?$/.test(valor)) {
-            return interaction.reply({ content: 'Tabela, coluna ou valor não permitido.' });
+            return interaction.reply({ components: [new TextDisplayBuilder().setContent('Tabela, coluna ou valor não permitido.')], flags: Discord.MessageFlags.IsComponentsV2 });
         }
 
 		                let v;
@@ -53,9 +54,9 @@ module.exports = {
             va = 'server_id'
         }
         if ((table === 'servers') !== (va === 'server_id') || !v) {
-            return interaction.reply({ content: 'O identificador não corresponde à tabela permitida.' });
+            return interaction.reply({ components: [new TextDisplayBuilder().setContent('O identificador não corresponde à tabela permitida.')], flags: Discord.MessageFlags.IsComponentsV2 });
         }
-		const embed = new Discord.EmbedBuilder()
+		let container
         try {
             const id = BigInt(v.id);
             const where = va === 'server_id' ? { server_id: id } : { user_id: id };
@@ -65,15 +66,11 @@ module.exports = {
             await delegates[table].update({ where, data: { [field]: { increment } } });
             const after = await delegates[table].findUnique({ where, select: { [field]: true } });
 
-            embed.setDescription(`✅ Dados de ${v} atualizados! ${before[field]} -> ${after[field]}`)
-
-            .setColor('#32a893')
+            container = new ContainerBuilder().setAccentColor(0x32a893).addTextDisplayComponents(new TextDisplayBuilder().setContent(`✅ Dados de ${v} atualizados! ${before[field]} -> ${after[field]}`));
         } catch (e) {
-            embed.setDescription(`❌ Houve um erro ao atualizar dados de ${v} em \`${table}:${field}\``)
-            .addFields({ name: 'Erro:', value: `\`\`\`js\n${e.stack}\`\`\`` })
-            .setColor('#eb4034')
+            container = new ContainerBuilder().setAccentColor(0xeb4034).addTextDisplayComponents(new TextDisplayBuilder().setContent(`❌ Houve um erro ao atualizar dados de ${v} em \`${table}:${field}\`\n\n**Erro:**\n\`\`\`js\n${e.stack}\`\`\``));
         } finally {
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
         }
 
 	}

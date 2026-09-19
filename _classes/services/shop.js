@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const prisma = require('../prisma');
 const clientService = require('./clientService');
 const cacheLists = require('./cacheLists');
@@ -22,7 +23,6 @@ const money2 = utility.money2;
 const money2emoji = utility.money2emoji;
 const moneyemoji = utility.moneyemoji;
 const random = utility.random.bind(utility);
-const rowComponents = utility.rowComponents.bind(utility);
 const sendError = utility.sendError.bind(utility);
 const tp = utility.tp;
 const { reportError } = require('../debug');
@@ -40,7 +40,7 @@ shopExtension.getShopObj = async function() {
   return clone(contentCatalog.shop);
 }
 
-shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
+shopExtension.formatPages = async function(container, { currentpage, totalpages }, product, user_id, stopComponents) {
   const key = BigInt(user_id);
   const playerobj = await prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] }, select: { machine: true, level: true } });
   let maqid = playerobj.machine;
@@ -87,11 +87,11 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
     if (p.info) {
       formated += '\n' + p.info
     }
-    embed.addFields({ name: `${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}${discount > 0 ? ` ┆ Desconto: ${discount}%` : ''}`, value: formated, inline: false })
+    container.addTextDisplayComponents(new TextDisplayBuilder().setContent(`**${p['icon'] == undefined ? '' : p['icon'] + ' '}${p['name']} ┆ ID: ${p['id']}${discount > 0 ? ` ┆ Desconto: ${discount}%` : ''}**\n${formated}`));
     productscurrentpage.push(p)
   }
 
-  if (product.length == 0) embed.addFields({ name: '❌ Oops, um problema inesperado ocorreu', value: 'Esta categoria não possui produtos ainda!' });
+  if (product.length == 0) container.addTextDisplayComponents(new TextDisplayBuilder().setContent('**❌ Oops, um problema inesperado ocorreu**\nEsta categoria não possui produtos ainda!'));
 
   if (stopComponents) return []
 
@@ -118,7 +118,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
        for (let x = 0; x < totalcomponents; x++) {
           const var1 = (x+1)*perRow-perRow
           const var2 = ((x+1)*perRow)
-          const rowBtn = rowComponents(butnList.slice(var1, var2))
+           const rowBtn = new ActionRowBuilder().addComponents(...butnList.slice(var1, var2))
           if (rowBtn.components.length > 0) components.push(rowBtn)
 
       }
@@ -142,60 +142,50 @@ shopExtension.categoryExists = async function(cat) {
 }
 
 shopExtension.editPage = async function(cat, interaction, embedinteraction, products, embed, page, totalpages) {
-  
   const filter = i => i.user.id === interaction.user.id;
-
   let currentpage = page;
-  
-  let collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
+  let stopped = false;
 
-  let stopped = false
-  
-  collector.on('collect', async(b) => {
+  const renderPage = async (stopComponents = false) => {
+    const container = new ContainerBuilder()
+      .setAccentColor(stopComponents ? 0xa60000 : 0xbf772a)
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ${cat} ${currentpage}/${totalpages}`));
+    const components = await shopExtension.formatPages(container, { currentpage, totalpages }, products, interaction.user.id, stopComponents);
+    return { container, components };
+  };
 
-      if (!(b.user.id === interaction.user.id)) return
-      
-      embed.fields = [];
+  const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
+  collector.on('collect', async (b) => {
+      if (!(b.user.id === interaction.user.id)) return;
 
-      let components = []
-
-      let stopComponents = false
-
-      if (b.customId == 'forward'){
-        if (currentpage < totalpages) currentpage += 1;
-      } if (b.customId == 'backward') {
-        if (currentpage > 1) currentpage -= 1;
-      } if (b.customId == 'stop') {
-        embed.setColor('#a60000')
-        components = []
-        stopComponents = true
-        stopped = true
-        collector.stop()
+      let stopComponents = false;
+      if (b.customId == 'forward' && currentpage < totalpages) currentpage += 1;
+      if (b.customId == 'backward' && currentpage > 1) currentpage -= 1;
+      if (b.customId == 'stop') {
+        stopComponents = true;
+        stopped = true;
+        collector.stop();
       }
 
-      embed.setTitle(`${cat} ${currentpage}/${totalpages}`);
+      const product = await shopExtension.getProduct(b.customId);
+      if (product) stopComponents = true;
+      const rendered = await renderPage(stopComponents);
 
-      const product = await shopExtension.getProduct(b.customId)
-      
-      if (product) stopComponents = true
-      components = await shopExtension.formatPages(embed, { currentpage, totalpages }, products, interaction.user.id, stopComponents);
-      
       if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'shop.defer_update'));
-
       if (product) {
-        collector.stop()
+        collector.stop();
         await shopExtension.execute(interaction, product);
-        return
+        return;
       }
 
-      await interaction.editReply({ embeds: [embed], components });
+      await interaction.editReply({ components: [rendered.container, ...rendered.components], flags: Discord.MessageFlags.IsComponentsV2 });
       collector.resetTimer();
-
   });
-  
-  collector.on('end', async collected => {
-    if (stopped) return
-    await interaction.editReply({ embeds: [embed], components: [] });
+
+  collector.on('end', async () => {
+    if (stopped) return;
+    const rendered = await renderPage(true);
+    await interaction.editReply({ components: [rendered.container], flags: Discord.MessageFlags.IsComponentsV2 });
   });
 
 }
@@ -222,15 +212,20 @@ shopExtension.execute = async function(interaction, p) {
   if (!p.buyable) {
     const obj = await shopExtension.getShopObj();
     let array = Object.keys(obj);
-    const embedtemp = await sendError(interaction, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
-    if (interaction.replied) await interaction.editReply({ embeds: [embedtemp]})
-    else await interaction.reply({ embeds: [embedtemp]})
+    const container = await sendError(interaction, `Este produto não está disponível para compra!\nVisualize uma lista de produtos disponíveis`, `loja <${array.join(' | ').toUpperCase()}>`)
+    if (interaction.replied) await interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
+    else await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
     return;
   }
 
-  const embed = new Discord.EmbedBuilder();
-  embed.setColor('#606060');
-  embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
+  let color = 0x606060;
+  let fields = [];
+  const renderPurchase = () => new ContainerBuilder()
+    .setAccentColor(color)
+    .addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(`**${interaction.user.tag}**`),
+      ...fields.map(({ name, value }) => new TextDisplayBuilder().setContent(`**${name}**\n${value}`))
+    );
   
   const key = BigInt(interaction.user.id);
   let pobj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] }, select: { mvp: true } });
@@ -241,13 +236,16 @@ shopExtension.execute = async function(interaction, p) {
 
   const formatprice = `${price > 0 ? format(price)  +  ' ' + money + ' ' + moneyemoji: ''}${p.price2 > 0 ? ` e ${p.price2} ${money2} ${money2emoji}`:''}${p.price3 > 0 ? `${p.price3} ${tp.name} ${tp.emoji}`:''}`
 
-  embed.addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
+  fields.push({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `
   Você deseja comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**?` })
 
   const btn0 = createButton('confirm', 'SECONDARY', '', '✅')
   const btn1 = createButton('cancel', 'SECONDARY', '', '❌')
 
-  const alltoedit = { embeds: [embed], components: [rowComponents([btn0, btn1])] }
+  const alltoedit = {
+    components: [renderPurchase(), new ActionRowBuilder().addComponents(btn0, btn1)],
+    flags: Discord.MessageFlags.IsComponentsV2
+  };
 
   let embedinteraction
 
@@ -269,7 +267,7 @@ shopExtension.execute = async function(interaction, p) {
 
     buyed = true;
     collector.stop();
-    embed.fields = [];
+    fields = [];
 
     if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'shop.defer_update'));
 
@@ -282,26 +280,26 @@ shopExtension.execute = async function(interaction, p) {
       const convites = await eco.tp.get(interaction.user.id)
 
       if (!(money >= price)) {
-        embed.setColor('#a60000');
-        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${format(money)}/${format(price)} ${money} ${moneyemoji}**` })
-        await embedinteraction.edit({ embeds: [embed], components: [] });
+        color = 0xa60000;
+        fields.push({ name: '❌ Falha na compra', value: `Você não possui dinheiro suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeu dinheiro atual: **${format(money)}/${format(price)} ${money} ${moneyemoji}**` });
+        await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
 			  return;
 
       }if(p.price2 > 0 && !(points >= p.price2)){
-        embed.setColor('#a60000');
-        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${format(points)}/${format(p.price2)} ${money2} ${money2emoji}**` })
-        await embedinteraction.edit({ embeds: [embed], components: [] });
+        color = 0xa60000;
+        fields.push({ name: '❌ Falha na compra', value: `Você não possui cristais suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus cristais atuais: **${format(points)}/${format(p.price2)} ${money2} ${money2emoji}**` });
+        await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
         return;
 
       }if(p.price3 > 0 && !(convites.points >= p.price3)){
-        embed.setColor('#a60000');
-        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui ${tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${tp.name} atuais: **${format(convites.points)}/${format(p.price3)} ${tp.name} ${tp.emoji}**` })
-        await embedinteraction.edit({ embeds: [embed], components: [] });
+        color = 0xa60000;
+        fields.push({ name: '❌ Falha na compra', value: `Você não possui ${tp.name} o suficiente para comprar **${p.icon ? p.icon+' ':''}${p.name}**!\nSeus ${tp.name} atuais: **${format(convites.points)}/${format(p.price3)} ${tp.name} ${tp.emoji}**` });
+        await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
         return; 
       }if (p.level > 0 && obj2.level < p.level) {
-        embed.setColor('#a60000');
-        embed.addFields({ name: '❌ Falha na compra', value: `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`/perfil\`` })
-        await embedinteraction.edit({ embeds: [embed], components: [] });
+        color = 0xa60000;
+        fields.push({ name: '❌ Falha na compra', value: `Você não possui nível o suficiente para comprar isto!\nSeu nível atual: **${obj2.level}/${p.level}**\nVeja seu progresso atual utilizando \`/perfil\`` });
+        await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
         return;
       }
 
@@ -311,9 +309,9 @@ shopExtension.execute = async function(interaction, p) {
         case 1:
 
           if (await cacheLists.waiting.includes(interaction.user.id, 'mining')) {
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Falha na compra', value: 'Você não pode realizar uma compra de uma máquina enquanto estiver minerando!' })
-            await embedinteraction.edit({ embeds: [embed], components: [] });
+            color = 0xa60000;
+            fields.push({ name: '❌ Falha na compra', value: 'Você não pode realizar uma compra de uma máquina enquanto estiver minerando!' });
+            await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
           }
 
@@ -321,9 +319,9 @@ shopExtension.execute = async function(interaction, p) {
 
           if (p.id > cmaq+1) {
             const proxmaq = await shopExtension.getProduct(cmaq+1)
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Falha na compra', value: `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**` })
-            await embedinteraction.edit({ embeds: [embed], components: [] });
+            color = 0xa60000;
+            fields.push({ name: '❌ Falha na compra', value: `Você precisa comprar a máquina em ordem por id!\nSua próxima máquina é a **${proxmaq.icon} ${proxmaq.name}**` });
+            await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
           }
 
@@ -384,12 +382,12 @@ shopExtension.execute = async function(interaction, p) {
           
       }
           
-      embed.setColor('#5bff45');
-       embed.addFields({ name: '✅ Sucesso na compra', value: `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${format(cashback)} ${money}** ${moneyemoji})` : ''}${p.type == 5?`\nUtilize \`/maquina\` para visualizar seus chipes!`:''}` })
+      color = 0x5bff45;
+       fields.push({ name: '✅ Sucesso na compra', value: `Você comprou **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.${cashback > 0 ? `\nVocê recebeu um cashback de 7% do valor da sua máquina antiga! (**${format(cashback)} ${money}** ${moneyemoji})` : ''}${p.type == 5?`\nUtilize \`/maquina\` para visualizar seus chipes!`:''}` });
 
-       if(debug) embed.addFields({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` })
+       if(debug) fields.push({ name: '<:error:736274027756388353> Depuração', value: `\n\`\`\`js\n${JSON.stringify(p, null, '\t').slice(0, 1000)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\`` });
 
-       await embedinteraction.edit({ embeds: [embed], components: [] });
+       await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
           
       await eco.money.remove(interaction.user.id, price);
           
@@ -404,25 +402,23 @@ shopExtension.execute = async function(interaction, p) {
       
       await eco.addToHistory(interaction.user.id, `Compra ${p.icon ? p.icon+' ':''}| - ${formatprice}`)
 
-      const embedcmd = new Discord.EmbedBuilder()
-          .setColor('#b8312c')
-          .setTimestamp()
-          .setTitle('🛒 | Loja')
-          .addFields(
-            { name: 'Produto', value: `**${p.icon + ' ' + p.name}**\n${formatprice}` },
-            { name: '<:mention:788945462283075625> Membro', value: `${interaction.user.tag} (\`${interaction.user.id}\`)` },
-            { name: '<:channel:788949139390988288> Canal', value: `\`${interaction.channel.name} (${interaction.channel.id})\`` }
-          )
-          .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-          .setFooter({ text: interaction.guild.name + " | " + interaction.guild.id, iconURL: interaction.guild.iconURL() })
-          await clientService.current?.channels.cache.get('826177953796587530')?.send({ embeds: [embedcmd]});
+      const logContainer = new ContainerBuilder()
+          .setAccentColor(0xb8312c)
+          .addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`**${interaction.user.tag}**\n## 🛒 | Loja`),
+            new TextDisplayBuilder().setContent(`**Produto**\n**${p.icon + ' ' + p.name}**\n${formatprice}`),
+            new TextDisplayBuilder().setContent(`**<:mention:788945462283075625> Membro**\n${interaction.user.tag} (\`${interaction.user.id}\`)`),
+            new TextDisplayBuilder().setContent(`**<:channel:788949139390988288> Canal**\n\`${interaction.channel.name} (${interaction.channel.id})\``),
+            new TextDisplayBuilder().setContent(`-# ${interaction.guild.name} | ${interaction.guild.id} | <t:${Math.floor(Date.now() / 1000)}:F>`)
+          );
+      await clientService.current?.channels.cache.get('826177953796587530')?.send({ components: [logContainer], flags: Discord.MessageFlags.IsComponentsV2 });
     
     
     } if (b.customId === 'cancel'){
 
-          embed.setColor('#a60000');
-           embed.addFields({ name: '❌ Compra cancelada', value: `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.` })
-          await embedinteraction.edit({ embeds: [embed], components: [] });
+          color = 0xa60000;
+           fields.push({ name: '❌ Compra cancelada', value: `Você cancelou a compra de **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**.` });
+          await embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
           return;
     }
       
@@ -432,11 +428,11 @@ shopExtension.execute = async function(interaction, p) {
   collector.on('end', collected => {
 
     if (buyed) return
-    embed.fields = []
-    embed.setColor('#a60000');
-    embed.addFields({ name: '❌ Tempo expirado', value: `
+    fields = [];
+    color = 0xa60000;
+    fields.push({ name: '❌ Tempo expirado', value: `
     Você iria comprar **${p.icon ? p.icon+' ':''}${p.name}** pelo preço de **${formatprice}**, porém o tempo expirou!` })
-    embedinteraction.edit({ embeds: [embed], components: [] });
+    embedinteraction.edit({ components: [renderPurchase()], flags: Discord.MessageFlags.IsComponentsV2 });
     return;
 
   });

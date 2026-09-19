@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 
 class UtilityService {
     constructor() {
@@ -71,11 +72,11 @@ class UtilityService {
     }
 
     sendError(interaction, message, usage) {
-        const embed = new Discord.EmbedBuilder().setColor('#b8312c')
-            .setDescription('<:error:736274027756388353> ' + message)
-            .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) });
-        if (usage) embed.addFields({ name: 'Exemplo de uso', value: '\n`/' + usage + '`' });
-        return embed;
+        return new ContainerBuilder()
+            .setAccentColor(0xb8312c)
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`**${interaction.user.tag}**\n<:error:736274027756388353> ${message}${usage ? `\n\n**Exemplo de uso**\n\`/${usage}\`` : ''}`)
+            );
     }
 
     createButton(id, style, label, emoji, disabled) {

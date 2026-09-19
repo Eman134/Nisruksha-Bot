@@ -4,7 +4,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const itemsService = require('../../_classes/services/items');
 const companyService = require('../../_classes/services/company');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('área').setDescription('Digite o tamanho da área para realizar a plantação').setRequired(true))
@@ -56,44 +56,37 @@ module.exports = {
 
         
         if (!contains) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
         
         if (plot.plants && plot.plants.length == 5) {
-            const embedtemp = await utility.sendError(interaction, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`/terrenoatual\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`/terrenoatual\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (area < 5) {
-            const embedtemp = await utility.sendError(interaction, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`A __área__ precisa ser um número e no mínimo 5!\nUtilize \`/plantar <área em m²> <quantia> <semente>\`\nExemplo: \`plantar 10 20 Soja\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (quantia < 5) {
-            const embedtemp = await utility.sendError(interaction, `A __quantia__ precisa ser no __mínimo 5__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`A __quantia__ precisa ser no __mínimo 5__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\`\nExemplo: \`plantar 10 20 Soja\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (quantia > 20) {
-            const embedtemp = await utility.sendError(interaction, `A __quantia__ precisa ser no __máximo 20__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`A __quantia__ precisa ser no __máximo 20__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\`\nExemplo: \`plantar 10 20 Soja\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (area > plot.area-plot.areaplant) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`/terrenoatual\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`/terrenoatual\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (plot.adubacao && plot.adubacao < 10) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`/adubar\` para adubar o terreno atual`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`/adubar\` para adubar o terreno atual`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -120,8 +113,7 @@ module.exports = {
         }
 
         if (!contains2) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui **${quantia}x ${seed ? seed.icon + ' ' + seed.displayname : semente}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`/mochila\``)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui **${quantia}x ${seed ? seed.icon + ' ' + seed.displayname : semente}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`/mochila\``)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -159,12 +151,11 @@ module.exports = {
         const storageField = String(seed.displayname).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_')
         await prisma.storage.update({ where: { user_id }, data: { [storageField]: seedstorage[storageField]-quantia } })
 
-        const embed = new Discord.EmbedBuilder()
-
-        embed.setColor(Math.floor(Math.random() * 0xffffff))
-        embed.setTitle(seed.icon + ' Plantação realizada!')
-        embed.setDescription(`Você cercou __${area}m²__ do seu terreno e plantou **${quantia}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`/terrenoatual\``)
-        await interaction.reply({ embeds: [embed] })
+        const container = new ContainerBuilder().setAccentColor(Math.floor(Math.random() * 0xffffff)).addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## ${seed.icon} Plantação realizada!`),
+            new TextDisplayBuilder().setContent(`Você cercou __${area}m²__ do seu terreno e plantou **${quantia}x ${seed.icon} ${seed.displayname}**\nPara ver as informações dos seus lotes e terreno utilize \`/terrenoatual\``)
+        )
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
 
 	}
 };

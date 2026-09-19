@@ -13,9 +13,25 @@ const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const storageField = (value) => String(value).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
 
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja a máquina de algum membro'))
+
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`, 0xb8312c);
+}
+
+function machineContainer(content, color, withImage = true) {
+    const container = textContainer(content, color);
+    if (withImage) container.addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: 'attachment://image.png' } }));
+    return container;
+}
 
 module.exports = {
     name: 'maquina',
@@ -38,7 +54,7 @@ module.exports = {
 
         playersService.cooldown.set(interaction.user.id, "maq", 10);
 
-        await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da máquina` })
+        await interaction.reply({ components: [textContainer('<a:loading:736625632808796250> Carregando informações da máquina', 0x7e6eb5)], flags: v2Flags })
         const embedinteraction = await interaction.fetchReply()
 
         const user_id = BigInt(member.id)
@@ -216,7 +232,7 @@ module.exports = {
 
                 if (firstrow.length == 0) return []
 
-                const row1 = utility.rowComponents(firstrow)
+                const row1 = new ActionRowBuilder().addComponents(...firstrow)
 
                 components.push(row1)
 
@@ -269,7 +285,7 @@ module.exports = {
 
                     }
 
-                    const row2 = utility.rowComponents(slotsrow)
+                    const row2 = new ActionRowBuilder().addComponents(...slotsrow)
 
                     components.push(row2)
 
@@ -279,7 +295,7 @@ module.exports = {
                     const maintenancerow = []
                     maintenancerow.push(repairBtn, refrigerationBtn, pressureBtn, pollutantsBtn)
                     
-                    const row3 = utility.rowComponents(maintenancerow)
+                    const row3 = new ActionRowBuilder().addComponents(...maintenancerow)
 
                     components.push(row3)
                 }
@@ -294,21 +310,18 @@ module.exports = {
 
         }
 
-        const embed = new Discord.EmbedBuilder()
+        let machineText = '';
+        let machineView;
 
         function reworkEmbed(chips) {
-            embed.fields = []
             let chipsmap = chips.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
-            embed.setDescription(`OBS: A cada **6 níveis** você adquire **+1 slot** para equipar chipes!\nVocê não pode desequipar chipes que perderam uma durabilidade, se não eles serão descartados!`)
-            .addFields({ name: `<:chip:833521401951944734> Inventário de Chipes`, value: (chips.length <= 0 ? '**Não possui chipes de aprimoramento**' : chipsmap) })
-            embed.setAuthor({ name: member.tag, iconURL: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-            embed.setColor('#7e6eb5')
-            embed.setImage('attachment://image.png')
+            machineText = `${member.tag}\n**OBS:** A cada **6 níveis** você adquire **+1 slot** para equipar chipes!\nVocê não pode desequipar chipes que perderam uma durabilidade, se não eles serão descartados!\n\n**<:chip:833521401951944734> Inventário de Chipes**\n${chips.length <= 0 ? '**Não possui chipes de aprimoramento**' : chipsmap}`;
+            machineView = machineContainer(machineText, 0x7e6eb5);
         }
 
         reworkEmbed(chips)
         
-        await interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: await makeComponents() });
+        await interaction.editReply({ components: [machineView, ...await makeComponents()], files: [machineimage], flags: v2Flags });
 
         const filter = i => i.user.id === member.id;
         
@@ -318,7 +331,7 @@ module.exports = {
             const isMining = await cacheListsService.waiting.includes(member.id, 'mining')
             if (isMining) return collector.stop()
 
-            const editObj = { embeds: [embed] }
+            const editObj = {}
 
             async function reworkImage() {
                 machineimage = await getMachineImage();
@@ -367,37 +380,33 @@ module.exports = {
                 isEquipping = false
             }
             
-            editObj.components = await makeComponents()
+            editObj.components = [machineView, ...await makeComponents()]
             editObj.files = [machineimage]
 
             if (menu) {
-                editObj.components.push(utility.rowComponents([menu]))
+                editObj.components.push(new ActionRowBuilder().addComponents(menu))
                 //editObj.components.splice(1, 1)
             }
                 
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.maquina.defer_update'));
+            editObj.flags = v2Flags;
             await interaction.editReply(editObj);
             collector.resetTimer();
 
         });
         
         collector.on('end', async collected => {
-            interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: await makeComponents(true) });
+            interaction.editReply({ components: [machineView, ...await makeComponents(true)], files: [machineimage], flags: v2Flags });
         });
 
         async function pressEnergyBtn() {
             rememberEnergy = true
-            const embed2 = new Discord.EmbedBuilder()
-
             const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
             
             const pObj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             perm = pObj.perm
             
-            embed2.addFields({ name: `<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!` })
-            embed2.setColor('#42f569')
-            embed2.setFooter({ text: `1 ponto de energia recupera a cada ${machinesService.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}` })
-            await interaction.followUp({ embeds: [embed2], flags: Discord.MessageFlags.Ephemeral });
+            await interaction.followUp({ components: [textContainer(`**<:energia:833370616304369674> Energia de \`${member.tag}\`: [${energia}/${energiamax}]**\nIrá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!\n\n1 ponto de energia recupera a cada ${machinesService.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`, 0x42f569)], flags: Discord.MessageFlags.Ephemeral | v2Flags });
 
             if (await cacheListsService.remember.includes(member.id, "energia")) return;
             await cacheListsService.remember.add(member.id, interaction.channel.id, "energia");
@@ -406,7 +415,7 @@ module.exports = {
                 const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
 
                 if (energia >= energiamax) {
-                    await interaction.channel.send({ content: `${interaction.user} Relatório de energia: ${energia}/${energiamax}`, mention: true})
+                    await interaction.channel.send({ components: [textContainer(`${interaction.user} Relatório de energia: ${energia}/${energiamax}`, 0x42f569)], flags: v2Flags })
                     if (await cacheListsService.remember.includes(member.id, "energia")) {
                         await cacheListsService.remember.remove(member.id, "energia")
                     }
@@ -424,9 +433,9 @@ module.exports = {
             try {
 
                 if (await cacheListsService.waiting.includes(member.id, 'mining')) {
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Falha no reparo', value: `Você não pode realizar reparos de uma máquina enquanto estiver minerando!` })
-                    await interaction.editReply({ embeds: [embed], components: [] });
+                    machineText += '\n\n**❌ Falha no reparo**\nVocê não pode realizar reparos de uma máquina enquanto estiver minerando!';
+                    machineView = machineContainer(machineText, 0xa60000);
+                    await interaction.editReply({ components: [machineView], files: [machineimage], flags: v2Flags });
                     return;
                 }
                 
@@ -457,9 +466,9 @@ module.exports = {
                 const money = await economyService.money.get(member.id);
     
                 if (money < price) {
-                    embed.setColor('#a60000');
-                    embed.addFields({ name: '❌ Falha no reparo', value: `Você não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**` })
-                    await interaction.editReply({ embeds: [embed], components: [] });
+                    machineText += `\n\n**❌ Falha no reparo**\nVocê não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`;
+                    machineView = machineContainer(machineText, 0xa60000);
+                    await interaction.editReply({ components: [machineView], files: [machineimage], flags: v2Flags });
                     return;
                 }
                 
@@ -546,16 +555,14 @@ module.exports = {
                 const placa = chips[chipe]
                 
                 if (!contains) {
-                    const embedtemp = await utility.sendError(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`);
-                    await interaction.editReply({ embeds: [embedtemp]})
+                    await interaction.editReply({ components: [errorContainer(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`)], flags: v2Flags });
                     return;
                 }
                 
                 const maxslots = machinesService.getSlotMax(playerobj.level, mvp)
                 
                 if (playerobj.slots != null && playerobj.slots.length >= maxslots) {
-                    const embedtemp = await utility.sendError(interaction, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`/maquina\` para visualizar seus slots`);
-                    await interaction.editReply({ embeds: [embedtemp]})
+                    await interaction.editReply({ components: [errorContainer(interaction, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`/maquina\` para visualizar seus slots`)], flags: v2Flags });
                     return;
                 }
 

@@ -4,6 +4,7 @@ const framesService = require('../../_classes/services/frames');
 const badgesService = require('../../_classes/services/badges');
 const Discord = require('discord.js');
 const config = require('../../_classes/config');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 let patch = ''
 let patchobj
 const { reportError } = require('../../_classes/debug');
@@ -66,24 +67,29 @@ module.exports = {
         let getPatch = patchobj[patch] || patchobj[require('{root}/package.json').version + '']
 
             
-        const embed = new Discord.EmbedBuilder()
-        .setColor(Math.floor(Math.random() * 0xffffff))
-        if (getPatch.title) embed.setTitle(getPatch.title)
-        embed.setDescription(`**Versão ${patch}**${getPatch.obs ? '\n'+getPatch.obs:''}`)
-        embed.addFields({ name: '(' + getPatch.chn.length + `) \`Mudanças\``, value: getPatch.chn.length == 0 ? '**Não ocorreu mudanças**' : getPatch.chn.map(i => `<:changed:762022788038525008> ${i}`).join('\n') })
-        embed.addFields({ name: '(' + getPatch.add.slice(0, 10).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(0, 10).map(i => `<:added:762022787773759498> ${i}`).join('\n') })
-        if (getPatch.add.length > 10) embed.addFields({ name: '(' + getPatch.add.slice(10, 20).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(10, 20).map(i => `<:added:762022787773759498> ${i}`).join('\n') })
-        embed.addFields({ name: '(' + getPatch.rem.length + `) \`Remoções\``, value: getPatch.rem.length == 0 ? '**Não ocorreu remoções**' : getPatch.rem.map(i => `<:removed:762022787954245642> ${i}`).join('\n') })
-        if (getPatch.alc && getPatch.alc.length > 0) embed.addFields({ name: '(' + getPatch.alc.length + `) \`Novas alcunhas\``, value: getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n') })
-        if (getPatch.fix && getPatch.fix.length > 0) embed.addFields({ name: '(' + getPatch.fix.length + `) \`Bugs fixados\``, value: getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n') })
-        .setFooter({ text: `A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}` })
+        const fields = [
+            { name: '(' + getPatch.chn.length + `) \`Mudanças\``, value: getPatch.chn.length == 0 ? '**Não ocorreu mudanças**' : getPatch.chn.map(i => `<:changed:762022788038525008> ${i}`).join('\n') },
+            { name: '(' + getPatch.add.slice(0, 10).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(0, 10).map(i => `<:added:762022787773759498> ${i}`).join('\n') }
+        ];
+        if (getPatch.add.length > 10) fields.push({ name: '(' + getPatch.add.slice(10, 20).length + `) \`Adições\``, value: getPatch.add.length == 0 ? '**Não ocorreu adições**' : getPatch.add.slice(10, 20).map(i => `<:added:762022787773759498> ${i}`).join('\n') });
+        fields.push({ name: '(' + getPatch.rem.length + `) \`Remoções\``, value: getPatch.rem.length == 0 ? '**Não ocorreu remoções**' : getPatch.rem.map(i => `<:removed:762022787954245642> ${i}`).join('\n') });
+        if (getPatch.alc && getPatch.alc.length > 0) fields.push({ name: '(' + getPatch.alc.length + `) \`Novas alcunhas\``, value: getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n') });
+        if (getPatch.fix && getPatch.fix.length > 0) fields.push({ name: '(' + getPatch.fix.length + `) \`Bugs fixados\``, value: getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n') });
+        const container = new ContainerBuilder()
+            .setAccentColor(Math.floor(Math.random() * 0xffffff))
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                getPatch.title ? `## ${getPatch.title}` : '',
+                `**Versão ${patch}**${getPatch.obs ? '\n' + getPatch.obs : ''}`,
+                ...fields.map(field => `**${field.name}**\n${field.value}`),
+                `-# A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`
+            ].filter(Boolean).join('\n\n')));
         if (!config.owner.includes(interaction.user.id)) {
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
         } else {
-            interaction.reply('loading').then(async () => {
+            interaction.reply({ components: [new TextDisplayBuilder().setContent('loading')], flags: Discord.MessageFlags.IsComponentsV2 }).then(async () => {
                 try {
                     await interaction.deleteReply()
-                    const embedinteraction = await interaction.channel.send({ embeds: [embed] })
+                    const embedinteraction = await interaction.channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                     embedinteraction.react('762018420370833488');
                     embedinteraction.react('👍🏽');
                     embedinteraction.react('👎🏽');
@@ -94,7 +100,7 @@ module.exports = {
         }
 
         if (frameadded.includes('Added') || badgeadded.includes('Added')) {
-            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, flags: Discord.MessageFlags.Ephemeral })
+            interaction.followUp({ components: [new TextDisplayBuilder().setContent(`${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`)], flags: Discord.MessageFlags.IsComponentsV2 | Discord.MessageFlags.Ephemeral })
         }
         
 	}

@@ -5,6 +5,7 @@ const config = require('../../_classes/config');
 const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('valor').setDescription('Digite o valor da doação').setRequired(false))
 
@@ -22,13 +23,12 @@ module.exports = {
         const donate = parseFloat(interaction.options.getInteger('valor'));
 
                 
-		const embed = new Discord.EmbedBuilder()
-		.setDescription(`Deseja gerar a mensagem de doação para R$${donate}?`, ``)
+		const container = new ContainerBuilder().setAccentColor(0x36393f).addTextDisplayComponents(new TextDisplayBuilder().setContent(`Deseja gerar a mensagem de doação para R$${donate}?`));
 
         const btn0 = utility.createButton('confirm', 'SECONDARY', 'Confirmar', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -40,7 +40,6 @@ module.exports = {
             reacted = true;
             
             if (b.customId == 'cancel') return collector.stop();
-            embed.fields = [];
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.gendonation.defer_update'); });
 
             const user_id = BigInt(config.app.id)

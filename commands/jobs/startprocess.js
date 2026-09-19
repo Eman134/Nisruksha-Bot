@@ -6,7 +6,7 @@ const utility = new UtilityService();
 const playersService = require('../../_classes/services/players');
 const itemsService = require('../../_classes/services/items');
 const cacheListsService = require('../../_classes/services/cacheLists');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -24,8 +24,6 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-		const embed = new Discord.EmbedBuilder()
-
         const user_id = BigInt(interaction.user.id)
         const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         let processjson = players_utils.process
@@ -53,26 +51,26 @@ module.exports = {
         }
 
         if (storage.fragmento < quantia) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
         if (processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max && processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max) {
-            const embedtemp = await utility.sendError(interaction, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`/processos\` para visualizar seus processos.`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`/processos\` para visualizar seus processos.`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
+        let processTexts = []
         function setProcess() {
+            processTexts = []
             if (processjson.in.length > 0) {
                 for (const process of processjson.in) {
                     const checkfi = process.fragments.current === 0;
                     
-                    embed.addFields({ name: `⏳ Processo ${process.id} ${checkfi ? 'Finalizado ✅' : ''}`, value: `ID de Processo: ${process.id}${!checkfi ? '\nTempo decorrido: ' + compactTime(Date.now() - process.started) : ''}\nMétodo de Limpeza: ${processjson.tools[process.tool].icon} ${processjson.tools[process.tool].name}\nFragmentos em Limpeza: [${process.fragments.current}/${process.fragments.total}]\nXP ganho: ${process.xp}\nScore ganho: ${process.score} ⭐`, inline: true });
+                    processTexts.push(new TextDisplayBuilder().setContent(`**⏳ Processo ${process.id} ${checkfi ? 'Finalizado ✅' : ''}**\nID de Processo: ${process.id}${!checkfi ? '\nTempo decorrido: ' + compactTime(Date.now() - process.started) : ''}\nMétodo de Limpeza: ${processjson.tools[process.tool].icon} ${processjson.tools[process.tool].name}\nFragmentos em Limpeza: [${process.fragments.current}/${process.fragments.total}]\nXP ganho: ${process.xp}\nScore ganho: ${process.score} ⭐`));
                 }
             } else {
-                embed.addFields({ name: `❌ Algo inesperado aconteceu`, value: `Você não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`, inline: true })
+                processTexts.push(new TextDisplayBuilder().setContent(`**❌ Algo inesperado aconteceu**\nVocê não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`))
             }
 
         }
@@ -84,12 +82,12 @@ module.exports = {
         function reworkButtons(current, allDisabled) {
             const btn2 = utility.createButton('ferr', processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.in.filter((proca) => proca.tool == 0).length + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? true : false))
             const btn3 = utility.createButton('lqd', processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.in.filter((proca) => proca.tool == 1).length + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? true : false))
-            return [utility.rowComponents([btn2, btn3])]
+            return [new ActionRowBuilder().addComponents(btn2, btn3)]
         }
 
         const components = reworkButtons(current)
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [new ContainerBuilder().addTextDisplayComponents(...processTexts), ...components], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -103,8 +101,6 @@ module.exports = {
 
             if (!(b.user.id === interaction.user.id)) return
             reacted = true;
-            embed.fields = [];
-            embed.setDescription('')
             current = b.customId
 
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.iniciar.defer_update'); });
@@ -122,32 +118,27 @@ module.exports = {
 
             if (stamina < custostart) {
                 
-                const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)
-                await interaction.editReply({ embeds: [embedtemp], components: [] });
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
 
             }
 
             if (quantia < Math.round(tool.process.maxfragments*0.15)) {
-                const embedtemp = await utility.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
-                await interaction.editReply({ embeds: [embedtemp] })
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
             if (quantia > tool.process.maxfragments) {
-                const embedtemp = await utility.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
-                await interaction.editReply({ embeds: [embedtemp] })
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
             if (storage.fragmento < quantia) {
-                const embedtemp = await utility.sendError(interaction, `Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
-                await interaction.editReply({ embeds: [embedtemp] })
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Você não possui ${utility.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
             if (processjson.in.filter((proca) => proca.tool == toolid).length >= tool.process.max) {
-                const embedtemp = await utility.sendError(interaction, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
-                await interaction.editReply({ embeds: [embedtemp] })
+                await interaction.editReply({ components: [new TextDisplayBuilder().setContent(`Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)], flags: Discord.MessageFlags.IsComponentsV2 })
                 return;
             }
 
@@ -155,7 +146,7 @@ module.exports = {
 
             if (b.customId === 'ferr') {
         
-                embed.setDescription(
+                var description =
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 0).length}/${tool.process.max}
@@ -167,9 +158,9 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`/processos\`.**
-`)
+`
             } if (b.customId == 'lqd') {
-                embed.setDescription(
+                description =
 `${tool.icon} ${tool.name}
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 1).length}/${tool.process.max}
@@ -181,7 +172,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`/processos\`.**
-`)
+`
             }
 
             let id = 1;
@@ -208,7 +199,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             const components = reworkButtons(current, true)
 
-            await interaction.editReply({ embeds: [embed], components })
+            await interaction.editReply({ components: [new ContainerBuilder().addTextDisplayComponents(new TextDisplayBuilder().setContent(description)), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
 
             await companyService.jobs.process.add(interaction.user.id)
             await cacheListsService.waiting.add(interaction.user.id, embedinteraction, 'working');
@@ -217,7 +208,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
         
         collector.on('end', async collected => {
             if (reacted) return
-            interaction.editReply({ embeds: [embed], components: [] })
+            interaction.editReply({ components: [new TextDisplayBuilder().setContent('O tempo para iniciar um processo expirou.')], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         });
 

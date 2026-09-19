@@ -6,7 +6,7 @@ const machinesService = require('../../_classes/services/machines');
 const eventsService = require('../../_classes/services/events');
 const itemsService = require('../../_classes/services/items');
 const imagesService = require('../../_classes/services/images');
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 
 const { readFileSync } = require('fs')
@@ -26,6 +26,16 @@ const options = (option) => {
 
 data.addStringOption(options)
 
+const v2Flags = Discord.MessageFlags.IsComponentsV2;
+
+function textContainer(content, color) {
+    return new ContainerBuilder().setAccentColor(color).addTextDisplayComponents(new TextDisplayBuilder().setContent(content));
+}
+
+function errorContainer(interaction, message) {
+    return textContainer(`${interaction.user.tag}\n<:error:736274027756388353> ${message}`, 0xb8312c);
+}
+
 module.exports = {
     name: 'cotação',
     aliases: ['price', 'cotas', 'cot'],
@@ -40,10 +50,7 @@ module.exports = {
     
         if (minério == null) {
         
-            const embed = new Discord.EmbedBuilder()
-            .setColor('#32a893')
-            .setTitle('📈 Cotação atual dos minérios')
-            .setDescription(`${minérios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${utility.money}\` ${utility.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+            let description = `${minérios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${utility.money}\` ${utility.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`;
             let footer = ""
             if (machinesService.lastcot !== '') {
             footer += ('Última atualização em ' + machinesService.lastcot)
@@ -51,15 +58,14 @@ module.exports = {
             if (machinesService.proxcot !== 0) {
                 footer += ('\nPróxima atualização em ' + compactTime(machinesService.proxcot-Date.now()+(60000*eventsService.getConfig().modules.cotacao)))
             }
-            if (footer != "") embed.setFooter({ text: footer })
+            if (footer != "") description += `\n\n${footer}`;
 
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ components: [textContainer(`**📈 Cotação atual dos minérios**\n${description}`, 0x32a893)], flags: v2Flags });
 
         } else {
 
             if (!await itemsService.exists(minério)) {
-                const embedtemp = await utility.sendError(interaction, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`/cotação\``)
-                await interaction.reply({ embeds: [embedtemp]})
+                await interaction.reply({ components: [errorContainer(interaction, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`/cotação\``)], flags: v2Flags });
                 return;
             }
 
@@ -95,11 +101,9 @@ module.exports = {
 
             const attachment = await imagesService.getAttachment(cotimg, 'cot.png')
             
-            const embed = new Discord.EmbedBuilder()
-            .setColor('#32a893')
-            .setTitle('📈 Cotação recente de ' + minerio.icon + ' ' + minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1))
-            .setImage('attachment://cot.png')
-            await interaction.reply({ embeds: [embed], files: [attachment] });
+            const container = textContainer(`**📈 Cotação recente de ${minerio.icon} ${minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1)}**`, 0x32a893)
+                .addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: 'attachment://cot.png' } }));
+            await interaction.reply({ components: [container], files: [attachment], flags: v2Flags });
 
         }
 

@@ -5,6 +5,7 @@ const runtime = require('../../_classes/services/runtime');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const prisma = require('../../_classes/prisma');
+const { ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder } = require('@discordjs/builders');
 
 module.exports = {
     name: 'mvp',
@@ -15,11 +16,8 @@ module.exports = {
 	async execute(interaction) {
 
                                                 
-                const embed = new Discord.EmbedBuilder()
-                .setAuthor({ name: interaction.user.tag, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-                .setTitle(`Doe para o nosso projeto`)
-                .setThumbnail(client.user.displayAvatarURL())
-                .addFields({ name: `<:list:736274028179750922> Quais as vantagens?`, value: `
+                const fields = [
+                    { name: `<:list:736274028179750922> Quais as vantagens?`, value: `
 \`1.\` Energia recarrega mais rápido
 \`2.\` Cor de destaque MVP no seu perfil
 \`3.\` Uma bandeira de MVP no seu perfil
@@ -36,23 +34,31 @@ module.exports = {
 
 OBS: As vantagens são ativas enquanto você possui um MVP!
 
-` })
-                .setColor(Math.floor(Math.random() * 0xffffff))
-                .addFields({ name: `<:mvp:758717273304465478> Como adquirir um MVP?`, value: `
+` },
+                    { name: `<:mvp:758717273304465478> Como adquirir um MVP?`, value: `
 
 🔗 Para adquirir um MVP basta utilizar \`/doar\` e ver as informações
 
-` }).setTimestamp()
+` }
+                ];
 
             const user_id = BigInt(interaction.user.id)
             let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             if (runtime.debug)console.log(Date.now()-pobj.mvp)
             if (pobj.mvp != null) {
-                embed.addFields({ name: `<:info:736274028515295262> Informações do seu MVP`, value: `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**` })
+                fields.push({ name: `<:info:736274028515295262> Informações do seu MVP`, value: `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**` })
             }
 
-            if (interaction.replied) return interaction.channel.send({ embeds: [embed]})
-            await interaction.reply({ embeds: [embed] });
+            const container = new ContainerBuilder()
+                .setAccentColor(Math.floor(Math.random() * 0xffffff))
+                .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                    `**${interaction.user.tag}**`,
+                    '## Doe para o nosso projeto',
+                    ...fields.map(field => `**${field.name}**\n${field.value}`)
+                ].join('\n\n')))
+                .addMediaGalleryComponents(new MediaGalleryBuilder().addItems({ media: { url: client.user.displayAvatarURL() } }));
+            if (interaction.replied) return interaction.channel.send({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
+            await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
         
         
 	}

@@ -7,6 +7,7 @@ const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 
@@ -44,26 +45,34 @@ module.exports = {
         let e = companyService.e;
         
         if (!(Object.keys(e).includes(setor))) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa digitar um setor de empresa existente!\nUtilize \`/setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
-           	await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({
+                components: [new TextDisplayBuilder().setContent(`<:error:736274027756388353> ${interaction.user.tag}\nVocê precisa digitar um setor de empresa existente!\nUtilize \`/setores\` para visualizar os setores disponíveis.\nExemplo de uso: \`/abrirempresa <setor> <nome>\``)],
+                flags: Discord.MessageFlags.IsComponentsV2
+            })
             return;
         }
         
         if (nome.length > 30) {
-            const embedtemp = await utility.sendError(interaction, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
-           	await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({
+                components: [new TextDisplayBuilder().setContent(`<:error:736274027756388353> A nome de sua empresa não pode conter mais de 30 caracteres!\nExemplo de uso: \`/abrirempresa <setor> <nome>\``)],
+                flags: Discord.MessageFlags.IsComponentsV2
+            })
             return;
         }
         
         if (await companyService.check.hasCompany(interaction.user.id)) {
-            const embedtemp = await utility.sendError(interaction, `Você não pode abrir mais de uma empresa!`)
-           	await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({
+                components: [new TextDisplayBuilder().setContent('<:error:736274027756388353> Você não pode abrir mais de uma empresa!')],
+                flags: Discord.MessageFlags.IsComponentsV2
+            })
             return;
         }
 
         if (await companyService.check.isWorker(interaction.user.id)) {
-            const embedtemp = await utility.sendError(interaction, `Você precisa sair da sua empresa atual para abrir outra!`)
-           	await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({
+                components: [new TextDisplayBuilder().setContent('<:error:736274027756388353> Você precisa sair da sua empresa atual para abrir outra!')],
+                flags: Discord.MessageFlags.IsComponentsV2
+            })
             return;
         }
 
@@ -87,17 +96,24 @@ module.exports = {
         let townname = await townsService.getTownName(interaction.user.id);
         let cristais = await economyService.points.get(interaction.user.id)
         
-        const embed = new Discord.EmbedBuilder()
-        .addFields({ name: `📃 Informações da Empresa`, value: `Nome: **${name}**\nSetor: **${icon} ${setor.charAt(0).toUpperCase() + setor.slice(1)}**\nLocalização: **${townname}**` })
-        .addFields({ name: `🧾 Contratos`, value: `\`Termos de Compromisso\`\n${utility.format(r1)} ${utility.money} ${utility.moneyemoji}\n\`Compensação de Trabalho\`\n${utility.format(r2)} ${utility.money} ${utility.moneyemoji}\n\`Autorização de Recebimento\`\n${utility.format(r3)} ${utility.money} ${utility.moneyemoji}\n\`Instrumento Particular\`\n${utility.format(r4)} ${utility.money} ${utility.moneyemoji}` })
-        .addFields({ name: `📑 Requisitos de proposta`, value: `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${utility.format(c1)} ${utility.money2} ${utility.money2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}` })
-        .setColor('#00e061')
-        .setFooter({ text: 'Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa' })
+
+        const baseFields = [
+            [`📃 Informações da Empresa`, `Nome: **${name}**\nSetor: **${icon} ${setor.charAt(0).toUpperCase() + setor.slice(1)}**\nLocalização: **${townname}**`],
+            [`🧾 Contratos`, `\`Termos de Compromisso\`\n${utility.format(r1)} ${utility.money} ${utility.moneyemoji}\n\`Compensação de Trabalho\`\n${utility.format(r2)} ${utility.money} ${utility.moneyemoji}\n\`Autorização de Recebimento\`\n${utility.format(r3)} ${utility.money} ${utility.moneyemoji}\n\`Instrumento Particular\`\n${utility.format(r4)} ${utility.money} ${utility.moneyemoji}`],
+            [`📑 Requisitos de proposta`, `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${utility.format(c1)} ${utility.money2} ${utility.money2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}`]
+        ];
+        const footer = 'Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa';
+        function buildCompanyContainer(color, extraField) {
+            const fields = baseFields.concat(extraField ? [extraField] : []);
+            return new ContainerBuilder()
+                .setAccentColor(color)
+                .addTextDisplayComponents(...fields.map(([fieldName, value]) => new TextDisplayBuilder().setContent(`**${fieldName}**\n${value}`)), new TextDisplayBuilder().setContent(`-# ${footer}`));
+        }
 		
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [buildCompanyContainer(0x00e061), new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -110,10 +126,7 @@ module.exports = {
             collector.stop();
             
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Abertura cancelada', value: `
-                Você cancelou a abertura da empresa **${icon} ${name}**.` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Abertura cancelada', `Você cancelou a abertura da empresa **${icon} ${name}**.`])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
             
@@ -123,36 +136,26 @@ module.exports = {
             cristais = await economyService.points.get(interaction.user.id)
 
             if (playerobj.level < req) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui nível o suficiente para abrir uma empresa!\nSeu nível atual: **${playerobj.level}/${req}**\nVeja seu progresso atual utilizando \`/perfil\`` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', `Você não possui nível o suficiente para abrir uma empresa!\nSeu nível atual: **${playerobj.level}/${req}**\nVeja seu progresso atual utilizando \`/perfil\``])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             if (playerobj2.money < total) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(playerobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(playerobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
             if (cristais < c1) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(cristais)}/${utility.format(c1)} ${utility.money2} ${utility.money2emoji}**` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(cristais)}/${utility.format(c1)} ${utility.money2} ${utility.money2emoji}**`])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             if (await companyService.check.isWorker(interaction.user.id)) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Você precisa sair da sua empresa atual para abrir outra!` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', 'Você precisa sair da sua empresa atual para abrir outra!'])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
             if (await companyService.check.hasCompany(interaction.user.id)) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Você não pode abrir mais de uma empresa!` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', 'Você não pode abrir mais de uma empresa!'])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
 
@@ -169,9 +172,7 @@ module.exports = {
             }
             
             if (cont) {
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Falha na abertura', value: `Já possui uma empresa com este nome! Pense em outro` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Falha na abertura', 'Já possui uma empresa com este nome! Pense em outro'])], flags: Discord.MessageFlags.IsComponentsV2 });
                 return;
             }
             
@@ -186,20 +187,14 @@ module.exports = {
             economyService.points.remove(interaction.user.id, c1)
             economyService.addToHistory(interaction.user.id, `Nova empresa | - ${utility.format(total)} ${utility.moneyemoji}${c1 > 0 ? ` | - ${utility.format(c1)} ${utility.money2emoji}`:''}`)
             townname = await townsService.getTownName(interaction.user.id);
-            embed
-            .addFields({ name: `✅ Sucesso na abertura`, value: `Parabéns, você acaba de abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**` })
-            .setColor('#00e061')
-            .setFooter({ text: 'Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa' })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [buildCompanyContainer(0x00e061, [`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`])], flags: Discord.MessageFlags.IsComponentsV2 });
             return
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `Você iria abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**, porém o tempo expirou.` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            interaction.editReply({ components: [buildCompanyContainer(0xa60000, ['❌ Tempo expirado', `Você iria abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**, porém o tempo expirou.`])], flags: Discord.MessageFlags.IsComponentsV2 });
             return;
         });
         

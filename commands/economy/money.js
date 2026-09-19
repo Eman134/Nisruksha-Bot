@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const economyService = require('../../_classes/services/economy');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
@@ -23,19 +24,18 @@ module.exports = {
         const token = await economyService.token.get(member.id);
         const tp = await economyService.tp.get(member.id);
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``);
-        const embed = new Discord.EmbedBuilder()
-        .setTitle(`Conta de \`${member.username}\``)
-        .setColor('#32a893')
-        .addFields({ name: `${utility.moneyemoji} Dinheiro`, value: code('js', `${utility.format(money)} ${utility.money}`), inline: true })
-        .addFields({ name: `🏦 Saldo Bancário`, value: code('js', `${utility.format(moneybank)} ${utility.money}`), inline: true })
-        .addFields({ name: `${utility.money3emoji} Fichas`, value: code('js', `${utility.format(token)} ${utility.money3}`), inline: true })
-        .addFields({ name: `${utility.money2emoji} Cristais`, value: code('js', `${utility.format(points)} ${utility.money2}`), inline: true })
-        .addFields({ name: `${utility.tp.emoji} Pontos temporais`, value: code('js', `${utility.format(tp.points)} ${utility.tp.name}`), inline: true })
-        .addFields({ name: '📃 Extrato [5 ações]', value: `${economyService.getHistory(member.id)}`, inline: false })
-        //.addFields({ name: `📤 Saques`, value: code('autohotkey', obj.saq), inline: true })
-        //.addFields({ name: `📥 Depósitos`, value: code('autohotkey', obj.dep), inline: true })
-        //.addFields({ name: `📭 Transferências`, value: code('autohotkey', obj.tran), inline: true })
-        await interaction.reply({ embeds: [embed] });
+        const container = new ContainerBuilder()
+            .setAccentColor(0x32a893)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                `## Conta de \`${member.username}\``,
+                `**${utility.moneyemoji} Dinheiro**\n${code('js', `${utility.format(money)} ${utility.money}`)}`,
+                `**🏦 Saldo Bancário**\n${code('js', `${utility.format(moneybank)} ${utility.money}`)}`,
+                `**${utility.money3emoji} Fichas**\n${code('js', `${utility.format(token)} ${utility.money3}`)}`,
+                `**${utility.money2emoji} Cristais**\n${code('js', `${utility.format(points)} ${utility.money2}`)}`,
+                `**${utility.tp.emoji} Pontos temporais**\n${code('js', `${utility.format(tp.points)} ${utility.tp.name}`)}`,
+                `**📃 Extrato [5 ações]**\n${economyService.getHistory(member.id)}`
+            ].join('\n\n')));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
     },
 };

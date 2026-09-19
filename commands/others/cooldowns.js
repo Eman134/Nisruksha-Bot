@@ -3,7 +3,7 @@ const clientService = require('../../_classes/services/clientService');
 const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const { SlashCommandBuilder } = require('@discordjs/builders');
+const { SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder } = require('@discordjs/builders');
 const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja os cooldowns ativos de um membro'))
@@ -43,20 +43,17 @@ module.exports = {
             clientService.current.emit('error', err)
         }
 
-        const embed = new Discord.EmbedBuilder()
-        .setColor('#4ae8ac')
-        .setTitle('⏰ Lista de cooldowns ativos')
-        .setAuthor({ name: member.tag, iconURL: member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
-
-        if (filtered.length > 0) {
-
-            embed.setDescription( filtered.map((i) => `${i.name} <:arrow:737370913204600853> \`${utility.ms(i.time, true)}\`` ).join('\n') )
-
-        } else {
-            embed.setDescription('Não possui nenhum cooldown ativo!')
-        }
-
-        await interaction.reply({ embeds: [embed]});
+        const description = filtered.length > 0
+            ? filtered.map((i) => `${i.name} <:arrow:737370913204600853> \`${utility.ms(i.time, true)}\``).join('\n')
+            : 'Não possui nenhum cooldown ativo!';
+        const container = new ContainerBuilder()
+            .setAccentColor(0x4ae8ac)
+            .addTextDisplayComponents(new TextDisplayBuilder().setContent([
+                `## ⏰ Lista de cooldowns ativos`,
+                `**${member.tag}**`,
+                description
+            ].join('\n\n')));
+        await interaction.reply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 });
 
 	}
 };

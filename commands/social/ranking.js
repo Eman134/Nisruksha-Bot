@@ -4,6 +4,7 @@ const clientService = require('../../_classes/services/clientService');
 const Discord = require('discord.js');
 const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 
 
 const vare = {
@@ -112,11 +113,16 @@ module.exports = {
         let rankingtype = 0
         let current = ''
 
-		const embed = new Discord.EmbedBuilder()
-        .setColor('#32a893')
-        .setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local'), iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
-
-        .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!clientService.current.emojis.cache.get(key) ? key : clientService.current.emojis.cache.get(key)}`).join('\n'))
+        let rankTitle = '';
+        let rankAuthor = 'Top ' + (rankingtype == 0 ? 'Global' : 'Local');
+        let rankDescription = Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!clientService.current.emojis.cache.get(key) ? key : clientService.current.emojis.cache.get(key)}`).join('\n');
+        const buildRankContainer = () => new ContainerBuilder()
+            .setAccentColor(0x32a893)
+            .addTextDisplayComponents(
+                new TextDisplayBuilder().setContent(`-# ${rankAuthor}`),
+                ...(rankTitle ? [new TextDisplayBuilder().setContent(`## ${rankTitle}`)] : []),
+                new TextDisplayBuilder().setContent(rankDescription)
+            );
 
         let components = []
 
@@ -143,14 +149,14 @@ module.exports = {
             for (let x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
-                const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
-                if (rowBtn.components.length > 0) components.push(rowBtn)
+                 const rowBtn = new ActionRowBuilder().addComponents(...butnList.slice(var1, var2))
+                 if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
 
         }
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components, withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [buildRankContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id
         
@@ -164,7 +170,7 @@ module.exports = {
 
             if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
-                embed.setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local'), iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
+                 rankAuthor = 'Top ' + (rankingtype == 0 ? 'Global' : 'Local');
                 b.customId = current
             }
             
@@ -210,22 +216,20 @@ module.exports = {
 
             const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customId].source.column]} ${vare[b.customId].formated}`).join('\n')
 
-            embed
-            .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor({ name: 'Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, iconURL: (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : clientService.current.user.avatarURL()) })
-            .setColor('#32a893')
-            .setDescription(maparray)
+            rankTitle = '🥇 Sua posição: ' + pos + 'º';
+            rankAuthor = 'Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name;
+            rankDescription = maparray;
 
             collector.resetTimer()
 
-            await interaction.editReply({ embeds: [embed], components })
+            await interaction.editReply({ components: [buildRankContainer(), ...components], flags: Discord.MessageFlags.IsComponentsV2 })
 
             waiting = false
             
         });
         
         collector.on('end', collected => {
-            interaction.editReply({ embeds: [embed], components: [] })
+            interaction.editReply({ components: [buildRankContainer()], flags: Discord.MessageFlags.IsComponentsV2 })
         });
 
 	}

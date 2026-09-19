@@ -4,6 +4,8 @@ const path = require('path');
 const config = require('../config');
 const { reportError } = require('../debug');
 const clientService = require('./clientService');
+const Discord = require('discord.js');
+const { TextDisplayBuilder } = require('@discordjs/builders');
 
 function parse(value) {
     try { return JSON.parse(value); } catch (_) { return null; }
@@ -185,7 +187,10 @@ class CacheListsService {
         } else return;
         if (from >= to) {
             if (await this.remember.includes(userId, type)) {
-                await channel.send({ content: `🔁 | <@${userId}> Relatório de ${type}: ${from}/${to}` });
+                await channel.send({
+                    components: [new TextDisplayBuilder().setContent(`🔁 | <@${userId}> Relatório de ${type}: ${from}/${to}`)],
+                    flags: Discord.MessageFlags.IsComponentsV2
+                });
                 await this.remember.remove(userId, type);
             }
             return;

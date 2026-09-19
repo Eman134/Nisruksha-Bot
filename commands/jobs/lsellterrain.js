@@ -1,4 +1,5 @@
 const Discord = require('discord.js');
+const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
@@ -60,8 +61,7 @@ module.exports = {
         }
 
         if (!contains) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual para realizar a venda!`)
-            await interaction.reply({ embeds: [embedtemp]})
+            await interaction.reply({ components: [new TextDisplayBuilder().setContent(`Você não possui terrenos na sua vila atual para realizar a venda!`)], flags: Discord.MessageFlags.IsComponentsV2 })
             return;
         }
 
@@ -69,14 +69,15 @@ module.exports = {
 
         let total = plot.area*10000
 
-		const embed = new Discord.EmbedBuilder().setColor(`#a4e05a`)
-        .setTitle(`Venda de terreno`)
-        .addFields({ name: '<a:loading:736625632808796250> Aguardando confirmação', value: `Você deseja vender seu terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**?` })
+        const container = new ContainerBuilder().setAccentColor(0xa4e05a).addTextDisplayComponents(
+            new TextDisplayBuilder().setContent(`## Venda de terreno`),
+            new TextDisplayBuilder().setContent(`**<a:loading:736625632808796250> Aguardando confirmação**\nVocê deseja vender seu terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**?`)
+        )
         
         const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
         const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = (await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true })).resource.message;
+        let embedinteraction = (await interaction.reply({ components: [container, new ActionRowBuilder().addComponents(btn0, btn1)], flags: Discord.MessageFlags.IsComponentsV2, withResponse: true })).resource.message;
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -90,12 +91,10 @@ module.exports = {
             selled = true;
             collector.stop();
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.venderterreno.defer_update'); });
-            embed.fields = [];
             if (b.customId == 'cancel'){
-                embed.setColor('#a60000');
-                embed.addFields({ name: '❌ Venda cancelada', value: `
-                Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**.` })
-                interaction.editReply({ embeds: [embed], components: [] });
+                const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Venda cancelada**\n
+                Você cancelou a venda de um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**.`))
+                interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
                 playersService.cooldown.set(interaction.user.id, "sellterrain", 0);
                 return;
             }
@@ -120,11 +119,9 @@ module.exports = {
                 total = totalantes
             }
             
-            embed.fields = [];
-            embed.setColor('#5bff45');
-            embed.addFields({ name: '✅ Sucesso na venda', value: `
-            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.` })
-            interaction.editReply({ embeds: [embed], components: [] });
+             const result = new ContainerBuilder().setAccentColor(0x5bff45).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**✅ Sucesso na venda**\n
+            Você vendeu um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% de taxa da empresa)**`}.`))
+            interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             economyService.addToHistory(interaction.user.id, `Venda | + ${utility.format(total)} ${utility.moneyemoji}`)
 
             economyService.money.add(interaction.user.id, total)
@@ -146,11 +143,9 @@ module.exports = {
         
         collector.on('end', collected => {
             if (selled) return
-            embed.fields = [];
-            embed.setColor('#a60000');
-            embed.addFields({ name: '❌ Tempo expirado', value: `
-            Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**, porém o tempo expirou!` })
-            interaction.editReply({ embeds: [embed], components: [] });
+            const result = new ContainerBuilder().setAccentColor(0xa60000).addTextDisplayComponents(new TextDisplayBuilder().setContent(`**❌ Tempo expirado**\n
+            Você iria vender um terreno em **${townname}**, de área \`${plot.area}m²\` por **${utility.format(total)} ${utility.money} ${utility.moneyemoji}**, porém o tempo expirou!`))
+            interaction.editReply({ components: [result], flags: Discord.MessageFlags.IsComponentsV2 });
             playersService.cooldown.set(interaction.user.id, "sellterrain", 0);
             return;
         });
