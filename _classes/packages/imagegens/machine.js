@@ -1,21 +1,4 @@
-const API = require("../../api.js");
 const { reportWarning } = require('../../debug');
-let bg, locked, locked2, rachadura1, rachadura2, rachadura3, rachadura4, rachadura5
-
-const assetsReady = loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/maq/maqbackground.png');
-    locked = await API.img.Canvas.loadImage(`./resources/backgrounds/maq/locked.png`)
-    locked2 = await API.img.Canvas.loadImage(`./resources/backgrounds/maq/locked2.png`)
-
-    rachadura1 = await API.img.Canvas.loadImage(`./resources/backgrounds/rachaduras/1.png`)
-    rachadura2 = await API.img.Canvas.loadImage(`./resources/backgrounds/rachaduras/2.png`)
-    rachadura3 = await API.img.Canvas.loadImage(`./resources/backgrounds/rachaduras/3.png`)
-    rachadura4 = await API.img.Canvas.loadImage(`./resources/backgrounds/rachaduras/4.png`)
-    rachadura5 = await API.img.Canvas.loadImage(`./resources/backgrounds/rachaduras/5.png`)
-}
-
 module.exports = async function execute(API, {
 
     profundidade,
@@ -30,7 +13,7 @@ module.exports = async function execute(API, {
     equippedchips,
 
 }) {
-    await assetsReady;
+    const { bg, locked, locked2, rachadura1, rachadura2, rachadura3, rachadura4, rachadura5 } = await API.img.getAssets('machine');
 
     // Criando o padrão de imagem
 
@@ -39,11 +22,8 @@ module.exports = async function execute(API, {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
     ctx.drawImage(imageDefault, 0, 0);
 
@@ -53,7 +33,7 @@ module.exports = async function execute(API, {
     API.img.drawText(ctx, Math.round(durabilityPercent) + '%', 20, './resources/fonts/Uni-Sans-Light.ttf', '#ffffff', 380, 135, 3)
 
     // Desenhando máquina
-    const machineimage = await loadOptionalImage(machineproduct.img, () => createWhiteImage(100, 100), 'imagegen.machine.machine');
+    const machineimage = await loadOptionalImage(machineproduct.img, () => createWhiteImage(API, 100, 100), 'imagegen.machine.machine');
     ctx.drawImage(machineimage, 200, 80, 100, 100);
 
     if (maxslots < 5) {
@@ -112,7 +92,7 @@ module.exports = async function execute(API, {
         if (equippedchips[0]) {
             const equipedchip = equippedchips[0]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.1');
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(API, 60, 60), 'imagegen.machine.chip.1');
             if (chipimg) ctx.drawImage(chipimg, 19, 219, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
@@ -126,7 +106,7 @@ module.exports = async function execute(API, {
         if (equippedchips[1]) {
             const equipedchip = equippedchips[1]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.2');
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(API, 60, 60), 'imagegen.machine.chip.2');
             if (chipimg) ctx.drawImage(chipimg, 117, 255, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
@@ -140,7 +120,7 @@ module.exports = async function execute(API, {
         if (equippedchips[2]) {
             const equipedchip = equippedchips[2]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.3');
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(API, 60, 60), 'imagegen.machine.chip.3');
             if (chipimg) ctx.drawImage(chipimg, 220, 242, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
@@ -154,7 +134,7 @@ module.exports = async function execute(API, {
         if (equippedchips[3]) {
             const equipedchip = equippedchips[3]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.4');
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(API, 60, 60), 'imagegen.machine.chip.4');
             if (chipimg) ctx.drawImage(chipimg, 312, 252, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
@@ -168,7 +148,7 @@ module.exports = async function execute(API, {
         if (equippedchips[4]) {
             const equipedchip = equippedchips[4]
             const chip = API.shopExtension.getProduct(equipedchip.id);
-            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(60, 60), 'imagegen.machine.chip.5');
+            const chipimg = await loadOptionalImage(chip?.img, () => createWhiteImage(API, 60, 60), 'imagegen.machine.chip.5');
             if (chipimg) ctx.drawImage(chipimg, 398, 220, 60, 60)
 
             const rachadura = getRachadura(equipedchip.durabilitypercent)
@@ -188,69 +168,47 @@ module.exports = async function execute(API, {
     ctx.fillRect(55, 62, 15, (100)*(100)/100);
     ctx.fillRect(86, 62, 15, (100)*(100)/100);
 
-    ctx.save();
-
     // Refrigeração
-    ctx.translate(22+15/2, 62+refrigerationPercent-(refrigerationPercent/2)+((100-refrigerationPercent)/2));
-    ctx.rotate(Math.PI);
-    ctx.translate(-(22+15/2), -(62+refrigerationPercent-(refrigerationPercent/2)+((100-refrigerationPercent)/2)))
-    var gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0.020202020202020204, "rgb(126, 239, 244)");
-    gradient.addColorStop(0.4090909090909091, "rgb(126, 239, 244)");
-    gradient.addColorStop(0.6919191919191919, "rgb(84, 184, 197)");
-    gradient.addColorStop(1, "rgb(40, 98, 108)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(22, 62, 15, refrigerationPercent);
-
-    ctx.restore()
-
-    ctx.save();
+    const refrigerationGradient = ctx.createLinearGradient(0, 0, 0, 200);
+    refrigerationGradient.addColorStop(0.020202020202020204, "rgb(126, 239, 244)");
+    refrigerationGradient.addColorStop(0.4090909090909091, "rgb(126, 239, 244)");
+    refrigerationGradient.addColorStop(0.6919191919191919, "rgb(84, 184, 197)");
+    refrigerationGradient.addColorStop(1, "rgb(40, 98, 108)");
+    ctx.fillStyle = refrigerationGradient;
+    ctx.fillRect(22, 162 - refrigerationPercent, 15, refrigerationPercent);
 
     // Pressão
-    ctx.translate(55+15/2, 62+pressurePercent-(pressurePercent/2)+((100-pressurePercent)/2));
-    ctx.rotate(Math.PI);
-    ctx.translate(-(55+15/2), -(62+pressurePercent-(pressurePercent/2)+((100-pressurePercent)/2)))
-    var gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0, "rgb(239, 255, 0)");
-    gradient.addColorStop(0.2222222222222222, "rgb(239, 255, 0)");
-    gradient.addColorStop(0.41919191919191917, "rgb(255, 223, 0)");
-    gradient.addColorStop(0.5909090909090909, "rgb(254, 193, 1)");
-    gradient.addColorStop(0.797979797979798, "rgb(253, 181, 49)");
-    gradient.addColorStop(0.9545454545454546, "rgb(254, 145, 1)");
-    gradient.addColorStop(1, "rgb(254, 145, 1)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(55, 62, 15, pressurePercent);
-
-    ctx.restore()
-
-    ctx.save();
+    const pressureGradient = ctx.createLinearGradient(0, 0, 0, 200);
+    pressureGradient.addColorStop(0, "rgb(239, 255, 0)");
+    pressureGradient.addColorStop(0.2222222222222222, "rgb(239, 255, 0)");
+    pressureGradient.addColorStop(0.41919191919191917, "rgb(255, 223, 0)");
+    pressureGradient.addColorStop(0.5909090909090909, "rgb(254, 193, 1)");
+    pressureGradient.addColorStop(0.797979797979798, "rgb(253, 181, 49)");
+    pressureGradient.addColorStop(0.9545454545454546, "rgb(254, 145, 1)");
+    pressureGradient.addColorStop(1, "rgb(254, 145, 1)");
+    ctx.fillStyle = pressureGradient;
+    ctx.fillRect(55, 162 - pressurePercent, 15, pressurePercent);
 
     // Poluentes
-    ctx.translate(86+15/2, 62+pollutantsPercent-(pollutantsPercent/2)+((100-pollutantsPercent)/2));
-    ctx.rotate(Math.PI);
-    ctx.translate(-(86+15/2), -(62+pollutantsPercent-(pollutantsPercent/2)+((100-pollutantsPercent)/2)))
-    var gradient = ctx.createLinearGradient(0, 0, 0, 200);
-    gradient.addColorStop(0.020202020202020204, "rgb(147, 244, 126)");
-    gradient.addColorStop(0.4090909090909091, "rgb(147, 244, 126)");
-    gradient.addColorStop(0.6919191919191919, "rgb(89, 176, 90)");
-    gradient.addColorStop(1, "rgb(38, 50, 38)");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(86, 62, 15, pollutantsPercent);
+    const pollutantsGradient = ctx.createLinearGradient(0, 0, 0, 200);
+    pollutantsGradient.addColorStop(0.020202020202020204, "rgb(147, 244, 126)");
+    pollutantsGradient.addColorStop(0.4090909090909091, "rgb(147, 244, 126)");
+    pollutantsGradient.addColorStop(0.6919191919191919, "rgb(89, 176, 90)");
+    pollutantsGradient.addColorStop(1, "rgb(38, 50, 38)");
+    ctx.fillStyle = pollutantsGradient;
+    ctx.fillRect(86, 162 - pollutantsPercent, 15, pollutantsPercent);
 
-    ctx.restore()
-
-    const finalcanvas = await API.img.resize(canvas, width*0.65, height*0.65)
+    const finalImage = await API.img.resize(composer, width*0.65, height*0.65)
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(finalcanvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(finalImage, 'image.png');
 
 }
 
 async function loadOptionalImage(url, fallback, context) {
     try {
         if (!url) throw new Error('Image URL is empty');
-        return await API.img.Canvas.loadImage(url);
+        return await API.img.loadImage(url);
     } catch (error) {
         reportWarning('Optional image unavailable; using fallback', context, {
             url,
@@ -261,10 +219,10 @@ async function loadOptionalImage(url, fallback, context) {
     }
 }
 
-function createWhiteImage(width, height) {
-    const canvas = API.img.Canvas.createCanvas(width, height);
-    const context = canvas.getContext('2d');
+function createWhiteImage(API, width, height) {
+    const composer = API.img.createComposer(width, height);
+    const context = composer.getContext('2d');
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, width, height);
-    return canvas;
+    return composer;
 }

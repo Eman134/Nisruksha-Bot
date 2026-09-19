@@ -1,13 +1,3 @@
-const API = require("../../api.js");
-let bg, deadbg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/company/battle.png');
-    deadbg = await API.img.Canvas.loadImage('./resources/backgrounds/company/dead.png');
-}
-
 module.exports = async function execute(API, {
     avatarurl,
     monster,
@@ -24,6 +14,7 @@ module.exports = async function execute(API, {
     percent04,
 
 }) {
+    const { bg, deadbg } = await API.img.getAssets('battle');
 
     // Criando o padrão de imagem
 
@@ -32,27 +23,24 @@ module.exports = async function execute(API, {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
     ctx.drawImage(imageDefault, 0, 0);
 
     // Desenhando avatar
-    const avatar = await API.img.Canvas.loadImage(avatarurl);
+    const avatar = await API.img.loadImage(avatarurl);
     ctx.drawImage(avatar, 47, 16, 98, 98);
 
     // Desenhando monstro
-    const monsteravatar = await API.img.Canvas.loadImage(monster.image);
+    const monsteravatar = await API.img.loadImage(monster.image);
     ctx.drawImage(monsteravatar, 47, 136, 98, 98);
 
     // Desenhando equipamentos
 
     for (let i = 0; i < equips.length; i++) {
         if (equips[i]) {
-            const equip = await API.img.Canvas.loadImage(equips[i].img);
+            const equip = await API.img.loadImage(equips[i].img);
             ctx.drawImage(equip, equips[i].x, equips[i].y, 13, 13);
         }
     }
@@ -81,7 +69,6 @@ module.exports = async function execute(API, {
     API.img.drawText(ctx, `Nível ${monster.level}`, 16, './resources/fonts/Uni Sans.ttf', '#ffffff', 155, 190, 0)
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(composer, 'image.png');
 
 }

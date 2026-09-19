@@ -1,14 +1,5 @@
-const API = require("../../api.js");
 const { reportError } = require('../../debug');
 const ImageCharts = require('image-charts');
-let bg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/company/background.png');
-}
-
 module.exports = async function execute(API, {
 
     username,
@@ -27,6 +18,7 @@ module.exports = async function execute(API, {
     company_id,
 
 }) {
+    const { bg } = await API.img.getAssets('seecompany');
 
     // Criando o padrão de imagem do perfil
 
@@ -35,11 +27,8 @@ module.exports = async function execute(API, {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
 
     // Colocando o background personalizado do membro
@@ -47,7 +36,7 @@ module.exports = async function execute(API, {
     if (bglink != null) {
         try {
             // Criando o background personalizado como imagem e definindo a resolução
-            const imageBackground = await API.img.Canvas.loadImage(bglink) 
+            const imageBackground = await API.img.loadImage(bglink)
             ctx.drawImage(imageBackground, 0, 0, width, height);
         } catch (error) {
             reportError(error, 'imagegen.seecompany.background', { bglink });
@@ -62,8 +51,8 @@ module.exports = async function execute(API, {
         API.img.drawText(ctx, `/editarempresa logo`, 12, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 115, 125, 4)
     } else {
         try{
-            const logoCanvas = await API.img.Canvas.loadImage(logo)
-            ctx.drawImage(logoCanvas, 38, 50, 150, 150);
+            const logoImage = await API.img.loadImage(logo)
+            ctx.drawImage(logoImage, 38, 50, 150, 150);
         } catch (error) {
             reportError(error, 'imagegen.seecompany.logo', { logo });
         }
@@ -71,11 +60,11 @@ module.exports = async function execute(API, {
 
     // Desenhando icon da empresa
 
-    const icon = await API.img.Canvas.loadImage(`./resources/backgrounds/company/icon-${type}.png`)
+    const icon = await API.img.loadImage(`./resources/backgrounds/company/icon-${type}.png`)
     ctx.drawImage(icon, 218, 57, 25, 25);
 
     // Vagas
-    const hasVacanciesIcon = await API.img.Canvas.loadImage(hasVacancies ? 'https://cdn.discordapp.com/attachments/736274289254334504/768995522286714910/556678187786960897.png' : 'https://cdn.discordapp.com/attachments/736274289254334504/768995546127138856/556678417018257408.png')
+    const hasVacanciesIcon = await API.img.loadImage(hasVacancies ? 'https://cdn.discordapp.com/attachments/736274289254334504/768995522286714910/556678187786960897.png' : 'https://cdn.discordapp.com/attachments/736274289254334504/768995546127138856/556678417018257408.png')
     ctx.drawImage(hasVacanciesIcon, 95, 361, 20, 20);
     // Textos
 
@@ -110,7 +99,7 @@ module.exports = async function execute(API, {
     .chd(`a:${rend}`)
     .toURL();
     
-    const chart = await API.img.Canvas.loadImage(chart_url)
+    const chart = await API.img.loadImage(chart_url)
     ctx.drawImage(chart, 198, 210, 465, 190);
     
     ctx.beginPath();
@@ -120,7 +109,6 @@ module.exports = async function execute(API, {
     ctx.closePath();
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(composer, 'image.png');
 
 }

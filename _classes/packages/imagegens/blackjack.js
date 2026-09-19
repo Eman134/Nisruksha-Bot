@@ -1,13 +1,5 @@
-const API = require("../../api.js");
-let bg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/cartas/game.png');
-}
-
 module.exports = async function execute(API, options) {
+    const { bg } = await API.img.getAssets('blackjack');
 
     // Criando o padrão de imagem do perfil
 
@@ -16,11 +8,8 @@ module.exports = async function execute(API, options) {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
     ctx.drawImage(imageDefault, 0, 0);
 
@@ -49,7 +38,7 @@ module.exports = async function execute(API, options) {
     
     for (let i = 0; i < player1.cartas.length; i++) {
         const card = player1.cartas[i]
-        const image = await API.img.Canvas.loadImage(card.imagem)
+        const image = await API.img.loadImage(card.imagem)
         if (i < 5) {
             const x = 28 + (i * 86)
             ctx.drawImage(image, x, 90, image.width, image.height)
@@ -67,7 +56,7 @@ module.exports = async function execute(API, options) {
 
     for (let i = 0; i < player2.cartas.length; i++) {
         const card = player2.cartas[i]
-        const image = await API.img.Canvas.loadImage(card.imagem)
+        const image = await API.img.loadImage(card.imagem)
         if (i < 5) {
             const x = 28 + (i * 86)
             ctx.drawImage(image, x, 355, image.width, image.height)
@@ -85,13 +74,12 @@ module.exports = async function execute(API, options) {
 
     /*for (let i = 0; i < player2.cartas.length; i++) {
         const card = player2.cartas[i]
-        const image = await API.img.Canvas.loadImage(card.imagem)
+        const image = await API.img.loadImage(card.imagem)
         const x = 30 + (i * 50)
         ctx.drawImage(image, x, 350, image.width, image.height)
     }*/
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(composer, 'image.png');
 
 }

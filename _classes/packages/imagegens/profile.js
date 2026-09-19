@@ -1,14 +1,6 @@
-const API = require("../../api.js");
 const { reportError } = require('../../debug');
-let bg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/profile/profile.png');
-}
-
 module.exports = async function execute(API, options) {
+    const { bg } = await API.img.getAssets('profile');
 
     /* options : Object
 
@@ -39,18 +31,15 @@ module.exports = async function execute(API, options) {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
     // Colocando o background personalizado do membro
 
     if (options.url.bg && options.url.bg != null) {
         try {
             // Criando o background personalizado como imagem e definindo a resolução
-            const imageBackground = await API.img.Canvas.loadImage(options.url.bg)
+            const imageBackground = await API.img.loadImage(options.url.bg)
             ctx.drawImage(imageBackground, 0, 0, width, height);
         } catch (error) {
             reportError(error, 'imagegen.profile.background', { background: options.url.bg });
@@ -83,12 +72,12 @@ module.exports = async function execute(API, options) {
     let tempx = 0
     let tempy = 605
     if (options.perm > 1) {
-        const tempbadge = await API.img.Canvas.loadImage(`resources/backgrounds/profile/${options.perm}.png`)
+        const tempbadge = await API.img.loadImage(`resources/backgrounds/profile/${options.perm}.png`)
         ctx.drawImage(tempbadge, tempx, tempy, 35, 35);
         tempx += 45
     }
 
-    const maqimg = await API.img.Canvas.loadImage(options.url.maq)
+    const maqimg = await API.img.loadImage(options.url.maq)
 
     ctx.drawImage(maqimg, tempx, tempy, 35, 35);
 
@@ -96,7 +85,7 @@ module.exports = async function execute(API, options) {
 
     if (options.url.badges) {
         for (i = 0; i < options.url.badges.length; i++) {
-            let tempbadge = await API.img.Canvas.loadImage(API.badges.get(options.url.badges[i]).url);
+            let tempbadge = await API.img.loadImage(API.badges.get(options.url.badges[i]).url);
             ctx.drawImage(tempbadge, tempx, tempy, 35, 35);
             if (tempx < 1100) tempx += 45
             else break
@@ -136,34 +125,22 @@ module.exports = async function execute(API, options) {
 
     // Checando moldura e avatar
 
-    ctx.save()
-
     if (options.frame) {
 
-        const tempframe = await API.img.Canvas.loadImage(options.frame.url);
+        const tempframe = await API.img.loadImage(options.frame.url);
 
         ctx.drawImage(tempframe, 50, 24, tempframe.width, tempframe.height);
 
-        // Fazendo o avatar redondo
-        if (options.frame.type == 1) {
-
-            ctx.beginPath();
-            ctx.arc(90+85, 90+59, 180/2, 0, Math.PI * 2);
-            ctx.closePath();
-            ctx.clip();
-
-        }
-        
     }
 
-    const avatar = await API.img.Canvas.loadImage(options.url.avatar);
-    ctx.drawImage(avatar, 85, 59, 180, 180);
-
-    ctx.restore()
+    const avatar = await API.img.loadImage(options.url.avatar);
+    const avatarImage = options.frame?.type == 1
+        ? await API.img.editBorder(avatar, 90, true)
+        : avatar;
+    ctx.drawImage(avatarImage, 85, 59, 180, 180);
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(composer, 'image.png');
 
     function runColor(loc1, loc2, widthw, heightw, color, type){
         ctx.beginPath();

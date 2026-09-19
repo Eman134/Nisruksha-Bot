@@ -61,6 +61,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
         API.db = require('./db.js');
         
         API.client = this;
+        this.assetsReady = API.img.preloadAssets();
 
         console.log(`[MÓDULOS] Carregados`.green)
 
@@ -182,6 +183,7 @@ module.exports = class NisrukshaClient extends Discord.Client {
                 process.exitCode = 1;
             });
         }
+        await this.assetsReady;
         return super.login(token)
     }
 

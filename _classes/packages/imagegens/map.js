@@ -1,17 +1,5 @@
-const API = require("../../api.js");
-let bg, mark, treasureicon, duckicon
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.Canvas.loadImage('./resources/backgrounds/map/map.png');
-    mark = await API.img.Canvas.loadImage(`./resources/backgrounds/map/mark.png`)
-    treasureicon = await API.img.Canvas.loadImage(`./resources/backgrounds/map/treasure.png`)
-    duckicon = await API.img.Canvas.loadImage(`./resources/backgrounds/map/duck.png`)
-    mark = await API.img.resize(mark, 250, 250)
-}
-
 module.exports = async function execute(API, options) {
+    const { bg, mark, treasureicon, duckicon } = await API.img.getAssets('map');
 
     // Criando o padrão de imagem do perfil
 
@@ -23,11 +11,8 @@ module.exports = async function execute(API, options) {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const canvas = API.img.Canvas.createCanvas(width, height);
-	const ctx = canvas.getContext("2d");
-
-    canvas.width = width;
-    canvas.height = height;
+    const composer = API.img.createComposer(width, height);
+	const ctx = composer.getContext("2d");
 
     ctx.drawImage(imageDefault, 0, 0);
 
@@ -35,7 +20,7 @@ module.exports = async function execute(API, options) {
     ctx.drawImage(mark, options.pos.x, options.pos.y);
 
     // Colocando o avatar dentro da marca
-    let avatar = await API.img.Canvas.loadImage(options.url.avatar);
+    let avatar = await API.img.loadImage(options.url.avatar);
     avatar = await API.img.editBorder(avatar, 49, true)
     ctx.drawImage(avatar, options.pos.x + (51+(51/2)), options.pos.y + (34+(34/2)), 49*2, 49*2);
 
@@ -52,7 +37,6 @@ module.exports = async function execute(API, options) {
     }
 
     // Transformando a imagem em arquivo
-    const attachment = new API.Discord.MessageAttachment(canvas.toBuffer("image/png", { compressionLevel: 10 }), 'image.png');
-    return attachment
+    return API.img.getAttachment(composer, 'image.png');
 
 }

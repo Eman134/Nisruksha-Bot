@@ -1,15 +1,6 @@
-const API = require("../../_classes/api");
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
-
-let bg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.loadImage(`resources/backgrounds/company/battle.png`)
-}
 
 module.exports = {
     name: 'caçar',

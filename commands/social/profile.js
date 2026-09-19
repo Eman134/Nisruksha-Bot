@@ -1,15 +1,5 @@
-const API = require("../../_classes/api");
-
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
-
-let bg
-
-loadbg()
-
-async function loadbg() {
-    bg = await API.img.loadImage(`resources/backgrounds/profile/profile.png`)
-}
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
