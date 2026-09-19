@@ -6,8 +6,7 @@ const config = require('../../_classes/config');
 const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tipochave').setDescription('Digite o tipo de chave que deseja gerar')
   .addChoices({ name: 'MVP', value: 'MVP' })
@@ -177,7 +176,8 @@ module.exports = {
             if (size) obj.size = size
             if (id) obj.id = id
             
-            const globalobj = await DatabaseManager.get(config.app.id, 'globals');
+            const user_id = BigInt(config.app.id)
+            const globalobj = await prisma.globals.upsert({ where: { user_id }, update: { user_id }, create: { user_id, keys: [], remember: [], processing: [] } });
 
             const objgkeys = globalobj.keys
             let clist = []
@@ -186,7 +186,7 @@ module.exports = {
             }
             clist.push(obj)
 
-            DatabaseManager.set(config.app.id, 'globals', 'keys', clist);
+            await prisma.globals.update({ where: { user_id }, data: { keys: clist } });
 
             const embed2 = new Discord.EmbedBuilder()
             .setTitle(`🔑 Nova chave gerada`)

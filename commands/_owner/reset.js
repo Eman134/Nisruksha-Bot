@@ -1,8 +1,7 @@
 const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -46,9 +45,21 @@ reacted = true;
                 return;
             }
 
-            if (tabela.toLowerCase() == 'all') {
+            const table = tabela.toLowerCase();
+            const allowedTables = new Set(['players', 'servers', 'globals', 'storage', 'players_utils', 'machines', 'cooldowns', 'companies', 'towns', 'site']);
+            if (table !== 'all' && !allowedTables.has(table)) {
+                embed.setDescription('❌ Tabela não permitida.');
+                embed.setColor('#eb4034');
+                await interaction.editReply({ embeds: [embed] });
+                return;
+            }
+            if (table == 'all') {
                 try {
-                    await DatabaseManager.reset('all');
+                    await Promise.all([
+                        prisma.players.deleteMany(), prisma.servers.deleteMany(), prisma.globals.deleteMany(),
+                        prisma.storage.deleteMany(), prisma.players_utils.deleteMany(), prisma.machines.deleteMany(),
+                        prisma.cooldowns.deleteMany(), prisma.companies.deleteMany(), prisma.towns.deleteMany(), prisma.site.deleteMany()
+                    ]);
     
                     embed.setDescription(`✅ Todos os dados foram resetados!`)
                     embed.setColor('#32a893');
@@ -63,7 +74,19 @@ reacted = true;
     
             } else {
                 try {
-                    await DatabaseManager.reset(tabela.toLowerCase());
+                    const resetters = {
+                        players: () => prisma.players.deleteMany(),
+                        servers: () => prisma.servers.deleteMany(),
+                        globals: () => prisma.globals.deleteMany(),
+                        storage: () => prisma.storage.deleteMany(),
+                        players_utils: () => prisma.players_utils.deleteMany(),
+                        machines: () => prisma.machines.deleteMany(),
+                        cooldowns: () => prisma.cooldowns.deleteMany(),
+                        companies: () => prisma.companies.deleteMany(),
+                        towns: () => prisma.towns.deleteMany(),
+                        site: () => prisma.site.deleteMany()
+                    };
+                    await resetters[table]();
     
                     embed.setDescription(`✅ Dados da tabela \`${tabela.toLowerCase()}\` foram resetados!`)
                     embed.setColor('#32a893');

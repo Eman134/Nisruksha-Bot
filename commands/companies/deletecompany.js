@@ -5,8 +5,7 @@ const utility = new UtilityService();
 const townsService = require('../../_classes/services/towns');
 const clientService = require('../../_classes/services/clientService');
 const economyService = require('../../_classes/services/economy');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -50,7 +49,8 @@ module.exports = {
         
         total = r1+r2+r3+r4
 
-        let playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let playerobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const name = company.name
         const type = company.type
@@ -86,8 +86,8 @@ module.exports = {
                 return;
             }
 
-            playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
-            playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+            playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
+            playerobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
             let locname = townsService.getTownNameByNum(company.loc)
             let townname = await townsService.getTownName(interaction.user.id);
@@ -114,7 +114,13 @@ module.exports = {
             }
 
             try {
-                await DatabaseManager.deleteMany('companies', { user_id: interaction.user.id });
+                const user_id = BigInt(interaction.user.id);
+                const currentCompany = await prisma.companies.findFirst({ where: { user_id } });
+                if (currentCompany) {
+                    await prisma.companies.delete({
+                        where: { company_id_user_id: { company_id: String(currentCompany.company_id), user_id } }
+                    });
+                }
             }catch (err) { 
                 clientService.current.emit('error', err)
                 throw err 

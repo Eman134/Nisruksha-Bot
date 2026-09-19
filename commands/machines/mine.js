@@ -7,10 +7,9 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const itemsService = require('../../_classes/services/items');
-const Database = require('../../_classes/manager/DatabaseManager');
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
-const DatabaseManager = new Database();
 
 function buildMiningStatusContainer(message) {
     return new ContainerBuilder()
@@ -58,10 +57,11 @@ module.exports = {
             return;
         }
 
-        let playerobj = await DatabaseManager.get(member.id, 'machines');
+        const user_id = BigInt(member.id)
+        let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
         let maqid = playerobj.machine;
 
-        let maq = shopService.getProduct(maqid);
+        let maq = await shopService.getProduct(maqid);
         if (!maq) throw new Error(`Machine product not found: ${maqid}`);
 
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
@@ -99,14 +99,14 @@ module.exports = {
         }
 
         let init = Date.now();
-        let obj6 = await DatabaseManager.get(member.id, "machines");
+        let obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
 
         let timeupdate = machinesService.update*1000
 
         const array = obj6.slots == null ? [] : obj6.slots
         for (const i of array){
             const chipId = typeof i === 'object' ? i.id : i;
-            const chipproduct = shopService.getProduct(chipId);
+            const chipproduct = await shopService.getProduct(chipId);
             if (chipproduct?.typeeffect == 4) {
             timeupdate -= Math.round(chipproduct.sizeeffect*1000)
             };
@@ -172,7 +172,7 @@ module.exports = {
 
                 await itemsService.removeChipsDurability(member.id, utility.random(1, 10))
 
-                let playerobj = await DatabaseManager.get(member.id, 'machines');
+                let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let maqid = playerobj.machine;
                 let maq = shopService.getProduct(maqid);
 
@@ -194,13 +194,13 @@ module.exports = {
                     var [ user_refrigeration, refrigerationMax, refrigerationPercent ] = refrigeration
 
                     if (user_durability == 0) {
-                        await DatabaseManager.set(member.id, 'machines', "durability", durabilityMax)
+                        await prisma.machines.update({ where: { user_id }, data: { durability: durabilityMax } })
                     }
                     if (user_pressure == 0) {
-                        await DatabaseManager.set(member.id, 'machines', "pressure", Math.round(pressureMax/2))
+                        await prisma.machines.update({ where: { user_id }, data: { pressure: Math.round(pressureMax/2) } })
                     }
                     if (user_refrigeration == 0) {
-                        await DatabaseManager.set(member.id, 'machines', "refrigeration", refrigerationMax)
+                        await prisma.machines.update({ where: { user_id }, data: { refrigeration: refrigerationMax } })
                     }
 
                     var { durability, pressure, refrigeration } = await machinesService.getMaintenance(member.id)
@@ -214,7 +214,7 @@ module.exports = {
                         const name = "durability"
                         try {
                             if (durabilityPercent < 1) {
-                                await DatabaseManager.set(member.id, 'machines', name, 0)
+                                await prisma.machines.update({ where: { user_id }, data: { [name]: 0 } })
                             } else {
                                 let fvalue = value
                                 for (const i of array){
@@ -224,7 +224,7 @@ module.exports = {
                                         fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
                                 }
-                                await DatabaseManager.increment(member.id, 'machines', name, -fvalue)
+                                await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: -fvalue } } })
                             }
                         } catch (error) {
                             throw reportError(error, 'command.minerar.maintenance.durability', { userId: member.id });
@@ -237,15 +237,15 @@ module.exports = {
                         try {
                             if (refrigerationPercent <= 40) {
                                 if (utility.random(0, 100) < utility.random(40, 70)) {
-                                    await DatabaseManager.increment(member.id, 'machines', name, value*6)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: value*6 } } })
                                 } else {
-                                    await DatabaseManager.increment(member.id, 'machines', name, -value*2)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: -value*2 } } })
                                 }
                             } if (refrigerationPercent > 40) {
                                 if (utility.random(0, 100) < utility.random(40, 70)) {
-                                    await DatabaseManager.increment(member.id, 'machines', name, -value*2)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: -value*2 } } })
                                 } else {
-                                    await DatabaseManager.increment(member.id, 'machines', name, value)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: value } } })
                                 }
                             }
                         } catch (error) {
@@ -258,15 +258,15 @@ module.exports = {
                         try {
                             if (pressurePercent > 60) {
                                 if (utility.random(0, 100) < utility.random(40, 80)) {
-                                    await DatabaseManager.increment(member.id, 'machines', name, value*5)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: value*5 } } })
                                 } else {
-                                    await DatabaseManager.increment(member.id, 'machines', name, Math.round(value*2))
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: Math.round(value*2) } } })
                                 }
                             } else {
                                 if (utility.random(0, 100) < utility.random(40, 80)) {
-                                    await DatabaseManager.increment(member.id, 'machines', name, value*2)
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: value*2 } } })
                                 } else {
-                                    await DatabaseManager.increment(member.id, 'machines', name, Math.round(value))
+                                    await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: Math.round(value) } } })
                                 }
                             }
                         } catch (error) {
@@ -278,7 +278,7 @@ module.exports = {
                     async function checkRefrigeration() {
                         const name = "refrigeration"
                         try {
-                            await DatabaseManager.increment(member.id, 'machines', name, -value*4)
+                            await prisma.machines.update({ where: { user_id }, data: { [name]: { increment: -value*4 } } })
                         } catch (error) {
                             throw reportError(error, 'command.minerar.maintenance.refrigeration', { userId: member.id });
                         }
@@ -316,7 +316,7 @@ module.exports = {
                     round += size;
 
                     if (r.orechips && r.orechips.chipe7) {
-                        const minerioatual = itemsService.getObj().minerios.find((i) => i.name == ore.name)
+                        const minerioatual = (await itemsService.getObj()).minerios.find((i) => i.name == ore.name)
                         const totalchipe7 = Math.round(size * (minerioatual?.price?.max || 0))
                         hastotalchipe7 += totalchipe7
                         haschipe7 = true
@@ -338,7 +338,7 @@ module.exports = {
                 var [ _, _, pollutantsPercent ] = pollutants
                 var [ _, _, refrigerationPercent ] = refrigeration
 
-                const obj6 = await DatabaseManager.get(member.id, "machines");
+                const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 const arsize = await machinesService.storage.getSize(member.id);
                 const progress2 = buildProgress(energia + 1 < 0 ? 0 : energia + 1, energiamax);
                 const chipNames = ep == null || ep.length === 0

@@ -6,8 +6,7 @@ const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const companyService = require('../../_classes/services/company');
 const companyInfo = require('../../_classes/services/companyInfo');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -21,7 +20,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
         
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const check = await playersService.cooldown.check(interaction.user.id, "landplot");
         if (check) {
@@ -184,7 +184,7 @@ module.exports = {
                 if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.terreno.defer_update'); });
                 embed.fields = [];
 
-                pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
                 const money = await economyService.money.get(interaction.user.id);
       
@@ -216,7 +216,7 @@ module.exports = {
   
                 plots[townnum] = plot
   
-                DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
+                await prisma.players.update({ where: { user_id }, data: { plots } })
     
                 embed.setColor('#5bff45');
                 embed.addFields({ name: '✅ Terreno adquirido', value: `
@@ -261,7 +261,7 @@ module.exports = {
 
             collector.resetTimer()
 
-            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             let plotReturns = await makeEmbed(pobj)
 
             let plot = plotReturns.plot
@@ -289,14 +289,14 @@ module.exports = {
                 let plots = pobj.plots
                 plots[townnum].area = plot.area+10
 
-                await DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
+                await prisma.players.update({ where: { user_id }, data: { plots } })
 
                 playersService.cooldown.set(interaction.user.id, "landplot", 0);
 
                 economyService.points.remove(interaction.user.id, priceupgrade);
                 await economyService.addToHistory(interaction.user.id, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${utility.money2emoji}`)
 
-                pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
                 plotReturns = await makeEmbed(pobj)
                 components = plotReturns.components
 
@@ -318,14 +318,14 @@ module.exports = {
                     return;
                 }
 
-                let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+                let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
                 allplots[townnum].plants.splice([parseInt(b.customId)-1], 1)
                 if (allplots[townnum].plants.length == 0) {
                     delete allplots[townnum].plants
                 }
 
-                await DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
+                await prisma.players.update({ where: { user_id }, data: { plots: allplots } })
 
                 let total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level*1.5)
                 
@@ -351,7 +351,7 @@ module.exports = {
                 
                 let score = ((companyService.stars.gen()*2.5).toFixed(2)) 
 
-                pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
                 plotReturns = await makeEmbed(pobj)
                 components = plotReturns.components
 

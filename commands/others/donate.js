@@ -3,8 +3,7 @@ const clientService = require('../../_classes/services/clientService');
 const config = require('../../_classes/config');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Database = require("../../_classes/manager/DatabaseManager")
-const DatabaseManager = new Database()
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'doar',
@@ -15,7 +14,8 @@ module.exports = {
 	async execute(interaction) {
 
                                 
-                const globalobj = await DatabaseManager.get(config.app.id, 'globals')
+                const user_id = BigInt(config.app.id)
+                const globalobj = await prisma.globals.upsert({ where: { user_id }, update: { user_id }, create: { user_id, keys: [], remember: [], processing: [] } })
 
                 const donates = globalobj.donates
                 const totaldonates = globalobj.totaldonates

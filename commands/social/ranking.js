@@ -2,14 +2,13 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
 const Discord = require('discord.js');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 
 const vare = {
     '736290479406317649': {
-        db: {
+            source: {
             table: 'players',
             column: 'money'
         },
@@ -18,7 +17,7 @@ const vare = {
         global: [],
     },
     '743176785986060390': {
-        db: {
+            source: {
             table: 'players',
             column: 'points'
         },
@@ -27,7 +26,7 @@ const vare = {
         global: [],
     },
     '741827151879471115': {
-        db: {
+            source: {
             table: 'players',
             column: 'token'
         },
@@ -36,7 +35,7 @@ const vare = {
         global: [],
     },
     '👍🏽': {
-        db: {
+            source: {
             table: 'players',
             column: 'reps'
         },
@@ -45,7 +44,7 @@ const vare = {
         global: [],
     },
     '833363716615307324': {
-        db: {
+            source: {
             table: 'machines',
             column: 'level'
         },
@@ -54,7 +53,7 @@ const vare = {
         global: [],
     },
     '💥': {
-        db: {
+            source: {
             table: 'players',
             column: 'streak'
         },
@@ -63,7 +62,7 @@ const vare = {
         global: [],
     },
     '🔰': {
-        db: {
+            source: {
             table: 'players',
             column: 'mastery'
         },
@@ -72,7 +71,7 @@ const vare = {
         global: [],
     },
     '⚙': {
-        db: {
+            source: {
             table: 'players',
             column: 'cmdsexec'
         },
@@ -89,11 +88,11 @@ async function setRankCache() {
 
         let array = [];
         try {
-            array = await DatabaseManager.findMany(data.db.table);
+            array = data.source.table === 'players' ? await prisma.players.findMany() : await prisma.machines.findMany();
         } catch (err) {
             clientService.current?.emit('error', err)
         }
-        vare[data.emoji].global = array.sort((a, b) => b[data.db.column] - a[data.db.column]);
+        vare[data.emoji].global = array.sort((a, b) => Number(b[data.source.column] - a[data.source.column]));
     }
 }
 
@@ -208,7 +207,7 @@ module.exports = {
                 array[i].rank = i+1;
             }
 
-            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customId].db.column]} ${vare[b.customId].formated}`).join('\n')
+            const maparray = array.map(r => `${r.rank}º \`${r.tag}\` (${r.user_id}) - ${r[vare[b.customId].source.column]} ${vare[b.customId].formated}`).join('\n')
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')

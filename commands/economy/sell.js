@@ -8,8 +8,7 @@ const runtime = require('../../_classes/services/runtime');
 const economyService = require('../../_classes/services/economy');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { readFileSync } = require('fs')
 
@@ -50,7 +49,7 @@ module.exports = {
             return;
         }
 
-        if (minério != null && (!itemsService.exists(minério))) {
+        if (minério != null && (!await itemsService.exists(minério))) {
             const embedtemp = await utility.sendError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
@@ -79,8 +78,9 @@ module.exports = {
             type = 0;
         }
 
-        let obj = itemsService.getObj();
-        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
+        let obj = await itemsService.getObj();
+        const user_id = BigInt(interaction.user.id)
+        const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
         if (quantia == 'tudo' && minério != null) {
 
@@ -157,7 +157,7 @@ module.exports = {
                 break;
         }
 
-        const playerobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const playerobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const taxa = playerobj.mvp != null ? 0.01 : 0.03
 
@@ -197,7 +197,7 @@ module.exports = {
                 return;
             }
 
-            let obj3 = await DatabaseManager.get(interaction.user.id, 'storage')
+            let obj3 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
             switch (type) {
                 case 0:

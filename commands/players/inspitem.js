@@ -3,8 +3,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const Discord = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database()
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('item').setDescription('Escreva o nome do item que você deseja inspecionar').setRequired(true))
 
@@ -19,16 +18,17 @@ module.exports = {
 
         let id = interaction.options.getString('item');
         
-        if ((itemsService.exists(id, 'drops') == false)) {
+        if ((await itemsService.exists(id, 'drops') == false)) {
             const embedtemp = await utility.sendError(interaction, `Você precisa identificar um item EXISTENTE para inspecionar!\nVerifique os itens disponíveis utilizando \`/mochila\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         id = id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
-        const drop = itemsService.get(id)
+        const drop = await itemsService.get(id)
         
-        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
+        const user_id = BigInt(interaction.user.id)
+        const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
             const embedtemp = await utility.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para inspecionar!`)
             await interaction.reply({ embeds: [embedtemp]})

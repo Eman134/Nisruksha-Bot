@@ -5,8 +5,7 @@ const machinesService = require('../../_classes/services/machines');
 const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia para upar o armazém').setRequired(true))
 
@@ -38,7 +37,8 @@ module.exports = {
         let r1 = quantia;
         let pricea = await machinesService.storage.getPrice(interaction.user.id, r1)
         let price = Math.round(await machinesService.storage.getPrice(interaction.user.id, r1)*1.40)
-        let obj = await DatabaseManager.get(interaction.user.id, 'storage');
+        const user_id = BigInt(interaction.user.id)
+        let obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
         let lvl = obj.storage;
         
 		const embed = new Discord.EmbedBuilder()
@@ -79,8 +79,8 @@ module.exports = {
                 } else {
                     embed.setColor('#5bff45');
                     pago += price;
-                    await DatabaseManager.set(interaction.user.id, 'storage', 'storage', lvl+r1)
-                    let obj55 = await DatabaseManager.get(interaction.user.id, 'storage');
+                    await prisma.storage.update({ where: { user_id }, data: { storage: lvl+r1 } })
+                    let obj55 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
                     let lvl55 = obj55.storage;
                     embed.addFields({ name: '<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', value: `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**` })
                     .setFooter({ text: '' })

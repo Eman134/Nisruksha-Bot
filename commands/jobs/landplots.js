@@ -2,8 +2,7 @@ const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const townsService = require('../../_classes/services/towns');
 const companyService = require('../../_classes/services/company');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'terrenos',
@@ -16,7 +15,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const embed = new Discord.EmbedBuilder().setColor(`#b8312c`)
         if (!pobj.plots || Object.keys(pobj.plots).length == 0) {

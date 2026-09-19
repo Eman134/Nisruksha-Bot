@@ -4,8 +4,7 @@ const shopService = require('../../_classes/services/shop');
 const itemsService = require('../../_classes/services/items');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -31,7 +30,8 @@ module.exports = {
             }
         }
 
-        const utilsobj = await DatabaseManager.get(member.id, 'players_utils')
+        const user_id = BigInt(member.id)
+        const utilsobj = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
         let backpackid = utilsobj.backpack;
         let backpack = shopService.getProduct(backpackid);

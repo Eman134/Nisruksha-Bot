@@ -6,8 +6,7 @@ const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
 const config = require('../../_classes/config');
 const companyInfo = require('../../_classes/services/companyInfo');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -31,7 +30,8 @@ module.exports = {
             return;
         }
 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         let company = await companyService.get.companyById(pobj.company);
         
@@ -78,7 +78,7 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
             embed.addFields({ name: '✅ Demitido!', value: `Você se demitiu da empresa **${companyService.e[companyService.types[company.type]].icon} ${company.name}**!` })
             interaction.editReply({ embeds: [embed], components: [] });
             
-            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             let company2 = await companyService.get.companyById(pobj.company);
             let owner = await companyService.get.ownerById(pobj.company);
             let botowner = await clientService.current.users.fetch(config.owner[0])
@@ -101,9 +101,9 @@ Você deseja se demitir da empresa **${companyService.e[companyService.types[com
             //let score = -(pobj.companyact == null ? 0 : pobj.companyact.score)
 
             companyInfo.set(owner.id, company.company_id, 'workers', list)
-            DatabaseManager.set(interaction.user.id, 'players', 'company', null)
+            await prisma.players.update({ where: { user_id }, data: { company: null } })
             //await companyService.stars.add(interaction.user.id, company.company_id, { score })
-            DatabaseManager.set(interaction.user.id, 'players', 'companyact', null)
+            await prisma.players.update({ where: { user_id }, data: { companyact: null } })
             
         });
         

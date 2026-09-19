@@ -7,8 +7,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const itemsService = require('../../_classes/services/items');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -24,8 +23,9 @@ module.exports = {
                 
 		const embed = new Discord.EmbedBuilder()
 
-        const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
-        const machines = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
+        const machines = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         const check = await playersService.cooldown.check(interaction.user.id, "verprocessamentos");
         if (check) {
@@ -57,7 +57,7 @@ module.exports = {
 
             processjson = defaultjson
 
-            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', defaultjson)
+            await prisma.players_utils.update({ where: { user_id }, data: { process: defaultjson } })
         }
 
         if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
@@ -219,7 +219,7 @@ module.exports = {
 
             playersService.cooldown.set(interaction.user.id, "verprocessamentos", 35);
 
-            const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+            const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
             const money = await economyService.money.get(interaction.user.id)
             processjson = players_utils.process
 
@@ -248,7 +248,7 @@ module.exports = {
                     if (tool.potency.current+5 <= tool.potency.rangemax) tool.potency.current += 5
                 }
                 processjson.tools[tool.type] = tool
-                DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
+                await prisma.players_utils.update({ where: { user_id }, data: { process: processjson } })
                 b.customId = (tool.type == 0 ? 'ferr' : 'lqd')
                 current = (tool.type == 0 ? 'ferr' : 'lqd')
             }
@@ -304,7 +304,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                         processjson.tools[1].fuel.current = processjson.tools[1].fuel.max
                     }
                     
-                    DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
+                    await prisma.players_utils.update({ where: { user_id }, data: { process: processjson } })
                     await economyService.money.remove(interaction.user.id, custorepair);
                     await economyService.addToHistory(interaction.user.id, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${utility.format(custorepair)} ${utility.moneyemoji}`)
                     await companyService.jobs.process.add(interaction.user.id)
@@ -331,7 +331,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     const oldproc = processjson.in.find((x) => x.id == id)
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
-                    DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
+                    await prisma.players_utils.update({ where: { user_id }, data: { process: processjson } })
                     await setProcess()
 
                     let xp = await playersService.execExp(interaction, oldproc.xpbase)

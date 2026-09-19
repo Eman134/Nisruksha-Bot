@@ -1,18 +1,22 @@
 const Discord = require('discord.js');
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const clientService = require('./clientService');
 const runtime = require('./runtime');
 const UtilityService = require('./utilityService');
 
 class BotInfoService {
     constructor() {
-        this.database = new DatabaseManager();
         this.utility = new UtilityService();
     }
 
     async get() {
         const client = clientService.current;
-        const globals = await this.database.get(require('../config').app.id, 'globals');
+        const user_id = BigInt(require('../config').app.id);
+        const globals = await prisma.globals.upsert({
+            where: { user_id },
+            update: { user_id },
+            create: { user_id, keys: [], remember: [], processing: [] }
+        });
         const version = `${require('../../package.json').version} (Rework)`;
         return new Discord.EmbedBuilder().setTitle(`(/) ${client.user.username}`)
             .addFields({ name: '🕐 Tempo online', value: `\`${this.utility.uptime()}\``, inline: true })

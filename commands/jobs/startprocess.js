@@ -7,8 +7,7 @@ const playersService = require('../../_classes/services/players');
 const itemsService = require('../../_classes/services/items');
 const cacheListsService = require('../../_classes/services/cacheLists');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de fragmentos para processar').setRequired(true))
@@ -27,11 +26,12 @@ module.exports = {
                 
 		const embed = new Discord.EmbedBuilder()
 
-        const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+        const user_id = BigInt(interaction.user.id)
+        const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         let processjson = players_utils.process
-        const machines = await DatabaseManager.get(interaction.user.id, 'machines')
+        const machines = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
         const level = machines.level
-        const storage = await DatabaseManager.get(interaction.user.id, 'storage')
+        const storage = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
         const quantia = interaction.options.getInteger("quantia")
 
@@ -49,7 +49,7 @@ module.exports = {
 
             processjson = defaultjson
 
-            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', defaultjson)
+            await prisma.players_utils.update({ where: { user_id }, data: { process: defaultjson } })
         }
 
         if (storage['fragmento'] <= quantia) {
@@ -111,8 +111,8 @@ module.exports = {
 
             collector.stop()
             
-            const storage = await DatabaseManager.get(interaction.user.id, 'storage')
-            const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
+            const storage = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
+            const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
             let processjson = players_utils.process
 
             const tool = (b.customId == 'ferr' ? processjson.tools[0] : processjson.tools[1])
@@ -210,7 +210,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             processjson.in.push(defaultjsonprocess)
 
-            DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
+            await prisma.players_utils.update({ where: { user_id }, data: { process: processjson } })
 
             const components = reworkButtons(current, true)
 

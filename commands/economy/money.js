@@ -22,7 +22,6 @@ module.exports = {
         const points = await economyService.points.get(member.id);
         const token = await economyService.token.get(member.id);
         const tp = await economyService.tp.get(member.id);
-        //const obj = await DatabaseManager.get(member.id, 'players');
         const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``);
         const embed = new Discord.EmbedBuilder()
         .setTitle(`Conta de \`${member.username}\``)

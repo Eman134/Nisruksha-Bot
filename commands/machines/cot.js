@@ -57,13 +57,13 @@ module.exports = {
 
         } else {
 
-            if (!itemsService.exists(minério)) {
+            if (!await itemsService.exists(minério)) {
                 const embedtemp = await utility.sendError(interaction, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`/cotação\``)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            let minerio = itemsService.get(minério, "minerios")
+            let minerio = await itemsService.get(minério, "minerios")
 
             let prefix = ""
             if (minerio.price.updates.length == 0) {

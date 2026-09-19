@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const DatabaseManagerClass = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const cacheLists = require('./cacheLists');
 const clientService = require('./clientService');
 const companyInfo = require('./companyInfo');
@@ -11,7 +11,6 @@ const runtime = require('./runtime');
 const UtilityService = require('./utilityService');
 class CompanyService {
 constructor() {
-const DatabaseManager = new DatabaseManagerClass();
 const client = new Proxy({}, { get: (_target, property) => clientService.current?.[property] });
 const debug = runtime.debug;
 const utility = new UtilityService();
@@ -23,12 +22,28 @@ const setCompanieInfo = companyInfo.set.bind(companyInfo);
 const townExtension = townsService;
 const company = this;
 const debugmode = false
+const getPlayers = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+};
+const getPlayersUtils = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
+const getMachines = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+};
+const getGlobals = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.globals.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, keys: [], remember: [], processing: [] } });
+};
 
 const stars = {};
 {
     stars.add = async function(user_id, company_id, options) {
         
-        let memberobj = await DatabaseManager.get(user_id, 'players')
+        let memberobj = await getPlayers(user_id)
         let company = await get.companyById(company_id)
         
         let obj = (memberobj.companyact != null ? memberobj.companyact : {
@@ -56,7 +71,7 @@ const stars = {};
         obj.score = parseFloat(obj.score).toFixed(2)
         obj.rend = Math.round(parseInt(obj.rend))
         
-        DatabaseManager.set(user_id, 'players', 'companyact', obj)
+        await prisma.players.update({ where: { user_id: BigInt(user_id) }, data: { companyact: obj } })
     }
 
     stars.gen = function() {
@@ -74,7 +89,7 @@ const check = {};
 check.hasCompany = async function(user_id){
     let cont = false;
     try {
-        const rows = await DatabaseManager.findMany('companies');
+        const rows = await prisma.companies.findMany();
         for (const r of rows) {
             if (r.user_id == user_id && r.type != 0) {
                 cont = true;
@@ -90,10 +105,10 @@ check.hasCompany = async function(user_id){
 }
 
 check.isWorker = async function(user_id) {
-    const obj = await DatabaseManager.get(user_id, 'players')
+    const obj = await getPlayers(user_id)
     const company = await get.companyById(obj.company)
     if (!company) {
-        await DatabaseManager.set(user_id, 'players', 'company', null)
+        await prisma.players.update({ where: { user_id: BigInt(user_id) }, data: { company: null } })
         return false
     }
     return obj.company != null;
@@ -104,7 +119,7 @@ check.hasVacancies = async function(company_id) {
 
     try {
         const owner = await company.get.ownerById(company_id)
-        const company = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
+        const company = await prisma.companies.findUnique({ where: { company_id_user_id: { company_id: String(company_id), user_id: BigInt(owner.id) } } });
         if (company.workers != null && company.workers != undefined && company.workers.length >= company.funcmax) result = false;
         if (company.openvacancie == false) result = false;
 
@@ -156,7 +171,7 @@ get.companyById = async function(company_id) {
 
         if (owner == null) return undefined
 
-        res = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
+        res = await prisma.companies.findUnique({ where: { company_id_user_id: { company_id: String(company_id), user_id: BigInt(owner.id) } } });
 
     }catch (err){
         client.emit('error', err)
@@ -170,7 +185,7 @@ get.ownerById = async function(company_id) {
     let res
     try {
         
-        res = (await DatabaseManager.findMany('companies', { company_id }))[0];
+        res = await prisma.companies.findFirst({ where: { company_id: String(company_id) } });
 
     }catch (err){
         client.emit('error', err)
@@ -179,7 +194,7 @@ get.ownerById = async function(company_id) {
 
     if (!res) return null
 
-    let result = await client.users.fetch(res.user_id)
+    let result = await client.users.fetch(String(res.user_id))
 
     return result;
 }
@@ -188,7 +203,7 @@ get.idByOwner = async function(user_id) {
     let res
     try {
 
-        res = (await DatabaseManager.findMany('companies', { user_id }))[0];
+        res = await prisma.companies.findFirst({ where: { user_id: BigInt(user_id) } });
 
     }catch (err){
         client.emit('error', err)
@@ -203,7 +218,7 @@ get.idByOwner = async function(user_id) {
 }
 
 get.currentForUser = async function(user_id) {
-    const player = await DatabaseManager.get(user_id, 'players');
+    const player = await getPlayers(user_id);
     if (player.company != null) return get.companyById(player.company);
     return get.companyByOwnerId(user_id);
 }
@@ -212,7 +227,7 @@ get.companyByOwnerId = async function(user_id) {
     let res
     try {
 
-        res = (await DatabaseManager.findMany('companies', { user_id }))[0];
+        res = await prisma.companies.findFirst({ where: { user_id: BigInt(user_id) } });
 
     }catch (err){
         client.emit('error', err)
@@ -657,7 +672,7 @@ const jobs = {
 
             try {
                 
-                const players_utils = await DatabaseManager.get(user_id, 'players_utils')
+                const players_utils = await getPlayersUtils(user_id)
 
                 let processjson = players_utils.process
 
@@ -677,7 +692,7 @@ const jobs = {
 
                     if (!shopExtension) return
 
-                    const obj = await DatabaseManager.get(user_id, "machines")
+                    const obj = await getMachines(user_id)
 
                     let maq = shopExtension.getProduct(obj.machine);
 
@@ -703,7 +718,7 @@ const jobs = {
                             }
                         }
 
-                        function sendDrop() {
+                        async function sendDrop() {
 
                             const check0 = random(0, 100) < 35
                             const check1 = (random(0, tool.potency.max) < tool.potency.current)
@@ -725,7 +740,7 @@ const jobs = {
 
                                 if (!selectedRarity) selectedRarity = "common"
 
-                                const drops = itemExtension.getObj().drops.filter((r) => r.levelprocess)
+                                const drops = (await itemExtension.getObj()).drops.filter((r) => r.levelprocess)
 
                                 let filtereddrop = drops.filter((r) => r.rarity == selectedRarity && obj.level+6 >= r.levelprocess)
                                 
@@ -762,8 +777,8 @@ const jobs = {
 
                         }
 
-                        function processed() {
-                            sendDrop()
+                        async function processed() {
+                            await sendDrop()
                             processjson.in[indexProcess].fragments.current -= 1
 
                             processjson.tools[inprocs[inprocsi].tool].toollevel.exp += random(30, 130)
@@ -793,10 +808,10 @@ const jobs = {
                         }
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
-                            processed()
+                            await processed()
                             await cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
-                            processed()
+                            await processed()
                             await cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         }
                         
@@ -808,7 +823,7 @@ const jobs = {
 
                     }
 
-                    DatabaseManager.set(user_id, 'players_utils', 'process', processjson)
+                    await prisma.players_utils.update({ where: { user_id: BigInt(user_id) }, data: { process: processjson } })
 
                     const timetoone = company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
 
@@ -838,8 +853,8 @@ const jobs = {
 
     jobs.process.get = async function() {
 
-        const globalobj = await DatabaseManager.get(id, 'globals');
-        const processinglist = globalobj.processing
+        const globalobj = await getGlobals(id);
+        const processinglist = (globalobj.processing || []).map(String)
         
         if (processinglist == null) return []
     
@@ -861,7 +876,7 @@ const jobs = {
       const index = list.indexOf(user_id);
       if (index > -1) {
         list.splice(index, 1);
-        await DatabaseManager.set(id, 'globals', 'processing', list)
+        await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { processing: list.map(BigInt) } })
       }
 
       if (jobs.process.current.indexOf(user_id) > -1) {
@@ -876,7 +891,7 @@ const jobs = {
     
       if (!(list.includes(user_id))) {
         list.push(user_id)
-        await DatabaseManager.set(id, 'globals', 'processing', list)
+        await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { processing: list.map(BigInt) } })
         jobs.process.loopProcess(user_id)
       } 
     
@@ -1006,7 +1021,7 @@ company.create = async function(member, ob) {
         let code = `${makeid(6)}`;
         
         try {
-            const company = (await DatabaseManager.findMany('companies', { company_id: code }))[0];
+            const company = await prisma.companies.findFirst({ where: { company_id: code } });
             const embed = new Discord.EmbedBuilder();
 
             if (!company) {
@@ -1019,7 +1034,7 @@ company.create = async function(member, ob) {
                     .addFields({ name: `Informações da Empresa`, value: `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**` })
                     embed.setColor('#42f57e')
                     client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
-                    await DatabaseManager.deleteMany('companies', { user_id: member.id });
+                    await prisma.companies.deleteMany({ where: { user_id: BigInt(member.id) } });
                     await setCompanieInfo(member.id, code, 'company_id', code)
                     await setCompanieInfo(member.id, code, 'type', ob.type)
                     await setCompanieInfo(member.id, code, 'name', ob.name)

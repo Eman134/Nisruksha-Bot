@@ -9,8 +9,7 @@ const imagesService = require('../../_classes/services/images');
 const crateExtensionService = require('../../_classes/services/crateExtension');
 const clientService = require('../../_classes/services/clientService');
 const runtime = require('../../_classes/services/runtime');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -79,7 +78,8 @@ module.exports = {
             }
         }
 
-        let machineobj = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let machineobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
         let playerlevel = machineobj.level;
 
         let player = {
@@ -344,7 +344,7 @@ ${currinteraction ? currinteraction : ''}
 
                 const avatarurl = interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
 
-                let machineobj = await DatabaseManager.get(interaction.user.id, 'machines')
+                let machineobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
                 let playerlevel = machineobj.level;
 
                 const equipsdata = [

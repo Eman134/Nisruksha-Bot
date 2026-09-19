@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const DatabaseManagerClass = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const clientService = require('./clientService');
 const economyService = require('./economy');
 const machineService = require('./machines');
@@ -10,7 +10,6 @@ const { reportError } = require('../debug');
 const config = require("../config");
 class EventsService {
 constructor() {
-const database = new DatabaseManagerClass();
 const eco = economyService;
 const format = new UtilityService().format.bind(new UtilityService());
 const id = config.app.id;
@@ -22,7 +21,10 @@ const ms = utility.ms.bind(utility);
 const random = utility.random.bind(utility);
 const shopExtension = shopService;
 const townExtension = townsService;
-const DatabaseManager = database;
+const getGlobals = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.globals.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, keys: [], remember: [], processing: [] } });
+};
 
 const events = this;
 Object.assign(events, {
@@ -202,19 +204,19 @@ events.forceRace = async function() {
 
     events.race.interactionid = embedinteraction.id
 
-    const globalobj = await DatabaseManager.get(id, 'globals');
+    const globalobj = await getGlobals(id);
 
     const globalevents = globalobj.events
 
     if (globalevents == null) {
-        DatabaseManager.set(id, 'globals', "events", {
+        await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { events: {
             "race": events.race
-        })
+        } } })
     } else {
-        DatabaseManager.set(id, 'globals', "events", {
+        await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { events: {
             ...globalevents,
             "race": events.race
-        })
+        } } })
     }
 
     editRace(embedinteraction)
@@ -272,7 +274,7 @@ async function editRace(embedinteraction) {
             roxo: []
         }
 
-        const globalobj = await DatabaseManager.get(id, 'globals');
+        const globalobj = await getGlobals(id);
 
         const globalevents = globalobj.events
 
@@ -280,7 +282,7 @@ async function editRace(embedinteraction) {
 
         delete globalevents2.race
 
-        DatabaseManager.set(id, 'globals', "events", globalevents2)
+        await prisma.globals.update({ where: { user_id: BigInt(id) }, data: { events: globalevents2 } })
 
     }
 
@@ -291,7 +293,7 @@ events.load = async function() {
 
     let intervalEvents = (random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
-    const globalobj = await DatabaseManager.get(config.app.id, "globals")
+    const globalobj = await getGlobals(config.app.id)
     const globalevents = globalobj.events
 
     if (globalevents != null) {

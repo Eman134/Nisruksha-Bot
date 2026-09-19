@@ -1,10 +1,9 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const config = require('../config');
 const UtilityService = require('./utilityService');
 
 class TownsService {
     constructor() {
-        this.database = new DatabaseManager();
         const utility = new UtilityService();
         this.random = utility.random.bind(utility);
         this.population = { Nishigami: 0, Harotec: 0, Massibi: 0, Tyris: 0 };
@@ -18,7 +17,7 @@ class TownsService {
     }
 
     async loadPopulation() {
-        const towns = await this.database.findMany('towns');
+        const towns = await prisma.towns.findMany();
         for (const town of towns) {
             if (town.user_id && town.loc) this.population[this.getTownNameByNum(town.loc)]++;
         }
@@ -29,10 +28,11 @@ class TownsService {
     }
 
     async getTownNum(userId) {
-        const town = await this.database.get(userId, 'towns');
+        const key = BigInt(userId);
+        const town = await prisma.towns.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
         if (town.loc !== 0) return town.loc;
         const location = this.random(1, 4);
-        await this.database.set(userId, 'towns', 'loc', location);
+        await prisma.towns.update({ where: { user_id: key }, data: { loc: location } });
         this.population[this.getTownNameByNum(location)]++;
         return location;
     }
@@ -57,7 +57,8 @@ class TownsService {
     }
 
     async getTownTax(userId) {
-        const player = await this.database.get(userId, 'players');
+        const key = BigInt(userId);
+        const player = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
         return player.mvp != null || player.mvp > 0 ? 2 : 5;
     }
 

@@ -8,8 +8,7 @@ const companyService = require('../../_classes/services/company');
 const itemsService = require('../../_classes/services/items');
 const imagesService = require('../../_classes/services/images');
 const runtime = require('../../_classes/services/runtime');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -23,8 +22,9 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
             const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
@@ -291,7 +291,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
                     const avatarurl = interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 })
 
-                    let machineobj = await DatabaseManager.get(interaction.user.id, 'machines')
+                    let machineobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
                     let playerlevel = machineobj.level;
 
                     const equipsdata = [
@@ -351,7 +351,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 for (const r of array2) {
 					let rx = utility.random(0, 100)
                     if (rx < r.chance) {
-                        let d = itemsService.get(r.name);
+                        let d = await itemsService.get(r.name);
                         if (d) {
                             d.size = utility.random(1, r.maxdrops)
                             drops.push(d);
@@ -398,7 +398,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
             async function playerlost(member) {
                 
                 losedesc = (`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
-                DatabaseManager.set(member.id, "machines", "xp", 0)
+                const member_id = BigInt(member.id)
+                await prisma.machines.upsert({ where: { user_id: member_id }, update: { xp: 0 }, create: { user_id: member_id, xp: 0, slots: [] } })
                 await playersService.stamina.subset(member.id, 0)
 
             }

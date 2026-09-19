@@ -1,7 +1,6 @@
 const clientService = require('../../_classes/services/clientService');
 const Discord = require('discord.js');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -16,6 +15,7 @@ const DESCRIPTION_DATA_LENGTH = 1500;
 const FIELD_DATA_LENGTH = 800;
 const MAX_ADDITIONAL_FIELDS = 5;
 const MAX_ERROR_LENGTH = 1000;
+const delegates = { players: prisma.players, servers: prisma.servers, globals: prisma.globals, storage: prisma.storage, players_utils: prisma.players_utils, machines: prisma.machines, cooldowns: prisma.cooldowns, companies: prisma.companies, towns: prisma.towns, site: prisma.site };
 
 module.exports = {
     name: 'vervar',
@@ -27,18 +27,21 @@ module.exports = {
     async execute(interaction) {
         const id = interaction.options.getString('id');
         const table = interaction.options.getString('tabela');
+        if (!delegates[table?.toLowerCase()]) return interaction.reply({ content: 'Essa tabela não é permitida.' });
         const target = await resolveTarget(clientService.current, id);
 
         if (!target) {
             return interaction.reply({ content: 'id undefined' });
         }
+        if ((table.toLowerCase() === 'servers') !== (target.column === 'server_id')) {
+            return interaction.reply({ content: 'O identificador não corresponde à tabela permitida.' });
+        }
 
         const embed = new Discord.EmbedBuilder();
 
         try {
-            const rows = await DatabaseManager.findMany(table, {
-                [target.column]: target.entity.id
-            });
+            const targetId = BigInt(target.entity.id);
+            const rows = await delegates[table.toLowerCase()].findMany({ where: { [target.column]: targetId } });
             const row = rows[0];
 
             if (!row) {
@@ -46,7 +49,7 @@ module.exports = {
                     .setDescription(`⚠️ Nenhum dado encontrado para ${target.entity} em \`${table}\``)
                     .setColor(WARNING_COLOR);
             } else {
-                addDataToEmbed(embed, target.entity, table, JSON.stringify(row, null, '\t'));
+                addDataToEmbed(embed, target.entity, table, JSON.stringify(row, (_, value) => typeof value === 'bigint' ? value.toString() : value, '\t'));
             }
         } catch (error) {
             embed

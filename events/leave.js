@@ -1,5 +1,4 @@
-const Database = require("../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../_classes/prisma');
 const { reportError } = require('../_classes/debug');
 const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
@@ -13,7 +12,8 @@ module.exports = {
 
         const client = clientService.current;
 
-        DatabaseManager.set(guild.id, 'servers', 'lastcmd', 0, 'server_id')
+        const server_id = BigInt(guild.id);
+        await prisma.servers.upsert({ where: { server_id }, update: { lastcmd: 0 }, create: { server_id, lastcmd: 0 } });
 
 
         let owner = { id: '0', tag: '0#0'}

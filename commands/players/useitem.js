@@ -11,8 +11,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('item').setDescription('Escreva o nome do item que você deseja usar').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'usaritem',
@@ -26,13 +25,13 @@ module.exports = {
         
         let id = interaction.options.getString('item');
         
-        if (!itemsService.exists(id, 'drops')) {
+        if (!await itemsService.exists(id, 'drops')) {
             const embedtemp = await utility.sendError(interaction, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`/mochila\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-        const drop = itemsService.get(id)
+        const drop = await itemsService.get(id)
         id = id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
         
         if (!drop.usavel) {
@@ -41,7 +40,8 @@ module.exports = {
             return;
         }
         
-        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
+        const user_id = BigInt(interaction.user.id)
+        const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
             const embedtemp = await utility.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
             await interaction.reply({ embeds: [embedtemp]})
@@ -83,7 +83,7 @@ module.exports = {
             embed.fields = [];
             b.deferUpdate()
 
-            const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
+            const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
             if (obj2[drop.name.replace(/"/g, '')] <= 0) {
                 embed.setColor('#a60000');
                 embed.addFields({ name: '❌ Uso cancelado', value: `
@@ -130,7 +130,7 @@ module.exports = {
 
                             let profundidade = await machinesService.getDepth(interaction.user.id)
 
-                            let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
+                            let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                             let maqid = playerobj.machine;
                             const maq1 = shopService.getProduct(maqid);
                             const maq = utility.clone(maq1);
@@ -169,7 +169,7 @@ module.exports = {
                             
                             let armazemmax2 = await machinesService.storage.getMax(interaction.user.id);
                             embed2.fields = [];
-                            const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                            const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                             const arsize = await machinesService.storage.getSize(interaction.user.id);
 
                             await embed2.setDescription(`Minerador: ${interaction.user}`);

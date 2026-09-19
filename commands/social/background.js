@@ -8,8 +8,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('link').setDescription('Coloque um link de uma imagem para background').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
   name: 'background',
@@ -38,7 +37,8 @@ module.exports = {
           return;
         }
 
-        DatabaseManager.set(interaction.user.id, 'players', 'bglink', bglink)
+        const user_id = BigInt(interaction.user.id)
+        await prisma.players.upsert({ where: { user_id }, update: { bglink }, create: { user_id, bglink, frames: [], badges: [] } })
 
         const embed = new Discord.EmbedBuilder()
         .setColor('#8adb5e')

@@ -11,8 +11,7 @@ const crateExtensionService = require('../../_classes/services/crateExtension');
 const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('chave').setDescription('Coloque a chave para resgatar a recompensa da mesma').setRequired(true))
 
@@ -27,7 +26,8 @@ module.exports = {
 
         
         async function getItem() {
-            const globalobj = await DatabaseManager.get(config.app.id, 'globals')
+            const global_id = BigInt(config.app.id)
+            const globalobj = await prisma.globals.upsert({ where: { user_id: global_id }, update: { user_id: global_id }, create: { user_id: global_id, keys: [], remember: [], processing: [] } })
                 
             const objgkeys = globalobj.keys || [];
         
@@ -89,13 +89,14 @@ module.exports = {
             
             switch (item.form.type) {
                 case 0:
-                    const pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                    const user_id = BigInt(interaction.user.id)
+                    const pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
                     const perm = pobj.perm
                     badgesService.add(interaction.user.id, 1)
                     await framesService.add(interaction.user.id, 3)
                     await framesService.add(interaction.user.id, 4)
-                    DatabaseManager.set(interaction.user.id, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
-                    if (perm == 1) DatabaseManager.set(interaction.user.id, 'players', 'perm', 3)
+                    await prisma.players.update({ where: { user_id }, data: { mvp: pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time) } })
+                    if (perm == 1) await prisma.players.update({ where: { user_id }, data: { perm: 3 } })
                     break;
                 case 1:
                     economyService.money.add(interaction.user.id, item.size)
@@ -112,7 +113,7 @@ module.exports = {
                     break;
             }
 
-            await DatabaseManager.set(config.app.id, 'globals', 'keys', objgkeys)
+            await prisma.globals.update({ where: { user_id: global_id }, data: { keys: objgkeys } })
 
             embed.setColor('#5bff45');
             embed.addFields({ name: '✅ Chave usada com sucesso', value: `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, inline: `` })

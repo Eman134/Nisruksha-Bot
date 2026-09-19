@@ -11,8 +11,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('código').setDescription('Escreva um código de apoiador').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'apoiar',
@@ -95,7 +94,9 @@ async function updateInviteJson(member, owner) {
 
     framesService.add(owner.id, 14)
 
-    DatabaseManager.set(member.id, 'players_utils', 'invite', invitejson1)
-    DatabaseManager.set(owner.id, 'players_utils', 'invite', invitejson2)
+    const member_id = BigInt(member.id)
+    const owner_id = BigInt(owner.id)
+    await prisma.players_utils.upsert({ where: { user_id: member_id }, update: { invite: invitejson1 }, create: { user_id: member_id, invite: invitejson1 } })
+    await prisma.players_utils.upsert({ where: { user_id: owner_id }, update: { invite: invitejson2 }, create: { user_id: owner_id, invite: invitejson2 } })
 
 }

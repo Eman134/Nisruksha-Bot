@@ -1,4 +1,4 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const clientService = require('./clientService');
 const itemService = require('./items');
 const UtilityService = require('./utilityService');
@@ -13,7 +13,6 @@ function shuffle(array) {
 
 class CrateService {
     constructor() {
-        this.database = new DatabaseManager();
         this.utility = new UtilityService();
         this.obj = {};
         this.load();
@@ -28,8 +27,9 @@ class CrateService {
     }
 
     async getCrates(userId) {
-        const storage = await this.database.get(userId, 'storage');
-        return storage ? Object.keys(this.obj).map((key) => `${key};${storage[`crate:${key}`]}`) : [];
+        const user_id = BigInt(userId);
+        const storage = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
+        return Object.keys(this.obj).map((key) => `${key};${storage[`crate_${key}`]}`);
     }
 
     getReward(id, size = 1) {
@@ -62,8 +62,12 @@ class CrateService {
     }
 
     async give(userId, id, amount) {
-        const storage = await this.database.get(userId, 'storage');
-        return this.database.set(userId, 'storage', `"crate:${id}"`, storage[`crate:${id}`] + amount);
+        const user_id = BigInt(userId);
+        return prisma.storage.upsert({
+            where: { user_id },
+            update: { [`crate_${id}`]: { increment: amount } },
+            create: { user_id, [`crate_${id}`]: amount }
+        });
     }
 }
 

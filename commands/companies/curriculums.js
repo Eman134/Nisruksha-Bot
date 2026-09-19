@@ -7,8 +7,7 @@ const clientService = require('../../_classes/services/clientService');
 const config = require('../../_classes/config');
 const companyInfo = require('../../_classes/services/companyInfo');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 
@@ -108,7 +107,8 @@ module.exports = {
             await companyInfo.set(interaction.user.id, company.company_id, 'curriculum', array)
             await companyInfo.set(interaction.user.id, company.company_id, 'workers', workers)
 
-            DatabaseManager.set(usr.id, 'players', 'company', company.company_id)
+            const user_id = BigInt(usr.id)
+            await prisma.players.upsert({ where: { user_id }, update: { company: company.company_id }, create: { user_id, company: company.company_id, frames: [], badges: [] } })
             return;
 
         } else if (subCmd == 'negar') {
@@ -164,7 +164,7 @@ module.exports = {
             
             for (const r of array) {
                 let usr = await clientService.current.users.fetch(r.split(";")[0])
-                const pobjmaq = await DatabaseManager.get(usr.id, 'machines')
+                const pobjmaq = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
                 embed.addFields({ name: `📰 Nº ${array.indexOf(r)+1}`, value: `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${compactTime(Date.now()-parseInt(r.split(";")[1]))}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\`` })
             }
 

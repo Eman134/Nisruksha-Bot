@@ -10,8 +10,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Mencione o membro que deseja demitir').setRequired(true))
 .addStringOption(option => option.setName('motivo').setDescription('Explique o motivo da demoção').setRequired(true))
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -114,8 +113,9 @@ module.exports = {
             }
             
             companyInfo.set(interaction.user.id, company2.company_id, 'workers', list)
-            DatabaseManager.set(member.id, 'players', 'company', null)
-            DatabaseManager.set(member.id, 'players', 'companyact', null)
+            const user_id = BigInt(member.id)
+            await prisma.players.upsert({ where: { user_id }, update: { company: null }, create: { user_id, company: null, frames: [], badges: [] } })
+            await prisma.players.upsert({ where: { user_id }, update: { companyact: null }, create: { user_id, companyact: null, frames: [], badges: [] } })
             
         });
         

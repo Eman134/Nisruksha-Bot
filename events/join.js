@@ -1,5 +1,4 @@
-const Database = require("../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../_classes/prisma');
 const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
 
@@ -9,7 +8,8 @@ module.exports = {
     execute: async (guild) => {
         const client = clientService.current;
 
-        const sv = await DatabaseManager.get(guild.id, 'servers', 'server_id');
+        const server_id = BigInt(guild.id);
+        const sv = await prisma.servers.upsert({ where: { server_id }, update: { server_id }, create: { server_id } });
         
         if (sv.status == 2) {
 
@@ -33,7 +33,7 @@ module.exports = {
         embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)
         .setColor('#55eb34')
         client.channels.cache.get('746735962196803584').send({ embeds: [embed]});;
-        DatabaseManager.set(guild.id, 'servers', 'lastcmd', Date.now(), 'server_id')
+        await prisma.servers.update({ where: { server_id }, data: { lastcmd: Date.now() } });
 
     }
 }

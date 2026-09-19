@@ -9,9 +9,9 @@ const utility = new UtilityService();
 const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const clientService = require('../../_classes/services/clientService');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
+const storageField = (value) => String(value).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -41,14 +41,15 @@ module.exports = {
         await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da máquina` })
         const embedinteraction = await interaction.fetchReply()
 
-        const machinesobj = await DatabaseManager.get(member.id, 'machines')
+        const user_id = BigInt(member.id)
+        const machinesobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
         
-        const memberobj = await DatabaseManager.get(member.id, 'players')
+        const memberobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const profundidade = await machinesService.getDepth(member.id)
 
         const machineid = machinesobj.machine;
-        const machineproduct = shopService.getProduct(machineid);
+        const machineproduct = await shopService.getProduct(machineid);
 
         const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
 
@@ -67,12 +68,14 @@ module.exports = {
             if (!(equippedchips[slot] == null || equippedchips[slot] == undefined|| equippedchips[slot] == 0)) {
 
                 const eqslot = typeof equippedchips[slot] === 'object' ? equippedchips[slot].id : equippedchips[slot]
-                placa = shopService.getProduct(eqslot);
+                placa = await shopService.getProduct(eqslot);
     
                 equippedchips.length == 1 ? equippedchips = [] : equippedchips.splice(slot, 1);
             
-                await DatabaseManager.increment(member.id, 'storage', `"piece:${placa.id}"`, 1)
-                await DatabaseManager.set(member.id, 'machines', `slots`, equippedchips)
+                const pieceField = storageField(`piece:${placa.id}`)
+                await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
+                await prisma.storage.update({ where: { user_id }, data: { [pieceField]: { increment: 1 } } })
+                await prisma.machines.update({ where: { user_id }, data: { slots: equippedchips } })
                 equippedchips = await itemsService.getEquippedChips(member.id);
     
             }
@@ -388,7 +391,7 @@ module.exports = {
 
             const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
             
-            const pObj = await DatabaseManager.get(member.id, 'players')
+            const pObj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             perm = pObj.perm
             
             embed2.addFields({ name: `<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, value: `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!` })
@@ -466,11 +469,11 @@ module.exports = {
                 await economyService.addToHistory(member.id, `Manutenção ${micon.length > 1 ? clientService.current.emojis.cache.get(micon) : micon} | - ${utility.format(price)}`)
     
                 if (repairType == 'durability' || repairType == 'refrigeration') {
-                    await DatabaseManager.set(member.id, 'machines', repairType, max)
+                    await prisma.machines.update({ where: { user_id }, data: { [repairType]: max } })
                 } else if (repairType == 'pressure') {
-                    await DatabaseManager.set(member.id, 'machines', 'pressure', Math.round(max/2))
+                    await prisma.machines.update({ where: { user_id }, data: { pressure: Math.round(max/2) } })
                 } else if (repairType == 'pollutants') {
-                    await DatabaseManager.set(member.id, 'machines', 'pollutants', 0)
+                    await prisma.machines.update({ where: { user_id }, data: { pollutants: 0 } })
                 }
     
                 var maintenance = await machinesService.getMaintenance(member.id)
@@ -535,7 +538,8 @@ module.exports = {
         async function equipChip(chipe) {
             try {
                 const chips = await itemsService.getChips(interaction.user.id);
-                const playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
+                const interaction_user_id = BigInt(interaction.user.id)
+                const playerobj = await prisma.machines.upsert({ where: { user_id: interaction_user_id }, update: { user_id: interaction_user_id }, create: { user_id: interaction_user_id, slots: [] } });
                 
                 let contains = chips.length >= chipe;
                 
@@ -556,7 +560,9 @@ module.exports = {
                 }
 
                 await itemsService.givePiece(interaction.user.id, { id: placa.id, durability: placa.durability });
-                await DatabaseManager.set(interaction.user.id, 'storage', `"piece:${placa.id}"`, placa.size-1)
+                const pieceField = storageField(`piece:${placa.id}`)
+                await prisma.storage.upsert({ where: { user_id: interaction_user_id }, update: { user_id: interaction_user_id }, create: { user_id: interaction_user_id } })
+                await prisma.storage.update({ where: { user_id: interaction_user_id }, data: { [pieceField]: placa.size-1 } })
                 equippedchips = await itemsService.getEquippedChips(member.id);
                 const newchips = await itemsService.getChips(interaction.user.id);
                 reworkEmbed(newchips)

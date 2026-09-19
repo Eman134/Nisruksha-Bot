@@ -2,8 +2,7 @@ const playersService = require('../../_classes/services/players');
 const shopService = require('../../_classes/services/shop');
 const imagesService = require('../../_classes/services/images');
 const framesService = require('../../_classes/services/frames');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -32,9 +31,10 @@ module.exports = {
 
         await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações do perfil` })
 
-        const playerobj = await DatabaseManager.get(member.id, 'machines')
-        const obj = await DatabaseManager.get(member.id, "players")
-        const players_utils = await DatabaseManager.get(member.id, "players_utils")
+        const user_id = BigInt(member.id)
+        const playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
+        const obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        const players_utils = await prisma.players_utils.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         const mastery = await playersService.getMastery(member.id)
         const maqimg = shopService.getProduct(playerobj.machine).img;
         let bio = obj.bio;
@@ -62,7 +62,7 @@ module.exports = {
                 badges: (!obj.badges || obj.badges == null || obj.badges.length == 0 ? undefined : obj.badges)
             },
             frame: (obj.frames != null && obj.frames[0] != 0 ? framesService.get(obj.frames[0]) : undefined),
-            reps: obj.reps,
+            reps: Number(obj.reps),
             level: playerobj.level,
             xp: playerobj.xp,
             perm,

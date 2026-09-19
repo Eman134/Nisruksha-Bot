@@ -1,14 +1,24 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 
 class CompanyInfoService {
     constructor() {
-        this.database = new DatabaseManager();
     }
 
     async set(userId, companyId, field, value) {
-        await this.database.setIfNotExists(userId, 'companies');
-        await this.database.set(userId, 'companies', 'company_id', companyId);
-        return this.database.set(userId, 'companies', field, value);
+        const user_id = BigInt(userId);
+        const company_id = String(companyId);
+        return prisma.companies.upsert({
+            where: { company_id_user_id: { company_id, user_id } },
+            update: { [field]: value },
+            create: {
+                company_id,
+                user_id,
+                curriculum: [],
+                workers: [],
+                rend: [],
+                [field]: value
+            }
+        });
     }
 }
 

@@ -1,20 +1,20 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const { readFileSync } = require('fs')
 
 class FramesService {
 constructor() {
-    this.database = new DatabaseManager();
     this.json = [];
 }
 
 async add(user_id, id) {
     this.load()
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     const temphas = await this.has(user_id, id)
     if (temphas) return "Já possui " + id
-    let tempframes = (obj.frames == null ? [] : obj.frames)
+    let tempframes = (obj.frames == null ? [] : obj.frames.map(String))
     tempframes.unshift(id)
-    await this.database.set(user_id, "players", "frames", tempframes)
+    await prisma.players.update({ where: { user_id: key }, data: { frames: tempframes.map(BigInt) } })
 
     return "Added " + id
 }
@@ -23,9 +23,10 @@ async reforge(user_id, id) {
     
     this.load()
 
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
 
-    let tempframes = (obj.frames == null ? [] : obj.frames)
+    let tempframes = (obj.frames == null ? [] : obj.frames.map(String))
 
     if (tempframes.includes('0')) {
         const index = tempframes.indexOf(0 + '');
@@ -41,32 +42,34 @@ async reforge(user_id, id) {
 
     tempframes.unshift(id)
 
-    await this.database.set(user_id, "players", "frames", tempframes)
+    await prisma.players.update({ where: { user_id: key }, data: { frames: tempframes.map(BigInt) } })
 
     return "Reforged " + id
 }
 
 async remove(user_id, id) {
     this.load()
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     const temphas = await this.has(user_id, id)
     if (!temphas) return
-    let tempframes = (obj.frames == null ? [] : obj.frames)
+    let tempframes = (obj.frames == null ? [] : obj.frames.map(String))
     const index = tempframes.indexOf(id + '');
     if (index > -1) {
         tempframes.splice(index, 1);
     }
-    await this.database.set(user_id, "players", "frames", tempframes)
+    await prisma.players.update({ where: { user_id: key }, data: { frames: tempframes.map(BigInt) } })
 
     return "Removed " + id
 }
 
 async has(user_id, id) {
     this.load()
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     let has = false
     if (obj.frames != null && obj.frames.length > 0) {
-        if (obj.frames.includes(id) || obj.frames.includes(id + '')) has = true
+        if (obj.frames.some((frame) => String(frame) === String(id))) has = true
     }
     return has
 }

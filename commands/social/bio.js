@@ -5,8 +5,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('bio').setDescription('Escreva uma pequena biografia sobre você').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'sobremim',
@@ -25,7 +24,8 @@ module.exports = {
             return;
         }
 
-        DatabaseManager.set(interaction.user.id, "players", "bio", bio)
+        const user_id = BigInt(interaction.user.id)
+        await prisma.players.upsert({ where: { user_id }, update: { bio }, create: { user_id, bio, frames: [], badges: [] } })
 		const embed = new Discord.EmbedBuilder()
 	    .setColor('#8adb5e')
         .setDescription(`Sua biografia foi definida para:

@@ -4,8 +4,7 @@ const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja os cooldowns ativos de um membro'))
 
@@ -25,7 +24,7 @@ module.exports = {
         let blacklist = [ 'daily2' ]
 
         try {
-            const columns = await DatabaseManager.columns('cooldowns');
+            const columns = prisma._runtimeDataModel.models.cooldowns.fields.map((field) => field.name);
 
             for (const column of columns.filter((name) => name !== 'user_id')) {
                 const cd = await playersService.cooldown.check(member.id, column)

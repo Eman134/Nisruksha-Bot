@@ -7,8 +7,7 @@ const utility = new UtilityService();
 const companyService = require('../../_classes/services/company');
 const economyService = require('../../_classes/services/economy');
 const companyInfo = require('../../_classes/services/companyInfo');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -22,7 +21,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const check = await playersService.cooldown.check(interaction.user.id, "sellterrain");
         if (check) {
@@ -101,7 +101,7 @@ module.exports = {
             }
 
             let company;
-            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             
             if (await companyService.check.isWorker(interaction.user.id)) {
                 company = await companyService.get.companyById(pobj.company);
@@ -131,7 +131,7 @@ module.exports = {
             playersService.cooldown.set(interaction.user.id, "sellterrain", 0);
 
             delete allplots[townnum.toString()]
-            DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
+            await prisma.players.update({ where: { user_id }, data: { plots: allplots } })
             
             if (company == undefined || interaction.user.id == owner.id) return
             let rend = company.rend || []

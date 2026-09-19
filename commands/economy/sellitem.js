@@ -9,8 +9,7 @@ const economyService = require('../../_classes/services/economy');
 const companyInfo = require('../../_classes/services/companyInfo');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de algum item ou "tudo" para vender').setRequired(true))
 .addStringOption(option => option.setName('item').setDescription('Selecione um item para venda').setRequired(false))
@@ -35,7 +34,7 @@ module.exports = {
             return;
         }
 
-        if (item != null && !itemsService.exists(item, 'drops')) {
+        if (item != null && !await itemsService.exists(item, 'drops')) {
             const embedtemp = await utility.sendError(interaction, `Você precisa identificar um item EXISTENTE para venda!\nVerifique os itens disponíveis utilizando \`/mochila\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
@@ -60,14 +59,15 @@ module.exports = {
         let id = '';
         let drop
         let realname = ""
-        if (item != null) {id = item; drop = itemsService.get(id) }
+        if (item != null) {id = item; drop = await itemsService.get(id) }
         if (drop) realname = drop.name
         if (quantia == 'tudo' && item == null) {
             type = 0;
         }
 
-        let obj = itemsService.getObj();
-        const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
+        let obj = await itemsService.getObj();
+        const user_id = BigInt(interaction.user.id)
+        const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
         if (quantia == 'tudo' && item != null) {
 
@@ -133,7 +133,7 @@ module.exports = {
         total = Math.round(total);
 
         let company;
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         
         if (await companyService.check.isWorker(interaction.user.id)) {
             company = await companyService.get.companyById(pobj.company);
@@ -182,7 +182,7 @@ module.exports = {
                 return;
             }
 
-            let obj3 = await DatabaseManager.get(interaction.user.id, 'storage')
+            let obj3 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
 
             switch (type) {
                 case 0:
@@ -230,7 +230,7 @@ module.exports = {
             }
 
             
-            pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             
             if (await companyService.check.isWorker(interaction.user.id)) {
                 company = await companyService.get.companyById(pobj.company);

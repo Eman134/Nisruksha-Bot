@@ -7,8 +7,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para saque').setRequired(true))
 
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'sacar',
@@ -92,8 +91,9 @@ reacted = true;
                     economyService.money.add(interaction.user.id, total);
                     economyService.bank.remove(interaction.user.id, total);
                     economyService.addToHistory(interaction.user.id, `📤 Saque | - ${utility.format(total)} ${utility.moneyemoji}`)
-                    let obj = await DatabaseManager.get(interaction.user.id, "players");
-                    DatabaseManager.set(interaction.user.id, "players", "saq", obj.saq + 1);
+                    const user_id = BigInt(interaction.user.id)
+                    let obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+                    await prisma.players.update({ where: { user_id }, data: { saq: obj.saq + 1 } });
                 }
             }
             interaction.editReply({ embeds: [embed], components: [] });

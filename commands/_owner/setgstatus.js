@@ -1,8 +1,7 @@
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const config = require('../../_classes/config');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -39,8 +38,8 @@ module.exports = {
 
         interaction.reply({ content: `O status global do bot foi modificado para: \`${status}\` ${ob[status]}` })
 
-        DatabaseManager.set(config.app.id, 'globals', 'status', status)
-        DatabaseManager.set(config.app.id, 'globals', 'man', motivo)
+        const user_id = BigInt(config.app.id)
+        await prisma.globals.upsert({ where: { user_id }, update: { status, man: motivo }, create: { user_id, status, man: motivo, keys: [], remember: [], processing: [] } })
 
 	}
 };

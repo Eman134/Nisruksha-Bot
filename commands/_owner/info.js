@@ -3,8 +3,7 @@ const Discord = require('discord.js');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'info',
@@ -57,7 +56,7 @@ async function send(interaction) {
 
         let array = [];
         try {
-            array = await DatabaseManager.findMany('servers');
+            array = await prisma.servers.findMany();
         } catch (err) {
             clientService.current.emit('error', err)
         }
@@ -73,7 +72,7 @@ async function send(interaction) {
         var rank1 = 1;
         for (var i = 0; i < array1.length; i++) {
 
-            let server = await clientService.current.guilds.cache.get(array1[i].server_id);
+            let server = await clientService.current.guilds.cache.get(String(array1[i].server_id));
             if (server) {
 
                 array1[i].server = server;
@@ -83,7 +82,7 @@ async function send(interaction) {
             } else {
                 console.log('remove ' + array1[i].server_id)
                 try {
-                    await DatabaseManager.set(array1[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
+                    await prisma.servers.update({ where: { server_id: array1[i].server_id }, data: { lastcmd: 0 } });
                 } catch (err) {
                     clientService.current.emit('error', err)
                 }
@@ -102,7 +101,7 @@ async function send(interaction) {
         var rank2 = 1;
         for (var i = 0; i < array2.length; i++) {
 
-            let server = await clientService.current.guilds.cache.get(array2[i].server_id);
+            let server = await clientService.current.guilds.cache.get(String(array2[i].server_id));
             if (server) {
                 array2[i].server = server;
                 array2[i].rank = rank2;
@@ -110,7 +109,7 @@ async function send(interaction) {
                 rank2++;
             } else {
                 try {
-                    await DatabaseManager.set(array2[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
+                    await prisma.servers.update({ where: { server_id: array2[i].server_id }, data: { lastcmd: 0 } });
                 } catch (err) {
                     clientService.current.emit('error', err)
                 }

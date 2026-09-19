@@ -1,4 +1,4 @@
-const DatabaseManager = new (require('../_classes/manager/DatabaseManager'))();
+const prisma = require('../_classes/prisma');
 const config = require('../_classes/config');
 const Discord = require('discord.js');
 const clientService = require('../_classes/services/clientService');
@@ -57,9 +57,12 @@ async function replyInteractionError(interaction, command, error) {
 }
 
 async function checkAll(interaction, { req, mastery: masteryRequired = 0, companytype }) {
-    const player = await DatabaseManager.get(interaction.user.id, 'players');
-    const server = await DatabaseManager.get(interaction.guild.id, 'servers', 'server_id');
-    const global = await DatabaseManager.get(config.app.id, 'globals');
+    const user_id = BigInt(interaction.user.id);
+    const server_id = BigInt(interaction.guild.id);
+    const global_id = BigInt(config.app.id);
+    const player = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+    const server = await prisma.servers.upsert({ where: { server_id }, update: { server_id }, create: { server_id } });
+    const global = await prisma.globals.upsert({ where: { user_id: global_id }, update: { user_id: global_id }, create: { user_id: global_id, keys: [], remember: [], processing: [] } });
     const client = clientService.current;
 
     if (config.app.id === '726943606761324645' && interaction.channel.id !== '703293776788979812' && player.perm < 4) {
@@ -132,8 +135,8 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
             .setTitle('Opa, deslizou ai?')
             .setDescription('Seu **MVP** acaba de ter seu tempo expirado!');
         await interaction.channel.send({ embeds: [embed] });
-        await DatabaseManager.set(interaction.user.id, 'players', 'mvp', null);
-        if (player.perm === 3) await DatabaseManager.set(interaction.user.id, 'players', 'perm', 1);
+        await prisma.players.update({ where: { user_id }, data: { mvp: null } });
+        if (player.perm === 3) await prisma.players.update({ where: { user_id }, data: { perm: 1 } });
     }
 
     if (await playersService.cooldown.check(interaction.user.id, 'global')) {
@@ -147,10 +150,10 @@ async function checkAll(interaction, { req, mastery: masteryRequired = 0, compan
     playersService.cooldown.set(interaction.user.id, 'global', Math.round((4500 - player.perm * 500) / 1000));
     runtime.commandsExecuted += 1;
     runtime.playersSeen.add(String(interaction.user.id));
-    await DatabaseManager.increment(config.app.id, 'globals', 'totalcmd', 1);
-    await DatabaseManager.increment(interaction.user.id, 'players', 'cmdsexec', 1);
-    await DatabaseManager.increment(interaction.guild.id, 'servers', 'cmdsexec', 1, 'server_id');
-    await DatabaseManager.set(interaction.guild.id, 'servers', 'lastcmd', Date.now(), 'server_id');
+    await prisma.globals.update({ where: { user_id: global_id }, data: { totalcmd: { increment: BigInt(1) } } });
+    await prisma.players.update({ where: { user_id }, data: { cmdsexec: { increment: 1 } } });
+    await prisma.servers.update({ where: { server_id }, data: { cmdsexec: { increment: 1 } } });
+    await prisma.servers.update({ where: { server_id }, data: { lastcmd: Date.now() } });
 
     const masteryCooldown = await playersService.cooldown.check(interaction.user.id, 'mastery');
     if (!masteryCooldown) await playersService.addMastery(interaction.user.id, masteryRequired + 1);

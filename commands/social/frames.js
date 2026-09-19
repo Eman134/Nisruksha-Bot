@@ -4,9 +4,8 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const playersService = require('../../_classes/services/players');
 const framesService = require('../../_classes/services/frames');
-const Database = require('../../_classes/manager/DatabaseManager');
 const { reportError } = require('../../_classes/debug');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'molduras',
@@ -17,7 +16,8 @@ module.exports = {
 	async execute(interaction) {
 
                 
-        const obj = await DatabaseManager.get(interaction.user.id, "players")
+        const user_id = BigInt(interaction.user.id)
+        const obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         let frames = obj.frames
 

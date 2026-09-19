@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const crateService = require('./crateExtension');
 const imageService = require('./images');
 const shopService = require('./shop');
@@ -7,7 +7,6 @@ const UtilityService = require('./utilityService');
 
 class PlayersService {
     constructor() {
-        this.database = new DatabaseManager();
         this.utility = new UtilityService();
         this.cooldown = {};
         this.stamina = {};
@@ -17,13 +16,13 @@ class PlayersService {
 
     async execExp(interaction, xpp, pure) {
         if (!interaction || xpp == null) return;
-        const machine = await this.database.get(interaction.user.id, 'machines');
+        const user_id = BigInt(interaction.user.id);
+        const machine = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
         const product = shopService.getProduct(machine.machine);
         const xp = pure ? xpp : Math.round((xpp * (product.tier + 1)) / 1.35);
 
         if (machine.xp + xp >= machine.level * 1980) {
-            await this.database.set(interaction.user.id, 'machines', 'level', machine.level + 1);
-            await this.database.set(interaction.user.id, 'machines', 'xp', 0);
+            await prisma.machines.update({ where: { user_id }, data: { level: machine.level + 1, xp: 0 } });
             const slot = (machine.level + 1) % 6 === 0 && ((machine.level + 1) / 6) < 5;
             const levelupImage = await imageService.imagegens.get('levelup.js')({
                 level: machine.level,
@@ -38,17 +37,18 @@ class PlayersService {
             await crateService.give(interaction.user.id, 2, 3);
             await interaction.channel.send({ embeds: [embed], mention: true, files: [levelupImage] });
         } else {
-            await this.database.increment(interaction.user.id, 'machines', 'xp', xp);
+            await prisma.machines.update({ where: { user_id }, data: { xp: { increment: xp } } });
         }
-        await this.database.increment(interaction.user.id, 'machines', 'totalxp', xp);
+        await prisma.machines.update({ where: { user_id }, data: { totalxp: { increment: xp } } });
         return xp;
     }
 
     configureCooldown() {
         this.cooldown.check = async (userId, name) => (await this.cooldown.get(userId, name)) >= 1;
         this.cooldown.get = async (userId, name) => {
-            const record = await this.database.get(userId, 'cooldowns');
-            if (!record || record === '0;0') {
+            const key = BigInt(userId);
+            const record = await prisma.cooldowns.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+            if (!record || record[name] === '0;0') {
                 await this.cooldown.set(userId, name, 0);
                 return 0;
             }
@@ -58,7 +58,11 @@ class PlayersService {
             if (!Number.isFinite(startedAt) || !Number.isFinite(duration)) return 0;
             return Math.round(duration - ((Date.now() - startedAt) / 1000)) * 1000;
         };
-        this.cooldown.set = (userId, name, milliseconds) => this.database.set(userId, 'cooldowns', name, `${Date.now()};${milliseconds}`);
+        this.cooldown.set = (userId, name, milliseconds) => {
+            const user_id = BigInt(userId);
+            const value = `${Date.now()};${milliseconds}`;
+            return prisma.cooldowns.upsert({ where: { user_id }, update: { [name]: value }, create: { user_id, [name]: value } });
+        };
         this.cooldown.message = async (interaction, name, text) => {
             const embed = new Discord.EmbedBuilder()
                 .setColor('#b8312c')
@@ -69,25 +73,33 @@ class PlayersService {
     }
 
     async addMastery(userId, value) {
-        return this.database.increment(userId, 'players', 'mastery', value);
+        const user_id = BigInt(userId);
+        return prisma.players.upsert({ where: { user_id }, update: { mastery: { increment: BigInt(value) } }, create: { user_id, frames: [], badges: [], mastery: BigInt(value) } });
     }
 
     async getMastery(userId) {
-        const player = await this.database.get(userId, 'players');
-        return player.mastery;
+        const user_id = BigInt(userId);
+        const player = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+        return Number(player.mastery);
     }
 
     configureStamina() {
         this.stamina.get = async (userId) => {
-            const player = await this.database.get(userId, 'players');
-            const elapsed = Math.round(30000 - ((Date.now() - player.stamina) / 1000));
+            const user_id = BigInt(userId);
+            const player = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+            const elapsed = Math.round(30000 - ((Date.now() - Number(player.stamina)) / 1000));
             return elapsed < 1 ? 1000 : 1000 - ((elapsed - (elapsed % 30)) / 30) - 1;
         };
         this.stamina.time = async (userId) => {
-            const player = await this.database.get(userId, 'players');
-            return Math.round(30000 - ((Date.now() - player.stamina) / 1000)) * 1000;
+            const user_id = BigInt(userId);
+            const player = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+            return Math.round(30000 - ((Date.now() - Number(player.stamina)) / 1000)) * 1000;
         };
-        this.stamina.set = (userId, value) => this.database.set(userId, 'players', 'stamina', value);
+        this.stamina.set = (userId, value) => {
+            const user_id = BigInt(userId);
+            const stamina = BigInt(value);
+            return prisma.players.upsert({ where: { user_id }, update: { stamina }, create: { user_id, stamina, frames: [], badges: [] } });
+        };
         this.stamina.subset = (userId, value) => this.stamina.set(userId, Date.now() - (30000 * value));
         this.stamina.remove = async (userId, value) => this.stamina.subset(userId, await this.stamina.get(userId) - value);
         this.stamina.add = async (userId, value) => this.stamina.subset(userId, await this.stamina.get(userId) + value);

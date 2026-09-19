@@ -7,8 +7,7 @@ const townsService = require('../../_classes/services/towns');
 const config = require('../../_classes/config');
 const companyInfo = require('../../_classes/services/companyInfo');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('empresa').setDescription('Digite o código da empresa que deseja enviar o currículo').setRequired(true))
@@ -63,7 +62,8 @@ module.exports = {
             return;
         }
 
-        const pobjmaq = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        const pobjmaq = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobjmaq.level < 3) {
             const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para enviar currículo!\nSeu nível atual: **${pobjmaq.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
@@ -173,7 +173,7 @@ module.exports = {
                 embed.setColor('#5bff45')
                 let botowner = await clientService.current.users.fetch(config.owner[0])
                 try {
-                    let companyowner = await clientService.current.users.fetch(companyobj.user_id)
+                    let companyowner = await clientService.current.users.fetch(String(companyobj.user_id))
                     companyInfo.set(companyowner.id, companyobj.company_id, "curriculum", clist)
                     const embed2 = new Discord.EmbedBuilder()
                     embed2.setColor('#5bff45')

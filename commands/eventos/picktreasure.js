@@ -7,8 +7,7 @@ const cacheListsService = require('../../_classes/services/cacheLists');
 const playersService = require('../../_classes/services/players');
 const crateExtensionService = require('../../_classes/services/crateExtension');
 const clientService = require('../../_classes/services/clientService');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -35,7 +34,8 @@ module.exports = {
             return;
         }
         
-        let obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+        const user_id = BigInt(interaction.user.id)
+        let obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
 
         let prof = 0
         const init = Date.now()
@@ -70,7 +70,7 @@ module.exports = {
                 xp = await playersService.execExp(interaction, xp);
                 
                 embed.fields = [];
-                const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
 
                 let stop = false
 

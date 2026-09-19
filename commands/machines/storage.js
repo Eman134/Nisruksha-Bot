@@ -9,8 +9,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja o armazém de algum membro'))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'armazém',
@@ -27,7 +26,8 @@ module.exports = {
         let size = await machinesService.storage.getSize(member.id);
         let max = await machinesService.storage.getMax(member.id);
         let price = await machinesService.storage.getPrice(member.id);
-        let obj = await DatabaseManager.get(member.id, 'storage');
+        const user_id = BigInt(member.id)
+        let obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
         let lvl = obj.storage;
         
 		const embed = new Discord.EmbedBuilder()
@@ -75,8 +75,8 @@ module.exports = {
                 } else {
                     embed.setColor('#5bff45');
                     pago += price;
-                    await DatabaseManager.set(interaction.user.id, 'storage', 'storage', lvl+r1)
-                    let obj55 = await DatabaseManager.get(member.id, 'storage');
+                    await prisma.storage.update({ where: { user_id }, data: { storage: lvl+r1 } })
+                    let obj55 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
                     let lvl55 = obj55.storage;
                     embed.addFields({ name: '<:upgrade:738434840457642054> Aprimoramento realizado com sucesso!', value: `Peso máximo: **${utility.format(max)}g (+${r1*machinesService.storage.sizeperlevel})**\nNível do armazém: **${utility.format(lvl55)} (+${r1})**\nPreço pago: **${utility.format(pago)} ${utility.money} ${utility.moneyemoji}**\nPreço do próximo aprimoramento: **${utility.format(await machinesService.storage.getPrice(member.id, undefined, max+(r1*machinesService.storage.sizeperlevel)))} ${utility.money} ${utility.moneyemoji}**` })
                     .setFooter({ text: '' })
@@ -86,10 +86,10 @@ module.exports = {
                 }
 
             } else if (b.customId == 'recursos'){
-                let obj55 = await DatabaseManager.get(member.id, 'storage');
+                    let obj55 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
                 let lvl55 = obj55.storage;
-                let obj = itemsService.getObj();
-                const obj2 = await DatabaseManager.get(member.id, 'storage')
+                let obj = await itemsService.getObj();
+                const obj2 = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
                 embed.addFields({ name: '<:storageinfo:738427915531845692> Informações', value: `Peso atual: **[${utility.format(await machinesService.storage.getSize(member.id))}/${utility.format(max+(r1*machinesService.storage.sizeperlevel)-machinesService.storage.sizeperlevel)}]g**\nNível do armazém: **${utility.format(lvl55)}**` });
                 let total = 0;
                 for (const r of obj['minerios']) {

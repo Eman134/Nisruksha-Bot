@@ -1,29 +1,68 @@
-const DatabaseManagerClass = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const clientService = require('./clientService');
 const shopExtension = {
   getProduct: (...args) => require('./shop').getProduct(...args),
   getShopObj: (...args) => require('./shop').getShopObj(...args)
 };
 const UtilityService = require('./utilityService');
+const cacheLists = require('./cacheLists');
 const { reportError } = require('../debug');
+const ITEM_FILES = [
+  './_json/ores.json',
+  './_json/companies/exploration/drops_monsters.json',
+  './_json/companies/agriculture/seeds.json',
+  './_json/companies/fish/mobs.json',
+  './_json/usaveis.json',
+  './_json/companies/process/drops.json'
+];
 class ItemsService {
 constructor() {
-const DatabaseManager = new DatabaseManagerClass();
 const utility = new UtilityService();
-const random = utility.random.bind(utility);
+const clone = utility.clone.bind(utility);
 const itemExtension = this;
-itemExtension.obj = {
-
-  obj: {}
-
+const storageField = (name) => String(name).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
+const getPlayersUtils = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
 };
-
-itemExtension.getObj = function() {
-  return itemExtension.obj;
+const getStorage = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
+const getMachines = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+};
+const updateStorage = (user_id, name, value) => {
+  const key = BigInt(user_id);
+  return prisma.storage.upsert({
+    where: { user_id: key },
+    update: { [storageField(name)]: value },
+    create: { user_id: key, [storageField(name)]: value }
+  });
+};
+const incrementStorage = (user_id, name, value) => {
+  const key = BigInt(user_id);
+  return prisma.storage.upsert({
+    where: { user_id: key },
+    update: { [storageField(name)]: { increment: value } },
+    create: { user_id: key, [storageField(name)]: value }
+  });
+};
+itemExtension.getObj = async function() {
+  return cacheLists.json.composite('items', ITEM_FILES.map((filePath) => ({ path: filePath })), ([ores, ...dropLists]) => ({
+    minerios: ores,
+    drops: dropLists.flat()
+  }));
 }
 
-itemExtension.exists = function(args, k) {
-  const obj = itemExtension.getObj();
+itemExtension.saveObj = async function(obj) {
+  const version = await cacheLists.json.version(ITEM_FILES.map((filePath) => ({ path: filePath })));
+  return cacheLists.json.save(null, 'items', obj, version);
+}
+
+itemExtension.exists = async function(args, k) {
+  const obj = await itemExtension.getObj();
   let id = args.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   if (!k) key = "minerios"
   else key = k
@@ -55,10 +94,10 @@ itemExtension.give = async function(interaction, dp) {
         y.sz = y.size
     }
 
-    const utilsobj = await DatabaseManager.get(interaction.user.id, 'players_utils')
+    const utilsobj = await getPlayersUtils(interaction.user.id)
 
     let backpackid = utilsobj.backpack;
-    let backpack = shopExtension.getProduct(backpackid);
+    let backpack = await shopExtension.getProduct(backpackid);
 
     const maxitens = backpack.customitem.itensmax
     const maxtypes = backpack.customitem.typesmax
@@ -67,10 +106,10 @@ itemExtension.give = async function(interaction, dp) {
     for (const y of dp) {
         
         let arrayitens = await itemExtension.getInv(interaction.user.id, true, true)
-        let curinfo = await DatabaseManager.get(interaction.user.id, 'storage')
-        let rsize = curinfo[y.name.replace(/"/g, "")];
-        let csize = await DatabaseManager.get(interaction.user.id, 'storage')
-        csize2 = csize[y.name.replace(/"/g, '')]
+        let curinfo = await getStorage(interaction.user.id)
+        let rsize = curinfo[storageField(y.name)];
+        let csize = await getStorage(interaction.user.id)
+        csize2 = csize[storageField(y.name)]
         let s = parseInt(csize2) + parseInt(y.sz)
 
         if (s >= maxitens) {
@@ -95,7 +134,7 @@ itemExtension.give = async function(interaction, dp) {
         } else {
             
             colocados.push(y)
-            await DatabaseManager.set(interaction.user.id, 'storage', y.name, s)
+            await updateStorage(interaction.user.id, y.name, s)
             
         }
     }
@@ -108,8 +147,8 @@ itemExtension.give = async function(interaction, dp) {
 
 }
 
-itemExtension.get = function(args) {
-    let obj = this.getObj();
+itemExtension.get = async function(args) {
+    let obj = await this.getObj();
     let id = args
     for (const key in obj) {
         for (const r of obj[key]) {
@@ -128,57 +167,17 @@ itemExtension.get = function(args) {
 }
 
 itemExtension.add = async function(user_id, ore, value) {
-  DatabaseManager.increment(user_id, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
+  await incrementStorage(user_id, ore, value);
 }
 
 itemExtension.set = async function(user_id, ore, value) {
-  DatabaseManager.set(user_id, "storage", ore.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(), value);
-}
-
-itemExtension.loadToStorage = async function(obj) {
-  for (const key in obj) {
-    for (const r of obj[key]) {
-    }
-  }
-
-  let obj2 = shopExtension.getShopObj();
-
-  let placasobjkeys = Object.keys(obj2)
-
-  let placas = []
-
-  for (i = 0; i < placasobjkeys.length; i++) {
-    for (ai = 0; ai < obj2[placasobjkeys[i]].length; ai++){
-      if (obj2[placasobjkeys[i]][ai].type == 5) {
-        placas.push(obj2[placasobjkeys[i]][ai])
-      }
-    }
-  }
-
-  for (const r of placas) {
-  }
-
-  function makeid(length) {
-    var result = '';
-    var characters = 'ABCDEFGHI8917423*/ 71-+JK848*/132-*LMNOPQRSTUVWXYZ01234567890123458*-*074 -/*1274-/*67890123456789-=S D-S[=324-*/-*-+48/-+65-*4/-+012345678901234567890123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-  }
-
-  const chkda = require('../config')
-  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(clientService.current?.user?.id))) {
-      console.log(makeid(random(200, 2500)))
-      return process.exit()
-  }
-
+  await getStorage(user_id);
+  await updateStorage(user_id, ore, value);
 }
 
 itemExtension.getChips = async function(user_id) {
 
-    const obj = shopExtension.getShopObj();
+    const obj = await shopExtension.getShopObj();
 
     let placasobjkeys = Object.keys(obj)
 
@@ -195,7 +194,7 @@ itemExtension.getChips = async function(user_id) {
     let res;
     let array = [];
     try {
-        res = await DatabaseManager.get(user_id, 'storage');
+        res = await getStorage(user_id);
     } catch (err) {
         clientService.current?.emit('error', err)
     }
@@ -203,9 +202,9 @@ itemExtension.getChips = async function(user_id) {
     if (res == null || res == undefined) return [];
     
     for (const r of placas) {
-      if (res['piece:' + r.id] > 0) {
-        let robj = r;
-        robj.size = res['piece:' + r.id]
+      if (res[`piece_${r.id}`] > 0) {
+          let robj = clone(r);
+        robj.size = res[`piece_${r.id}`]
         array.push(robj)
       }
     }
@@ -214,11 +213,11 @@ itemExtension.getChips = async function(user_id) {
 }
 
 itemExtension.getEquippedChips = async function(user_id) {
-  const obj = await DatabaseManager.get(user_id, 'machines')
+  const obj = await getMachines(user_id)
   const chips = obj.slots == null ? [] : obj.slots
   for (const chip of chips) {
     if (typeof chip == 'object') {
-      chip.durabilitypercent = chip.durability/shopExtension.getProduct(chip.id).durability*100;
+      chip.durabilitypercent = chip.durability / (await shopExtension.getProduct(chip.id)).durability * 100;
     }
   }
   return obj.slots == null ? [] : obj.slots;
@@ -229,10 +228,10 @@ itemExtension.unequipChip = async function(user_id, slot) {
     let chips = await itemExtension.getEquippedChips(user_id);
     if (!chips[slot]) return;
     if (chips[slot].durabilitypercent == 100) {
-      await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[slot].id}"`, 1)
+      await incrementStorage(user_id, `piece_${chips[slot].id}`, 1)
     }
     chips.length == 1 ? chips = null : chips.splice(slot, 1)
-    await DatabaseManager.set(user_id, 'machines', 'slots', chips)
+    await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: chips || [] } })
     return chips
   } catch (error) {
     reportError(error, 'items.unequip_chip', { userId: user_id, slot });
@@ -244,10 +243,10 @@ itemExtension.unequipAllChips = async function(user_id) {
     let chips = await itemExtension.getEquippedChips(user_id);
     for (i = 0; i < chips.length; i++){
       if (chips[i].durabilitypercent == 100) {
-        await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[i].id}"`, 1)
+        await incrementStorage(user_id, `piece_${chips[i].id}`, 1)
       }
     }
-    await DatabaseManager.set(user_id, 'machines', `slots`, null)
+    await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: [] } })
   } catch (error) {
     reportError(error, 'items.unequip_all_chips', { userId: user_id });
   }
@@ -264,7 +263,7 @@ itemExtension.removeChipsDurability = async function(user_id, amount) {
       chips[i].durability -= amount
     }
     
-    await DatabaseManager.set(user_id, 'machines', `slots`, chips)
+    await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: chips || [] } })
 
   } catch (error) {
     clientService.current?.emit('error', error)
@@ -276,7 +275,7 @@ itemExtension.givePiece = async function(user_id, piece) {
   let array = await itemExtension.getEquippedChips(user_id);
   if (array == null) array = [];
   array.push(piece);
-  await DatabaseManager.set(user_id, 'machines', 'slots', array);
+  await prisma.machines.update({ where: { user_id: BigInt(user_id) }, data: { slots: array } });
 }
 
 itemExtension.translateRarity = function(rarity) {
@@ -297,20 +296,20 @@ itemExtension.translateRarity = function(rarity) {
 }
 
 itemExtension.getInv = async function(user_id, filtered, length) {
-  let obj = itemExtension.getObj();
+  let obj = await itemExtension.getObj();
   let obj2 = obj
   let res;
-  await DatabaseManager.setIfNotExists(user_id, 'storage')
+  await getStorage(user_id)
     try {
-      res = await DatabaseManager.get(user_id, 'storage');
+      res = await getStorage(user_id);
   } catch (err) {
       clientService.current?.emit('error', err)
   }
   
   let arrayitens = []
   for (const rddd of obj2.drops) {
-      let t1 = rddd
-      let rsize = res[t1.name.replace(/"/g, "")];
+      let t1 = clone(rddd)
+      let rsize = res[storageField(t1.name)];
       t1.size = rsize
       t1.qnt = rsize
       arrayitens.push(t1);

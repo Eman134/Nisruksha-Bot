@@ -14,8 +14,7 @@ const data = new SlashCommandBuilder()
   .addChoices({ name: 'Massibi', value: 'Massibi' })
   .setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'mover',
@@ -88,7 +87,8 @@ module.exports = {
         townsService.population[townsService.getTownNameByNum(prox)]++;
         townsService.population[townsService.getTownNameByNum(atual)]--;
 
-        DatabaseManager.set(interaction.user.id, 'towns', 'loc', prox);
+        const user_id = BigInt(interaction.user.id)
+        await prisma.towns.upsert({ where: { user_id }, update: { loc: prox }, create: { user_id, loc: prox } });
         let assaltado = false;
         let total = 0;
         let money = await economyService.money.get(interaction.user.id);

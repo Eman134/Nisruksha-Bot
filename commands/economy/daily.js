@@ -4,8 +4,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const crateExtensionService = require('../../_classes/services/crateExtension');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'daily',
@@ -25,7 +24,8 @@ module.exports = {
 
         const streakmax = -1
         
-        const obj = await DatabaseManager.get(interaction.user.id, "players");
+        const user_id = BigInt(interaction.user.id)
+        const obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
         let streak = obj['streak'];
 
         let reward;
@@ -72,7 +72,7 @@ module.exports = {
         await interaction.reply({ embeds: [embed] });
         economyService.money.add(interaction.user.id, reward)
         economyService.points.add(interaction.user.id, cristal)
-        DatabaseManager.set(interaction.user.id, "players", "streak", streak)
+        await prisma.players.update({ where: { user_id }, data: { streak } })
         economyService.addToHistory(interaction.user.id, `Recompensa diária | + ${utility.format(reward)} ${utility.moneyemoji}`)
         playersService.cooldown.set(interaction.user.id, "daily", 86400);
         playersService.cooldown.set(interaction.user.id, "breakstreak", 86400*2);

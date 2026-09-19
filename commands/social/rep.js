@@ -7,8 +7,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Mencione o membro que deseja dar a reputação').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'rep',
@@ -45,7 +44,9 @@ module.exports = {
         
         playersService.cooldown.set(interaction.user.id, "rep", 43200)
 
-        DatabaseManager.increment(member.id, "players", "reps", 1)
+        const user_id = BigInt(member.id)
+        await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        await prisma.players.update({ where: { user_id }, data: { reps: { increment: BigInt(1) } } })
 
         await interaction.reply({ content: 'Você deu **+1 REP** para **' + member.tag + '**!' })
 

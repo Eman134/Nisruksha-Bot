@@ -1,19 +1,31 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const config = require('../config');
 const clientService = require('./clientService');
 const UtilityService = require('./utilityService');
 
 class EconomyService {
 constructor() {
-const database = new DatabaseManager();
 const client = clientService.current;
 const utility = new UtilityService();
 const id = config.app.id;
+const getPlayers = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+};
+const getPlayersUtils = (user_id) => {
+    const key = BigInt(user_id);
+    return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
+const updatePlayers = async (user_id, data) => {
+    await getPlayers(user_id);
+    return prisma.players.update({ where: { user_id: BigInt(user_id) }, data });
+};
 const tp = {};
 
 tp.get = async function (user_id) {
     
-    const utilsobj = await DatabaseManager.get(user_id, 'players_utils')
+    const key = BigInt(user_id);
+    const utilsobj = await getPlayersUtils(user_id)
     
     let invitejson = {
         code: String,
@@ -44,7 +56,7 @@ tp.get = async function (user_id) {
         invitejson.points = 0
         invitejson.usedinvite = false
     
-        DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson)
+        await prisma.players_utils.update({ where: { user_id: key }, data: { invite: invitejson } })
     
     } else invitejson = utilsobj.invite
     
@@ -54,7 +66,7 @@ tp.get = async function (user_id) {
 
 tp.check = async function (code) {
 
-    const array = await DatabaseManager.findMany('players_utils', { invite: { not: null } });
+    const array = await prisma.players_utils.findMany({ where: { invite: { not: null } } });
 
     let exists = false
 
@@ -66,7 +78,7 @@ tp.check = async function (code) {
 
         if (array[i].invite.code.toLowerCase() == code.toLowerCase()) {
             exists = true
-            owner = array[i].user_id
+            owner = String(array[i].user_id)
             break;
         }
     }
@@ -84,7 +96,7 @@ tp.add = async function (user_id, po) {
 
   invitejson1.points += po
 
-  DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
+  await prisma.players_utils.update({ where: { user_id: BigInt(user_id) }, data: { invite: invitejson1 } })
   
 }
 
@@ -93,7 +105,7 @@ tp.remove = async function (user_id, po) {
 
   invitejson1.points -= po
 
-  DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
+  await prisma.players_utils.update({ where: { user_id: BigInt(user_id) }, data: { invite: invitejson1 } })
 }
 
 tp.set = async function (user_id, po) {
@@ -101,65 +113,65 @@ tp.set = async function (user_id, po) {
 
     invitejson1.points = po
   
-    DatabaseManager.set(user_id, 'players_utils', 'invite', invitejson1)
+    await prisma.players_utils.update({ where: { user_id: BigInt(user_id) }, data: { invite: invitejson1 } })
 }
 
 const bank = {};
 
 bank.get = async function (user_id) {
-    let { bank } = await DatabaseManager.get(user_id, "players");
+    let { bank } = await getPlayers(user_id);
     return bank;
 }
 
 bank.add = async function (user_id, money) {
-    DatabaseManager.increment(user_id, "players", "bank", money);
+    await updatePlayers(user_id, { bank: { increment: money } });
 }
 
 bank.remove = async function (user_id, money) {
-    DatabaseManager.increment(user_id, "players", "bank", -money);
+    await updatePlayers(user_id, { bank: { increment: -money } });
 }
 
 bank.set = async function (user_id, money) {
-    DatabaseManager.set(user_id, "players", "bank", parseInt(money));
+    await updatePlayers(user_id, { bank: parseInt(money) });
 }
 
 const points = {};
 
 points.get = async function (user_id) {
     let result
-    let obj = await DatabaseManager.get(user_id, "players");
+    let obj = await getPlayers(user_id);
     result = obj["points"];
     return result;
 }
 
 points.add = async function (user_id, points) {
-    DatabaseManager.increment(user_id, "players", "points", points);
+    await updatePlayers(user_id, { points: { increment: points } });
 }
 
 points.remove = async function (user_id, points) {
-    DatabaseManager.increment(user_id, "players", "points", -points);
+    await updatePlayers(user_id, { points: { increment: -points } });
 }
 
 points.set = async function (user_id, points) {
-    DatabaseManager.set(user_id, "players", "points", points);
+    await updatePlayers(user_id, { points });
 }
 
 const money = {};
 
 money.get = async function (user_id) {
-    let { money } = await DatabaseManager.get(user_id, "players");
+    let { money } = await getPlayers(user_id);
     return parseInt(money);
 }
 
 money.add = async function (user_id, money) {
-    DatabaseManager.increment(user_id, "players", "money", money);
+    await updatePlayers(user_id, { money: { increment: money } });
 }
 money.globaladd = async function (amount) {
     money.add(id, amount)
 }
 
 money.remove = async function (user_id, money) {
-    DatabaseManager.increment(user_id, "players", "money", -money);
+    await updatePlayers(user_id, { money: { increment: -money } });
 }
 
 money.globalremove = async function (amount) {
@@ -167,32 +179,32 @@ money.globalremove = async function (amount) {
 }
 
 money.set = async function (user_id, money) {
-    await DatabaseManager.set(user_id, "players", "money", parseInt(Math.round(money)));
+    await updatePlayers(user_id, { money: parseInt(Math.round(money)) });
 }
 
 money.set = async function (user_id, points) {
-    DatabaseManager.set(user_id, "players", "points", points);
+    await updatePlayers(user_id, { points });
 }
 
 const token = {};
 
 token.get = async function (user_id) {
     //let result
-    let { token } = await DatabaseManager.get(user_id, "players");
+    let { token } = await getPlayers(user_id);
     //result = obj["money"];
     return token;
 }
 
 token.add = async function (user_id, token) {
-    DatabaseManager.increment(user_id, "players", "token", token);
+    await updatePlayers(user_id, { token: { increment: token } });
 }
 
 token.remove = async function (user_id, token) {
-    DatabaseManager.increment(user_id, "players", "token", -token);
+    await updatePlayers(user_id, { token: { increment: -token } });
 }
 
 token.set = async function (user_id, token) {
-    DatabaseManager.set(user_id, "players", "token", token);
+    await updatePlayers(user_id, { token });
 }
 
 const eco = {

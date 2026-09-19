@@ -8,8 +8,7 @@ const economyService = require('../../_classes/services/economy');
 const config = require('../../_classes/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a aposta').setRequired(true))
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
@@ -178,7 +177,8 @@ module.exports = {
                 
                 async function applyBet(rd) {
 
-                    const globalobj = await DatabaseManager.get(config.app.id, 'globals');
+                    const user_id = BigInt(config.app.id)
+                    const globalobj = await prisma.globals.upsert({ where: { user_id }, update: { user_id }, create: { user_id, keys: [], remember: [], processing: [] } });
                     
                     const bets = globalobj.bets
 
@@ -193,7 +193,7 @@ module.exports = {
                     jsonbet.flip.unshift(rd)
                     jsonbet.flip = jsonbet.flip.slice(0, 100)
             
-                    DatabaseManager.set(config.app.id, 'globals', 'bets', jsonbet)
+                    await prisma.globals.update({ where: { user_id }, data: { bets: jsonbet } })
 
                     let chancemedia = 0
             

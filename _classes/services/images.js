@@ -1,11 +1,8 @@
 const Discord = require('discord.js');
-const DatabaseManager = require('../manager/DatabaseManager');
 const cacheLists = require('./cacheLists');
 const clientService = require('./clientService');
-const configuredDatabase = new DatabaseManager();
 class ImagesService {
 constructor() {
-const db = configuredDatabase;
 const img = this;
 const fs = require('fs');
 const path = require('path');

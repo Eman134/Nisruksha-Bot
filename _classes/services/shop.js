@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const DatabaseManagerClass = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const clientService = require('./clientService');
 const cacheLists = require('./cacheLists');
 const economyService = require('./economy');
@@ -10,9 +10,7 @@ const runtime = require('./runtime');
 const UtilityService = require('./utilityService');
 class ShopService {
 constructor() {
-const database = new DatabaseManagerClass();
 const utility = new UtilityService();
-const DatabaseManager = database;
 const clone = utility.clone.bind(utility);
 const createButton = utility.createButton.bind(utility);
 const debug = runtime.debug;
@@ -27,6 +25,23 @@ const rowComponents = utility.rowComponents.bind(utility);
 const sendError = utility.sendError.bind(utility);
 const tp = utility.tp;
 const { reportError } = require('../debug');
+const storageField = (name) => String(name).replace(/^"|"$/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
+const getMachines = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+};
+const getPlayers = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+};
+const getPlayersUtils = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.players_utils.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
+const getStorage = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
 
 const shopExtension = this;
 
@@ -103,8 +118,6 @@ shopExtension.load = async function() {
         clientService.current?.emit('error', err)
     }
 
-    await itemExtension.loadToStorage(await this.loadItens())
-
 }
 
 shopExtension.getShopObj = function() {
@@ -113,14 +126,14 @@ shopExtension.getShopObj = function() {
 }
 
 shopExtension.formatPages = async function(embed, { currentpage, totalpages }, product, user_id, stopComponents) {
-  const playerobj = await DatabaseManager.get(user_id, 'machines');
+  const playerobj = await getMachines(user_id);
   let maqid = playerobj.machine;
   let maq = shopExtension.getProduct(maqid);
   const productscurrentpage = []
 
   const perRow = 3
 
-  let pobj = await DatabaseManager.get(user_id, 'players')
+  let pobj = await getPlayers(user_id)
   
   for (i = (currentpage-1)*perRow; i < ((currentpage-1)*perRow)+perRow; i++) {
     let p = product[i];
@@ -142,7 +155,7 @@ shopExtension.formatPages = async function(embed, { currentpage, totalpages }, p
       formated += `\nMáximo de Tipos: **${p.customitem.typesmax}**\nQuantia máxima por item: **${p.customitem.itensmax}**`
     }
     if (p.tier) {
-      var oreobj = itemExtension.getObj().minerios;
+      var oreobj = (await itemExtension.getObj()).minerios;
       oreobj = oreobj.filter((ore) => !ore.nomine)
       formated += `\nTier: ${p.tier} (${oreobj[p.tier].name} ${oreobj[p.tier].icon})`
     }
@@ -335,8 +348,8 @@ shopExtension.execute = async function(interaction, p) {
   embed.setColor('#606060');
   embed.setAuthor({ name: `${interaction.user.tag}`, iconURL: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }) })
   
-  let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
-  let pobj = await DatabaseManager.get(interaction.user.id, 'players');
+  let playerobj = await getMachines(interaction.user.id);
+  let pobj = await getPlayers(interaction.user.id);
   
   let discountmvp = Math.round(pobj.mvp ? 5 : 0);
   let discount = Math.round(p.discount + discountmvp);
@@ -379,7 +392,7 @@ shopExtension.execute = async function(interaction, p) {
 
       const money = await eco.money.get(interaction.user.id);
       const points = await eco.points.get(interaction.user.id);
-      const obj2 = await DatabaseManager.get(interaction.user.id, "machines")
+      const obj2 = await getMachines(interaction.user.id)
 
       const convites = await eco.tp.get(interaction.user.id)
 
@@ -436,12 +449,14 @@ shopExtension.execute = async function(interaction, p) {
             }
           }
 
-          DatabaseManager.set(interaction.user.id, 'machines', 'machine', p.id);
-          DatabaseManager.set(interaction.user.id, 'machines', 'durability', p.durability)
-          DatabaseManager.set(interaction.user.id, 'machines', 'pressure', Math.round(p.pressure/2))
-          DatabaseManager.set(interaction.user.id, 'machines', 'refrigeration', p.refrigeration)
-          DatabaseManager.set(interaction.user.id, 'machines', 'pollutants', 0)
-			    DatabaseManager.set(interaction.user.id, 'machines', 'energy', 0)
+          await prisma.machines.update({ where: { user_id: BigInt(interaction.user.id) }, data: {
+            machine: p.id,
+            durability: p.durability,
+            pressure: Math.round(p.pressure / 2),
+            refrigeration: p.refrigeration,
+            pollutants: 0,
+            energy: 0
+          } });
           itemExtension.unequipAllChips(interaction.user.id);
 
           break;
@@ -451,7 +466,8 @@ shopExtension.execute = async function(interaction, p) {
           break;
 
         case 3:
-          DatabaseManager.set(interaction.user.id, 'players_utils', 'backpack', p.id)
+          await getPlayersUtils(interaction.user.id);
+          await prisma.players_utils.update({ where: { user_id: BigInt(interaction.user.id) }, data: { backpack: p.id } })
           break;
         
         case 4:
@@ -460,8 +476,8 @@ shopExtension.execute = async function(interaction, p) {
         
         case 5:
 
-          playerobj = await DatabaseManager.get(interaction.user.id, 'storage');
-          DatabaseManager.set(interaction.user.id, 'storage', `"piece:${p.id}"`, playerobj[`piece:${p.id}`] + 1)
+          playerobj = await getStorage(interaction.user.id);
+          await prisma.storage.update({ where: { user_id: BigInt(interaction.user.id) }, data: { [`piece_${p.id}`]: { increment: 1 } } })
 
           break;
             
@@ -474,7 +490,8 @@ shopExtension.execute = async function(interaction, p) {
           break;
 
         case 8:
-          DatabaseManager.set(interaction.user.id, 'players_utils', 'profile_color', p.pcolorid)
+          await getPlayersUtils(interaction.user.id);
+          await prisma.players_utils.update({ where: { user_id: BigInt(interaction.user.id) }, data: { profile_color: p.pcolorid } })
           break;
 
         default:

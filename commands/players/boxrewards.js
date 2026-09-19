@@ -3,8 +3,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const crateExtensionService = require('../../_classes/services/crateExtension');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('id-caixa').setDescription('Digite o id da caixa da sua mochila').setRequired(true))
 
@@ -20,9 +19,11 @@ module.exports = {
         
         const id = interaction.options.getInteger('id-caixa');
 
-        const obj = await DatabaseManager.get(interaction.user.id, 'storage');
+        const user_id = BigInt(interaction.user.id)
+        const obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
 
-        if (obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
+        const crateField = `crate_${id}`;
+        if (obj[crateField] == null || obj[crateField] < 1 || obj[crateField] == undefined) {
             const embedtemp = await utility.sendError(interaction, `Você não possui uma caixa com este id!\nUtilize \`/mochila\` para visualizar suas caixas`, `recc 1`)
             await interaction.reply({ embeds: [embedtemp]})
 			return;

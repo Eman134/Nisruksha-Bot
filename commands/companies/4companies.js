@@ -13,7 +13,7 @@ async function formatList(embed2, page2) {
     let page = page2
     let array = [];
     try {
-        array = (await DatabaseManager.findMany('companies')).filter((x) => x.company_id != null && x.company_id != '');
+        array = (await prisma.companies.findMany()).filter((x) => x.company_id != null && x.company_id != '');
     } catch (error) {
         clientService.current.emit('error', err)
         throw error
@@ -42,7 +42,7 @@ async function formatList(embed2, page2) {
             array = array.slice((page*6)-6, page*6);
             
             for (const r of array) {
-                let owner = await clientService.current.users.fetch(r.user_id);
+                let owner = await clientService.current.users.fetch(String(r.user_id));
                 let vagas = await companyService.check.hasVacancies(r.company_id);
                 let func = (r.workers == null ? `0/${await companyService.get.maxWorkers(r.company_id)}`: `${r.workers.length}/${await companyService.get.maxWorkers(r.company_id)}`)
                 let locname = townsService.getTownNameByNum(r.loc)
@@ -57,8 +57,7 @@ async function formatList(embed2, page2) {
 }
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('página').setDescription('Digite o número da página para pesquisar empresas').setRequired(false))
 

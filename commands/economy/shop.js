@@ -30,7 +30,7 @@ module.exports = {
             ↳ Utilize \`/loja <categoria>\` para visualizar uma categoria
             ↳ Utilize \`/comprar <id>\` para realizar uma compra
             `)
-            .addFields({ name: '<:list:736274028179750922> Categorias', value: shopService.getShopList() })
+            .addFields({ name: '<:list:736274028179750922> Categorias', value: await shopService.getShopList() })
             await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -38,9 +38,9 @@ module.exports = {
         if (categoria == 'maq') {
             categoria = 'maquinas';
         }
-        let obj = shopService.getShopObj();
+        let obj = await shopService.getShopObj();
         let array = Object.keys(obj);
-        if (!shopService.categoryExists(categoria)){
+        if (!await shopService.categoryExists(categoria)){
             const embedtemp = await utility.sendError(interaction, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
             await interaction.reply({ embeds: [embedtemp]})
 			return;

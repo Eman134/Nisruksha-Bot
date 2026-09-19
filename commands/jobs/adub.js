@@ -5,8 +5,7 @@ const utility = new UtilityService();
 const Discord = require('discord.js');
 const economyService = require('../../_classes/services/economy');
 const playersService = require('../../_classes/services/players');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -19,8 +18,9 @@ module.exports = {
 	async execute(interaction) {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         let allplots = pobj.plots
         let plot
@@ -95,7 +95,7 @@ module.exports = {
                 return;
             }
 
-            pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
             const money = await economyService.money.get(interaction.user.id);
   
@@ -111,7 +111,7 @@ module.exports = {
 
             plots[townnum].adubacao = 100
 
-            DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
+            await prisma.players.update({ where: { user_id }, data: { plots } })
 
             embed.setColor('#5bff45');
             embed.addFields({ name: '✅ Adubação realizada', value: `

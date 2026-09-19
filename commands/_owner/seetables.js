@@ -1,5 +1,4 @@
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -21,12 +20,12 @@ module.exports = {
         const selectedtable = interaction.options.getString('tabela')
 
         if (selectedtable != null) {
-            const tables = await DatabaseManager.tableNames();
+            const tables = ['players', 'servers', 'globals', 'storage', 'players_utils', 'machines', 'cooldowns', 'companies', 'towns', 'site'];
             if (!tables.includes(selectedtable.toLowerCase())) {
                 return interaction.reply({ content: 'Essa tabela não existe! Utilize `/seetables`'})
             }
 
-            const columns = await DatabaseManager.columns(selectedtable.toLowerCase());
+            const columns = prisma._runtimeDataModel.models[selectedtable.toLowerCase()].fields.map((field) => field.name);
             for (const column of columns) {
                 middle += "|--" + column + "\n"
 
@@ -35,7 +34,7 @@ module.exports = {
             return
         }
 
-        const tables = await DatabaseManager.tableNames();
+        const tables = ['players', 'servers', 'globals', 'storage', 'players_utils', 'machines', 'cooldowns', 'companies', 'towns', 'site'];
         for (const table of tables) {
             middle += "|-" + table + "\n"
         }

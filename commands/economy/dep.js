@@ -8,8 +8,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('quantia').setDescription('Selecione uma quantia de dinheiro para depósito').setRequired(true))
 
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'depositar',
@@ -96,8 +95,9 @@ module.exports = {
                     economyService.bank.add(interaction.user.id, total);
                     economyService.money.remove(interaction.user.id, total2);
                     economyService.addToHistory(interaction.user.id, `📥 Depósito | + ${utility.format(total)} ${utility.moneyemoji}`)
-                    let obj = await DatabaseManager.get(interaction.user.id, "players");
-                    DatabaseManager.set(interaction.user.id, "players", "dep", obj.dep + 1);
+                    const user_id = BigInt(interaction.user.id)
+                    let obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+                    await prisma.players.update({ where: { user_id }, data: { dep: obj.dep + 1 } });
                     economyService.money.globaladd(taxa)
                 }
             }

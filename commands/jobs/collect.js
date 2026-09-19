@@ -8,8 +8,7 @@ const townsService = require('../../_classes/services/towns');
 const runtime = require('../../_classes/services/runtime');
 const companyService = require('../../_classes/services/company');
 const clientService = require('../../_classes/services/clientService');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -23,7 +22,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
         
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
             const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
@@ -49,12 +49,12 @@ module.exports = {
 
         let init = Date.now();
 
-        let seedobj = itemsService.getObj().drops.filter(i => i.type == "seed");
+        let seedobj = (await itemsService.getObj()).drops.filter(i => i.type == "seed");
         let loc = await townsService.getTownNum(interaction.user.id)
         seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
         if (runtime.debug) console.log(seedobj)
 
-        let obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+        let obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
         const embed = new Discord.EmbedBuilder();
         embed.setTitle(`Coletando`)
         embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
@@ -65,7 +65,7 @@ module.exports = {
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'collecting');
         await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
         
-        function gen(){
+        async function gen(){
             let por = 6;
             let array = [];
             let i = 1
@@ -75,7 +75,7 @@ module.exports = {
                     t += Math.round(por/i/2*0.1);
 
                     t = Math.round((seed.name.toLowerCase().includes('soja') ? t * 1.7 :t )/2);
-                    let d = itemsService.get(seed.name);
+                    let d = await itemsService.get(seed.name);
                     d.size = t;
 
                     let cha = utility.random(0, 100)
@@ -92,7 +92,7 @@ module.exports = {
 
             try{
 
-                const obj2 = gen();
+                const obj2 = await gen();
 
                 let sizeMap = new Map();
                 let round = 0;
@@ -117,7 +117,7 @@ module.exports = {
                 }
 
                 embed.fields = [];
-                const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let sta2 = await playersService.stamina.get(interaction.user.id);
                 embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
                 await embed.addFields({ name: `🍁 Informações de coleta`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\`` })

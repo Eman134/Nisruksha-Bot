@@ -3,8 +3,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const economyService = require('../../_classes/services/economy');
 const runtime = require('../../_classes/services/runtime');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -46,7 +45,7 @@ reacted = true;
             }
 
             try {
-                const rows = await DatabaseManager.findMany('players', { mastery: { gt: 0 } });
+                const rows = await prisma.players.findMany({ where: { mastery: { gt: BigInt(0) } } });
 
                 async function addTp(user_id, mastery) {
 
@@ -64,8 +63,8 @@ reacted = true;
                     addTp(row.user_id, parseInt(row.mastery))
                 });
 
-                await DatabaseManager.updateMany('companies', { score: { gt: scoremin } }, { score: scoremin });
-                await DatabaseManager.updateMany('players', { mastery: { gt: 0 } }, { mastery: 0 });
+                    await prisma.companies.updateMany({ where: { score: { gt: scoremin } }, data: { score: scoremin } });
+                    await prisma.players.updateMany({ where: { mastery: { gt: BigInt(0) } }, data: { mastery: BigInt(0) } });
     
                 embed.setDescription(`✅ Temporada foi resetada!`)
                 embed.setColor('#32a893');

@@ -10,8 +10,7 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('aposta').setDescription('Selecione uma quantia de dinheiro para aposta').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'apostarcavalo',
@@ -103,7 +102,8 @@ module.exports = {
                     break;
             }
 
-            const globalobj = await DatabaseManager.get(config.app.id, 'globals');
+            const user_id = BigInt(config.app.id)
+            const globalobj = await prisma.globals.upsert({ where: { user_id }, update: { user_id }, create: { user_id, keys: [], remember: [], processing: [] } });
 
             const globalevents = globalobj.events;
 
@@ -114,14 +114,14 @@ module.exports = {
             eventsService.race.apostas[apostastring].push({ id: interaction.user.id, aposta: total })
 
             if (globalevents == null) {
-                DatabaseManager.set(config.app.id, 'globals', "events", {
+                await prisma.globals.update({ where: { user_id }, data: { events: {
                     "race": eventsService.race
-                })
+                } } })
             } else {
-                DatabaseManager.set(config.app.id, 'globals', "events", {
+                await prisma.globals.update({ where: { user_id }, data: { events: {
                     ...globalevents,
                     "race": eventsService.race
-                })
+                } } })
             }
 
             const embed = eventsService.getRaceEmbed(total)

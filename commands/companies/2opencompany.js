@@ -26,8 +26,7 @@ const options = (option) => {
 data.addStringOption(options)
 .addStringOption(option => option.setName('nome').setDescription('Digite o nome da empresa').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'abrirempresa',
@@ -78,8 +77,9 @@ module.exports = {
 
         total = r1+r2+r3+r4
         
-        let playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
-        let playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
+        let playerobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         const req = 10;
         const name = nome;
         const type = e[setor].tipo;
@@ -117,8 +117,8 @@ module.exports = {
                 return;
             }
             
-            playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
-            playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+            playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
+            playerobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             
             cristais = await economyService.points.get(interaction.user.id)
 
@@ -158,7 +158,7 @@ module.exports = {
 
             let cont = false;
             try {
-                const companies = await DatabaseManager.findMany('companies');
+                const companies = await prisma.companies.findMany();
                 for (const r of companies) {
                     if (r.name.toLowerCase() == name.toLowerCase()) {
                         cont = true;

@@ -6,8 +6,7 @@ const cacheListsService = require('../../_classes/services/cacheLists');
 const playersService = require('../../_classes/services/players');
 const companyService = require('../../_classes/services/company');
 const itemsService = require('../../_classes/services/items');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -21,8 +20,9 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                         
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (!pobj.rod) {
             const embedtemp = await utility.sendError(interaction, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
@@ -286,14 +286,14 @@ module.exports = {
 
                 await playersService.stamina.remove(interaction.user.id, gastosta);
 
-                pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
                 stamina = await playersService.stamina.get(interaction.user.id)
 
                 if (header.stars > 0 ) companyService.stars.add(interaction.user.id, company.company_id, { score: header.stars })
 
                 embed.fields = [];
-                const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
+                const obj6 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } });
                 let sta2 = await playersService.stamina.get(interaction.user.id);
                 embed.addFields({ name: `${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, value: `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\`` })
                 embed.addFields({ name: `💦 Informações da pesca`, value: `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\`` })

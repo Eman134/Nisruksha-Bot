@@ -2,8 +2,7 @@ const playersService = require('../../_classes/services/players');
 const townsService = require('../../_classes/services/towns');
 const eventsService = require('../../_classes/services/events');
 const imagesService = require('../../_classes/services/images');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'mapa',
@@ -28,7 +27,7 @@ module.exports = {
         const townname = await townsService.getTownName(interaction.user.id);
         const townnum = await townsService.getTownNumByName(townname);
         const pos = await townsService.getTownPos(interaction.user.id);
-        const companies = await DatabaseManager.findMany('companies', { loc: townnum });
+        const companies = await prisma.companies.findMany({ where: { loc: townnum } });
         const hasTreasure = (eventsService.treasure.loc != 0 && eventsService.treasure.picked == false)
         const hasDuck = (eventsService.duck.loc != 0 && eventsService.duck.killed == false)
         let content = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies.length}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`

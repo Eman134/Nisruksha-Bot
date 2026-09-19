@@ -1,43 +1,45 @@
-const DatabaseManager = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const { readFileSync } = require('fs');
 
 class BadgesService {
     constructor() {
-        this.database = new DatabaseManager();
         this.json = [];
     }
 
 async add(user_id, id) {
     this.load();
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     const temphas = await this.has(user_id, id)
     if (temphas) return "Já possui " + id
-    let tempbadges = (obj.badges == null ? [] : obj.badges)
+    let tempbadges = (obj.badges == null ? [] : obj.badges.map(String))
     tempbadges.push(id + '')
-    await this.database.set(user_id, "players", "badges", tempbadges)
+    await prisma.players.update({ where: { user_id: key }, data: { badges: tempbadges.map(BigInt) } })
     return "Added " + id
 }
 
 async remove(user_id, id) {
     this.load()
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     const temphas = await this.has(user_id, id)
     if (!temphas) return "Don't have"
-    let tempbadges = (obj.badges == null ? [] : obj.badges)
+    let tempbadges = (obj.badges == null ? [] : obj.badges.map(String))
     const index = tempbadges.indexOf(id  + '');
     if (index > -1) {
         tempbadges.splice(index, 1);
     }
-    await this.database.set(user_id, "players", "badges", tempbadges)
+    await prisma.players.update({ where: { user_id: key }, data: { badges: tempbadges.map(BigInt) } })
     return "Removed " + id
 }
 
 async has(user_id, id) {
     this.load()
-    const obj = await this.database.get(user_id, "players")
+    const key = BigInt(user_id);
+    const obj = await prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
     let has = false
     if (obj.badges != null) {
-        if (obj.badges.includes(id) || obj.badges.includes(id + '')) has = true
+        if (obj.badges.some((badge) => String(badge) === String(id))) has = true
     }
     return has
 }

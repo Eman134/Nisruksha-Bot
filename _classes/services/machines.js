@@ -1,4 +1,4 @@
-const DatabaseManagerClass = require('../manager/DatabaseManager');
+const prisma = require('../prisma');
 const itemExtension = require('./items');
 const shopExtension = {
     getProduct: (...args) => require('./shop').getProduct(...args)
@@ -7,15 +7,28 @@ const UtilityService = require('./utilityService');
 
 class MachinesService {
 constructor() {
-const DatabaseManager = new DatabaseManagerClass();
 const utility = new UtilityService();
 const getFormatedDate = utility.getFormatedDate.bind(utility);
 const random = utility.random.bind(utility);
 const ores = {};
+const storageField = (name) => String(name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_');
+const getStorage = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.storage.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key } });
+};
+const getMachines = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.machines.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, slots: [] } });
+};
+const getPlayers = (user_id) => {
+  const key = BigInt(user_id);
+  return prisma.players.upsert({ where: { user_id: key }, update: { user_id: key }, create: { user_id: key, frames: [], badges: [] } });
+};
 
 ores.gen = async function(maq, profundidade, chips) {
 
-    const oreobj = itemExtension.getObj().minerios;
+    const itemCatalog = await itemExtension.getObj();
+    const oreobj = itemCatalog.minerios.map((ore) => ({ ...ore }));
 
     let oreobj2nomine = 1
 
@@ -29,7 +42,7 @@ ores.gen = async function(maq, profundidade, chips) {
     
     for (const i of chips){
       
-      const productchip = shopExtension.getProduct(i.id)
+      const productchip = await shopExtension.getProduct(i.id)
       if (productchip.type == 5 && productchip.typeeffect) {
         genchips["chipe" + productchip.typeeffect] = { ...i, icon: productchip.icon, genchipid: "chipe" + productchip.typeeffect }
       }
@@ -121,7 +134,7 @@ const storage = {
 };
 
 storage.getMax = async function(user_id) {
-  const obj = await DatabaseManager.get(user_id, 'storage');
+  const obj = await getStorage(user_id);
   let sizeperlevel = storage.sizeperlevel;
   let x = obj.storage * sizeperlevel;
   return x;
@@ -129,17 +142,16 @@ storage.getMax = async function(user_id) {
 
 storage.getSize = async function(user_id) {
   let size = 0;
-  const obj = itemExtension.getObj();
-  await DatabaseManager.setIfNotExists(user_id, 'storage')
-  const res = await DatabaseManager.get(user_id, 'storage');
+    const obj = await itemExtension.getObj();
+  const res = await getStorage(user_id);
   for (const r of obj.minerios) {
-    size += res[r.name];
+    size += res[storageField(r.name)];
   }
   return size;
 }
 
 storage.getPrice = async function(user_id, level, max2) {
-  const obj = await DatabaseManager.get(user_id, 'storage');
+  const obj = await getStorage(user_id);
   let max
   let pricetotal = 0
   if (!level) {
@@ -198,7 +210,8 @@ maqExtension.forceCot = async function() {
 
   maqExtension.lastcot = getFormatedDate()
 
-  const oreslist = itemExtension.getObj().minerios
+  const itemCatalog = await itemExtension.getObj();
+  const oreslist = itemCatalog.minerios
 
   for (i = 0; i < oreslist.length; i++) {
     if (random(0, 100) < 30) {
@@ -206,46 +219,48 @@ maqExtension.forceCot = async function() {
       
       let x = {
         update: "",
-        price: random(itemExtension.getObj().minerios[i].price.min, itemExtension.getObj().minerios[i].price.max, true).toFixed(2)
+        price: random(itemCatalog.minerios[i].price.min, itemCatalog.minerios[i].price.max, true).toFixed(2)
       }
 
-      let mudou = (itemExtension.getObj().minerios[i].price.atual-x.price).toFixed(2)
+      let mudou = (itemCatalog.minerios[i].price.atual-x.price).toFixed(2)
 
       if (mudou < 0) mudou *= -1
 
       if (mudou == 0) {
-        return itemExtension.getObj().minerios[i].price.ultimoupdate = ""
+        itemCatalog.minerios[i].price.ultimoupdate = ""
+        continue
       }
 
       mudou = mudou*2/2
       
-      x.update = ((x.price < itemExtension.getObj().minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
+      x.update = ((x.price < itemCatalog.minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
 
-      itemExtension.getObj().minerios[i].price.updates.unshift({ price: x.price, date: getFormatedDate(true) })
-      itemExtension.getObj().minerios[i].price.updates = itemExtension.getObj().minerios[i].price.updates.slice(0, 10)
-      itemExtension.getObj().minerios[i].price.ultimoupdate = x.update
+      itemCatalog.minerios[i].price.updates.unshift({ price: x.price, date: getFormatedDate(true) })
+      itemCatalog.minerios[i].price.updates = itemCatalog.minerios[i].price.updates.slice(0, 10)
+      itemCatalog.minerios[i].price.ultimoupdate = x.update
 
-      itemExtension.getObj().minerios[i].price.atual = x.price*2/2
+      itemCatalog.minerios[i].price.atual = x.price*2/2
     } else {
-      itemExtension.getObj().minerios[i].price.ultimoupdate = ""
+      itemCatalog.minerios[i].price.ultimoupdate = ""
     }
   }
+  await itemExtension.saveObj({ ...itemCatalog, minerios: itemCatalog.minerios });
 }
 
 maqExtension.get = async function(user_id) {
-  const obj = await DatabaseManager.get(user_id, 'machines')
+  const obj = await getMachines(user_id)
   return obj.machine;
 }
 
 maqExtension.has = async function(user_id) {
-  const obj = await DatabaseManager.get(user_id, 'machines')
+  const obj = await getMachines(user_id)
   return obj.machine != 0;
 }
 
 maqExtension.getEnergy = async function(user_id) {
 
-  const obj = await DatabaseManager.get(user_id, 'machines')
-  const obj2 = await DatabaseManager.get(user_id, 'players')
+  const obj = await getMachines(user_id)
+  const obj2 = await getPlayers(user_id)
 
   let energia = obj.energy;
 
@@ -253,7 +268,7 @@ maqExtension.getEnergy = async function(user_id) {
 
   const array = obj.slots == null ? [] : obj.slots
   for (const i of array){
-    const chipproduct = shopExtension.getProduct(i.id)
+    const chipproduct = await shopExtension.getProduct(i.id)
     if (chipproduct.typeeffect == 1) {
       r += chipproduct.sizeeffect
     };
@@ -288,13 +303,13 @@ maqExtension.setEnergy = async function(user_id, valor) {
 
   if (valor == null) valor = 0
 
-  DatabaseManager.set(user_id, 'machines', 'energy', valor)
+  await prisma.machines.upsert({ where: { user_id: BigInt(user_id) }, update: { energy: valor }, create: { user_id: BigInt(user_id), energy: valor, slots: [] } })
 }
 
 maqExtension.removeEnergy = async function(user_id, valor) {
   let r = 0;
 
-  const obj2 = await DatabaseManager.get(user_id, 'players')
+  const obj2 = await getPlayers(user_id)
   let recover = maqExtension.recoverenergy[obj2.perm]
 
   const energyobj = await maqExtension.getEnergy(user_id)
@@ -304,7 +319,7 @@ maqExtension.removeEnergy = async function(user_id, valor) {
 }
 
 maqExtension.setEnergyMax = async function(user_id, valor) {
-  DatabaseManager.set(user_id, 'machines', 'energymax', valor)
+  await prisma.machines.upsert({ where: { user_id: BigInt(user_id) }, update: { energymax: valor }, create: { user_id: BigInt(user_id), energymax: valor, slots: [] } })
 }
 
 maqExtension.getSlotMax = function(level, mvp) {
@@ -320,13 +335,13 @@ maqExtension.getSlotMax = function(level, mvp) {
 }
 
 maqExtension.getDepth = async function(user_id) {
-  let playerobj = await DatabaseManager.get(user_id, 'machines');
+  let playerobj = await getMachines(user_id);
   let maqid = playerobj.machine;
-  let maq = shopExtension.getProduct(maqid);
+  let maq = await shopExtension.getProduct(maqid);
   let r = 0;
   const array = await itemExtension.getEquippedChips(user_id);
   for (const i of array){
-    const chipproduct = shopExtension.getProduct(i.id)
+    const chipproduct = await shopExtension.getProduct(i.id)
     if (chipproduct.typeeffect == 2) r += chipproduct.sizeeffect;
   }
   return maq.profundidade+r
@@ -334,8 +349,8 @@ maqExtension.getDepth = async function(user_id) {
 
 maqExtension.getMaintenance = async function(user_id, getDefault) {
 
-  const machinesobj = await DatabaseManager.get(user_id, 'machines')
-  const machineproduct = shopExtension.getProduct(machinesobj.machine);
+  const machinesobj = await getMachines(user_id)
+  const machineproduct = await shopExtension.getProduct(machinesobj.machine);
 
   function genMaintenance(name, pricemultiplier, defaultValue, invert) {
     if (!getDefault) {

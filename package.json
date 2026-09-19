@@ -7,8 +7,7 @@
     "start": "node bot.js",
     "test": "node --test",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:import-legacy": "node scripts/import-legacy-db.js"
+    "db:migrate": "prisma migrate deploy"
   },
   "keywords": [],
   "author": "Eman134",

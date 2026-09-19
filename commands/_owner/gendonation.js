@@ -8,8 +8,7 @@ const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('valor').setDescription('Digite o valor da doação').setRequired(false))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'gendonation',
@@ -44,8 +43,9 @@ module.exports = {
             embed.fields = [];
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.gendonation.defer_update'); });
 
-            await DatabaseManager.increment(config.app.id, 'globals', 'totaldonates', donate);
-            await DatabaseManager.increment(config.app.id, 'globals', 'donates', 1);
+            const user_id = BigInt(config.app.id)
+            await prisma.globals.upsert({ where: { user_id }, update: { user_id }, create: { user_id, keys: [], remember: [], processing: [] } });
+            await prisma.globals.update({ where: { user_id }, data: { totaldonates: { increment: BigInt(donate) }, donates: { increment: BigInt(1) } } });
 
             let commandfile = clientService.current.commands.get('mvp')
             await commandfile.execute(interaction);

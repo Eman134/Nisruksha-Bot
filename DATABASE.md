@@ -8,6 +8,4 @@ npm run db:generate
 npm run db:migrate
 ```
 
-Para importar uma instalação que ainda usa as tabelas antigas, execute `npm run db:import-legacy` uma vez depois de aplicar a migração. O importador lê as tabelas legadas usando o Prisma e grava os registros no novo modelo.
-
-Os campos variáveis de inventário, baús, chips e cooldowns são armazenados em JSON. O bot não executa mais `ALTER TABLE` durante a execução.
+O bot acessa diretamente os modelos relacionais gerados pelo Prisma. Os campos variáveis de inventário, baús, chips e cooldowns permanecem em suas tabelas próprias, sem migração de dados em JSON ou alterações de schema durante a execução.

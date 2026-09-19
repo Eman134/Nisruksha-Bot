@@ -1,8 +1,6 @@
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const ServerService = require('../../_classes/services/serverService');
-const DatabaseManager = require('../../_classes/manager/DatabaseManager');
-const server = new ServerService(new DatabaseManager());
+const prisma = require('../../_classes/prisma');
 module.exports = {
     name: 'permsv',
     aliases: ['permserver', 'setsvstatus', 'setss'],
@@ -42,8 +40,8 @@ module.exports = {
 
         interaction.reply({ content: `O status do servidor foi modificado para: \`${sl}\` ${ob[sl]}` })
 
-        server.setServerInfo(args[0], 'status', sl)
-        server.setServerInfo(args[0], 'banreason', m)
+        const server_id = BigInt(args[0])
+        await prisma.servers.upsert({ where: { server_id }, update: { status: sl, banreason: m }, create: { server_id, status: sl, banreason: m } })
 
 
 	}

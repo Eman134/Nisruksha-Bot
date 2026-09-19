@@ -4,8 +4,7 @@ const clientService = require('../../_classes/services/clientService');
 const runtime = require('../../_classes/services/runtime');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'mvp',
@@ -45,7 +44,8 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
 
 ` }).setTimestamp()
 
-            let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+            const user_id = BigInt(interaction.user.id)
+            let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             if (runtime.debug)console.log(Date.now()-pobj.mvp)
             if (pobj.mvp != null) {
                 embed.addFields({ name: `<:info:736274028515295262> Informações do seu MVP`, value: `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**` })

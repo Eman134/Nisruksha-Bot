@@ -5,8 +5,7 @@ const utility = new UtilityService();
 const itemsService = require('../../_classes/services/items');
 const companyService = require('../../_classes/services/company');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('área').setDescription('Digite o tamanho da área para realizar a plantação').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Digite a quantia de sementes que deseja plantar').setRequired(true))
@@ -24,7 +23,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
         
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const area = interaction.options.getInteger('área')
         const quantia = interaction.options.getInteger('quantia')
@@ -97,20 +97,21 @@ module.exports = {
             return;
         }
 
-        let seedobj = itemsService.getObj().drops.filter(i => i.type == "seed");
+        let seedobj = (await itemsService.getObj()).drops.filter(i => i.type == "seed");
 
         let contains2 = false;
 
         let seed
 
-        let seedstorage = await DatabaseManager.get(interaction.user.id, 'storage')
+        let seedstorage = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } })
         for (const r of seedobj) {
 
             if (r.displayname.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '') == semente) {
                 seed = r
                 contains2 = true
                 
-                if (quantia > seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]) {
+                const storageField = String(seed.displayname).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_')
+                if (quantia > seedstorage[storageField]) {
                     contains2 = false
                 }
 
@@ -154,8 +155,9 @@ module.exports = {
         
         allplots[townnum] = plot
 
-        DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
-        DatabaseManager.set(interaction.user.id, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantia)
+        await prisma.players.update({ where: { user_id }, data: { plots: allplots } })
+        const storageField = String(seed.displayname).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[: ]/g, '_')
+        await prisma.storage.update({ where: { user_id }, data: { [storageField]: seedstorage[storageField]-quantia } })
 
         const embed = new Discord.EmbedBuilder()
 

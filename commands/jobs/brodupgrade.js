@@ -5,8 +5,7 @@ const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const companyService = require('../../_classes/services/company');
 const economyService = require('../../_classes/services/economy');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'uparvara',
@@ -19,7 +18,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
                 
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         if (pobj.rod == null) delete pobj.rod
 
         if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
@@ -55,10 +55,10 @@ module.exports = {
             reacted = true;
             collector.stop();
 
-            let pobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+        let pobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             if (pobj2.rod == null) delete pobj2.rod
 
-            playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
+            playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             if (!pobj2.rod) {
                 embed.setColor('#a60000');
@@ -117,7 +117,7 @@ module.exports = {
             if (list.includes(0)) {
 
                 pobj2.rod.stars += 1
-                DatabaseManager.set(interaction.user.id, 'players', 'rod', pobj2.rod)
+                await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
                 embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e adicionou uma estrela ⭐ ao nível da sua vara de pesca!` })
@@ -125,7 +125,7 @@ module.exports = {
 
             } if (list.includes(1)) {
                 pobj2.rod.sta -= 1
-                DatabaseManager.set(interaction.user.id, 'players', 'rod', pobj2.rod)
+                await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)
                 embed.addFields({ name: `✅ Sucesso no upgrade`, value: `Você gastou **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** e diminuiu o gasto de estamina 🔸 da sua vara de pesca!` })
@@ -136,7 +136,7 @@ module.exports = {
 
                 if (pobj2.rod.profundidade >= pobj2.rod.maxprofundidade) pobj2.rod.profundidade = pobj2.rod.maxprofundidade
 
-                DatabaseManager.set(interaction.user.id, 'players', 'rod', pobj2.rod)
+                await prisma.players.update({ where: { user_id }, data: { rod: pobj2.rod } })
 
                 embed.setColor('#5bff45')
                 .setDescription(`\`${companyService.jobs.formatStars(pobj2.rod.stars)}\`\nGasto por turno: **${pobj2.rod.sta} 🔸**\nProfundidade: **${pobj2.rod.profundidade}m**\nPreço do upgrade: **${total} ${utility.money} ${utility.moneyemoji}**`)

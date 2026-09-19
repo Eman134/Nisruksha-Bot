@@ -5,8 +5,7 @@ const companyService = require('../../_classes/services/company');
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const companyInfo = require('../../_classes/services/companyInfo');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -25,8 +24,9 @@ module.exports = {
         }
 
         let company;
-        let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (await companyService.check.isWorker(interaction.user.id)) {
             company = await companyService.get.companyById(pobj.company);
@@ -36,8 +36,8 @@ module.exports = {
 
         if (company.workers == null || company.workers.length == 0) {
 
-            let ownerobj = await DatabaseManager.get(interaction.user.id, 'players')
-            let ownerobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+            let ownerobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
+            let ownerobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             const embed = new Discord.EmbedBuilder()
             .setThumbnail(company.logo)
@@ -50,7 +50,7 @@ module.exports = {
         }
 
         let usrlist = company.workers
-        let owner = await client.users.fetch(company.user_id)
+        let owner = await client.users.fetch(String(company.user_id))
         let list = []
 
         for (let i = 0; i < company.workers.length; i++) {
@@ -63,8 +63,9 @@ module.exports = {
                 return
             }
 
-            let { companyact } = await DatabaseManager.get(user.id, 'players')
-            let { level } = await DatabaseManager.get(user.id, 'machines')
+            const worker_id = BigInt(user.id)
+            let { companyact } = await prisma.players.upsert({ where: { user_id: worker_id }, update: { user_id: worker_id }, create: { user_id: worker_id, frames: [], badges: [] } })
+            let { level } = await prisma.machines.upsert({ where: { user_id: worker_id }, update: { user_id: worker_id }, create: { user_id: worker_id, slots: [] } })
 
             // Score, ultima atividade executada, rendimento total para a empresa
             
@@ -82,8 +83,9 @@ module.exports = {
             return bscore - ascore
         })
 
-        let ownerobj = await DatabaseManager.get(owner.id, 'players')
-        let ownerobj2 = await DatabaseManager.get(owner.id, 'machines')
+        const owner_id = BigInt(owner.id)
+        let ownerobj = await prisma.players.upsert({ where: { user_id: owner_id }, update: { user_id: owner_id }, create: { user_id: owner_id, frames: [], badges: [] } })
+        let ownerobj2 = await prisma.machines.upsert({ where: { user_id: owner_id }, update: { user_id: owner_id }, create: { user_id: owner_id, slots: [] } })
 
         const price = 60
         

@@ -1,9 +1,7 @@
 const UtilityService = require('../../_classes/services/utilityService');
 const utility = new UtilityService();
 const clientService = require('../../_classes/services/clientService');
-const PermissionService = require('../../_classes/services/permissionService');
-const DatabaseManager = require('../../_classes/manager/DatabaseManager');
-const permission = new PermissionService(new DatabaseManager());
+const prisma = require('../../_classes/prisma');
 module.exports = {
     name: 'permm',
     aliases: ['permmember', 'setmperm', 'setmp'],
@@ -12,7 +10,8 @@ module.exports = {
     perm: 5,
 	async execute(interaction) {
 
-        const pobj = await DatabaseManager.get(interaction.user.id, 'players')
+        const user_id = BigInt(interaction.user.id)
+        const pobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
         const perm = pobj.perm
         
@@ -63,8 +62,8 @@ module.exports = {
 
         interaction.reply({ content: `A permissão do membro foi alterada para: \`${selected}\` ${ob[selected]}` })
 
-        await permission.set(member.id, selected)
-        await DatabaseManager.set(member.id, 'players', 'banreason', m)
+        const member_id = BigInt(member.id)
+        await prisma.players.upsert({ where: { user_id: member_id }, update: { perm: selected, banreason: m }, create: { user_id: member_id, perm: selected, banreason: m, frames: [], badges: [] } })
 
 
 	}

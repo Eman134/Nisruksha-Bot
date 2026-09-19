@@ -14,8 +14,7 @@ const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('id-caixa').setDescription('Escreva o id da caixa da sua mochila para abrir').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Escolha uma quantia de caixas para abrir').setRequired(true))
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 module.exports = {
     name: 'abrircaixa',
@@ -38,16 +37,18 @@ module.exports = {
             return;
         }
 
-        const obj = await DatabaseManager.get(interaction.user.id, 'storage');
+        const user_id = BigInt(interaction.user.id)
+        const obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
         
-        if (obj[`crate:${id}`] == null || obj[`crate:${id}`] < 1 || obj[`crate:${id}`] == undefined) {
+        const crateField = `crate_${id}`;
+        if (obj[crateField] == null || obj[crateField] < 1 || obj[crateField] == undefined) {
             const embedtemp = await utility.sendError(interaction, `Você não possui uma caixa com este id!\nUtilize \`/mochila\` para visualizar suas caixas`, `abrircaixa 1`)
 			await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-        if (obj[`crate:${id}`] < quantia) {
-            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de caixas [${obj[`crate:${id}`]}/${quantia}]!\nUtilize \`/mochila\` para visualizar suas caixas`, `abrircaixa 1`)
+        if (obj[crateField] < quantia) {
+            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de caixas [${obj[crateField]}/${quantia}]!\nUtilize \`/mochila\` para visualizar suas caixas`, `abrircaixa 1`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -94,8 +95,9 @@ module.exports = {
                 }
 
                 try {
-                    const obj = await DatabaseManager.get(interaction.user.id, 'storage');
-                    DatabaseManager.set(interaction.user.id, 'storage', `"crate:${id}"`, obj[`crate:${id}`]-1);
+                    const obj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
+                    const crateField = `crate_${id}`;
+                    await prisma.storage.update({ where: { user_id }, data: { [crateField]: obj[crateField]-1 } });
                     economyService.addToHistory(interaction.user.id, `${crateExtensionService.obj[id.toString()].name} | ${reward.size > 0 ? '+ ' + utility.format(reward.size) + ' ':''}${reward.icon}`)
                     switch (reward.type) {
                         case 0:
@@ -108,8 +110,9 @@ module.exports = {
                             economyService.points.add(interaction.user.id, reward.size)
                             break;
                         case 3:
-                            playerobj = await DatabaseManager.get(interaction.user.id, 'storage');
-                            DatabaseManager.set(interaction.user.id, 'storage', `"piece:${reward.pid}"`, playerobj[`piece:${reward.pid}`] + reward.size)
+                            playerobj = await prisma.storage.upsert({ where: { user_id }, update: { user_id }, create: { user_id } });
+                            const pieceField = `piece_${reward.pid}`;
+                            await prisma.storage.update({ where: { user_id }, data: { [pieceField]: playerobj[pieceField] + reward.size } })
                             break;
                         case 4:
                             economyService.tp.add(interaction.user.id, reward.size)

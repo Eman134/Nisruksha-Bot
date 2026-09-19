@@ -5,8 +5,7 @@ const Discord = require('discord.js');
 const clientService = require('../../_classes/services/clientService');
 const playersService = require('../../_classes/services/players');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Selecione um membro para realizar a transferência').setRequired(true))
@@ -65,7 +64,8 @@ module.exports = {
             return;
         }
         
-        let memberobj = await DatabaseManager.get(member.id, "machines")
+        const member_id = BigInt(member.id)
+        let memberobj = await prisma.machines.upsert({ where: { user_id: member_id }, update: { user_id: member_id }, create: { user_id: member_id, slots: [] } })
         let nivel = memberobj.level
 
         if (nivel < 50) {
@@ -136,8 +136,9 @@ module.exports = {
                         economyService.bank.add(member.id, total);
                         economyService.addToHistory(interaction.user.id, `📤 Transferência para ${member} | - ${utility.format(total)} ${utility.moneyemoji}`)
                         economyService.addToHistory(member.id, `📥 Transferência de ${interaction.user} | + ${utility.format(total)} ${utility.moneyemoji}`)
-                        let obj = await DatabaseManager.get(interaction.user.id, "players");
-                        DatabaseManager.set(interaction.user.id, "players", "tran", obj.tran + 1);
+                        const user_id = BigInt(interaction.user.id)
+                        let obj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } });
+                        await prisma.players.update({ where: { user_id }, data: { tran: obj.tran + 1 } });
                         if (nivel < 50) {
                             if (total > mat/2.5) {
                                 playersService.cooldown.set(member.id, "receivetr", 43200);

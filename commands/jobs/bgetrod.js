@@ -4,8 +4,7 @@ const utility = new UtilityService();
 const cacheListsService = require('../../_classes/services/cacheLists');
 const companyService = require('../../_classes/services/company');
 const economyService = require('../../_classes/services/economy');
-const Database = require("../../_classes/manager/DatabaseManager");
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
@@ -19,7 +18,8 @@ module.exports = {
         const company = await companyService.get.currentForUser(interaction.user.id);
 
         
-        let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
+        const user_id = BigInt(interaction.user.id)
+        let pobj2 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
         if (pobj2.level < 3) {
             const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para pegar uma vara de pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
@@ -52,7 +52,7 @@ module.exports = {
             return [utility.rowComponents([btn0, btn1])]
         }
 
-        let pobjcheck = await DatabaseManager.get(interaction.user.id, 'players')
+        let pobjcheck = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
         if (pobjcheck.rod == null) delete pobjcheck.rod
 
 
@@ -69,9 +69,9 @@ module.exports = {
 
             let troca = b.customId == 'troca'
 
-            let pobj2 = await DatabaseManager.get(interaction.user.id, 'players')
+            let pobj2 = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
             if (pobj2.rod == null) delete pobj2.rod
-            let pobj3 = await DatabaseManager.get(interaction.user.id, 'machines')
+            let pobj3 = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.bgetrod.defer_update'); });
 
@@ -83,7 +83,7 @@ module.exports = {
                 return;
             }
 
-            playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
+            playerobj = await prisma.machines.upsert({ where: { user_id }, update: { user_id }, create: { user_id, slots: [] } })
 
             if (pobj2.money < total) {
                 embed.setColor('#a60000');
@@ -107,7 +107,7 @@ module.exports = {
             .addFields({ name: `✅ Sucesso na ${pobj2.rod ? 'troca' : 'compra'}`, value: `Você acaba de ${pobj2.rod ? 'trocar sua vara para:' : 'comprar uma vara:'} **${vara.icon} ${vara.name}**\nPara testar sua nova vara de pesca utilize \`/pescar\`!` })
             .setColor('#5bff45')
             interaction.editReply({ embeds: [embed], components: reworkBtns(true) });
-            DatabaseManager.set(interaction.user.id, 'players', 'rod', vara)
+            await prisma.players.update({ where: { user_id }, data: { rod: vara } })
 
             collector.resetTimer();
             

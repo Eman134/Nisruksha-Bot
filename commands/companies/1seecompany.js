@@ -5,8 +5,7 @@ const playersService = require('../../_classes/services/players');
 const clientService = require('../../_classes/services/clientService');
 const imagesService = require('../../_classes/services/images');
 
-const Database = require('../../_classes/manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prisma = require('../../_classes/prisma');
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
@@ -25,7 +24,8 @@ module.exports = {
 
 		const códigoempresa = interaction.options.getString('empresa')
 
-		const playerobj = await DatabaseManager.get(interaction.user.id, 'players')
+		const user_id = BigInt(interaction.user.id)
+		const playerobj = await prisma.players.upsert({ where: { user_id }, update: { user_id }, create: { user_id, frames: [], badges: [] } })
 
 		let company
 
@@ -78,7 +78,7 @@ module.exports = {
 			rend = rends.join(',')
 			if (rends.length == 1) rend = '0,' + rend
 		}
-		const owner = await clientService.current.users.fetch(company.user_id)
+		const owner = await clientService.current.users.fetch(String(company.user_id))
 		const username = owner.username
 		const bglink = company.bglink
 		const logo = company.logo
