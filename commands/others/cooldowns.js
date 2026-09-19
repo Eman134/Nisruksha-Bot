@@ -20,15 +20,15 @@ module.exports = {
         let blacklist = [ 'daily2' ]
 
         try {
-            let res2 = await DatabaseManager.query(`SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'cooldowns';`);
+            const columns = await DatabaseManager.columns('cooldowns');
 
-            for (i = 1; i < res2.rows.length; i++) {
-                const cd = await API.playerUtils.cooldown.check(member.id, res2.rows[i].column_name)
+            for (const column of columns.filter((name) => name !== 'user_id')) {
+                const cd = await API.playerUtils.cooldown.check(member.id, column)
                 if (cd) {
-                    const cd2 = await API.playerUtils.cooldown.get(member.id, res2.rows[i].column_name)
-                    if (!blacklist.includes(res2.rows[i].column_name)) {
+                    const cd2 = await API.playerUtils.cooldown.get(member.id, column)
+                    if (!blacklist.includes(column)) {
                         filtered.push( {
-                            name: res2.rows[i].column_name,
+                            name: column,
                             time: cd2
                         })
                     }

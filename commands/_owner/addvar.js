@@ -37,13 +37,13 @@ module.exports = {
         }
 		const embed = new Discord.MessageEmbed()
         try {
-            await DatabaseManager.setIfNotExists(v, tabela);
+            await DatabaseManager.setIfNotExists(v.id, tabela, va);
 
-            let res = await DatabaseManager.query(`SELECT * FROM ${tabela} WHERE ${va} = $1;`, [v.id]);
+            const before = (await DatabaseManager.findMany(tabela, { [va]: v.id }))[0];
             await DatabaseManager.increment(v.id, tabela, coluna, eval(valor), va)
-            let res3 = await DatabaseManager.query(`SELECT * FROM ${tabela} WHERE ${va} = $1;`, [v.id]);
+            const after = (await DatabaseManager.findMany(tabela, { [va]: v.id }))[0];
 
-            embed.setDescription(`✅ Dados de ${v} atualizados! ${res.rows[0][coluna]} -> ${res3.rows[0][coluna]}`)
+            embed.setDescription(`✅ Dados de ${v} atualizados! ${before[coluna]} -> ${after[coluna]}`)
 
             .setColor('#32a893')
         } catch (e) {

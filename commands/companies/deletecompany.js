@@ -108,7 +108,7 @@ module.exports = {
             }
 
             try {
-                await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${interaction.user.id};`);
+                await DatabaseManager.deleteMany('companies', { user_id: interaction.user.id });
             }catch (err) { 
                 API.client.emit('error', err)
                 throw err 

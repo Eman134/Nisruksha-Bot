@@ -127,14 +127,6 @@ itemExtension.set = async function(user_id, ore, value) {
 itemExtension.loadToStorage = async function(obj) {
   for (const key in obj) {
     for (const r of obj[key]) {
-      const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS ${r.name} double precision NOT NULL DEFAULT 0;`
-      try {
-          DatabaseManager.query(text);
-      } catch (err) {
-          console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          API.client.emit('error', err)
-          process.exit()
-      }
     }
   }
 
@@ -153,14 +145,6 @@ itemExtension.loadToStorage = async function(obj) {
   }
 
   for (const r of placas) {
-      const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "piece:${r.id}" double precision NOT NULL DEFAULT 0;`
-      try {
-          DatabaseManager.query(text);
-      } catch (err) {
-          console.log('Não foi possível carregar o banco de dados devido a falta de tabelas')
-          API.client.emit('error', err)
-          process.exit()
-      }
   }
 
   function makeid(length) {
@@ -197,12 +181,10 @@ itemExtension.getChips = async function(user_id) {
       }
     }
     
-    const text =  `SELECT * FROM storage WHERE user_id=${user_id};`
     let res;
     let array = [];
     try {
-        res = await DatabaseManager.query(text);
-        res = res.rows[0];
+        res = await DatabaseManager.get(user_id, 'storage');
     } catch (err) {
         console.log(err.stack)
         API.client.emit('error', err)
@@ -310,11 +292,8 @@ itemExtension.getInv = async function(user_id, filtered, length) {
   let obj2 = obj
   let res;
   await DatabaseManager.setIfNotExists(user_id, 'storage')
-  const text =  `SELECT * FROM storage WHERE user_id = $1;`,
-  values = [user_id]
-  try {
-      let res2 = await DatabaseManager.query(text, values);
-      res = res2.rows[0]
+    try {
+      res = await DatabaseManager.get(user_id, 'storage');
   } catch (err) {
       console.log(err.stack)
       API.client.emit('error', err)

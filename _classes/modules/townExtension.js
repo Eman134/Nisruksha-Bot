@@ -21,9 +21,7 @@ const townExtension = {
 };
 
 (async () => {
-    const text =  `SELECT * FROM towns;`;
-    const res = await DatabaseManager.query(text);
-    let array = res.rows;
+    const array = await DatabaseManager.findMany('towns');
 
     for (const r of array) {
         if (!(r.user_id == undefined)) {

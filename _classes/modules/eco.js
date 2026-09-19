@@ -48,9 +48,7 @@ tp.get = async function (user_id) {
 
 tp.check = async function (code) {
 
-    const text =  `SELECT * FROM players_utils WHERE invite IS NOT NULL;`
-    const res = await DatabaseManager.query(text);
-    const array = res.rows
+    const array = await DatabaseManager.findMany('players_utils', { invite: { not: null } });
 
     let exists = false
 

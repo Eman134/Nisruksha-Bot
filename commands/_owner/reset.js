@@ -45,17 +45,8 @@ reacted = true;
             }
 
             if (tabela.toLowerCase() == 'all') {
-            
-                let text1 = `SELECT table_name FROM information_schema.tables WHERE table_schema='public';`;
-    
                 try {
-    
-                    const res = await DatabaseManager.query(text1);
-    
-                    for (const r of res.rows) {
-                        let text = `DELETE FROM ${r.table_name};`;
-                        await DatabaseManager.query(text);
-                    }
+                    await DatabaseManager.reset('all');
     
                     embed.setDescription(`✅ Todos os dados foram resetados!`)
                     embed.setColor('#32a893');
@@ -69,11 +60,8 @@ reacted = true;
                 }
     
             } else {
-                let text1 = `DELETE FROM ${tabela.toLowerCase()};`;
-    
                 try {
-    
-                    await DatabaseManager.query(text1);
+                    await DatabaseManager.reset(tabela.toLowerCase());
     
                     embed.setDescription(`✅ Dados da tabela \`${tabela.toLowerCase()}\` foram resetados!`)
                     embed.setColor('#32a893');

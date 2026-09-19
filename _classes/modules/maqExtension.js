@@ -123,9 +123,7 @@ storage.getSize = async function(user_id) {
   let size = 0;
   const obj = API.itemExtension.getObj();
   await DatabaseManager.setIfNotExists(user_id, 'storage')
-  const text =  `SELECT * FROM storage WHERE user_id = $1;`, values = [user_id]
-  let res = await DatabaseManager.query(text, values)
-  res = res.rows[0]
+  const res = await DatabaseManager.get(user_id, 'storage');
   for (const r of obj.minerios) {
     size += res[r.name];
   }

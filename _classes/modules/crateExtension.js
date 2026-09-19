@@ -45,11 +45,7 @@ crateExtension.load = async function() {
         return `Error on pick crates obj`;
     }
 
-    let obj = crateExtension.obj;
-    for (const key in obj) {
-        const text =  `ALTER TABLE storage ADD COLUMN IF NOT EXISTS "crate:${key}" double precision NOT NULL DEFAULT 0;`
-        DatabaseManager.query(text).catch((error) => { throw reportError(error, 'crateExtension.give.query'); })
-    }
+    // Crates are stored as JSON keys in storage; no runtime schema changes are needed.
 
     function makeid(length) {
         var result = '';
@@ -71,9 +67,7 @@ crateExtension.load = async function() {
 crateExtension.getCrates = async function(user_id) {
 
     let obj = crateExtension.obj;
-    const text =  `SELECT * FROM storage WHERE user_id=${user_id};`
-    let res = await DatabaseManager.query(text)
-    res = res.rows[0];
+    const res = await DatabaseManager.get(user_id, 'storage');
     let array = [];
 
     if (res) {

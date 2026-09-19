@@ -11,7 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - nisru-postgres-data:/var/lib/postgresql/data
-      - ./db_nisru.db:/docker-entrypoint-initdb.d/01-db_nisru.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d nisru"]
       interval: 5s

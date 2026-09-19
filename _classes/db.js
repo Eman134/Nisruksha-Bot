@@ -1,11 +1,5 @@
-const { Pool, client } = require('pg');
-const admin = client;
-
-const { db } = require('../_classes/config')
-
-const pool = new Pool(db)
+const prisma = require('./prisma');
 
 module.exports = {
-  pool,
-  admin
-} 
+  prisma
+};

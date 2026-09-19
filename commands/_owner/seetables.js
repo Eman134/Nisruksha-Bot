@@ -21,30 +21,23 @@ module.exports = {
         const selectedtable = interaction.options.getString('tabela')
 
         if (selectedtable != null) {
-            
-            let res = await DatabaseManager.query(`SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = '${selectedtable}');`);
-
-            if (!res.rows[0].exists) {
+            const tables = await DatabaseManager.tableNames();
+            if (!tables.includes(selectedtable.toLowerCase())) {
                 return interaction.reply({ content: 'Essa tabela não existe! Utilize `/seetables`'})
             }
 
-            let res2 = await DatabaseManager.query(`SELECT * FROM information_schema.columns WHERE table_schema = 'public' AND table_name   = '${selectedtable}';`);
-        
-            for (xi = 0; xi < res2.rows.length; xi++) {
-
-                middle += "|--" + res2.rows[xi].column_name + "\n"
+            const columns = await DatabaseManager.columns(selectedtable.toLowerCase());
+            for (const column of columns) {
+                middle += "|--" + column + "\n"
 
             }
             await interaction.reply(istring + middle.slice(0, 1980) + fstring)
             return
         }
 
-        let res = await DatabaseManager.query(`SELECT * FROM pg_catalog.pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';`);
-        
-        let tables = res.rows
-        
-        for (i = 0; i < tables.length; i++) {
-            middle += "|-" + tables[i].tablename + "\n"
+        const tables = await DatabaseManager.tableNames();
+        for (const table of tables) {
+            middle += "|-" + table + "\n"
         }
 
         await interaction.reply(istring + middle.slice(0, 1980) + fstring)

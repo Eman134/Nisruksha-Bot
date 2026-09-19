@@ -39,28 +39,28 @@ module.exports = {
 		const embed = new Discord.MessageEmbed()
         try {
 
-            const text =  `SELECT * FROM ${tabela} WHERE ${va} = $1;`, values = [v.id]
-            let res = await DatabaseManager.query(text, values);
-            embed.setDescription(`✅ Dados de ${v} em \`${tabela}\`\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(0, 1500)}\`\`\``)
+            const row = (await DatabaseManager.findMany(tabela, { [va]: v.id }))[0];
+            const serialized = JSON.stringify(row, null, '\t');
+            embed.setDescription(`✅ Dados de ${v} em \`${tabela}\`\n\`\`\`js\n${serialized.slice(0, 1500)}\`\`\``)
             .setColor('#32a893')
 
-            if (JSON.stringify(res.rows[0], null, '\t').length > 1500) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(1500, 2300)}\`\`\``)
+            if (serialized.length > 1500) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(1500, 2300)}\`\`\``)
             }
-            if (JSON.stringify(res.rows[0], null, '\t').length > 2300) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(2300, 3000)}\`\`\``)
+            if (serialized.length > 2300) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(2300, 3000)}\`\`\``)
             }
-            if (JSON.stringify(res.rows[0], null, '\t').length > 3000) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(3000, 3800)}\`\`\``)
+            if (serialized.length > 3000) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(3000, 3800)}\`\`\``)
             }
-            if (JSON.stringify(res.rows[0], null, '\t').length > 3800) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(3800, 4500)}\`\`\``)
+            if (serialized.length > 3800) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(3800, 4500)}\`\`\``)
             }
-            if (JSON.stringify(res.rows[0], null, '\t').length > 4500) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(4500, 5300)}\`\`\``)
+            if (serialized.length > 4500) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(4500, 5300)}\`\`\``)
             }
-			if (JSON.stringify(res.rows[0], null, '\t').length > 5300) {
-                embed.addField('.', `\n\`\`\`js\n${JSON.stringify(res.rows[0], null, '\t').slice(5300, 6100)}\`\`\``)
+            if (serialized.length > 5300) {
+                embed.addField('.', `\n\`\`\`js\n${serialized.slice(5300, 6100)}\`\`\``)
             }
 
         } catch (e) {

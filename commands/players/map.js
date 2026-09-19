@@ -24,10 +24,10 @@ module.exports = {
         const townname = await API.townExtension.getTownName(interaction.user.id);
         const townnum = await API.townExtension.getTownNumByName(townname);
         const pos = await API.townExtension.getTownPos(interaction.user.id);
-        const res = await DatabaseManager.query('SELECT * FROM companies WHERE loc=$1', [townnum]);
+        const companies = await DatabaseManager.findMany('companies', { loc: townnum });
         const hasTreasure = (API.events.treasure.loc != 0 && API.events.treasure.picked == false)
         const hasDuck = (API.events.duck.loc != 0 && API.events.duck.killed == false)
-        let content = `Você se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nEmpresas: **${res.rows.length}**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(interaction.user.id)].join(', ')}**.`
+        let content = `Você se localiza na vila **${townname}**\nPopulação: **${API.townExtension.population[townname]} pessoas**\nEmpresas: **${companies.length}**\nJogos disponíveis na sua vila: **${API.townExtension.games[await API.townExtension.getTownName(interaction.user.id)].join(', ')}**.`
         
         if (hasTreasure) {
             content += "\n<:treasure:807671407160197141> Há um tesouro não explorado no mapa!\nPara pegá-lo utilize `/pegartesouro`"

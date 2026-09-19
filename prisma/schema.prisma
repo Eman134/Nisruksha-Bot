@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// A parte dinâmica do banco legado (inventário, cooldowns e configurações)
+// fica em JSON, evitando DDL durante a execução do bot.
+model LegacyRow {
+  id        Int      @id @default(autoincrement())
+  tableName String   @map("table_name")
+  key       String
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([tableName, key])
+  @@index([tableName])
+  @@map("legacy_rows")
+}

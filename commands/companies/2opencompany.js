@@ -153,8 +153,8 @@ module.exports = {
 
             let cont = false;
             try {
-                let res = await DatabaseManager.query(`SELECT * FROM companies;`);
-                for (const r of res.rows) {
+                const companies = await DatabaseManager.findMany('companies');
+                for (const r of companies) {
                     if (r.name.toLowerCase() == name.toLowerCase()) {
                         cont = true;
                         break;

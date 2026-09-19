@@ -44,15 +44,15 @@ module.exports = {
 
         try {
 
-            await DatabaseManager.setIfNotExists(v, tabela, va);
-            const text =  `UPDATE ${tabela} SET ${coluna} = $2 WHERE ${va} = $1;`, values = [v.id, eval(valor)]
-            await DatabaseManager.query(text, values);
+            const evaluatedValue = eval(valor);
+            await DatabaseManager.setIfNotExists(v.id, tabela, va);
+            await DatabaseManager.set(v.id, tabela, coluna, evaluatedValue, va);
 
-            embed.setDescription(`✅ Você setou o valor \`${eval(valor)}\` para ${v} em \`${tabela}:${coluna}\``)
+            embed.setDescription(`✅ Você setou o valor \`${evaluatedValue}\` para ${v} em \`${tabela}:${coluna}\``)
             embed.setColor('#32a893');
 
         } catch (e) {
-            embed.setDescription(`❌ Houve um erro ao setar \`${eval(valor)}\` para ${v} em \`${tabela}:${coluna}\``)
+            embed.setDescription(`❌ Houve um erro ao setar \`${valor}\` para ${v} em \`${tabela}:${coluna}\``)
             embed.addField('Erro:', `\`\`\`js\n${e}\`\`\``);
             embed.setColor('#eb4034')
         } finally {

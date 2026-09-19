@@ -41,13 +41,8 @@ reacted = true;
                 return;
             }
 
-            let text0 = `SELECT * FROM players WHERE mastery > 0;`;
-            let text1 = `UPDATE companies SET score = ${scoremin} WHERE score > ${scoremin};`;
-            let text2 = `UPDATE players SET mastery = 0 WHERE mastery > 0;`;
-    
             try {
-    
-                const res0 = await DatabaseManager.query(text0);
+                const rows = await DatabaseManager.findMany('players', { mastery: { gt: 0 } });
 
                 async function addTp(user_id, mastery) {
 
@@ -61,12 +56,12 @@ reacted = true;
                     }
                 }
                 
-                res0.rows.forEach(async (row) => {
+                rows.forEach(async (row) => {
                     addTp(row.user_id, parseInt(row.mastery))
                 });
 
-                await DatabaseManager.query(text1);
-                await DatabaseManager.query(text2);
+                await DatabaseManager.updateMany('companies', { score: { gt: scoremin } }, { score: scoremin });
+                await DatabaseManager.updateMany('players', { mastery: { gt: 0 } }, { mastery: 0 });
     
                 embed.setDescription(`✅ Temporada foi resetada!`)
                 embed.setColor('#32a893');

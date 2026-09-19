@@ -66,9 +66,6 @@ playerUtils.cooldown.check = async function(user_id, string) {
 
 playerUtils.cooldown.get = async function(user_id, string) { 
 
-  const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-  await DatabaseManager.query(text);
-
   const obj = await DatabaseManager.get(user_id, "cooldowns");
   if (obj == null || obj == "0;0" || obj == undefined) {
       API.playerUtils.cooldown.set(user_id, string, 0);
@@ -82,8 +79,6 @@ playerUtils.cooldown.get = async function(user_id, string) {
 }
 
 playerUtils.cooldown.set = async function(user_id, string, ms) {
-  const text =  `ALTER TABLE cooldowns ADD COLUMN IF NOT EXISTS ${string} text NOT NULL DEFAULT '0;0';`
-  await DatabaseManager.query(text);
   DatabaseManager.set(user_id, "cooldowns", string, `${Date.now()};${ms}`);
 }
 

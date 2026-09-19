@@ -50,11 +50,9 @@ async function send(API, interaction) {
 
     try {
 
-        const text =  `SELECT * FROM servers;`
         let array = [];
         try {
-            let res = await DatabaseManager.query(text);
-            array = res.rows;
+            array = await DatabaseManager.findMany('servers');
         } catch (err) {
             console.log(err.stack)
             API.client.emit('error', err)
@@ -80,10 +78,8 @@ async function send(API, interaction) {
 
             } else {
                 console.log('remove ' + array1[i].server_id)
-                const text =  `UPDATE servers SET lastcmd = $2 WHERE server_id=$1;`,
-                values = [array1[i].server_id, 0]
                 try {
-                    await DatabaseManager.query(text, values);
+                    await DatabaseManager.set(array1[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
                     console.log(err.stack)
                     API.client.emit('error', err)
@@ -110,10 +106,8 @@ async function send(API, interaction) {
 
                 rank2++;
             } else {
-                const text =  `UPDATE servers SET lastcmd = $2 WHERE server_id=$1;`,
-                values = [array2[i].server_id, 0]
                 try {
-                    await DatabaseManager.query(text, values);
+                    await DatabaseManager.set(array2[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
                     console.log(err.stack)
                     API.client.emit('error', err)

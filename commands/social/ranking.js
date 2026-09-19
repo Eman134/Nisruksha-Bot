@@ -84,11 +84,9 @@ async function setRankCache() {
         const data = Object.values(vare)[i];
         data.emoji = Object.keys(vare)[i];
 
-        const text =  `SELECT * FROM ${data.db.table};`
         let array = [];
         try {
-            let res = await DatabaseManager.query(text);
-            array = res.rows;
+            array = await DatabaseManager.findMany(data.db.table);
         } catch (err) {
             console.log(err.stack)
             API.client.emit('error', err)

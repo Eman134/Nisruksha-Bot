@@ -7,8 +7,7 @@ async function formatList(API, embed2, page2) {
     let page = page2
     let array = [];
     try {
-        let res = await DatabaseManager.query(`SELECT * FROM companies;`);
-        array = res.rows.filter((x) => x.company_id != null && x.company_id != '');
+        array = (await DatabaseManager.findMany('companies')).filter((x) => x.company_id != null && x.company_id != '');
     } catch (error) {
         API.client.emit('error', err)
         throw error

@@ -9,12 +9,11 @@ module.exports = { // Renomeie para config.js
         shardAmount: 'auto'
     },
 
-    db: {
-        user: '',
-        host: '',
-        database: '',
-        password: '',
-        port: 5432,
+    databaseUrl: process.env.DATABASE_URL || 'postgresql://usuario:senha@localhost:5432/nisru?schema=public',
+
+    redis: {
+        url: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+        prefix: process.env.REDIS_PREFIX || 'nisruksha'
     },
 
     best: {
