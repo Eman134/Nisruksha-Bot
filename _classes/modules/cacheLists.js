@@ -34,8 +34,8 @@ function rememberKey() {
     return `${prefix}:remember`;
 }
 
-function imageKey(filePath, modifiedAt) {
-    return `${prefix}:images:${filePath}:${modifiedAt}`;
+function imageKey(filePath, version) {
+    return `${prefix}:images:${filePath}:${version}`;
 }
 
 function parse(value) {
@@ -186,12 +186,12 @@ const remember = {
 };
 
 const images = {
-    async get(filePath, modifiedAt) {
-        return (await getClient()).get(imageKey(filePath, modifiedAt));
+    async get(filePath, version) {
+        return (await getClient()).get(imageKey(filePath, version));
     },
 
-    async set(filePath, modifiedAt, data) {
-        await (await getClient()).set(imageKey(filePath, modifiedAt), data);
+    async set(filePath, version, data) {
+        await (await getClient()).set(imageKey(filePath, version), data, { EX: 86_400 });
     }
 };
 

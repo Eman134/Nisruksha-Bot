@@ -21,7 +21,7 @@ module.exports = {
         let bg 
         
         try {
-          bg = await API.img.Canvas.loadImage(bglink);
+          bg = await API.img.loadImage(bglink);
         } catch (error) {
           const embedtemp = await API.sendError(interaction, `O link que você enviou não é de uma imagem! Por favor coloque uma imagem upada.`)
           await interaction.reply({ embeds: [embedtemp]})

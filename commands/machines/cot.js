@@ -83,7 +83,7 @@ module.exports = {
             
             let cotimg = await API.img.loadImage(chart_url)
             
-            hide = await API.img.createImage(79, 13, '#ffffff')
+            const hide = await API.img.createImage(79, 13, '#ffffff')
             cotimg = await API.img.drawImage(cotimg, hide, 621, 0)
 
             const attachment = await API.img.getAttachment(cotimg, 'cot.png')
