@@ -75,12 +75,15 @@ const DEFAULTS = {
     players_utils: { user_id: null, backpack: 1, process: null, invite: null },
     machines: {
         user_id: null,
-        machine: 1,
+        machine: 100,
         level: 1,
         xp: 0,
         totalxp: 0,
+        energy: Date.now(),
+        energymax: 100,
         durability: 0,
         pressure: 0,
+        pollutants: 0,
         refrigeration: 0,
         slots: null
     },
@@ -121,6 +124,8 @@ class DatabaseManager {
     _rowData(row, table, key, keyColumn) {
         const defaults = clone(DEFAULTS[table] || {});
         const data = { ...defaults, ...(row?.data || {}) };
+        // Machine id 1 was emitted by the pre-migration default; the catalog starts at 100.
+        if (table === 'machines' && data.machine === 1) data.machine = 100;
         if (data[keyColumn] === undefined || data[keyColumn] === null) data[keyColumn] = key;
         return data;
     }

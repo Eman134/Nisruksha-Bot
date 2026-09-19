@@ -139,25 +139,26 @@ async function checkAll(API, interaction, { req, mastery: maestria = 0, companyt
         return true;
     }
     
-    let list = [];
-
-    const me = await API.client.users.fetch(app.id, { force: true, cache: true })
-
-    const p = interaction.channel.permissionsFor(me).toArray()
-        
-    p.includes('EMBED_LINKS') ? list.push('INSERIR LINKS | ✅') : list.push('INSERIR LINKS | ❌')
-    p.includes('ATTACH_FILES') ? list.push('ANEXAR ARQUIVOS | ✅') : list.push('ANEXAR ARQUIVOS | ❌')
-   // p.includes('MANAGE_MESSAGES') ? list.push('GERENCIAR MENSAGENS | ✅') : list.push('GERENCIAR MENSAGENS | ❌')
-    p.includes('USE_EXTERNAL_EMOJIS') ? list.push('EMOJIS EXTERNOS | ✅') : list.push('EMOJIS EXTERNOS | ❌')
-    p.includes('ADD_REACTIONS') ? list.push('ADICIONAR REAÇÕES | ✅') : list.push('ADICIONAR REAÇÕES | ❌')
-    p.includes('READ_MESSAGE_HISTORY') ? list.push('LER HISTÓRICO | ✅') : list.push('LER HISTÓRICO | ❌')
+    const me = interaction.guild.members.me ?? await interaction.guild.members.fetchMe();
+    const permissions = interaction.channel.permissionsFor(me);
+    const requiredPermissions = [
+        ['EmbedLinks', 'INSERIR LINKS'],
+        ['AttachFiles', 'ANEXAR ARQUIVOS'],
+        ['UseExternalEmojis', 'EMOJIS EXTERNOS'],
+        ['AddReactions', 'ADICIONAR REAÇÕES'],
+        ['ReadMessageHistory', 'LER HISTÓRICO']
+    ];
+    const list = requiredPermissions.map(([permission, label]) =>
+        `${label} | ${permissions.has(permission) ? '✅' : '❌'}`
+    );
+    const missingPermissions = requiredPermissions.filter(([permission]) => !permissions.has(permission));
 
     let result = "";
     result = list.join('\n').toString();
 
     //console.log(result.replace(/✅/g, 'ok').replace(/❌/g, 'no'))
 
-    if (result.includes('❌') && pobj.perm < 4) {
+    if (missingPermissions.length > 0 && pobj.perm < 4) {
         API.client.emit('fail', { interaction, type: 'sem permissão', sendMe: true, desc: 'O bot necessita das seguintes permissões: (Cheque o cargo, as permissões do canal e do bot no canal)```' + result + '```\nhttps://bit.ly/svnisru' })
         return true;
     }
