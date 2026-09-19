@@ -46,7 +46,6 @@ module.exports.check = async (interaction) => {
             }
 
         } catch (err) {
-            console.log(err);
             API.client.emit('error', err)
         }
     }

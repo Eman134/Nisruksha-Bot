@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
 .addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(true))
@@ -171,7 +172,7 @@ module.exports = {
                     }
                     return card
                 } catch (error) {
-                    console.log(error)
+                    reportError(error, 'command.blackjack.challenge');
                 }
 
             }
@@ -414,7 +415,7 @@ module.exports = {
                 if (!checkFilter.includes(i.user.id)) passed = false
 
             } catch (error) {
-                console.log(error)
+                reportError(error, 'command.blackjack.collector');
             }
             return passed
         }
@@ -510,7 +511,7 @@ module.exports = {
                 await blackjack()
                 await b.deferUpdate()
             } catch (error) {
-                console.log(error)
+                reportError(error, 'command.blackjack.timeout');
             }
 
         })

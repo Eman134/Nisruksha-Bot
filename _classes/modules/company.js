@@ -257,7 +257,6 @@ const jobs = {
             jobs.explore.mobs.obj = '`Error on load mob list`';
         }
         } catch (err) {
-            console.log('Error parsing JSON string:', err);
             jobs.explore.mobs.obj = '`Error on load mob list`';
             API.client.emit('error', err)
         }
@@ -285,7 +284,6 @@ const jobs = {
                 if (filteredmobs.length == 0) {
 
                     API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
-                    console.log('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
                     return undefined
 
                 }
@@ -440,7 +438,6 @@ const jobs = {
             jobs.explore.equips.obj = '`Error on load equip list`';
         }
         } catch (err) {
-            console.log('Error parsing JSON string:', err);
             jobs.explore.equips.obj = '`Error on load equip list`';
             API.client.emit('error', err)
         }
@@ -542,7 +539,6 @@ const jobs = {
             jobs.fish.rods.obj = '`Error on load rods list`';
         }
         } catch (err) {
-            console.log('Error parsing JSON string:', err);
             jobs.fish.rods.obj = '`Error on load rods list`';
             API.client.emit('error', err)
         }
@@ -580,7 +576,6 @@ const jobs = {
             jobs.fish.list.obj = '`Error on load fish list`';
         }
         } catch (err) {
-            console.log('Error parsing JSON string:', err);
             jobs.fish.list.obj = '`Error on load fish list`';
             API.client.emit('error', err)
         }
@@ -877,7 +872,6 @@ const jobs = {
             jobs.process.tools.obj = '`Error on load tools list`';
         }
         } catch (err) {
-            console.log('Error parsing JSON string:', err);
             jobs.process.tools.obj = '`Error on load tools list`';
             API.client.emit('error', err)
         }
@@ -1010,7 +1004,6 @@ company.create = async function(member, ob) {
                     return code;
                 }catch (err){
                     API.client.emit('error', err)
-                    console.log(err)
                 }
             } else {
                 try{
@@ -1019,7 +1012,6 @@ company.create = async function(member, ob) {
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                 }catch (err){
                     API.client.emit('error', err)
-                    console.log(err)
                 }
                 await gen();
             }

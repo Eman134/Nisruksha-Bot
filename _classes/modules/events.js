@@ -338,7 +338,6 @@ events.load = async function() {
                 API.eco.token.add(API.client.user.id, 500)
             }
         } catch (error) {
-            console.log(error)
             API.client.emit('error', error)
         }
 

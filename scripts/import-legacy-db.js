@@ -1,4 +1,5 @@
 const prisma = require('../_classes/prisma');
+const { reportError } = require('../_classes/debug');
 
 const TABLES = [
     'players',
@@ -61,7 +62,7 @@ function getKey(table, row) {
 
 main()
     .catch((error) => {
-        console.error(error);
+        reportError(error, 'database.import_legacy');
         process.exitCode = 1;
     })
     .finally(() => prisma.$disconnect());

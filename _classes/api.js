@@ -206,7 +206,6 @@ API.setCompanieInfo = async function (user_id, company, string, value) {
         await DatabaseManager.set(user_id, 'companies', string, value);
 
     } catch (err) {
-        console.log(err.stack)
         API.client.emit('error', err)
     }
 

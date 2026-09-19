@@ -332,7 +332,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     return { attach: huntimage, plost }
                     
                 } catch (error) {
-                    console.log(error)
+                    reportError(error, 'command.newhunt.build', { userId: interaction.user?.id });
                 }
 
             }
@@ -443,7 +443,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 try {
                     await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
                 } catch (error) {
-                    console.log(error)
+                    reportError(error, 'command.newhunt.reply', { userId: interaction.user?.id });
                 }
                 
                 if (autohunt) {

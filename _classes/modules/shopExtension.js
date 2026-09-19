@@ -54,7 +54,6 @@ shopExtension.loadItens = async function() {
     bigobj["drops"] = list
       
   } catch (err) {
-      console.log('Error parsing JSON string:', err);
       API.client.emit('error', err)
   }
   API.itemExtension.obj = bigobj;
@@ -77,7 +76,6 @@ shopExtension.load = async function() {
         shopExtension.obj = '`Error on load shop list`';
       }
     } catch (err) {
-        console.log('Error parsing JSON string:', err);
         shopExtension.obj = '`Error on load shop list`';
         API.client.emit('error', err)
     }
@@ -196,7 +194,6 @@ shopExtension.getShopList = function() {
         return '`Error on load shop list`';
       }
     } catch (err) {
-        console.log('Error parsing JSON string:', err);
         API.client.emit('error', err)
         return '`Error on load shop list`';
         

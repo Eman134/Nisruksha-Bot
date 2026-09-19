@@ -33,13 +33,13 @@ module.exports = {
                     guildId: interaction.guild?.id,
                     channelId: interaction.channel?.id
                 });
-                await replyInteractionError(interaction, command, normalized);
+                await replyInteractionError(API, interaction, command, normalized);
             }
         }
     }
 }
 
-async function replyInteractionError(interaction, command, error) {
+async function replyInteractionError(API, interaction, command, error) {
     const content = `Ocorreu um erro ao executar /${command}. O erro foi registrado para investigação.`;
     try {
         if (interaction.deferred || interaction.replied) {

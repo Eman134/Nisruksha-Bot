@@ -144,7 +144,7 @@ module.exports = {
                 API.playerUtils.cooldown.set(interaction.user.id, "transferir", 0);
                 interaction.editReply({ embeds: [embed], components: [] });
             } catch (error) {
-                console.log(error)
+                reportError(error, 'command.transfer.execute', { userId: interaction.user?.id });
             }
 
         });

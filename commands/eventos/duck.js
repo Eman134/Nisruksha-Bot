@@ -238,7 +238,7 @@ ${currinteraction ? currinteraction : ''}
                     return [embed]
                 }
             } catch (error) {
-                console.log(error)   
+                reportError(error, 'command.duck.execute');
             }
 
         }
@@ -289,7 +289,7 @@ ${currinteraction ? currinteraction : ''}
                     const components = getComponents()
                     return interaction.editReply({ embeds: await getEmbeds(), components })
                 } catch (error) {
-                    return console.log(error)
+                    return reportError(error, 'command.duck.reply');
                 }
 
             }
@@ -439,7 +439,7 @@ ${currinteraction ? currinteraction : ''}
                     await interaction.editReply({ content: null, embeds: await getEmbeds(), components, files: [firstbuild.attach] });
 
                 } catch (error) {
-                    console.log(error)
+                    reportError(error, 'command.duck.collector');
                 }
                 return;
                 

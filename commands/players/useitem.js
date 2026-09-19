@@ -188,7 +188,6 @@ module.exports = {
                             }
                         }catch (err){
                             API.client.emit('error', err)
-                            console.log(err)
                         }
                     }
 

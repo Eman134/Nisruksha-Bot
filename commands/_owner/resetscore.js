@@ -52,7 +52,7 @@ reacted = true;
                         await API.eco.tp.add(user_id, finalmastery)
                         if (API.debug) console.log('add tp ' + finalmastery + ' to ' + user_id)
                     } catch (error) {
-                        console.log(error)
+                        reportError(error, 'command.resetscore.add_tp', { userId: user_id });
                     }
                 }
                 

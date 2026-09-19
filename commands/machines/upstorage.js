@@ -90,7 +90,6 @@ module.exports = {
                 if (embedinteraction)interaction.editReply({ embeds: [embed], components: [] });
             }catch (err){
                 API.client.emit('error', err)
-                console.log(err)
             }
             if (err)collector.stop()
             
@@ -108,7 +107,6 @@ module.exports = {
                 }
             }catch (err){
                 API.client.emit('error', err)
-                console.log(err)
             }
         });
 

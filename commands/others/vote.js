@@ -67,7 +67,7 @@ module.exports = {
         })
 
             req.on('error', error => {
-            console.error(error)
+            reportError(error, 'command.vote.request');
         })
 
         req.end()

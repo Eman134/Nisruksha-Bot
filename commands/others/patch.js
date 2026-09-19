@@ -1,5 +1,6 @@
 let patch = ''
 let patchobj
+const { reportError } = require('../../_classes/debug');
 
 const { readFileSync } = require('fs')
 const path = './_json/patch.json'
@@ -13,7 +14,6 @@ try {
     if (API.debug) console.log(`Error on load patch obj`);
   }
 } catch (err) {
-    console.log('Error parsing JSON string:', err);
     if (API.debug) console.log(`Error on load patch obj`);
     API.client.emit('error', err)
 }
@@ -83,7 +83,7 @@ module.exports = {
                     embedinteraction.react('👍🏽');
                     embedinteraction.react('👎🏽');
                 } catch (error) {
-                    console.log(error)
+                    reportError(error, 'command.patch.publish');
                 }
             })
         }

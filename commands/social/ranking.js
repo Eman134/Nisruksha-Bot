@@ -88,7 +88,6 @@ async function setRankCache() {
         try {
             array = await DatabaseManager.findMany(data.db.table);
         } catch (err) {
-            console.log(err.stack)
             API.client.emit('error', err)
         }
         vare[data.emoji].global = array.sort((a, b) => b[data.db.column] - a[data.db.column]);

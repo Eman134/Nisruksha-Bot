@@ -90,7 +90,7 @@ module.exports = {
                     if (stop) components = []
                     await interaction.editReply({embeds: [embed], components })
                 }catch (err) {
-                    console.log(err)
+                    reportError(err, 'command.picktreasure.collector');
                     await API.cacheLists.waiting.remove(interaction.user.id, 'digging');
                     return
                 }

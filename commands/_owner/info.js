@@ -54,7 +54,6 @@ async function send(API, interaction) {
         try {
             array = await DatabaseManager.findMany('servers');
         } catch (err) {
-            console.log(err.stack)
             API.client.emit('error', err)
         }
 
@@ -81,7 +80,6 @@ async function send(API, interaction) {
                 try {
                     await DatabaseManager.set(array1[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
-                    console.log(err.stack)
                     API.client.emit('error', err)
                 }
                 array1.splice(i, 1)
@@ -109,7 +107,6 @@ async function send(API, interaction) {
                 try {
                     await DatabaseManager.set(array2[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
-                    console.log(err.stack)
                     API.client.emit('error', err)
                 }
                 array2.splice(i, 1)
@@ -140,7 +137,6 @@ async function send(API, interaction) {
 
     }catch (err){
         API.client.emit('error', err)
-        console.log(err.stack)
     }
 
 }

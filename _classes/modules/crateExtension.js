@@ -40,7 +40,6 @@ crateExtension.load = async function() {
         return `Error on pick crates obj`;
       }
     } catch (err) {
-        console.log('Error parsing JSON string:', err);
         API.client.emit('error', err)
         return `Error on pick crates obj`;
     }

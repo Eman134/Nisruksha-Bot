@@ -1,4 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
+const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('id-caixa').setDescription('Escreva o id da caixa da sua mochila para abrir').setRequired(true))
 .addIntegerOption(option => option.setName('quantia').setDescription('Escolha uma quantia de caixas para abrir').setRequired(true))
@@ -146,8 +147,6 @@ module.exports = {
                     }
                     
                 } catch (err) {
-                    console.log(`Um erro na caixa ${id} foi encontrado!\nReward:`)
-                    console.log(err)
                     API.client.emit('error', err)
                     interaction.channel.send({ content: 'Não foi possível entregar sua recompensa da caixa, contate algum moderador ou o criador do Nisruksha.' })
                 }
@@ -177,7 +176,7 @@ module.exports = {
                 }
 
             } catch (error) {
-                console.log(error)
+                reportError(error, 'command.openbox.execute', { userId: interaction.user?.id });
             }
                 
         }

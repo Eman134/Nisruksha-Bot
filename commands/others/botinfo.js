@@ -1,3 +1,5 @@
+const { reportError } = require('../../_classes/debug');
+
 module.exports = {
     name: 'botinfo',
     aliases: ['infobot', 'boti', 'bi'],
@@ -93,7 +95,7 @@ module.exports = {
             table.clearRows()
 
         } catch (error) {
-            console.log(error)
+            reportError(error, 'command.botinfo.execute', { userId: interaction.user?.id });
         }
 
         function toTime(ms) {

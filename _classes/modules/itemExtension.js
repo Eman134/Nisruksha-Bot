@@ -1,4 +1,5 @@
 const API = require("../api.js");
+const { reportError } = require('../debug');
 const Database = require('../manager/DatabaseManager');
 const DatabaseManager = new Database();
 const itemExtension = {
@@ -186,7 +187,6 @@ itemExtension.getChips = async function(user_id) {
     try {
         res = await DatabaseManager.get(user_id, 'storage');
     } catch (err) {
-        console.log(err.stack)
         API.client.emit('error', err)
     }
 
@@ -225,7 +225,7 @@ itemExtension.unequipChip = async function(user_id, slot) {
     await DatabaseManager.set(user_id, 'machines', 'slots', chips)
     return chips
   } catch (error) {
-    console.log(error)
+    reportError(error, 'items.unequip_chip', { userId: user_id, slot });
   }
 }
 
@@ -239,7 +239,7 @@ itemExtension.unequipAllChips = async function(user_id) {
     }
     await DatabaseManager.set(user_id, 'machines', `slots`, null)
   } catch (error) {
-    console.log(error)
+    reportError(error, 'items.unequip_all_chips', { userId: user_id });
   }
 }
 
@@ -257,7 +257,6 @@ itemExtension.removeChipsDurability = async function(user_id, amount) {
     await DatabaseManager.set(user_id, 'machines', `slots`, chips)
 
   } catch (error) {
-    console.log(error)
     API.client.emit('error', error)
   }
   
@@ -295,7 +294,6 @@ itemExtension.getInv = async function(user_id, filtered, length) {
     try {
       res = await DatabaseManager.get(user_id, 'storage');
   } catch (err) {
-      console.log(err.stack)
       API.client.emit('error', err)
   }
   
