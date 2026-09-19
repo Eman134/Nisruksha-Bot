@@ -2,20 +2,17 @@ const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","client","townExtension"],
     name: 'terrenos',
     aliases: ['landplots', 'terrains', 'lotes', 'plots'],
     category: 'none',
     description: 'Visualiza as informações de todos os seus terrenos',
     mastery: 25,
     companytype: 1,
-	async execute(API, interaction, company) {
-
-        const Discord = API.Discord;
-        const client = API.client;
-
+	async execute(interaction, svcDiscord, svcClient, svcTownExtension, company) {
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        const embed = new Discord.MessageEmbed().setColor(`#b8312c`)
+        const embed = new svcDiscord.MessageEmbed().setColor(`#b8312c`)
         if (!pobj.plots || Object.keys(pobj.plots).length == 0) {
             embed.addField(`❌ Não possui terrenos`, `Utilize \`/terrenoatual\` para adquirir um terreno`)
          await interaction.reply({ embeds: [embed] });
@@ -23,8 +20,8 @@ module.exports = {
         }
 
         let x = 1
-        let townnum = await API.townExtension.getTownNum(interaction.user.id);
-        let townname = await API.townExtension.getTownName(interaction.user.id);
+        let townnum = await svcTownExtension.getTownNum(interaction.user.id);
+        let townname = await svcTownExtension.getTownName(interaction.user.id);
         for (let r of Object.keys(pobj.plots)) {
 
             r = pobj.plots[r]
@@ -36,7 +33,7 @@ module.exports = {
                 }
             }
             // \nConservação do terreno: \`${r.cons}%\`
-            embed.addField(`${townnum == r.loc ? '<:arrow:737370913204600853> ':''}<:terreno:765944910179336202> Terreno ${x}`, `Área máxima em m²: \`${r.area}m²\`\nLotes de plantação: \`${r.plants ? r.plants.length : 0}/5\`\nÁrea com plantação: \`${areaplant}m²\`\nLocalização: \`${API.townExtension.getTownNameByNum(r.loc)}\``)
+            embed.addField(`${townnum == r.loc ? '<:arrow:737370913204600853> ':''}<:terreno:765944910179336202> Terreno ${x}`, `Área máxima em m²: \`${r.area}m²\`\nLotes de plantação: \`${r.plants ? r.plants.length : 0}/5\`\nÁrea com plantação: \`${areaplant}m²\`\nLocalização: \`${svcTownExtension.getTownNameByNum(r.loc)}\``)
             x++
         }
         await interaction.reply({ embeds: [embed] });

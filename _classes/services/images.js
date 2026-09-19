@@ -1,5 +1,7 @@
+module.exports = function createModule(dependencies) {
+    const { Discord, cacheLists, client, db } = dependencies;
+const DatabaseManager = db;
 const img = {};
-const API = require('../api.js');
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
@@ -166,7 +168,7 @@ function rememberLocalImage(key, image) {
 }
 
 async function getRedisImage(filePath, version) {
-    const images = API.cacheLists?.images;
+    const images = cacheLists?.images;
     if (!images || Date.now() < redisUnavailableUntil) return null;
 
     try {
@@ -180,7 +182,7 @@ async function getRedisImage(filePath, version) {
 }
 
 async function setRedisImage(filePath, version, file) {
-    const images = API.cacheLists?.images;
+    const images = cacheLists?.images;
     if (!images || Date.now() < redisUnavailableUntil) return;
 
     try {
@@ -439,7 +441,7 @@ img.getAssets = async function (groupName) {
 
 img.getAttachment = async function (image, name) {
     if (!image) return;
-    return new API.Discord.MessageAttachment(await imageToBuffer(image), name);
+    return new Discord.MessageAttachment(await imageToBuffer(image), name);
 };
 
 img.sendImage = async function (channel, image, interactionidreference, text) {
@@ -449,7 +451,7 @@ img.sendImage = async function (channel, image, interactionidreference, text) {
         return await channel.send(text ? { content: text, files: [attachment] } : { files: [attachment] });
     } catch (error) {
         await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' });
-        API.client.emit('error', error);
+        client.emit('error', error);
     }
 };
 
@@ -538,7 +540,7 @@ async function imageToBuffer(image) {
 }
 
 // `fillStyle` and gradient stops intentionally stay on the compositor context,
-// matching the small subset of the 2D API used by the image generators.
+// matching the small subset of the 2D services used by the image generators.
 Object.defineProperties(ImageComposer.prototype, {
     fillStyle: { get() { return this.state.fillStyle; }, set(value) { this.state.fillStyle = value; } },
     strokeStyle: { get() { return this.state.strokeStyle; }, set(value) { this.state.strokeStyle = value; } },
@@ -553,12 +555,12 @@ ImageComposer.prototype.createLinearGradient = function (...args) {
     return gradient;
 };
 
-img.imagegens = new API.Discord.Collection(undefined, undefined);
-API.img = img;
+img.imagegens = new Discord.Collection(undefined, undefined);
 fs.readdir(path.resolve(__dirname, '../packages/imagegens/'), (error, files) => {
     if (error) return reportError(error, 'images.generators_load');
     files.filter(file => file.endsWith('.js')).forEach(file => img.imagegens.set(file, require(`../packages/imagegens/${file}`)));
 });
 console.log('[GENIMAGES] Carregados'.green);
 
-module.exports = img;
+return img;
+};

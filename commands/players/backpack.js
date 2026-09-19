@@ -6,19 +6,17 @@ const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja a mochila de algum membro'))
 
 module.exports = {
+    requiredServices: ["Discord","crateExtension","createButton","itemExtension","rowComponents","shopExtension"],
     name: 'mochila',
     aliases: ['backpack', 'bag', 'inv'],
     category: 'Players',
     description: 'Visualiza os itens que estão na sua mochila',
     data,
     mastery: 7,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-
+	async execute(interaction, svcDiscord, svcCrateExtension, svcCreateButton, svcItemExtension, svcRowComponents, svcShopExtension) {
         let member = interaction.options.getUser('membro') || interaction.user
 
-        let arraycrates = await API.crateExtension.getCrates(member.id);
+        let arraycrates = await svcCrateExtension.getCrates(member.id);
         let array2 = []
         for (const crate of arraycrates) {
             if (parseInt(crate.split(";")[1]) > 0){
@@ -29,9 +27,9 @@ module.exports = {
         const utilsobj = await DatabaseManager.get(member.id, 'players_utils')
 
         let backpackid = utilsobj.backpack;
-        let backpack = API.shopExtension.getProduct(backpackid);
+        let backpack = svcShopExtension.getProduct(backpackid);
 
-        let arrayitens = await API.itemExtension.getInv(member.id, true)
+        let arrayitens = await svcItemExtension.getInv(member.id, true)
 
         let sorter = 0
         let sortermode = 0
@@ -47,7 +45,7 @@ module.exports = {
 
         async function setInfosEmbed(embed, member) {
     
-            const map = array2.map(crate => `**${crate.split(';')[1]}x** ${API.crateExtension.obj[crate.split(';')[0]].icon} ${API.crateExtension.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
+            const map = array2.map(crate => `**${crate.split(';')[1]}x** ${svcCrateExtension.obj[crate.split(';')[0]].icon} ${svcCrateExtension.obj[crate.split(';')[0]].name} | **ID: ${crate.split(';')[0]}**`).join('\n');
             
             arrayitens = arrayitens.sort(function(a, b){
 
@@ -88,7 +86,7 @@ module.exports = {
             
             embed.addField(`💠 Itens [${arrayitens.length}/${backpack.customitem.typesmax}]`, `Para vender itens utilize \`/venderitem\`\nPara usar itens utilize \`/usaritem\`\nOBS: Itens que podem ser usados são marcados com 💫`)
             //for (i = 1; i < totalpages; i++) {
-            const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${API.itemExtension.translateRarity(i2.rarity)}] `:''}**${i2.size}x** ${i2.icon} ${i2.displayname}${i2.usavel ? ` 💫` : ''}`).join('\n')
+            const mapitens = arrayitens.slice((currentpage*10)-10, currentpage*10).map((i2) => `${i2.rarity != "" ? `[${svcItemExtension.translateRarity(i2.rarity)}] `:''}**${i2.size}x** ${i2.icon} ${i2.displayname}${i2.usavel ? ` 💫` : ''}`).join('\n')
             embed.addField(`Itens Página ${currentpage}/${totalpages} ${sorter == 0 ? '🔢' : sorter == 1 ? '<:raro:852302870074359838>' : '🔠'}${sortermode == 0 ? '<:up:833837888634486794>':'<:down:833837888546275338>'}`, (arrayitens.length <= 0 ? '**Não possui itens**' : `${mapitens}`))
            // }
             return embed
@@ -99,21 +97,21 @@ module.exports = {
             const butnList = []
             const components = []
       
-            butnList.push(API.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
-            butnList.push(API.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
+            butnList.push(svcCreateButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
+            butnList.push(svcCreateButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
             // Sorters
-            butnList.push(API.createButton('sort0', 'SECONDARY', 'Quantidade', '🔢'))
-            butnList.push(API.createButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
-            butnList.push(API.createButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
+            butnList.push(svcCreateButton('sort0', 'SECONDARY', 'Quantidade', '🔢'))
+            butnList.push(svcCreateButton('sort1', 'SECONDARY', 'Raridade', '852302870074359838'))
+            butnList.push(svcCreateButton('sort2', 'SECONDARY', 'Alfabeto', '🔠'))
 
-            components.push(API.rowComponents(butnList))
+            components.push(svcRowComponents(butnList))
       
             return components
       
         }
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new svcDiscord.MessageEmbed()
 
         await setInfosEmbed(embed, member)
 
@@ -151,7 +149,7 @@ module.exports = {
 
             components = reworkButtons({ currentpage, totalpages })
 
-            const embed = new Discord.MessageEmbed()
+            const embed = new svcDiscord.MessageEmbed()
             
             await setInfosEmbed(embed, member)
            

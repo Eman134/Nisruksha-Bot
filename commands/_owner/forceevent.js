@@ -8,30 +8,31 @@ const data = new SlashCommandBuilder()
 .addBooleanOption(option => option.setName('vila-atual').setDescription('Se o tesouro será aleatório ou na sua vila atual').setRequired(false))
 
 module.exports = {
+    requiredServices: ["events","townExtension"],
     name: 'forçarevento',
     aliases: ['forcetreasure'],
     category: 'none',
     description: 'none',
     data,
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcEvents, svcTownExtension) {
 
         const loc = interaction.options.getBoolean('vila-atual')
         const evento = interaction.options.getString('evento')
         await interaction.reply({ content: `Evento ${evento} executado!`})
         if(loc){
-            var townnum = await API.townExtension.getTownNum(interaction.user.id)
+            var townnum = await svcTownExtension.getTownNum(interaction.user.id)
         }
         const town = townnum == null ? undefined : townnum
         switch (evento) {
             case 'TREASURE':
-                API.events.forceTreasure(town)
+                svcEvents.forceTreasure(town)
                 break;
             case 'RACE':
-                API.events.forceRace()
+                svcEvents.forceRace()
                 break;
             case 'DUCK':
-                API.events.forceDuck(town)
+                svcEvents.forceDuck(town)
                 break;
         }
 

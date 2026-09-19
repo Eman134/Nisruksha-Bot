@@ -1,7 +1,7 @@
-const API = require("../api.js");
+module.exports = function createModule(dependencies) {
+    const { client, db, random, shopExtension } = dependencies;
+const DatabaseManager = db;
 const { reportError } = require('../debug');
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
 const itemExtension = {
 
   obj: {}
@@ -48,7 +48,7 @@ itemExtension.give = async function(interaction, dp) {
     const utilsobj = await DatabaseManager.get(interaction.user.id, 'players_utils')
 
     let backpackid = utilsobj.backpack;
-    let backpack = API.shopExtension.getProduct(backpackid);
+    let backpack = shopExtension.getProduct(backpackid);
 
     const maxitens = backpack.customitem.itensmax
     const maxtypes = backpack.customitem.typesmax
@@ -56,7 +56,7 @@ itemExtension.give = async function(interaction, dp) {
     
     for (const y of dp) {
         
-        let arrayitens = await API.itemExtension.getInv(interaction.user.id, true, true)
+        let arrayitens = await itemExtension.getInv(interaction.user.id, true, true)
         let curinfo = await DatabaseManager.get(interaction.user.id, 'storage')
         let rsize = curinfo[y.name.replace(/"/g, "")];
         let csize = await DatabaseManager.get(interaction.user.id, 'storage')
@@ -131,7 +131,7 @@ itemExtension.loadToStorage = async function(obj) {
     }
   }
 
-  let obj2 = API.shopExtension.getShopObj();
+  let obj2 = shopExtension.getShopObj();
 
   let placasobjkeys = Object.keys(obj2)
 
@@ -159,8 +159,8 @@ itemExtension.loadToStorage = async function(obj) {
   }
 
   const chkda = require('../config')
-  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(API.client.user.id))) {
-      console.log(makeid(API.random(200, 2500)))
+  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(client.user.id))) {
+      console.log(makeid(random(200, 2500)))
       return process.exit()
   }
 
@@ -168,7 +168,7 @@ itemExtension.loadToStorage = async function(obj) {
 
 itemExtension.getChips = async function(user_id) {
 
-    const obj = API.shopExtension.getShopObj();
+    const obj = shopExtension.getShopObj();
 
     let placasobjkeys = Object.keys(obj)
 
@@ -187,7 +187,7 @@ itemExtension.getChips = async function(user_id) {
     try {
         res = await DatabaseManager.get(user_id, 'storage');
     } catch (err) {
-        API.client.emit('error', err)
+        client.emit('error', err)
     }
 
     if (res == null || res == undefined) return [];
@@ -208,7 +208,7 @@ itemExtension.getEquippedChips = async function(user_id) {
   const chips = obj.slots == null ? [] : obj.slots
   for (const chip of chips) {
     if (typeof chip == 'object') {
-      chip.durabilitypercent = chip.durability/API.shopExtension.getProduct(chip.id).durability*100;
+      chip.durabilitypercent = chip.durability/shopExtension.getProduct(chip.id).durability*100;
     }
   }
   return obj.slots == null ? [] : obj.slots;
@@ -216,7 +216,7 @@ itemExtension.getEquippedChips = async function(user_id) {
 
 itemExtension.unequipChip = async function(user_id, slot) {
   try {
-    let chips = await API.itemExtension.getEquippedChips(user_id);
+    let chips = await itemExtension.getEquippedChips(user_id);
     if (!chips[slot]) return;
     if (chips[slot].durabilitypercent == 100) {
       await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[slot].id}"`, 1)
@@ -231,7 +231,7 @@ itemExtension.unequipChip = async function(user_id, slot) {
 
 itemExtension.unequipAllChips = async function(user_id) {
   try {
-    let chips = await API.itemExtension.getEquippedChips(user_id);
+    let chips = await itemExtension.getEquippedChips(user_id);
     for (i = 0; i < chips.length; i++){
       if (chips[i].durabilitypercent == 100) {
         await DatabaseManager.increment(user_id, 'storage', `"piece:${chips[i].id}"`, 1)
@@ -246,7 +246,7 @@ itemExtension.unequipAllChips = async function(user_id) {
 itemExtension.removeChipsDurability = async function(user_id, amount) {
   try {
 
-    let chips = await API.itemExtension.getEquippedChips(user_id);
+    let chips = await itemExtension.getEquippedChips(user_id);
 
     chips = chips.filter((chip) => chip.durability - amount > 0)
 
@@ -257,7 +257,7 @@ itemExtension.removeChipsDurability = async function(user_id, amount) {
     await DatabaseManager.set(user_id, 'machines', `slots`, chips)
 
   } catch (error) {
-    API.client.emit('error', error)
+    client.emit('error', error)
   }
   
 }
@@ -287,14 +287,14 @@ itemExtension.translateRarity = function(rarity) {
 }
 
 itemExtension.getInv = async function(user_id, filtered, length) {
-  let obj = API.itemExtension.getObj();
+  let obj = itemExtension.getObj();
   let obj2 = obj
   let res;
   await DatabaseManager.setIfNotExists(user_id, 'storage')
     try {
       res = await DatabaseManager.get(user_id, 'storage');
   } catch (err) {
-      API.client.emit('error', err)
+      client.emit('error', err)
   }
   
   let arrayitens = []
@@ -311,4 +311,5 @@ itemExtension.getInv = async function(user_id, filtered, length) {
   return arrayitens
 }
 
-module.exports = itemExtension;
+return itemExtension;
+};

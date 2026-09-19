@@ -1,6 +1,7 @@
+module.exports = function createModule(dependencies) {
+    const { db } = dependencies;
+const DatabaseManager = db;
 const { readFileSync } = require('fs');
-const Database = require("../manager/DatabaseManager.js");
-const DatabaseManager = new Database();
 
 const badges = {
     json: []
@@ -55,4 +56,5 @@ badges.load = function () {
     }
 }
 
-module.exports = badges
+return badges;
+};

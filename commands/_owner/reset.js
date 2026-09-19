@@ -7,23 +7,22 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","createButton","rowComponents"],
     name: 'reset',
     aliases: ['resetar'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
     data,
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcCreateButton, svcRowComponents) {
 
-        const tabela = interaction.options.getString('tabela');
-		const Discord = API.Discord;
-        const embed = new Discord.MessageEmbed()
+        const tabela = interaction.options.getString('tabela');        const embed = new svcDiscord.MessageEmbed()
         embed.setDescription('Reaja para continuar o reset de ' + tabela)
 
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -79,7 +78,7 @@ reacted = true;
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new API.Discord.MessageEmbed();
+            const embed = new svcDiscord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar ${tabela}, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed] });

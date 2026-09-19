@@ -1,6 +1,6 @@
 const { reportError } = require('../../debug');
 const ImageCharts = require('image-charts');
-module.exports = async function execute(API, {
+module.exports = async function execute(imageServices, {
 
     username,
     rend,
@@ -18,7 +18,7 @@ module.exports = async function execute(API, {
     company_id,
 
 }) {
-    const { bg } = await API.img.getAssets('seecompany');
+    const { bg } = await imageServices.img.getAssets('seecompany');
 
     // Criando o padrão de imagem do perfil
 
@@ -27,7 +27,7 @@ module.exports = async function execute(API, {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const composer = API.img.createComposer(width, height);
+    const composer = imageServices.img.createComposer(width, height);
 	const ctx = composer.getContext("2d");
 
 
@@ -36,7 +36,7 @@ module.exports = async function execute(API, {
     if (bglink != null) {
         try {
             // Criando o background personalizado como imagem e definindo a resolução
-            const imageBackground = await API.img.loadImage(bglink)
+            const imageBackground = await imageServices.img.loadImage(bglink)
             ctx.drawImage(imageBackground, 0, 0, width, height);
         } catch (error) {
             reportError(error, 'imagegen.seecompany.background', { bglink });
@@ -48,10 +48,10 @@ module.exports = async function execute(API, {
 
     // Desenhando logo
     if (logo == null) {
-        API.img.drawText(ctx, `/editarempresa logo`, 12, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 115, 125, 4)
+        imageServices.img.drawText(ctx, `/editarempresa logo`, 12, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 115, 125, 4)
     } else {
         try{
-            const logoImage = await API.img.loadImage(logo)
+            const logoImage = await imageServices.img.loadImage(logo)
             ctx.drawImage(logoImage, 38, 50, 150, 150);
         } catch (error) {
             reportError(error, 'imagegen.seecompany.logo', { logo });
@@ -60,24 +60,24 @@ module.exports = async function execute(API, {
 
     // Desenhando icon da empresa
 
-    const icon = await API.img.loadImage(`./resources/backgrounds/company/icon-${type}.png`)
+    const icon = await imageServices.img.loadImage(`./resources/backgrounds/company/icon-${type}.png`)
     ctx.drawImage(icon, 218, 57, 25, 25);
 
     // Vagas
-    const hasVacanciesIcon = await API.img.loadImage(hasVacancies ? 'https://cdn.discordapp.com/attachments/736274289254334504/768995522286714910/556678187786960897.png' : 'https://cdn.discordapp.com/attachments/736274289254334504/768995546127138856/556678417018257408.png')
+    const hasVacanciesIcon = await imageServices.img.loadImage(hasVacancies ? 'https://cdn.discordapp.com/attachments/736274289254334504/768995522286714910/556678187786960897.png' : 'https://cdn.discordapp.com/attachments/736274289254334504/768995546127138856/556678417018257408.png')
     ctx.drawImage(hasVacanciesIcon, 95, 361, 20, 20);
     // Textos
 
-    API.img.drawText(ctx, `${name}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 254, 70,3)
-    API.img.drawText(ctx, `Fundador:`, 16, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 213, 185,3)
-    API.img.drawText(ctx, `@${username}`, 16, './resources/fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
-    API.img.drawText(ctx, `${score.toFixed(2)}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 620, 70,5)
-    API.img.drawText(ctx, `${descr == null ? `Nenhuma descrição da empresa foi definida! /editarempresa desc`: descr}`, 15, './resources/fonts/Uni-Sans-Light.ttf', '#FFFFFF', 211, 105,3)
-    API.img.drawText(ctx, `Código: ${company_id}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 239,3)
-    API.img.drawText(ctx, `Taxa: ${taxa}%`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 272,3)
-    API.img.drawText(ctx, `Loc: ${API.townExtension.getTownNameByNum(loc)}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 305,3)
-    API.img.drawText(ctx, `Funcionários: ${workers ? workers.length : 0}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 338,3)
-    API.img.drawText(ctx, `Vagas`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 371,3)
+    imageServices.img.drawText(ctx, `${name}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 254, 70,3)
+    imageServices.img.drawText(ctx, `Fundador:`, 16, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 213, 185,3)
+    imageServices.img.drawText(ctx, `@${username}`, 16, './resources/fonts/MartelSans-Regular.ttf', '#03e8fc', 295, 185,3)
+    imageServices.img.drawText(ctx, `${score.toFixed(2)}`, 20, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 620, 70,5)
+    imageServices.img.drawText(ctx, `${descr == null ? `Nenhuma descrição da empresa foi definida! /editarempresa desc`: descr}`, 15, './resources/fonts/Uni-Sans-Light.ttf', '#FFFFFF', 211, 105,3)
+    imageServices.img.drawText(ctx, `Código: ${company_id}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 239,3)
+    imageServices.img.drawText(ctx, `Taxa: ${taxa}%`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 272,3)
+    imageServices.img.drawText(ctx, `Loc: ${imageServices.townExtension.getTownNameByNum(loc)}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 305,3)
+    imageServices.img.drawText(ctx, `Funcionários: ${workers ? workers.length : 0}`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 338,3)
+    imageServices.img.drawText(ctx, `Vagas`, 15, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 50, 371,3)
 
     // Gráfico
 
@@ -99,7 +99,7 @@ module.exports = async function execute(API, {
     .chd(`a:${rend}`)
     .toURL();
     
-    const chart = await API.img.loadImage(chart_url)
+    const chart = await imageServices.img.loadImage(chart_url)
     ctx.drawImage(chart, 198, 210, 465, 190);
     
     ctx.beginPath();
@@ -109,6 +109,6 @@ module.exports = async function execute(API, {
     ctx.closePath();
 
     // Transformando a imagem em arquivo
-    return API.img.getAttachment(composer, 'image.png');
+    return imageServices.img.getAttachment(composer, 'image.png');
 
 }

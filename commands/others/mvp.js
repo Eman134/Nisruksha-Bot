@@ -2,20 +2,17 @@ const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","client","debug","ms"],
     name: 'mvp',
     aliases: ['vip'],
     category: 'Outros',
     description: 'Veja as vantagens e caso você tenha um MVP veja o tempo restante',
     mastery: 15,
-	async execute(API, interaction) {
-
-                const Discord = API.Discord;
-                const client = API.client;
-                
-                const embed = new Discord.MessageEmbed()
+	async execute(interaction, svcDiscord, svcClient, svcDebug, svcMs) {                
+                const embed = new svcDiscord.MessageEmbed()
                 .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setTitle(`Doe para o nosso projeto`)
-                .setThumbnail(client.user.displayAvatarURL())
+                .setThumbnail(svcClient.user.displayAvatarURL())
                 .addField(`<:list:736274028179750922> Quais as vantagens?`, `
 \`1.\` Energia recarrega mais rápido
 \`2.\` Cor de destaque MVP no seu perfil
@@ -42,9 +39,9 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
 `).setTimestamp()
 
             let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-            if (API.debug)console.log(Date.now()-pobj.mvp)
+            if (svcDebug)console.log(Date.now()-pobj.mvp)
             if (pobj.mvp != null) {
-                embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${API.ms2((Date.now()-pobj.mvp)*-1)}**`)
+                embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${svcMs((Date.now()-pobj.mvp)*-1, true)}**`)
             }
 
             if (interaction.replied) return interaction.channel.send({ embeds: [embed]})

@@ -1,14 +1,15 @@
 module.exports = {
+    requiredServices: ["debug"],
     name: 'debug',
     aliases: [],
     category: 'none',
     description: 'none',
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcDebug) {
 
-        await interaction.reply({ content: `Debug foi setado para ${!API.debug}` })
+        await interaction.reply({ content: `Debug foi setado para ${!svcDebug}` })
         
-        API.debug = !API.debug
+        svcDebug = !svcDebug
 
 	}
 };

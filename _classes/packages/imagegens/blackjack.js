@@ -1,5 +1,5 @@
-module.exports = async function execute(API, options) {
-    const { bg } = await API.img.getAssets('blackjack');
+module.exports = async function execute(imageServices, options) {
+    const { bg } = await imageServices.img.getAssets('blackjack');
 
     // Criando o padrão de imagem do perfil
 
@@ -8,7 +8,7 @@ module.exports = async function execute(API, options) {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const composer = API.img.createComposer(width, height);
+    const composer = imageServices.img.createComposer(width, height);
 	const ctx = composer.getContext("2d");
 
     ctx.drawImage(imageDefault, 0, 0);
@@ -33,17 +33,17 @@ module.exports = async function execute(API, options) {
         }
     }
     
-    API.img.drawText(ctx, normalize(player1.name) + '  [' + (player1.pontos) + ' p]', 30, './resources/fonts/Uni Sans.ttf', player1color, 250, 40, 4)
-    API.img.drawText(ctx, normalize(player2.name) + '  [' + (player2.pontos) + ' p]', 30, './resources/fonts/Uni Sans.ttf', player2color, 250, 290, 4)
+    imageServices.img.drawText(ctx, normalize(player1.name) + '  [' + (player1.pontos) + ' p]', 30, './resources/fonts/Uni Sans.ttf', player1color, 250, 40, 4)
+    imageServices.img.drawText(ctx, normalize(player2.name) + '  [' + (player2.pontos) + ' p]', 30, './resources/fonts/Uni Sans.ttf', player2color, 250, 290, 4)
     
     for (let i = 0; i < player1.cartas.length; i++) {
         const card = player1.cartas[i]
-        const image = await API.img.loadImage(card.imagem)
+        const image = await imageServices.img.loadImage(card.imagem)
         if (i < 5) {
             const x = 28 + (i * 86)
             ctx.drawImage(image, x, 90, image.width, image.height)
         } else {
-            const randomed = API.random(20, 45)
+            const randomed = imageServices.random(20, 45)
             ctx.save()
             ctx.translate(100, 100);
             ctx.rotate((randomed+i*2) * Math.PI / 180);
@@ -56,12 +56,12 @@ module.exports = async function execute(API, options) {
 
     for (let i = 0; i < player2.cartas.length; i++) {
         const card = player2.cartas[i]
-        const image = await API.img.loadImage(card.imagem)
+        const image = await imageServices.img.loadImage(card.imagem)
         if (i < 5) {
             const x = 28 + (i * 86)
             ctx.drawImage(image, x, 355, image.width, image.height)
         } else {
-            const randomed = API.random(20, 45)
+            const randomed = imageServices.random(20, 45)
             ctx.save()
             ctx.translate(300, 300);
             ctx.rotate((randomed+i*2) * Math.PI / 180);
@@ -74,12 +74,12 @@ module.exports = async function execute(API, options) {
 
     /*for (let i = 0; i < player2.cartas.length; i++) {
         const card = player2.cartas[i]
-        const image = await API.img.loadImage(card.imagem)
+        const image = await imageServices.img.loadImage(card.imagem)
         const x = 30 + (i * 50)
         ctx.drawImage(image, x, 350, image.width, image.height)
     }*/
 
     // Transformando a imagem em arquivo
-    return API.img.getAttachment(composer, 'image.png');
+    return imageServices.img.getAttachment(composer, 'image.png');
 
 }

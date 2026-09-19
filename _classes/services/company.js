@@ -1,9 +1,6 @@
-
-const API = require("../api.js");
-
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
-
+module.exports = function createModule(dependencies) {
+    const { Discord, cacheLists, client, db, debug, getFormatedDate, id, itemExtension, ms, random, setCompanieInfo, shopExtension, townExtension } = dependencies;
+const DatabaseManager = db;
 const debugmode = false
 
 const stars = {};
@@ -23,7 +20,7 @@ const stars = {};
 
             options.score = parseFloat(options.score).toFixed(2)
             
-            API.setCompanieInfo(company.user_id, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
+            setCompanieInfo(company.user_id, company_id, 'score', parseFloat(company.score) + parseFloat(options.score))
             obj.score = (parseFloat(obj.score) + parseFloat(options.score)).toFixed(2)
             obj.score = parseFloat(obj.score).toFixed(2)
             
@@ -42,8 +39,8 @@ const stars = {};
     }
 
     stars.gen = function() {
-        let x1 = API.random(0, 3)
-        let x2 = API.random(2, 6)
+        let x1 = random(0, 3)
+        let x2 = random(2, 6)
 
         let y = parseFloat('0.' + x1 + '' + x2)
         return y.toFixed(2)
@@ -64,7 +61,7 @@ check.hasCompany = async function(user_id){
             }
         }
     }catch (err) { 
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err 
     }
 
@@ -85,13 +82,13 @@ check.hasVacancies = async function(company_id) {
     let result = true;
 
     try {
-        const owner = await API.company.get.ownerById(company_id)
+        const owner = await company.get.ownerById(company_id)
         const company = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
         if (company.workers != null && company.workers != undefined && company.workers.length >= company.funcmax) result = false;
         if (company.openvacancie == false) result = false;
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -105,7 +102,7 @@ check.hasVacanciesByCompany = async function(company) {
         if (company.openvacancie == false) result = false;
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -119,11 +116,11 @@ get.maxWorkers = async function(company_id) {
     let result = 3;
 
     try {
-        let res = await API.company.get.companyById(company_id)
+        let res = await company.get.companyById(company_id)
         result = res.funcmax
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -134,14 +131,14 @@ get.companyById = async function(company_id) {
     let res
     try {
         
-        const owner = await API.company.get.ownerById(company_id)
+        const owner = await company.get.ownerById(company_id)
 
         if (owner == null) return undefined
 
         res = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -155,13 +152,13 @@ get.ownerById = async function(company_id) {
         res = (await DatabaseManager.findMany('companies', { company_id }))[0];
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
     if (!res) return null
 
-    let result = await API.client.users.fetch(res.user_id)
+    let result = await client.users.fetch(res.user_id)
 
     return result;
 }
@@ -173,7 +170,7 @@ get.idByOwner = async function(user_id) {
         res = (await DatabaseManager.findMany('companies', { user_id }))[0];
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -191,7 +188,7 @@ get.companyByOwnerId = async function(user_id) {
         res = (await DatabaseManager.findMany('companies', { user_id }))[0];
 
     }catch (err){
-        API.client.emit('error', err)
+        client.emit('error', err)
         throw err
     }
 
@@ -251,14 +248,14 @@ const jobs = {
             const jsonString = readFileSync(path, 'utf8')
             const customer = JSON.parse(jsonString);
             jobs.explore.mobs.obj = customer;
-            if (API.debug) console.log(`Mob list loaded`)
+            if (debug) console.log(`Mob list loaded`)
         } else {
             console.log('File path is missing from shopExtension!')
             jobs.explore.mobs.obj = '`Error on load mob list`';
         }
         } catch (err) {
             jobs.explore.mobs.obj = '`Error on load mob list`';
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
     
     }
@@ -275,7 +272,7 @@ const jobs = {
 
             if (filteredmobs.length == 0) {
 
-                API.company.jobs.explore.mobs.obj = []
+                company.jobs.explore.mobs.obj = []
 
                 mobs = jobs.explore.mobs.get();
 
@@ -283,7 +280,7 @@ const jobs = {
 
                 if (filteredmobs.length == 0) {
 
-                    API.client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
+                    client.emit('error', 'Search mob fail: filteredmobs length == 0\nLevel: ' + level)
                     return undefined
 
                 }
@@ -331,7 +328,7 @@ const jobs = {
             return finalResults;
         }
         
-        //let resultmob = filteredmobs[API.random(0, tonum)]
+        //let resultmob = filteredmobs[random(0, tonum)]
 
         var proportion = generateProportion();
         proportion.sort(function(a, b){
@@ -353,10 +350,10 @@ const jobs = {
             return a.chance - b.chance;
         });
 
-        if (API.debug) console.log(filteredmobs)
+        if (debug) console.log(filteredmobs)
 
         let resultmob
-        let cr = API.random(0, 100)
+        let cr = random(0, 100)
         let acc = 0;
         for (const r of filteredmobs) {
             acc += r.chance;
@@ -367,9 +364,9 @@ const jobs = {
         }
         
         resultmob.csta = resultmob.sta
-        if (API.random(0, 50) < 25)resultmob.level += API.random(0, 3)
-        else if (resultmob.level > 10) resultmob.level -= API.random(0, 3)
-        if (API.debug)console.log(resultmob)
+        if (random(0, 50) < 25)resultmob.level += random(0, 3)
+        else if (resultmob.level > 10) resultmob.level -= random(0, 3)
+        if (debug)console.log(resultmob)
         return resultmob;
 
     }
@@ -407,7 +404,7 @@ const jobs = {
 
         filteredequips = filteredequips.slice(0, qnt)
 
-        if (API.debug)console.log(`${filteredequips.map(e => e.name).join(', ')}`.yellow)
+        if (debug)console.log(`${filteredequips.map(e => e.name).join(', ')}`.yellow)
         for (const r of filteredequips) {
 
             if(!r.dmg) r.dmg = r.level+1*((120-(r.chance*1.13))*0.75/2)
@@ -432,14 +429,14 @@ const jobs = {
             const jsonString = readFileSync(path, 'utf8')
             const customer = JSON.parse(jsonString);
             jobs.explore.equips.obj = customer;
-            if (API.debug) console.log(`Equip list loaded`.yellow)
+            if (debug) console.log(`Equip list loaded`.yellow)
         } else {
             console.log('File path is missing from shopExtension!')
             jobs.explore.equips.obj = '`Error on load equip list`';
         }
         } catch (err) {
             jobs.explore.equips.obj = '`Error on load equip list`';
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
     }
 
@@ -533,14 +530,14 @@ const jobs = {
             const jsonString = readFileSync(path, 'utf8')
             const customer = JSON.parse(jsonString);
             jobs.fish.rods.obj = customer;
-            if (API.debug) console.log(`rods list loaded`.yellow)
+            if (debug) console.log(`rods list loaded`.yellow)
         } else {
             console.log('File path is missing from shopExtension!')
             jobs.fish.rods.obj = '`Error on load rods list`';
         }
         } catch (err) {
             jobs.fish.rods.obj = '`Error on load rods list`';
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
     }
 
@@ -570,14 +567,14 @@ const jobs = {
             const jsonString = readFileSync(path, 'utf8')
             const customer = JSON.parse(jsonString);
             jobs.fish.list.obj = customer;
-            if (API.debug) console.log(`fish list loaded`.yellow)
+            if (debug) console.log(`fish list loaded`.yellow)
         } else {
             console.log('File path is missing from shopExtension!')
             jobs.fish.list.obj = '`Error on load fish list`';
         }
         } catch (err) {
             jobs.fish.list.obj = '`Error on load fish list`';
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
     }
 
@@ -605,19 +602,19 @@ const jobs = {
 
             for (xilist = 0; xilist < list2.length; xilist++) {
 
-                const member = await API.client.users.fetch(list2[xilist])
+                const member = await client.users.fetch(list2[xilist])
 
                 if (!jobs.process.current.includes(member.id)) {
                     jobs.process.current.push(member.id)
                     jobs.process.loopProcess(member.id)
-                    if (debugmode) throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
+                    if (debugmode) throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 } else if (!jobs.process.lastprocess.get(member.id) || (jobs.process.lastprocess.get(member.id) && Date.now()-jobs.process.lastprocess.get(member.id) > 60000*30)) {
-                    await API.cacheLists.waiting.add(member.id, { url: '' }, 'working');
+                    await cacheLists.waiting.add(member.id, { url: '' }, 'working');
                     jobs.process.loopProcess(member.id)
-                    if (debugmode) throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
+                    if (debugmode) throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 }
 
-                if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id)))
+                if (debugmode) console.log('Debugging: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + ms(Date.now()-jobs.process.lastprocess.get(member.id)))
 
             }
 
@@ -638,7 +635,7 @@ const jobs = {
                 let processjson = players_utils.process
 
                 if (processjson == null) {
-                    await API.cacheLists.waiting.remove(user_id, 'working');
+                    await cacheLists.waiting.remove(user_id, 'working');
                     return jobs.process.remove(user_id)
                 }
 
@@ -647,15 +644,15 @@ const jobs = {
                 if (inprocs.length <= 0) {
 
                     jobs.process.remove(user_id)
-                    await API.cacheLists.waiting.remove(user_id, 'working');
+                    await cacheLists.waiting.remove(user_id, 'working');
 
                 } else {
 
-                    if (!API.shopExtension) return
+                    if (!shopExtension) return
 
                     const obj = await DatabaseManager.get(user_id, "machines")
 
-                    let maq = API.shopExtension.getProduct(obj.machine);
+                    let maq = shopExtension.getProduct(obj.machine);
 
                     for (let inprocsi = 0; inprocsi < inprocs.length; inprocsi++) {
 
@@ -663,7 +660,7 @@ const jobs = {
 
                         const indexProcess = processjson.in.indexOf(inprocs[inprocsi])
 
-                        if (inprocs[inprocsi].tool == 0 && API.random(0, 100) < 25) {
+                        if (inprocs[inprocsi].tool == 0 && random(0, 100) < 25) {
                             const percentdurability = Math.round(1*tool.durability.max/100)
                             if (processjson.tools[inprocs[inprocsi].tool].durability.current - percentdurability <= 0) {
                                 processjson.tools[inprocs[inprocsi].tool].durability.current = 0
@@ -671,7 +668,7 @@ const jobs = {
                                 processjson.tools[inprocs[inprocsi].tool].durability.current -= percentdurability
                             }
                         }
-                        if (inprocs[inprocsi].tool == 1 && API.random(0, 100) < 25) {
+                        if (inprocs[inprocsi].tool == 1 && random(0, 100) < 25) {
                             if (processjson.tools[inprocs[inprocsi].tool].fuel.current - processjson.tools[inprocs[inprocsi].tool].fuel.consume <= 0) {
                                 processjson.tools[inprocs[inprocsi].tool].fuel.current = 0
                             } else {
@@ -681,13 +678,13 @@ const jobs = {
 
                         function sendDrop() {
 
-                            const check0 = API.random(0, 100) < 35
-                            const check1 = (API.random(0, tool.potency.max) < tool.potency.current)
-                            const check2 = (API.random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
+                            const check0 = random(0, 100) < 35
+                            const check1 = (random(0, tool.potency.max) < tool.potency.current)
+                            const check2 = (random(0, 100) < Math.round(tool.potency.current/tool.potency.max*100))
 
                             if (check0 && check1 && check2) {
                                     
-                                const gnR = API.random(0, 100, true)
+                                const gnR = random(0, 100, true)
 
                                 let chance = 0
                                 let selectedRarity
@@ -701,7 +698,7 @@ const jobs = {
 
                                 if (!selectedRarity) selectedRarity = "common"
 
-                                const drops = API.itemExtension.getObj().drops.filter((r) => r.levelprocess)
+                                const drops = itemExtension.getObj().drops.filter((r) => r.levelprocess)
 
                                 let filtereddrop = drops.filter((r) => r.rarity == selectedRarity && obj.level+6 >= r.levelprocess)
                                 
@@ -709,7 +706,7 @@ const jobs = {
                                     return b.levelprocess - a.levelprocess;
                                 }).slice(0, 8)
 
-                                filtereddrop = filtereddrop[API.random(0, filtereddrop.length-1)]
+                                filtereddrop = filtereddrop[random(0, filtereddrop.length-1)]
 
                                 if (filtereddrop) {
                                     const droplist = processjson.in[indexProcess].drops || []
@@ -728,11 +725,11 @@ const jobs = {
                                     processjson.in[indexProcess].drops = droplist
                                 }
                                 
-                                const xpbase = API.random(6, 25)
+                                const xpbase = random(6, 25)
 
                                 processjson.in[indexProcess].xpbase += xpbase // ADICIONAR XP BASE
                                 processjson.in[indexProcess].xp += Math.round((xpbase * (maq.tier+1))/1.35) // ADICIONAR XP TOTAL
-                                processjson.in[indexProcess].score = parseFloat(API.company.stars.gen()).toFixed(2) // ADICIONAR SCORE
+                                processjson.in[indexProcess].score = parseFloat(company.stars.gen()).toFixed(2) // ADICIONAR SCORE
 
                             }
 
@@ -742,7 +739,7 @@ const jobs = {
                             sendDrop()
                             processjson.in[indexProcess].fragments.current -= 1
 
-                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp += API.random(30, 130)
+                            processjson.tools[inprocs[inprocsi].tool].toollevel.exp += random(30, 130)
 
                             const maxexp = processjson.tools[inprocs[inprocsi].tool].toollevel.max*processjson.tools[inprocs[inprocsi].tool].toollevel.max*100
 
@@ -753,7 +750,7 @@ const jobs = {
 
                                     if (processjson.tools[inprocs[inprocsi].tool].toollevel.current >= processjson.tools[inprocs[inprocsi].tool].toollevel.max) {
 
-                                        const newtool = API.company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
+                                        const newtool = company.jobs.process.tools.search(obj.level, inprocs[inprocsi].tool)
 
                                         if (processjson.tools[inprocs[inprocsi].tool].name != newtool.name) {
                                             processjson.tools[inprocs[inprocsi].tool] = newtool
@@ -770,14 +767,14 @@ const jobs = {
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
                             processed()
-                            await API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
+                            await cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
                             processed()
-                            await API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
+                            await cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         }
                         
                         if ((processjson.tools[0].durability.current <= 0) && (processjson.tools[1].fuel.current <= 0)) {
-                            await API.cacheLists.waiting.remove(user_id, 'working');
+                            await cacheLists.waiting.remove(user_id, 'working');
                             await jobs.process.remove(user_id)
                             return
                         }
@@ -786,9 +783,9 @@ const jobs = {
 
                     DatabaseManager.set(user_id, 'players_utils', 'process', processjson)
 
-                    const timetoone = API.company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
+                    const timetoone = company.jobs.process.calculateTime(processjson.tools[processjson.in[0].tool].potency.current, 1)
 
-                    if (debugmode) console.log(API.getFormatedDate() + ' Processed | ' + user_id + ' | ' + API.ms2(timetoone))
+                    if (debugmode) console.log(getFormatedDate() + ' Processed | ' + user_id + ' | ' + ms(timetoone, true))
 
                     jobs.process.lastprocess.set(user_id, Date.now())
 
@@ -814,7 +811,7 @@ const jobs = {
 
     jobs.process.get = async function() {
 
-        const globalobj = await DatabaseManager.get(API.id, 'globals');
+        const globalobj = await DatabaseManager.get(id, 'globals');
         const processinglist = globalobj.processing
         
         if (processinglist == null) return []
@@ -837,7 +834,7 @@ const jobs = {
       const index = list.indexOf(user_id);
       if (index > -1) {
         list.splice(index, 1);
-        await DatabaseManager.set(API.id, 'globals', 'processing', list)
+        await DatabaseManager.set(id, 'globals', 'processing', list)
       }
 
       if (jobs.process.current.indexOf(user_id) > -1) {
@@ -852,7 +849,7 @@ const jobs = {
     
       if (!(list.includes(user_id))) {
         list.push(user_id)
-        await DatabaseManager.set(API.id, 'globals', 'processing', list)
+        await DatabaseManager.set(id, 'globals', 'processing', list)
         jobs.process.loopProcess(user_id)
       } 
     
@@ -866,14 +863,14 @@ const jobs = {
             const jsonString = readFileSync(path, 'utf8')
             const customer = JSON.parse(jsonString);
             jobs.process.tools.obj = customer;
-            if (API.debug) console.log(`Tools list loaded`.yellow)
+            if (debug) console.log(`Tools list loaded`.yellow)
         } else {
             console.log('File path is missing from shopExtension!')
             jobs.process.tools.obj = '`Error on load tools list`';
         }
         } catch (err) {
             jobs.process.tools.obj = '`Error on load tools list`';
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
 
     }
@@ -983,40 +980,40 @@ company.create = async function(member, ob) {
         
         try {
             const company = (await DatabaseManager.findMany('companies', { company_id: code }))[0];
-            const embed = new API.Discord.MessageEmbed();
+            const embed = new Discord.MessageEmbed();
 
             if (!company) {
                 try {
 
-                    townnum = await API.townExtension.getTownNum(member.id);
-                    townname = await API.townExtension.getTownName(member.id);
+                    townnum = await townExtension.getTownNum(member.id);
+                    townname = await townExtension.getTownName(member.id);
 
                     embed.setTitle(`Nova empresa!`) 
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
-                    API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
+                    client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                     await DatabaseManager.deleteMany('companies', { user_id: member.id });
-                    await API.setCompanieInfo(member.id, code, 'company_id', code)
-                    await API.setCompanieInfo(member.id, code, 'type', ob.type)
-                    await API.setCompanieInfo(member.id, code, 'name', ob.name)
-                    await API.setCompanieInfo(member.id, code, 'loc', townnum)
+                    await setCompanieInfo(member.id, code, 'company_id', code)
+                    await setCompanieInfo(member.id, code, 'type', ob.type)
+                    await setCompanieInfo(member.id, code, 'name', ob.name)
+                    await setCompanieInfo(member.id, code, 'loc', townnum)
 
                     return code;
                 }catch (err){
-                    API.client.emit('error', err)
+                    client.emit('error', err)
                 }
             } else {
                 try{
                     embed.setDescription(`Failed on generating company ${ob.type}:${ob.name} with code ${code}; Try by ${member}`)
                     embed.setColor('#eb4828')
-                    API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
+                    client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
                 }catch (err){
-                    API.client.emit('error', err)
+                    client.emit('error', err)
                 }
                 await gen();
             }
         } catch (err) {
-            API.client.emit('error', err)
+            client.emit('error', err)
             throw err
         }
 
@@ -1028,4 +1025,5 @@ company.create = async function(member, ob) {
 
 }
 
-module.exports = company;
+return company;
+};

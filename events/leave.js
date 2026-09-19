@@ -4,20 +4,21 @@ const { reportError } = require('../_classes/debug');
 
 module.exports = {
 
+    dependencies: ["Discord","client"],
     name: "guildDelete",
-    execute: async (API, guild) => {
+    execute: async (dependencies, guild) => {
 
         if (!guild || !guild.name) return
 
-        const client = API.client;
-        const Discord = API.Discord;
+        const client = dependencies.client;
+        const Discord = dependencies.Discord;
 
         DatabaseManager.set(guild.id, 'servers', 'lastcmd', 0, 'server_id')
 
 
         let owner = { id: '0', tag: '0#0'}
         try {
-            owner = await API.client.users.fetch(guild.ownerId)
+            owner = await dependencies.client.users.fetch(guild.ownerId)
         } catch (error) {
             reportError(error, 'guild_delete.owner_fetch', { guildId: guild.id });
         }

@@ -5,13 +5,14 @@ const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja os cooldowns ativos de um membro'))
 
 module.exports = {
+    requiredServices: ["Discord","client","ms","playerUtils"],
     name: 'cooldowns',
     aliases: ['cd'],
     category: 'Outros',
     description: 'Visualize todos os cooldowns ativos',
     data,
     mastery: 25,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcClient, svcMs, svcPlayerUtils) {
 
         let member = interaction.options.getUser('membro') || interaction.user
 
@@ -23,9 +24,9 @@ module.exports = {
             const columns = await DatabaseManager.columns('cooldowns');
 
             for (const column of columns.filter((name) => name !== 'user_id')) {
-                const cd = await API.playerUtils.cooldown.check(member.id, column)
+                const cd = await svcPlayerUtils.cooldown.check(member.id, column)
                 if (cd) {
-                    const cd2 = await API.playerUtils.cooldown.get(member.id, column)
+                    const cd2 = await svcPlayerUtils.cooldown.get(member.id, column)
                     if (!blacklist.includes(column)) {
                         filtered.push( {
                             name: column,
@@ -36,17 +37,17 @@ module.exports = {
             }
 
         } catch (err) {
-            API.client.emit('error', err)
+            svcClient.emit('error', err)
         }
 
-        const embed = new API.Discord.MessageEmbed()
+        const embed = new svcDiscord.MessageEmbed()
         .setColor('#4ae8ac')
         .setTitle('⏰ Lista de cooldowns ativos')
         .setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         if (filtered.length > 0) {
 
-            embed.setDescription( filtered.map((i) => `${i.name} <:arrow:737370913204600853> \`${API.ms2(i.time)}\`` ).join('\n') )
+            embed.setDescription( filtered.map((i) => `${i.name} <:arrow:737370913204600853> \`${svcMs(i.time, true)}\`` ).join('\n') )
 
         } else {
             embed.setDescription('Não possui nenhum cooldown ativo!')

@@ -3,24 +3,22 @@ const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
+    requiredServices: ["Discord","createButton","debug","eco","rowComponents"],
     name: 'resetscore',
     aliases: ['resetarscore'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
     options: [],
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcCreateButton, svcDebug, svcEco, svcRowComponents) {
 
-        const scoremin = 80
-
-		const Discord = API.Discord;
-        const embed = new Discord.MessageEmbed()
+        const scoremin = 80        const embed = new svcDiscord.MessageEmbed()
         embed.setDescription('Reaja para continuar o reset de temporada')
 
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -49,8 +47,8 @@ reacted = true;
                     try {
                         if (mastery <= 1000) return;
                         const finalmastery = mastery > 10000 ? mastery/10000 : 1
-                        await API.eco.tp.add(user_id, finalmastery)
-                        if (API.debug) console.log('add tp ' + finalmastery + ' to ' + user_id)
+                        await svcEco.tp.add(user_id, finalmastery)
+                        if (svcDebug) console.log('add tp ' + finalmastery + ' to ' + user_id)
                     } catch (error) {
                         reportError(error, 'command.resetscore.add_tp', { userId: user_id });
                     }
@@ -78,7 +76,7 @@ reacted = true;
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new API.Discord.MessageEmbed();
+            const embed = new svcDiscord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar a temporada, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: []  });

@@ -1,16 +1,13 @@
 module.exports = {
+    requiredServices: ["Discord","client"],
     name: 'ping',
     category: 'Outros',
     description: 'Veja a latência atual do bot',
     mastery: 5,
-	async execute(API, interaction) {
-        
-        const Discord = API.Discord;
-        const client = API.client;
-
-		const embed = new Discord.MessageEmbed()
+	async execute(interaction, svcDiscord, svcClient) {
+		const embed = new svcDiscord.MessageEmbed()
 	    .setColor('#32a893')
-        .setDescription('🏓 Latência: ' + client.ws.ping + ' ms')
+        .setDescription('🏓 Latência: ' + svcClient.ws.ping + ' ms')
 
         await interaction.reply({ embeds: [embed] });
 

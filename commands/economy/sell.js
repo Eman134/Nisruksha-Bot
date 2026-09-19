@@ -23,27 +23,28 @@ const data = new SlashCommandBuilder()
 .addStringOption(options)
 
 module.exports = {
+    requiredServices: ["Discord","createButton","debug","eco","format","isInt","itemExtension","maqExtension","money","moneyemoji","playerUtils","rowComponents","sendError"],
     name: 'vender',
     aliases: ['sell', 'v', 's'],
     category: 'Economia',
     description: 'Vende todos os recursos ou específicos do seu armazém',
     data,
     mastery: 50,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcCreateButton, svcDebug, svcEco, svcFormat, svcIsInt, svcItemExtension, svcMaqExtension, svcMoney, svcMoneyemoji, svcPlayerUtils, svcRowComponents, svcSendError) {
 
         let minério = interaction.options.getString('minério')
         let quantia = interaction.options.getString('quantia')
 
-        const armsize = await API.maqExtension.storage.getSize(interaction.user.id);
+        const armsize = await svcMaqExtension.storage.getSize(interaction.user.id);
 
         if (armsize <= 0) {
-            const embedtemp = await API.sendError(interaction, `Você não possui recursos no seu armazém para vender!`)
+            const embedtemp = await svcSendError(interaction, `Você não possui recursos no seu armazém para vender!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (minério != null && (!API.itemExtension.exists(minério))) {
-            const embedtemp = await API.sendError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)
+        if (minério != null && (!svcItemExtension.exists(minério))) {
+            const embedtemp = await svcSendError(interaction, `Você precisa identificar um minério EXISTENTE para venda!\nVerifique os recursos disponíveis utilizando \`/armazém\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -51,14 +52,14 @@ module.exports = {
         if (minério != null) minério = minério.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
         quantia = quantia.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
 
-        if ((API.isInt(quantia) == false) && quantia != 'tudo') {
-            const embedtemp = await API.sendError(interaction, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
+        if ((svcIsInt(quantia) == false) && quantia != 'tudo') {
+            const embedtemp = await svcSendError(interaction, `Você precisa identificar uma quantia para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (API.isInt(quantia) && minério == null) {
-            const embedtemp = await API.sendError(interaction, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
+        if (svcIsInt(quantia) && minério == null) {
+            const embedtemp = await svcSendError(interaction, `Você precisa identificar um produto para venda!`, `vender <tudo | quantia> [minério]\n/vender tudo\n/vender tudo cobre\n/vender 500 pedra`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -71,13 +72,13 @@ module.exports = {
             type = 0;
         }
 
-        let obj = API.itemExtension.getObj();
+        let obj = svcItemExtension.getObj();
         const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
 
         if (quantia == 'tudo' && minério != null) {
 
             if (obj2[id] <= 0) {
-                const embedtemp = await API.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await svcSendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
@@ -85,35 +86,35 @@ module.exports = {
             type = 1;
         }
 
-        if (API.isInt(quantia) && minério != null) {
+        if (svcIsInt(quantia) && minério != null) {
             type = 2;
             if (parseInt(quantia) <= 0) {
-                const embedtemp = await API.sendError(interaction, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
+                const embedtemp = await svcSendError(interaction, `Você não pode vender essa quantia de \`${id.charAt(0).toUpperCase() + id.slice(1)}\`!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             if (obj2[id] <= 0) {
-                const embedtemp = await API.sendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await svcSendError(interaction, `Você não possui \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
             if (parseInt(quantia) > obj2[id]) {
-                const embedtemp = await API.sendError(interaction, `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
+                const embedtemp = await svcSendError(interaction, `Você não possui **${quantia}g** de \`${id.charAt(0).toUpperCase() + id.slice(1)}\` no seu armazém para vender!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
         }
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "venda");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "venda");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'venda', 'vender minérios novamente')
+            svcPlayerUtils.cooldown.message(interaction, 'venda', 'vender minérios novamente')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "venda", 35);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "venda", 35);
 
         let total = 0;
         let totalsize = 0;
@@ -157,17 +158,17 @@ module.exports = {
 
         total = Math.round(total - totaltaxa);
 
-        const embed = new API.Discord.MessageEmbed();
+        const embed = new svcDiscord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**?`)
+        Você deseja vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${svcFormat(total)} ${svcMoney}** ${svcMoneyemoji} **(${taxa*100}% | ${svcFormat(totaltaxa)} ${svcMoney} ${svcMoneyemoji} de taxa)**?`)
 
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -184,7 +185,7 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Venda cancelada', `
-                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**.`)
+                Você cancelou a venda de **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${svcFormat(total)} ${svcMoney}** ${svcMoneyemoji} **(${taxa*100}% | ${svcFormat(totaltaxa)} ${svcMoney} ${svcMoneyemoji} de taxa)**.`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -194,7 +195,7 @@ module.exports = {
             switch (type) {
                 case 0:
 
-                    let armsize2 = await API.maqExtension.storage.getSize(interaction.user.id);
+                    let armsize2 = await svcMaqExtension.storage.getSize(interaction.user.id);
 
                     if (armsize2 <= 0) {
                         embed.addField('❌ Venda cancelada', `Você não possui recursos no seu armazém para vender!`)
@@ -204,7 +205,7 @@ module.exports = {
 
                     //for (const key in obj) {
                         for (const r of obj.minerios) {
-                            API.itemExtension.set(interaction.user.id, r.name, 0)
+                            svcItemExtension.set(interaction.user.id, r.name, 0)
                         }
                     //}
                     break;
@@ -216,7 +217,7 @@ module.exports = {
                         return;
                     }
 
-                    API.itemExtension.set(interaction.user.id, id, 0)
+                    svcItemExtension.set(interaction.user.id, id, 0)
                     break;
                 case 2:
 
@@ -232,30 +233,30 @@ module.exports = {
                         return;
                     }
 
-                    API.itemExtension.set(interaction.user.id, id, obj2[id]-parseInt(quantia))
+                    svcItemExtension.set(interaction.user.id, id, obj2[id]-parseInt(quantia))
                     break;
             }
             
             embed.fields = [];
             embed.setColor('#5bff45');
             embed.addField('✅ Sucesso na venda', `
-            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**.`)
-            if(API.debug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${API.format(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
+            Você vendeu **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${svcFormat(total)} ${svcMoney}** ${svcMoneyemoji} **(${taxa*100}% | ${svcFormat(totaltaxa)} ${svcMoney} ${svcMoneyemoji} de taxa)**.`)
+            if(svcDebug) embed.addField('<:error:736274027756388353> Depuração', `\n\`\`\`js\nSize: ${totalsize > 1000 ? Math.round(totalsize/1000) + 'kg': totalsize + 'g'}\nTotal: $${svcFormat(total)}\nResposta em: ${Date.now()-interaction.createdTimestamp}ms\`\`\``)
             interaction.editReply({ embeds: [embed], components: [] });
-            API.eco.addToHistory(interaction.user.id, `Venda | + ${API.format(total)} ${API.moneyemoji}`)
-            API.eco.money.add(interaction.user.id, total)
+            svcEco.addToHistory(interaction.user.id, `Venda | + ${svcFormat(total)} ${svcMoneyemoji}`)
+            svcEco.svcMoney.add(interaction.user.id, total)
             if (totaltaxa > 0) {
-                API.eco.money.globaladd(totaltaxa)
+                svcEco.svcMoney.globaladd(totaltaxa)
             }
         });
         
         collector.on('end', collected => {
-            API.playerUtils.cooldown.set(interaction.user.id, "venda", 0);
+            svcPlayerUtils.cooldown.set(interaction.user.id, "venda", 0);
             if (selled) return
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${API.format(total)} ${API.money}** ${API.moneyemoji} **(${taxa*100}% | ${API.format(totaltaxa)} ${API.money} ${API.moneyemoji} de taxa)**, porém o tempo expirou!`)
+            Você iria vender **${totalsize > 1000 ? Math.round(totalsize/1000).toFixed(1) + 'kg': totalsize + 'g'}** de \`${type == 0 ? 'Tudo' : id.charAt(0).toUpperCase() + id.slice(1)}\` pelo preço de **${svcFormat(total)} ${svcMoney}** ${svcMoneyemoji} **(${taxa*100}% | ${svcFormat(totaltaxa)} ${svcMoney} ${svcMoneyemoji} de taxa)**, porém o tempo expirou!`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

@@ -10,30 +10,27 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('valor').setDescription('Coloque o valor a ser setado').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","client"],
     name: 'setvar',
     aliases: ['svar'],
     category: 'none',
     description: 'Seta uma variável e um valor no banco de dados',
     data,
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcClient) {
 
         const id = interaction.options.getString('id');
         const tabela = interaction.options.getString('tabela');
         const coluna = interaction.options.getString('coluna');
-        const valor = interaction.options.getString('valor');
-
-		const Discord = API.Discord;
-        const client = API.client;
-        const embed = new Discord.MessageEmbed()
+        const valor = interaction.options.getString('valor');        const embed = new svcDiscord.MessageEmbed()
         let v;
         let va = '';
         try {
-            v = await client.users.fetch(id);
+            v = await svcClient.users.fetch(id);
             va = 'user_id'
         } catch (error) {
             reportError(error, 'command.setvar.user_lookup', { id });
-            v = client.guilds.cache.get(id);
+            v = svcClient.guilds.cache.get(id);
             va = 'server_id'
         }
 

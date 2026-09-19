@@ -3,22 +3,19 @@ const { reportError } = require('../../_classes/debug');
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","client","createButton","frames","playerUtils","rowComponents","sendError"],
     name: 'molduras',
     aliases: ["frames"],
     category: 'Social',
     description: 'Faça a escolha da moldura que será apresentada em seu perfil',
     mastery: 2,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-        const client = API.client;
-
+	async execute(interaction, svcDiscord, svcClient, svcCreateButton, svcFrames, svcPlayerUtils, svcRowComponents, svcSendError) {
         const obj = await DatabaseManager.get(interaction.user.id, "players")
 
         let frames = obj.frames
 
         if (frames == null || frames.length == 0) {
-            const embedtemp = await API.sendError(interaction, 'Você não possui molduras disponíveis para serem apresentadas.')
+            const embedtemp = await svcSendError(interaction, 'Você não possui molduras disponíveis para serem apresentadas.')
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -28,22 +25,22 @@ module.exports = {
         const total = frames.length
         let current = 1
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "molduras");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "molduras");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'molduras', 'visualizar suas molduras')
+            svcPlayerUtils.cooldown.message(interaction, 'molduras', 'visualizar suas molduras')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "molduras", 30);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "molduras", 30);
 
-        let btn1 = API.createButton('sBtn', 'SECONDARY', 'Equipar', '✅')
-        let btn2 = API.createButton('nBtn', 'SECONDARY', 'Desequipar', '❌')
-        let btn3 = API.createButton('b1Btn', 'PRIMARY', '', '⏪')
-        let btn4 = API.createButton('b0Btn', 'SECONDARY', '', '852241487064596540')
-        let btn5 = API.createButton('f0Btn', 'SECONDARY', '', '737370913204600853')
-        let btn6 = API.createButton('f1Btn', 'PRIMARY', '', '⏩')
+        let btn1 = svcCreateButton('sBtn', 'SECONDARY', 'Equipar', '✅')
+        let btn2 = svcCreateButton('nBtn', 'SECONDARY', 'Desequipar', '❌')
+        let btn3 = svcCreateButton('b1Btn', 'PRIMARY', '', '⏪')
+        let btn4 = svcCreateButton('b0Btn', 'SECONDARY', '', '852241487064596540')
+        let btn5 = svcCreateButton('f0Btn', 'SECONDARY', '', '737370913204600853')
+        let btn6 = svcCreateButton('f1Btn', 'PRIMARY', '', '⏩')
 
         if (total < 2) {
             btn3.setDisabled()
@@ -59,12 +56,12 @@ module.exports = {
             btn6.setDisabled(false)
         }
 
-        btnRow0 = API.rowComponents([btn1, btn2])
-        btnRow1 = API.rowComponents([btn3, btn4, btn5, btn6])
+        btnRow0 = svcRowComponents([btn1, btn2])
+        btnRow1 = svcRowComponents([btn3, btn4, btn5, btn6])
         
-		const embed = new Discord.MessageEmbed()
-        .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + API.frames.get(frames[0]).name)
-        .setImage(API.frames.get(frames[0]).url)
+		const embed = new svcDiscord.MessageEmbed()
+        .setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + svcFrames.get(frames[0]).name)
+        .setImage(svcFrames.get(frames[0]).url)
         .setColor('#60ced6')
         
         const embedinteraction = await interaction.reply({ embeds: [embed], components: [ btnRow0, btnRow1 ], withResponse: true });
@@ -78,7 +75,7 @@ module.exports = {
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.molduras.defer_update'); });
             collector.resetTimer();
 
-            API.playerUtils.cooldown.set(interaction.user.id, "molduras", 30);
+            svcPlayerUtils.cooldown.set(interaction.user.id, "molduras", 30);
 
             if (b.customId == 'f0Btn'){
                 if (current < total) current += 1;
@@ -109,27 +106,27 @@ module.exports = {
                 btn6.setDisabled(false)
             }
 
-            btnRow0 = API.rowComponents([btn1, btn2])
-            btnRow1 = API.rowComponents([btn3, btn4, btn5, btn6])
+            btnRow0 = svcRowComponents([btn1, btn2])
+            btnRow1 = svcRowComponents([btn3, btn4, btn5, btn6])
 
-            const frame = API.frames.get(frames[current-1])
+            const frame = svcFrames.get(frames[current-1])
 
             embed.setTitle('🖼 Moldura ' + current + '/' + total + ' | ' + frame.name)
 
             if (b.customId == 'nBtn') {
                 
-                API.frames.reforge(interaction.user.id, 0)
+                svcFrames.reforge(interaction.user.id, 0)
 
                 embed.setColor('#a60000');
                 embed.setDescription('❌ Moldura desequipada')
-                embed.setImage(API.frames.get(frames[0]).url)
+                embed.setImage(svcFrames.get(frames[0]).url)
                 await interaction.editReply({ embeds: [embed], components: [] });
 
                 return collector.stop();
 
             } else if (b.customId == 'sBtn'){
 
-                API.frames.reforge(interaction.user.id, frame.id)
+                svcFrames.reforge(interaction.user.id, frame.id)
 
                 embed.setColor('#5bff45');
                 embed.setDescription('✅ Moldura equipada')
@@ -149,7 +146,7 @@ module.exports = {
         
         collector.on('end', b => {
 
-            API.playerUtils.cooldown.set(interaction.user.id, "molduras", 0);
+            svcPlayerUtils.cooldown.set(interaction.user.id, "molduras", 0);
 
         });
 

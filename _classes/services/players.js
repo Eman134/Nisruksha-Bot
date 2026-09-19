@@ -1,8 +1,6 @@
-const API = require("../api.js");
-
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
-
+module.exports = function createModule(dependencies) {
+    const { Discord, crateExtension, db, img, ms, shopExtension } = dependencies;
+const DatabaseManager = db;
 const playerUtils = {
   cooldown: {},
   stamina: {}
@@ -12,10 +10,9 @@ playerUtils.execExp = async function(interaction, xpp, pure) {
 
     if (!interaction || xpp == null || xpp == undefined) return
 
-    const Discord = API.Discord;
     const obj = await DatabaseManager.get(interaction.user.id, "machines")
 
-    const maq = API.shopExtension.getProduct(obj.machine);
+    const maq = shopExtension.getProduct(obj.machine);
 
     const xp = (pure ? xpp : Math.round((xpp * (maq.tier+1))/1.35))
   
@@ -31,7 +28,7 @@ playerUtils.execExp = async function(interaction, xpp, pure) {
           }
       }
 
-      const levelupimage = await API.img.imagegens.get('levelup.js')(API, {
+    const levelupimage = await img.imagegens.get('levelup.js')({ img }, {
 
           level: obj.level,
           avatar: interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }),
@@ -46,7 +43,7 @@ Utilize \`/mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVoc�
       embed.setFooter(`Você evoluiu do nível ${obj.level} para o nível ${obj.level+1}`)
       embed.setColor('RANDOM');
   
-      API.crateExtension.give(interaction.user.id, 2, 3)
+      crateExtension.give(interaction.user.id, 2, 3)
   
       await interaction.channel.send({ embeds: [embed], mention: true, files: [levelupimage]});
   
@@ -59,7 +56,7 @@ Utilize \`/mochila\` para visualizar suas caixas.${obj.level+1 == 3 ? `\n \nVoc�
 }
 
 playerUtils.cooldown.check = async function(user_id, string) {
-  let time = await API.playerUtils.cooldown.get(user_id, string)
+  let time = await playerUtils.cooldown.get(user_id, string)
   if (time < 1 ) return false;
   return true;
 }
@@ -68,12 +65,20 @@ playerUtils.cooldown.get = async function(user_id, string) {
 
   const obj = await DatabaseManager.get(user_id, "cooldowns");
   if (obj == null || obj == "0;0" || obj == undefined) {
-      API.playerUtils.cooldown.set(user_id, string, 0);
+      playerUtils.cooldown.set(user_id, string, 0);
       return 0;
   }
   let cooldown = obj[string];
-  let res = (Date.now()/1000)-(parseInt(cooldown.split(";")[0])/1000)
-  let time = parseInt(cooldown.split(";")[1]) - res;
+  if (typeof cooldown !== 'string') return 0;
+
+  const values = cooldown.split(';');
+  if (values.length !== 2 || values.some((value) => value.trim() === '')) return 0;
+
+  const [startedAt, duration] = values.map(Number);
+  if (!Number.isFinite(startedAt) || !Number.isFinite(duration)) return 0;
+
+  let res = (Date.now()/1000)-(startedAt/1000)
+  let time = duration - res;
   time = Math.round(time)*1000
   return time;
 }
@@ -83,10 +88,10 @@ playerUtils.cooldown.set = async function(user_id, string, ms) {
 }
 
 playerUtils.cooldown.message = async function(interaction, vare, text) {
-  let cooldown = await API.playerUtils.cooldown.get(interaction.user.id, vare);
-  const embed = new API.Discord.MessageEmbed()
+  let cooldown = await playerUtils.cooldown.get(interaction.user.id, vare);
+  const embed = new Discord.MessageEmbed()
   .setColor('#b8312c')
-  .setDescription('🕑 Aguarde mais `' + API.ms(cooldown) + '` para ' + text + '.')
+  .setDescription('🕑 Aguarde mais `' + ms(cooldown) + '` para ' + text + '.')
   .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
   const embedinteraction = await interaction.reply({ embeds: [embed] });
   return embedinteraction;
@@ -131,7 +136,7 @@ playerUtils.stamina.set = async function(user_id, valor) {
   DatabaseManager.set(user_id, 'players', 'stamina', valor)
 }
 playerUtils.stamina.subset = async function(user_id, valor) {
-  API.playerUtils.stamina.set(user_id, Date.now()-(30000*(valor)))
+  playerUtils.stamina.set(user_id, Date.now()-(30000*(valor)))
 }
 
 playerUtils.stamina.remove = async function(user_id, valor) {
@@ -144,4 +149,5 @@ playerUtils.stamina.add = async function(user_id, valor) {
   playerUtils.stamina.subset(user_id, get+valor)
 }
 
-module.exports = playerUtils
+return playerUtils;
+};

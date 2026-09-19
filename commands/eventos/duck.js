@@ -3,55 +3,53 @@ const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
+    requiredServices: ["Discord","cacheLists","client","crateExtension","createButton","debug","events","img","playerUtils","random","rowComponents","sendError","townExtension"],
     name: 'patodourado',
     aliases: ['picktreasure'],
     category: 'none',
     description: 'Faça uma escavação na sua vila atual e tente encontrar tesouros',
     mastery: 60,
     companytype: -1,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCrateExtension, svcCreateButton, svcDebug, svcEvents, svcImg, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcTownExtension) {
+        let townnum = await svcTownExtension.getTownNum(interaction.user.id);
 
-        const Discord = API.Discord;
-
-        let townnum = await API.townExtension.getTownNum(interaction.user.id);
-
-        if (parseInt(API.events.duck.loc) != parseInt(townnum)) {
-            const embedtemp = await API.sendError(interaction, `Não possui nenhum pato dourado vivo na sua vila atual!\nUtilize \`/mapa\` para procurar algum pato em outras vilas\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
+        if (parseInt(svcEvents.duck.loc) != parseInt(townnum)) {
+            const embedtemp = await svcSendError(interaction, `Não possui nenhum pato dourado vivo na sua vila atual!\nUtilize \`/mapa\` para procurar algum pato em outras vilas\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const hasKilled = API.events.duck.killed.find((killed) => killed.id == interaction.user.id)
+        const hasKilled = svcEvents.duck.killed.find((killed) => killed.id == interaction.user.id)
 
         if (hasKilled && hasKilled.amount >= 2) {
-            const embedtemp = await API.sendError(interaction, `Você já batalhou o máximo de vezes contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
+            const embedtemp = await svcSendError(interaction, `Você já batalhou o máximo de vezes contra este pato dourado!\nOBS: Os alertas de novos eventos são feitos no servidor oficial do Nisruksha (\`/convite\`)`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await API.cacheLists.waiting.includes(interaction.user.id, 'patodourado')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'patodourado')})`)
+        if (await svcCacheLists.waiting.includes(interaction.user.id, 'patodourado')) {
+            const embedtemp = await svcSendError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'patodourado')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "patodourado");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "patodourado");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'patodourado', 'realizar outra caçada de pato dourado')
+            svcPlayerUtils.cooldown.message(interaction, 'patodourado', 'realizar outra caçada de pato dourado')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "patodourado", 60);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "patodourado", 60);
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new svcDiscord.MessageEmbed()
         
         let monster = {
             name: 'Pato Dourado',
-            level: API.events.duck.level,
-            sta: API.events.duck.sta,
-            csta: API.events.duck.sta,
+            level: svcEvents.duck.level,
+            sta: svcEvents.duck.sta,
+            csta: svcEvents.duck.sta,
             image: 'https://cdn.discordapp.com/attachments/764111274756931625/919950650916372500/pato-de-borracha.png',
             effects: {
                 fire: {
@@ -84,14 +82,14 @@ module.exports = {
         .addField(`Informações do pato`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
 
-        const btn0 = API.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
-        const btn1 = API.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
+        const btn0 = svcCreateButton('fight', 'SUCCESS', 'Lutar', '⚔')
+        const btn1 = svcCreateButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
 
-        const rowButton0 = API.rowComponents([ btn0, btn1 ])
+        const rowButton0 = svcRowComponents([ btn0, btn1 ])
 
         const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
 
-		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'patodourado')
+		await svcCacheLists.waiting.add(interaction.user.id, interaction, 'patodourado')
 
         let reacted = false;
         let inbattle = false;
@@ -166,7 +164,7 @@ module.exports = {
             for (const r of equips) {
                 let id = r.icon.split(':')[2].replace('>', '');
                 r.id = id
-                const btnEquip = API.createButton(id, 'SECONDARY', r.points > 0 ? `[${points}/${r.points}]` : '', id)
+                const btnEquip = svcCreateButton(id, 'SECONDARY', r.points > 0 ? `[${points}/${r.points}]` : '', id)
                 if (points < r.points) {
                     btnEquip.setDisabled(true)
                 }
@@ -174,8 +172,8 @@ module.exports = {
                 reactequips[id] = r;
                 reactequiplist.push(id)
             }
-            components.push(API.rowComponents(equipsBtn))
-            components.push(API.rowComponents([API.createButton('changeMode', 'SECONDARY', currentmode == 0 ? 'Compacto' : 'Detalhado', '🔄')]))
+            components.push(svcRowComponents(equipsBtn))
+            components.push(svcRowComponents([svcCreateButton('changeMode', 'SECONDARY', currentmode == 0 ? 'Compacto' : 'Detalhado', '🔄')]))
             return components
         }
 
@@ -189,13 +187,13 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.MessageEmbed()
+                    const infosEmbed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.`)
                     .setImage('attachment://image.png')
 
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
@@ -215,7 +213,7 @@ ${currinteraction ? currinteraction : ''}
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
@@ -366,7 +364,7 @@ ${currinteraction ? currinteraction : ''}
                 ]
 
                 if (dead || b.customId == 'fight' || b.customId == 'autofight') {
-                    var huntimage = await API.img.imagegens.get('battle.js')(API, {
+                    var huntimage = await svcImg.imagegens.get('battle.js')(dependencies, {
     
                         avatarurl, 
                         monster,
@@ -389,22 +387,22 @@ ${currinteraction ? currinteraction : ''}
 
             async function monsterlost(mo) {
                 
-                let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
-                xp = await API.playerUtils.execExp(interaction, xp)
+                let xp = svcRandom(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
+                xp = await svcPlayerUtils.execExp(interaction, xp)
 
-                API.crateExtension.give(interaction.user.id, 4, 1)
+                svcCrateExtension.give(interaction.user.id, 4, 1)
 
-                const hasKilled = API.events.duck.killed.find((killed) => killed.id == interaction.user.id)
+                const hasKilled = svcEvents.duck.killed.find((killed) => killed.id == interaction.user.id)
 
                 if (hasKilled === undefined) {
-                    API.events.duck.killed.push({ id: interaction.user.id, amount: 1 })
+                    svcEvents.duck.killed.push({ id: interaction.user.id, amount: 1 })
                 } else {
-                    const index = API.events.duck.killed.indexOf(hasKilled)
+                    const index = svcEvents.duck.killed.indexOf(hasKilled)
                     if (index > -1) {
-                        API.events.duck.killed = API.events.duck.killed.splice(index, 1);
+                        svcEvents.duck.killed = svcEvents.duck.killed.splice(index, 1);
                     }
                     hasKilled.amount = 2
-                    API.events.duck.killed.push({ id: interaction.user.id, amount: 2 })
+                    svcEvents.duck.killed.push({ id: interaction.user.id, amount: 2 })
                 }
 
                 losedesc = (`✅ Você ganhou a batalha! **(+${xp} XP)**\n \nDrops do monstro:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nColocados na mochila:\n**1x <:mystegg:919946658886864916> Ovo de pato dourado**\n \nDescartados:\nNenhum item descartado\n \nVisualize os itens colocados usando \`/mochila\``)
@@ -414,7 +412,7 @@ ${currinteraction ? currinteraction : ''}
                 
                 losedesc = (`❌ Você perdeu a batalha contra o pato dourado!`)
                 player.sta = 0
-                API.events.duck.killed.push(member.id)
+                svcEvents.duck.killed.push(member.id)
 
             }
             
@@ -428,7 +426,7 @@ ${currinteraction ? currinteraction : ''}
                 await interaction.editReply({ content: 'Carregando caça...', components: [] })
 
                 try {
-                    await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
+                    await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
 
                     inbattle = true
  
@@ -458,7 +456,7 @@ ${currinteraction ? currinteraction : ''}
                 }
                     
                 if (combo.length >= 5) combo = []
-                combo.push(API.client.emojis.cache.get(b.customId))
+                combo.push(svcClient.emojis.cache.get(b.customId))
 
                 if (combo.length >= 5) {
                     youhasbeencombedmeuamigo = true
@@ -472,16 +470,16 @@ ${currinteraction ? currinteraction : ''}
                 }
 
                 let crit = 0;
-                let roll = API.random(0, 100)
+                let roll = svcRandom(0, 100)
                 if (roll < eq.chance || youhasbeencombedmeuamigo) {
-                    let reroll = API.random(0, 50)
-                    lost.player = Math.round(eq.dmg/API.random(3, 4))
+                    let reroll = svcRandom(0, 50)
+                    lost.player = Math.round(eq.dmg/svcRandom(3, 4))
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                    else if(API.random(0, 50) < 10 || youhasbeencombedmeuamigo) {
+                    else if(svcRandom(0, 50) < 10 || youhasbeencombedmeuamigo) {
                         lost.player = 0
                         crit = Math.round(eq.dmg/2)
                     }
-                    let roll3 = API.random(0, 100)
+                    let roll3 = svcRandom(0, 100)
                     if (roll3 <= eq.crit || youhasbeencombedmeuamigo) {
                         crit = Math.round(eq.dmg/2)
                     }
@@ -534,7 +532,7 @@ ${currinteraction ? currinteraction : ''}
                     monster.effects.granada.lastdmg = 0
                 }
                 
-                if (API.debug) console.log(`${eq.name}`.yellow)
+                if (svcDebug) console.log(`${eq.name}`.yellow)
                 
                 let buildlost = await build(lost)
 
@@ -589,7 +587,7 @@ ${currinteraction ? currinteraction : ''}
 
                 if (dead) {
                     components = []
-                    await API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
+                    await svcCacheLists.waiting.remove(interaction.user.id, 'patodourado')
                     collector.stop();
                 }
 
@@ -604,8 +602,8 @@ ${currinteraction ? currinteraction : ''}
         });
         
         collector.on('end', async collected => {
-            await API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
-            API.playerUtils.cooldown.set(interaction.user.id, "patodourado", 0);
+            await svcCacheLists.waiting.remove(interaction.user.id, 'patodourado')
+            svcPlayerUtils.cooldown.set(interaction.user.id, "patodourado", 0);
 
             if (dead) return
 

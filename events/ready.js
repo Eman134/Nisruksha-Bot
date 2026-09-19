@@ -3,15 +3,16 @@ const { reportError } = require('../_classes/debug');
 
 module.exports = {
    
+    dependencies: ["cacheLists","client","company","events","shopExtension","uptime","version"],
     name: "clientReady",
-    execute: async(API) => {
+    execute: async(dependencies) => {
         
-        const client = API.client;
+        const client = dependencies.client;
 
         async function u(){
 
             try{
-                client.user.setActivity(`[${API.version}] Prefixo / | Tempo online: ${API.uptime()}`);
+                client.user.setActivity(`[${dependencies.version}] Prefixo / | Tempo online: ${dependencies.uptime()}`);
             }catch (err){
                 reportError(err, 'discord.ready.activity');
             }
@@ -33,13 +34,13 @@ module.exports = {
         moment.suppressDeprecationWarnings = true;
         
         console.log(`\n         Bot iniciado.`.green);
-        console.log(`         Versão ${API.version}\n`.green)
+        console.log(`         Versão ${dependencies.version}\n`.green)
 
-        await API.cacheLists.connect()
-        await API.cacheLists.remember.load()
-        API.company.jobs.process.load()
-        API.shopExtension.load()
-        API.events.load()
+        await dependencies.cacheLists.connect()
+        await dependencies.cacheLists.remember.load()
+        dependencies.company.jobs.process.load()
+        dependencies.shopExtension.load()
+        dependencies.events.load()
         
     }
 

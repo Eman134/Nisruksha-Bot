@@ -3,40 +3,37 @@ const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
+    requiredServices: ["Discord","cacheLists","client","company","createButton","owner","rowComponents","sendError","setCompanieInfo"],
     name: 'sairdaempresa',
     aliases: ['sairempresa', 'medemitir'],
     category: 'Empresas',
     description: 'Se demite da empresa que você trabalha atualmente',
     mastery: 50,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-        const client = API.client;
-
-        if (!(await API.company.check.isWorker(interaction.user.id))) {
-            const embedtemp = await API.sendError(interaction, `Você não trabalha em nenhuma empresa para se demitir${ await API.company.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}`)
+	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCompany, svcCreateButton, svcOwner, svcRowComponents, svcSendError, svcSetCompanieInfo) {
+        if (!(await svcCompany.check.isWorker(interaction.user.id))) {
+            const embedtemp = await svcSendError(interaction, `Você não trabalha em nenhuma empresa para se demitir${ await svcCompany.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await API.cacheLists.waiting.includes(interaction.user.id, 'working')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode sair de uma empresa enquanto está trabalhando na mesma!`)
+        if (await svcCacheLists.waiting.includes(interaction.user.id, 'working')) {
+            const embedtemp = await svcSendError(interaction, `Você não pode sair de uma empresa enquanto está trabalhando na mesma!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        let company = await API.company.get.companyById(pobj.company);
+        let company = await svcCompany.get.companyById(pobj.company);
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new svcDiscord.MessageEmbed()
 		embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-Você deseja se demitir da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**?`)
+Você deseja se demitir da empresa **${svcCompany.e[svcCompany.types[company.type]].icon} ${company.name}**?`)
 
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -53,37 +50,37 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Demissão cancelada', `
-                Você cancelou a própria demissão na empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**.`)
+                Você cancelou a própria demissão na empresa **${svcCompany.e[svcCompany.types[company.type]].icon} ${company.name}**.`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            if (!(await API.company.check.isWorker(interaction.user.id))) {
+            if (!(await svcCompany.check.isWorker(interaction.user.id))) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na demissão', `Você não trabalha em nenhuma empresa para se demitir${ await API.company.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}`)
+                embed.addField('❌ Falha na demissão', `Você não trabalha em nenhuma empresa para se demitir${ await svcCompany.check.hasCompany(interaction.user.id) ?`\nCaso deseja fechar sua empresa utilize \`/fecharempresa\``:''}`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            API.company.jobs.process.remove(interaction.user.id)
+            svcCompany.jobs.process.remove(interaction.user.id)
 
             embed.fields = [];
             embed.setColor('#5bff45');
-            embed.addField('✅ Demitido!', `Você se demitiu da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**!`)
+            embed.addField('✅ Demitido!', `Você se demitiu da empresa **${svcCompany.e[svcCompany.types[company.type]].icon} ${company.name}**!`)
             interaction.editReply({ embeds: [embed], components: [] });
             
             let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-            let company2 = await API.company.get.companyById(pobj.company);
-            let owner = await API.company.get.ownerById(pobj.company);
-            let botowner = await API.client.users.fetch(API.owner[0])
+            let company2 = await svcCompany.get.companyById(pobj.company);
+            let svcOwner = await svcCompany.get.ownerById(pobj.company);
+            let botowner = await svcClient.users.fetch(svcOwner[0])
             try{
                 embed.fields = [];
                 embed.setColor("#a60000")
                 .setDescription(`O trabalhador ${interaction.user.tag} (${interaction.user.id}) se demitiu da sua empresa!`)
                 .setFooter(`Você está em consentimento em receber DM\'S do bot para ações de funcionários na sua empresa!\nCaso esta mensagem foi um engano, contate o criador do bot (${botowner.tag})`)
-                await owner.send({ embeds: [embed], components: [] })
+                await svcOwner.send({ embeds: [embed], components: [] })
             } catch (error) {
-                reportError(error, 'command.sairempresa.owner_notification', { ownerId: owner.id });
+                reportError(error, 'command.sairempresa.owner_notification', { ownerId: svcOwner.id });
             }
 
             const list = company2.workers;
@@ -94,9 +91,9 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
 
             //let score = -(pobj.companyact == null ? 0 : pobj.companyact.score)
 
-            API.setCompanieInfo(owner.id, company.company_id, 'workers', list)
+            svcSetCompanieInfo(svcOwner.id, company.company_id, 'workers', list)
             DatabaseManager.set(interaction.user.id, 'players', 'company', null)
-            //await API.company.stars.add(interaction.user.id, company.company_id, { score })
+            //await svcCompany.stars.add(interaction.user.id, company.company_id, { score })
             DatabaseManager.set(interaction.user.id, 'players', 'companyact', null)
             
         });
@@ -105,7 +102,7 @@ Você deseja se demitir da empresa **${API.company.e[API.company.types[company.t
             if (reacted) return;
             embed.fields = []
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria se demitir da empresa **${API.company.e[API.company.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
+            embed.addField('❌ Tempo expirado', `Você iria se demitir da empresa **${svcCompany.e[svcCompany.types[company.type]].icon} ${company.name}**, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

@@ -2,15 +2,16 @@ const { reportError } = require('../_classes/debug');
 
 module.exports = {
 
+    dependencies: ["Discord","client","logs"],
     name: "fail",
-    execute: async (API, { interaction, type, desc, sendMe }) => {
-        if (!API.logs.falhas) return
+    execute: async (dependencies, { interaction, type, desc, sendMe }) => {
+        if (!dependencies.logs.falhas) return
 
         try {
 
             interaction.author ? interaction.user = interaction.author : null
             
-            const embedfail = new API.Discord.MessageEmbed()
+            const embedfail = new dependencies.Discord.MessageEmbed()
             .setColor('#b8312c')
             .setTimestamp()
             .setTitle(`Falha: ${type}`)
@@ -20,9 +21,9 @@ module.exports = {
     
             if (!interaction.content && interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
             
-            const failObject = { embeds: [embedfail], flags: API.Discord.MessageFlags.Ephemeral }
+            const failObject = { embeds: [embedfail], flags: dependencies.Discord.MessageFlags.Ephemeral }
     
-            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
+            dependencies.client.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
     
             if (!sendMe) return
     

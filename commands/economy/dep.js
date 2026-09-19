@@ -7,60 +7,61 @@ const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","createButton","eco","format","isInt","money","moneyemoji","rowComponents","sendError","toNumber","townExtension"],
     name: 'depositar',
     aliases: ['dep'],
     category: 'Economia',
     description: 'Deposita uma quantia de dinheiro no banco central',
     data,
     mastery: 20,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcCreateButton, svcEco, svcFormat, svcIsInt, svcMoney, svcMoneyemoji, svcRowComponents, svcSendError, svcToNumber, svcTownExtension) {
 
         const quantia = interaction.options.getString('quantia');
-        const money = await API.eco.money.get(interaction.user.id)
+        const svcMoney = await svcEco.svcMoney.get(interaction.user.id)
         let total = 0;
         if (quantia != 'tudo') {
 
-            if (!API.isInt(API.toNumber(quantia))) {
-                const embedtemp = await API.sendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `depositar <quantia | tudo>`)
+            if (!svcIsInt(svcToNumber(quantia))) {
+                const embedtemp = await svcSendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para depósito!`, `depositar <quantia | tudo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (money < API.toNumber(quantia)) {
-                const embedtemp = await API.sendError(interaction, `Você não possui essa quantia de dinheiro para depositar!`)
+            if (svcMoney < svcToNumber(quantia)) {
+                const embedtemp = await svcSendError(interaction, `Você não possui essa quantia de dinheiro para depositar!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (API.toNumber(quantia) < 1) {
-                const embedtemp = await API.sendError(interaction, `Você não pode depositar essa quantia de dinheiro!`)
+            if (svcToNumber(quantia) < 1) {
+                const embedtemp = await svcSendError(interaction, `Você não pode depositar essa quantia de dinheiro!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
-            total = API.toNumber(quantia);
+            total = svcToNumber(quantia);
         } else {
-            if (money < 1) {
-                const embedtemp = await API.sendError(interaction, `Você não possui dinheiro para depositar!`)
+            if (svcMoney < 1) {
+                const embedtemp = await svcSendError(interaction, `Você não possui dinheiro para depositar!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
-            total = money;
+            total = svcMoney;
         }
         let total2 = total;
-        let taxa = await API.townExtension.getTownTax(interaction.user.id);
+        let taxa = await svcTownExtension.getTownTax(interaction.user.id);
         total = total2 - (Math.round(taxa*total2/100));
         
-		const embed = new API.Discord.MessageEmbed();
+		const embed = new svcDiscord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja depositar o valor de ${API.format(total2)} ${API.money} ${API.moneyemoji} na sua conta bancária?\nTaxa de depósito da vila atual (**${await API.townExtension.getTownName(interaction.user.id)}**): ${taxa}% (${Math.round(taxa*total2/100)} ${API.money} ${API.moneyemoji})\nTotal a ser depositado: **${API.format(total)} ${API.money} ${API.moneyemoji}**`)
+        Você deseja depositar o valor de ${svcFormat(total2)} ${svcMoney} ${svcMoneyemoji} na sua conta bancária?\nTaxa de depósito da vila atual (**${await svcTownExtension.getTownName(interaction.user.id)}**): ${taxa}% (${Math.round(taxa*total2/100)} ${svcMoney} ${svcMoneyemoji})\nTotal a ser depositado: **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}**`)
         
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
 
@@ -76,24 +77,24 @@ module.exports = {
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Depósito cancelado', `
-                Você cancelou o depósito de **${API.format(total2)} ${API.money} ${API.moneyemoji}** na sua conta bancária.`)
+                Você cancelou o depósito de **${svcFormat(total2)} ${svcMoney} ${svcMoneyemoji}** na sua conta bancária.`)
             } else {
-                const money2 = await API.eco.money.get(interaction.user.id);
+                const money2 = await svcEco.svcMoney.get(interaction.user.id);
                 if (money2 < total) {
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no depósito', `Você não possui **${API.format(total2)} ${API.money} ${API.moneyemoji}** em mãos para depositar!`)
+                    embed.addField('❌ Falha no depósito', `Você não possui **${svcFormat(total2)} ${svcMoney} ${svcMoneyemoji}** em mãos para depositar!`)
                 } else {
                     embed.fields = [];
                     embed.setColor('#5bff45');
                     embed.addField('✅ Sucesso no depósito', `
-                    Você depositou o valor de **${API.format(total)} ${API.money} ${API.moneyemoji}** na sua conta bancária!`)
-                    API.eco.bank.add(interaction.user.id, total);
-                    API.eco.money.remove(interaction.user.id, total2);
-                    API.eco.addToHistory(interaction.user.id, `📥 Depósito | + ${API.format(total)} ${API.moneyemoji}`)
+                    Você depositou o valor de **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** na sua conta bancária!`)
+                    svcEco.bank.add(interaction.user.id, total);
+                    svcEco.svcMoney.remove(interaction.user.id, total2);
+                    svcEco.addToHistory(interaction.user.id, `📥 Depósito | + ${svcFormat(total)} ${svcMoneyemoji}`)
                     let obj = await DatabaseManager.get(interaction.user.id, "players");
                     DatabaseManager.set(interaction.user.id, "players", "dep", obj.dep + 1);
-                    API.eco.money.globaladd(taxa)
+                    svcEco.svcMoney.globaladd(taxa)
                 }
             }
             interaction.editReply({ embeds: [embed], components: [] });
@@ -104,7 +105,7 @@ module.exports = {
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria depositar o valor de **${API.format(total2)} ${API.money} ${API.moneyemoji}** na sua conta bancária, porém o tempo expirou.`)
+            Você iria depositar o valor de **${svcFormat(total2)} ${svcMoney} ${svcMoneyemoji}** na sua conta bancária, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

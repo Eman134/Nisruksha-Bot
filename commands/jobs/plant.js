@@ -7,6 +7,7 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('semente').setDescription('Digite o nome da semente que deseja plantar').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","company","itemExtension","sendError","townExtension"],
     name: 'plantar',
     aliases: ['plant'],
     category: 'none',
@@ -14,10 +15,7 @@ module.exports = {
     data,
     mastery: 20,
     companytype: 1,
-	async execute(API, interaction, company) {
-
-        const Discord = API.Discord;
-
+	async execute(interaction, svcDiscord, svcCompany, svcItemExtension, svcSendError, svcTownExtension, company) {
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
         const area = interaction.options.getInteger('área')
@@ -26,7 +24,7 @@ module.exports = {
 
         let allplots = pobj.plots
         let plot
-        let townnum = await API.townExtension.getTownNum(interaction.user.id);
+        let townnum = await svcTownExtension.getTownNum(interaction.user.id);
         let contains = false
         if (pobj.plots) {
             for (let r of Object.keys(pobj.plots)) {
@@ -50,48 +48,48 @@ module.exports = {
 
         
         if (!contains) {
-            const embedtemp = await API.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
+            const embedtemp = await svcSendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         if (plot.plants && plot.plants.length == 5) {
-            const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`/terrenoatual\``)
+            const embedtemp = await svcSendError(interaction, `Você atingiu o máximo de lotes no seu terreno para plantação!\nVisualize seu terreno utilizando \`/terrenoatual\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (area < 5) {
-            const embedtemp = await API.sendError(interaction, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await svcSendError(interaction, `A __área__ precisa ser um número e no mínimo 5!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (quantia < 5) {
-            const embedtemp = await API.sendError(interaction, `A __quantia__ precisa ser no __mínimo 5__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await svcSendError(interaction, `A __quantia__ precisa ser no __mínimo 5__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (quantia > 20) {
-            const embedtemp = await API.sendError(interaction, `A __quantia__ precisa ser no __máximo 20__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
+            const embedtemp = await svcSendError(interaction, `A __quantia__ precisa ser no __máximo 20__!\nUtilize \`/plantar <área em m²> <quantia> <semente>\``, `plantar 10 20 Soja`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (area > plot.area-plot.areaplant) {
-            const embedtemp = await API.sendError(interaction, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`/terrenoatual\``)
+            const embedtemp = await svcSendError(interaction, `Você não possui __${area}m²__ disponíveis para outra plantação no seu terreno!\nVisualize seu terreno utilizando \`/terrenoatual\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (plot.adubacao && plot.adubacao < 10) {
-            const embedtemp = await API.sendError(interaction, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`/adubar\` para adubar o terreno atual`)
+            const embedtemp = await svcSendError(interaction, `Você não possui adubação o suficiente em seu terreno para realizar uma plantação\nUtilize \`/adubar\` para adubar o terreno atual`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let seedobj = API.itemExtension.getObj().drops.filter(i => i.type == "seed");
+        let seedobj = svcItemExtension.getObj().drops.filter(i => i.type == "seed");
 
         let contains2 = false;
 
@@ -113,7 +111,7 @@ module.exports = {
         }
 
         if (!contains2) {
-            const embedtemp = await API.sendError(interaction, `Você não possui **${quantia}x ${seed ? seed.icon + ' ' + seed.displayname : semente}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`/mochila\``)
+            const embedtemp = await svcSendError(interaction, `Você não possui **${quantia}x ${seed ? seed.icon + ' ' + seed.displayname : semente}** na sua mochila!\nVisualize suas sementes na mochila utilizando \`/mochila\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -124,7 +122,7 @@ module.exports = {
         let adubacao = 100
         if (plot.adubacao) adubacao = plot.adubacao
 
-        let maxtime = API.company.jobs.agriculture.calculatePlantTime(seed, adubacao)
+        let maxtime = svcCompany.jobs.agriculture.calculatePlantTime(seed, adubacao)
 
         if (pobj.perm != null || pobj.perm == 5) maxtime = Math.round(90*maxtime/100)
         
@@ -151,7 +149,7 @@ module.exports = {
         DatabaseManager.set(interaction.user.id, 'players', 'plots', allplots)
         DatabaseManager.set(interaction.user.id, 'storage', seed.name, seedstorage[seed.displayname.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()]-quantia)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new svcDiscord.MessageEmbed()
 
         embed.setColor('RANDOM')
         embed.setTitle(seed.icon + ' Plantação realizada!')

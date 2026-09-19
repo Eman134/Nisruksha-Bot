@@ -6,25 +6,24 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","sendError"],
     name: 'sobremim',
     aliases: ['biografia', 'biography', 'sobre', 'bio', 'sobre-mim'],
     category: 'Social',
     description: 'Defina a sua biografia que aparece no perfil',
     data,
     mastery: 5,
-	async execute(API, interaction) {
-        const Discord = API.Discord;
-
+	async execute(interaction, svcDiscord, svcSendError) {
         let bio = interaction.options.getString('bio');
 
         if (bio.length > 50) {
-            const embedtemp = await API.sendError(interaction, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + bio.length + '/50', 'sobremim <texto>')
+            const embedtemp = await svcSendError(interaction, 'Você não pode colocar um sobre com mais de 50 caracteres\nQuantia de caracteres da sua biografia: ' + bio.length + '/50', 'sobremim <texto>')
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         DatabaseManager.set(interaction.user.id, "players", "bio", bio)
-		const embed = new Discord.MessageEmbed()
+		const embed = new svcDiscord.MessageEmbed()
 	    .setColor('#8adb5e')
         .setDescription(`Sua biografia foi definida para:
         \`\`\`${bio}\`\`\``)

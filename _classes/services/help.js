@@ -1,3 +1,6 @@
+module.exports = function createModule(dependencies) {
+    const { db } = dependencies;
+const DatabaseManager = db;
 const helpExtension = {
 
     category: []
@@ -22,4 +25,5 @@ helpExtension.addCommand = async function(command) {
   }
 }
 
-module.exports = helpExtension;
+return helpExtension;
+};

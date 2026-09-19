@@ -1,7 +1,7 @@
-const API = require("../api.js");
+module.exports = function createModule(dependencies) {
+    const { Discord, client, db, eco, format, id, maqExtension, money, moneyemoji, ms, random, shopExtension, townExtension } = dependencies;
+const DatabaseManager = db;
 const { reportError } = require('../debug');
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
 const config = require("../config");
 
 const events = {
@@ -41,7 +41,7 @@ const events = {
 
     getRaceEmbed: function(aposta) {
 
-        const embed = new API.Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         embed.setColor('#36393f')
         embed.setTitle('Evento | Corrida de Cavalos')
 
@@ -66,13 +66,13 @@ const events = {
             apostasroxo += events.race.apostas.roxo[i].aposta
         }
 
-        embed.addField('<:info:736274028515295262> Informações', (aposta ? 'Sua aposta: `' + API.format(aposta) + ' ' + API.money + '` ' + API.moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta!')
+        embed.addField('<:info:736274028515295262> Informações', (aposta ? 'Sua aposta: `' + format(aposta) + ' ' + money + '` ' + moneyemoji + '\n': '') + 'Você receberá **1.5x**, ou seja, **50% de lucro da sua aposta** caso acerte o cavalo que ganhará a corrida.\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta!')
 
-        embed.addField(events.race.rodando ? '⏰ Tempo restante: ' + API.ms2(events.race.time-(Date.now()-events.race.started)) : 'Corrida de cavalos finalizada', 
+        embed.addField(events.race.rodando ? '⏰ Tempo restante: ' + ms(events.race.time-(Date.now()-events.race.started), true) : 'Corrida de cavalos finalizada', 
         `
-${vencedor == 1 ? '🎉|🏇' : '🏁|' + inv2}${vencedor != 0 && vencedor != 1 ? '🏇' : inv2}${inv2}${inv2}${inv2}|${vencedor != 0 ? inv : '🏇'}🟧${inv}\`${API.format(apostaslaranja)} ${API.money}\` ${API.moneyemoji}
-${vencedor == 2 ? '🎉|🏇' : '🏁|' + inv3}${vencedor != 0 && vencedor != 2 ? '🏇' : inv3}${inv3}${inv3}${inv3}|${vencedor != 0 ? inv : '🏇'}🟥${inv}\`${API.format(apostasvermelho)} ${API.money}\` ${API.moneyemoji}
-${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 ? '🏇' : inv4}${inv4}${inv4}${inv4}|${vencedor != 0 ? inv : '🏇'}🟪${inv}\`${API.format(apostasroxo)} ${API.money}\` ${API.moneyemoji}
+${vencedor == 1 ? '🎉|🏇' : '🏁|' + inv2}${vencedor != 0 && vencedor != 1 ? '🏇' : inv2}${inv2}${inv2}${inv2}|${vencedor != 0 ? inv : '🏇'}🟧${inv}\`${format(apostaslaranja)} ${money}\` ${moneyemoji}
+${vencedor == 2 ? '🎉|🏇' : '🏁|' + inv3}${vencedor != 0 && vencedor != 2 ? '🏇' : inv3}${inv3}${inv3}${inv3}|${vencedor != 0 ? inv : '🏇'}🟥${inv}\`${format(apostasvermelho)} ${money}\` ${moneyemoji}
+${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 ? '🏇' : inv4}${inv4}${inv4}${inv4}|${vencedor != 0 ? inv : '🏇'}🟪${inv}\`${format(apostasroxo)} ${money}\` ${moneyemoji}
         `)
 
         let vencedorcor = ''
@@ -104,7 +104,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         }
 
         if (vencedor != 0) {
-            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostas e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + API.format(Math.round(apostas*1.5)) + ' ' + API.money + '` ' + API.moneyemoji + ' foi distribuído para os apostadores.')
+            embed.addField('Vencedor: 🏇' + vencedorcor, events.race.apostas[vencedorcornome].length == 0 ? '**Não houveram apostas no cavalo vencedor**' : '**Houveram no total ' + (events.race.apostas.laranja.length + events.race.apostas.vermelho.length + events.race.apostas.roxo.length) + ' apostas e somente ' + events.race.apostas[vencedorcornome].length + ' ganharam**\nUm total de `' + format(Math.round(apostas*1.5)) + ' ' + money + '` ' + moneyemoji + ' foi distribuído para os apostadores.')
         }
 
         return embed
@@ -117,32 +117,32 @@ events.getConfig = function(){ return config }
 events.alert = async function(text) {
     
     try {
-        const embed = new API.Discord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         embed.setColor('RANDOM')
         embed.setTitle("Siga este canal em seu servidor para avisos de eventos")
         embed.setDescription(text)
-        const channel = API.client.channels.cache.get(config.modules.events.channel)
+        const channel = client.channels.cache.get(config.modules.events.channel)
         await channel.bulkDelete(10).catch((error) => reportError(error, 'events.bulk_delete'))
         let eventinteraction 
         await channel.send({ embeds: [embed]}).then((embedinteraction) => {
-            if (channel.type == API.Discord.ChannelType.GuildAnnouncement) embedinteraction.crosspost()
+            if (channel.type == Discord.ChannelType.GuildAnnouncement) embedinteraction.crosspost()
             eventinteraction = embedinteraction
         })
 
         return eventinteraction
 
     } catch (err) {
-        API.client.emit('error', err)
+        client.emit('error', err)
     }
     return "Enviado com sucesso para " + config.modules.events.channel
 }
 
 events.forceTreasure = async function(loc) {
 
-    events.treasure.loc = loc || API.random(1, 4)
-    const treasurepos = await API.townExtension.getPosByTownNum(events.treasure.loc);
+    events.treasure.loc = loc || random(1, 4)
+    const treasurepos = await townExtension.getPosByTownNum(events.treasure.loc);
     events.treasure.pos = treasurepos
-    events.treasure.profundidade = API.random(15, 45)
+    events.treasure.profundidade = random(15, 45)
     events.treasure.picked = false
 
     events.alert("<:treasure:807671407160197141> **Um novo tesouro foi descoberto! Procure-o pelas vilas e seja o primeiro a pegá-lo**\nUtilize `/mapa` e `/pegartesouro` respectivamente para procurar e pegar o tesouro.")
@@ -151,12 +151,12 @@ events.forceTreasure = async function(loc) {
 
 events.forceDuck = async function(loc) {
     
-    events.duck.loc = loc || API.random(1, 4)
-    const duckpos = await API.townExtension.getPosByTownNum(events.duck.loc);
+    events.duck.loc = loc || random(1, 4)
+    const duckpos = await townExtension.getPosByTownNum(events.duck.loc);
 
     events.duck.pos = duckpos
-    events.duck.level = API.random(30, 50)
-    events.duck.sta = API.random(events.duck.level*16, events.duck.level*22)
+    events.duck.level = random(30, 50)
+    events.duck.sta = random(events.duck.level*16, events.duck.level*22)
     events.duck.killed = []
     
     events.alert("<:pato:919946658941399091> **Um novo pato dourado de nível " + events.duck.level + " apareceu! Procure-o pelas vilas e seja o primeiro a matá-lo**\nUtilize `/mapa` e `/patodourado` respectivamente para procurar e matar o pato.")
@@ -176,22 +176,22 @@ events.forceRace = async function() {
     events.race.vencedor = 0
 
 
-    const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + API.ms2(events.race.time) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
+    const interaction = await events.alert("🐎 **O evento CORRIDA DE CAVALOS começou!**\nUtilize `/apostarcavalo <valor>` para fazer a sua aposta.\nO resultado final sai em **" + ms(events.race.time, true) + "**\nVocê pode acompanhar o evento em <#807668576584597525> (No servidor oficial)")
 
     const embedinteraction = await interaction.reply({ embeds: [events.getRaceEmbed()], withResponse: true })
 
     events.race.interactionid = embedinteraction.id
 
-    const globalobj = await DatabaseManager.get(API.id, 'globals');
+    const globalobj = await DatabaseManager.get(id, 'globals');
 
     const globalevents = globalobj.events
 
     if (globalevents == null) {
-        DatabaseManager.set(API.id, 'globals', "events", {
+        DatabaseManager.set(id, 'globals', "events", {
             "race": events.race
         })
     } else {
-        DatabaseManager.set(API.id, 'globals', "events", {
+        DatabaseManager.set(id, 'globals', "events", {
             ...globalevents,
             "race": events.race
         })
@@ -213,7 +213,7 @@ async function editRace(embedinteraction) {
     } else {
 
         events.race.rodando = false
-        events.race.vencedor = API.random(1, 3)
+        events.race.vencedor = random(1, 3)
 
         let vencedorcor = ''
         let vencedorcornome = ''
@@ -239,9 +239,9 @@ async function editRace(embedinteraction) {
 
         for (i = 0; i < events.race.apostas[vencedorcornome].length; i++) {
             const user = events.race.apostas[vencedorcornome][i]
-            await API.eco.money.add(user.id, Math.round(user.aposta*1.5))
-            await API.eco.money.globalremove(Math.round(user.aposta*1.5))
-            await API.eco.addToHistory(user.id, `Aposta 🏇${vencedorcor} | + ${API.format(Math.round(user.aposta*1.5))} ${API.moneyemoji}`)
+            await eco.money.add(user.id, Math.round(user.aposta*1.5))
+            await eco.money.globalremove(Math.round(user.aposta*1.5))
+            await eco.addToHistory(user.id, `Aposta 🏇${vencedorcor} | + ${format(Math.round(user.aposta*1.5))} ${moneyemoji}`)
         }
         
         embedinteraction.edit({ embeds: [events.getRaceEmbed()] })
@@ -252,7 +252,7 @@ async function editRace(embedinteraction) {
             roxo: []
         }
 
-        const globalobj = await DatabaseManager.get(API.id, 'globals');
+        const globalobj = await DatabaseManager.get(id, 'globals');
 
         const globalevents = globalobj.events
 
@@ -260,7 +260,7 @@ async function editRace(embedinteraction) {
 
         delete globalevents2.race
 
-        DatabaseManager.set(API.id, 'globals', "events", globalevents2)
+        DatabaseManager.set(id, 'globals', "events", globalevents2)
 
     }
 
@@ -269,7 +269,7 @@ async function editRace(embedinteraction) {
 
 events.load = async function() {
 
-    let intervalEvents = (API.random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
+    let intervalEvents = (random(config.modules.events.minInterval, config.modules.events.maxInterval))*60*1000
 
     const globalobj = await DatabaseManager.get(config.app.id, "globals")
     const globalevents = globalobj.events
@@ -279,7 +279,7 @@ events.load = async function() {
             events.race = globalevents.race
 
             let interaction 
-            let ch = await API.client.channels.fetch(config.modules.events.channel);
+            let ch = await client.channels.fetch(config.modules.events.channel);
             try{
                 interaction = await ch.messages.fetch(events.race.interactionid)
             } catch (error) {
@@ -295,7 +295,7 @@ events.load = async function() {
     
     setInterval(async () => {
 
-        const event = API.random(0, 3)
+        const event = random(0, 3)
 
         switch (event) {
             case 0:
@@ -318,27 +318,27 @@ events.load = async function() {
 
     }, intervalEvents);
 
-    API.maqExtension.proxcot = Date.now()
+    maqExtension.proxcot = Date.now()
 
     setInterval(async () => {
         
-        API.maqExtension.forceCot()
-        API.maqExtension.proxcot = Date.now()
+        maqExtension.forceCot()
+        maqExtension.proxcot = Date.now()
 
     }, 60000*config.modules.cotacao);
 
     setInterval(async () => {
         
-        API.shopExtension.forceDiscount()
+        shopExtension.forceDiscount()
 
         try {
-            const botmoney = await API.eco.money.get(API.client.user.id)
+            const botmoney = await eco.money.get(client.user.id)
             if (botmoney > 1000000) {
-                API.eco.money.remove(API.client.user.id, 1000000)
-                API.eco.token.add(API.client.user.id, 500)
+                eco.money.remove(client.user.id, 1000000)
+                eco.token.add(client.user.id, 500)
             }
         } catch (error) {
-            API.client.emit('error', error)
+            client.emit('error', error)
         }
 
 
@@ -346,4 +346,5 @@ events.load = async function() {
 
 }
 
-module.exports = events
+return events;
+};

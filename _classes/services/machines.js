@@ -1,13 +1,11 @@
-const API = require("../api.js");
-
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
-
+module.exports = function createModule(dependencies) {
+    const { db, getFormatedDate, itemExtension, random, shopExtension } = dependencies;
+const DatabaseManager = db;
 const ores = {};
 
 ores.gen = async function(maq, profundidade, chips) {
 
-    const oreobj = API.itemExtension.getObj().minerios;
+    const oreobj = itemExtension.getObj().minerios;
 
     let oreobj2nomine = 1
 
@@ -21,7 +19,7 @@ ores.gen = async function(maq, profundidade, chips) {
     
     for (const i of chips){
       
-      const productchip = API.shopExtension.getProduct(i.id)
+      const productchip = shopExtension.getProduct(i.id)
       if (productchip.type == 5 && productchip.typeeffect) {
         genchips["chipe" + productchip.typeeffect] = { ...i, icon: productchip.icon, genchipid: "chipe" + productchip.typeeffect }
       }
@@ -34,7 +32,7 @@ ores.gen = async function(maq, profundidade, chips) {
         
         let gtotal = 225;
         gtotal += (pew2*2)/1;
-        gtotal += API.random(1, API.random(2, Math.round((pew2*2)*0.76)))
+        gtotal += random(1, random(2, Math.round((pew2*2)*0.76)))
         gtotal += (pew2*2)*2
 
         gtotal -= (pew2*2)/(maq.tier+1)
@@ -50,34 +48,34 @@ ores.gen = async function(maq, profundidade, chips) {
         if (oreobj[i]) {
             if (oreobj[i].name.includes('fragmento')) {
               if (genchips.chipe5) {
-                oreobj[i].size = API.random(2, 4);
+                oreobj[i].size = random(2, 4);
                 array.push({ oreobj: oreobj[i], orechips: { chipe5: genchips["chipe5"] } })
               }
             } else {
-              let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${API.random(6, 9)}${API.random(0, 9)}`)))*gtotal/100);
+              let t = Math.round(((oreobj[i].por+1)/(parseFloat(`2.${random(6, 9)}${random(0, 9)}`)))*gtotal/100);
               t += Math.round(((por/(i+1))/2)*gtotal/100);
               t *= 23/100;
               t = Math.round((oreobj[i].name == 'pedra' ? t * ((maq.tier+1)*1.9):t)/2);
 
               const activechips = []
 
-              if (genchips.chipe6 && API.random(0, 100) < API.random(1, 10)) {
+              if (genchips.chipe6 && random(0, 100) < random(1, 10)) {
                 t *= 2
                 activechips.push(genchips.chipe6)
               }
-              if (genchips.chipe7 && API.random(0, 100) < API.random(1, 10)) {
+              if (genchips.chipe7 && random(0, 100) < random(1, 10)) {
                 t /= 2
                 activechips.push(genchips.chipe7)
               }
-              if (genchips.chipe8 && API.random(0, 100) < API.random(1, 20)) {
+              if (genchips.chipe8 && random(0, 100) < random(1, 20)) {
                 
                 if (oreobj[i].name == 'pedra') {
-                  if (API.random(0, 100) < API.random(40, 80)) {
+                  if (random(0, 100) < random(40, 80)) {
                     t /= 4
                     activechips.push(genchips.chipe8)
                   }
                 } else {
-                  if (API.random(0, 100) < API.random(5, 15)) {
+                  if (random(0, 100) < random(5, 15)) {
                     t /= 2
                     activechips.push(genchips.chipe8)
                   }
@@ -121,7 +119,7 @@ storage.getMax = async function(user_id) {
 
 storage.getSize = async function(user_id) {
   let size = 0;
-  const obj = API.itemExtension.getObj();
+  const obj = itemExtension.getObj();
   await DatabaseManager.setIfNotExists(user_id, 'storage')
   const res = await DatabaseManager.get(user_id, 'storage');
   for (const r of obj.minerios) {
@@ -188,38 +186,38 @@ const maqExtension = {
 
 maqExtension.forceCot = async function() {
 
-  maqExtension.lastcot = API.getFormatedDate()
+  maqExtension.lastcot = getFormatedDate()
 
-  const oreslist = API.itemExtension.getObj().minerios
+  const oreslist = itemExtension.getObj().minerios
 
   for (i = 0; i < oreslist.length; i++) {
-    if (API.random(0, 100) < 30) {
+    if (random(0, 100) < 30) {
       
       
       let x = {
         update: "",
-        price: API.random(API.itemExtension.getObj().minerios[i].price.min, API.itemExtension.getObj().minerios[i].price.max, true).toFixed(2)
+        price: random(itemExtension.getObj().minerios[i].price.min, itemExtension.getObj().minerios[i].price.max, true).toFixed(2)
       }
 
-      let mudou = (API.itemExtension.getObj().minerios[i].price.atual-x.price).toFixed(2)
+      let mudou = (itemExtension.getObj().minerios[i].price.atual-x.price).toFixed(2)
 
       if (mudou < 0) mudou *= -1
 
       if (mudou == 0) {
-        return API.itemExtension.getObj().minerios[i].price.ultimoupdate = ""
+        return itemExtension.getObj().minerios[i].price.ultimoupdate = ""
       }
 
       mudou = mudou*2/2
       
-      x.update = ((x.price < API.itemExtension.getObj().minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
+      x.update = ((x.price < itemExtension.getObj().minerios[i].price.atual) ? "<:down:833837888546275338> " : "<:up:833837888634486794> ") + mudou.toString()
 
-      API.itemExtension.getObj().minerios[i].price.updates.unshift({ price: x.price, date: API.getFormatedDate(true) })
-      API.itemExtension.getObj().minerios[i].price.updates = API.itemExtension.getObj().minerios[i].price.updates.slice(0, 10)
-      API.itemExtension.getObj().minerios[i].price.ultimoupdate = x.update
+      itemExtension.getObj().minerios[i].price.updates.unshift({ price: x.price, date: getFormatedDate(true) })
+      itemExtension.getObj().minerios[i].price.updates = itemExtension.getObj().minerios[i].price.updates.slice(0, 10)
+      itemExtension.getObj().minerios[i].price.ultimoupdate = x.update
 
-      API.itemExtension.getObj().minerios[i].price.atual = x.price*2/2
+      itemExtension.getObj().minerios[i].price.atual = x.price*2/2
     } else {
-      API.itemExtension.getObj().minerios[i].price.ultimoupdate = ""
+      itemExtension.getObj().minerios[i].price.ultimoupdate = ""
     }
   }
 }
@@ -245,7 +243,7 @@ maqExtension.getEnergy = async function(user_id) {
 
   const array = obj.slots == null ? [] : obj.slots
   for (const i of array){
-    const chipproduct = API.shopExtension.getProduct(i.id)
+    const chipproduct = shopExtension.getProduct(i.id)
     if (chipproduct.typeeffect == 1) {
       r += chipproduct.sizeeffect
     };
@@ -289,10 +287,10 @@ maqExtension.removeEnergy = async function(user_id, valor) {
   const obj2 = await DatabaseManager.get(user_id, 'players')
   let recover = maqExtension.recoverenergy[obj2.perm]
 
-  const energyobj = await API.maqExtension.getEnergy(user_id)
+  const energyobj = await maqExtension.getEnergy(user_id)
 
   let f = Date.now()-((energyobj.energia-r-valor)*(recover*1000));
-  await API.maqExtension.setEnergy(user_id, f);
+  await maqExtension.setEnergy(user_id, f);
 }
 
 maqExtension.setEnergyMax = async function(user_id, valor) {
@@ -314,11 +312,11 @@ maqExtension.getSlotMax = function(level, mvp) {
 maqExtension.getDepth = async function(user_id) {
   let playerobj = await DatabaseManager.get(user_id, 'machines');
   let maqid = playerobj.machine;
-  let maq = API.shopExtension.getProduct(maqid);
+  let maq = shopExtension.getProduct(maqid);
   let r = 0;
-  const array = await API.itemExtension.getEquippedChips(user_id);
+  const array = await itemExtension.getEquippedChips(user_id);
   for (const i of array){
-    const chipproduct = API.shopExtension.getProduct(i.id)
+    const chipproduct = shopExtension.getProduct(i.id)
     if (chipproduct.typeeffect == 2) r += chipproduct.sizeeffect;
   }
   return maq.profundidade+r
@@ -327,7 +325,7 @@ maqExtension.getDepth = async function(user_id) {
 maqExtension.getMaintenance = async function(user_id, getDefault) {
 
   const machinesobj = await DatabaseManager.get(user_id, 'machines')
-  const machineproduct = API.shopExtension.getProduct(machinesobj.machine);
+  const machineproduct = shopExtension.getProduct(machinesobj.machine);
 
   function genMaintenance(name, pricemultiplier, defaultValue, invert) {
     if (!getDefault) {
@@ -356,4 +354,5 @@ maqExtension.getMaintenance = async function(user_id, getDefault) {
 
 }
 
-module.exports = maqExtension;
+return maqExtension;
+};

@@ -1,12 +1,13 @@
 module.exports = {
+    requiredServices: ["client","id"],
     name: 'reloadslash',
     aliases: ['loadslash', 'reloadsl'],
     category: 'none',
     description: 'Dá reload nos comandos de slash',
     options: [],
-	async execute(API, interaction) {
+	async execute(interaction, svcClient, svcId) {
 
-        API.client.loadSlashCommands({ force: true, id: API.id })
+        svcClient.loadSlashCommands({ force: true, svcId: svcId })
 
         interaction.reply({ content: 'Comandos de Slash foram recarregados com sucesso!' })
 

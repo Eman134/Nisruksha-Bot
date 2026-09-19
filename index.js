@@ -1,12 +1,10 @@
 
 require("colors")
 
-// Iniciar client
-const NisrukshaClient = require('./_classes/NisrukshaClient')
-
 const config = require("./_classes/config")
+const { createBot } = require('./_classes/bootstrap');
 
-const client = new NisrukshaClient(config)
+const client = createBot(config)
 
 client.login()
 

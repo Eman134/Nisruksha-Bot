@@ -2,16 +2,14 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
-const API = require('../../_classes/api');
-
 const vare = {
     '736290479406317649': {
         db: {
             table: 'players',
             column: 'money'
         },
-        name: API.money,
-        formated: API.money + ' ' + API.moneyemoji,
+        name: 'moedas',
+        formated: 'moedas <:moneybag:736290479406317649>',
         global: [],
     },
     '743176785986060390': {
@@ -19,8 +17,8 @@ const vare = {
             table: 'players',
             column: 'points'
         },
-        name: API.money2,
-        formated: API.money2 + ' ' + API.money2emoji,
+        name: 'cristais',
+        formated: 'cristais <:estilhas:743176785986060390>',
         global: [],
     },
     '741827151879471115': {
@@ -28,8 +26,8 @@ const vare = {
             table: 'players',
             column: 'token'
         },
-        name: API.money3,
-        formated: API.money3 + ' ' + API.money3emoji,
+        name: 'fichas',
+        formated: 'fichas <:ficha:741827151879471115>',
         global: [],
     },
     '👍🏽': {
@@ -64,8 +62,8 @@ const vare = {
             table: 'players',
             column: 'mastery'
         },
-        name: API.mastery.name,
-        formated: API.mastery.name + ' ' + API.mastery.emoji,
+        name: 'pontos de maestria',
+        formated: 'pontos de maestria 🔰',
         global: [],
     },
     '⚙': {
@@ -88,7 +86,7 @@ async function setRankCache() {
         try {
             array = await DatabaseManager.findMany(data.db.table);
         } catch (err) {
-            API.client.emit('error', err)
+            client.emit('error', err)
         }
         vare[data.emoji].global = array.sort((a, b) => b[data.db.column] - a[data.db.column]);
     }
@@ -98,24 +96,21 @@ setRankCache()
 setInterval(setRankCache, 360000)
 
 module.exports = {
+    requiredServices: ["Discord","client","createButton","mastery","money","money2","money2emoji","money3","money3emoji","moneyemoji","rowComponents"],
     name: 'ranking',
     aliases: ['top', 'rank', 'rankglobal'],
     category: 'Social',
     description: 'Visualiza o ranking GLOBAL de alguma categoria',
     mastery: 3,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-        const client = API.client;
-
+	async execute(interaction, svcDiscord, svcClient, svcCreateButton, svcMastery, svcMoney, svcMoney2, svcMoney2emoji, svcMoney3, svcMoney3emoji, svcMoneyemoji, svcRowComponents) {
         let rankingtype = 0
         let current = ''
 
-		const embed = new Discord.MessageEmbed()
+		const embed = new svcDiscord.MessageEmbed()
         .setColor('#32a893')
-        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+        .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : svcClient.user.avatarURL()))
 
-        .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!API.client.emojis.cache.get(key) ? key : API.client.emojis.cache.get(key)}`).join('\n'))
+        .setDescription(Object.keys(vare).map((key) => `<:arrow:737370913204600853> Ranking de ${vare[key].name} ${!svcClient.emojis.cache.get(key) ? key : svcClient.emojis.cache.get(key)}`).join('\n'))
 
         let components = []
 
@@ -127,10 +122,10 @@ module.exports = {
 
             components = []
 
-            //butnList.push(API.createButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
+            //butnList.push(svcCreateButton('change', (type == 0 ? 'SUCCESS' : 'PRIMARY'), (type == 0 ? 'Global' : 'Local'), '🔁'))
 
             for (i = 0; i < Object.keys(vare).length; i++) {
-                butnList.push(API.createButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
+                butnList.push(svcCreateButton(Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? 'SUCCESS': 'SECONDARY'), '', Object.keys(vare)[i], (disabled == Object.keys(vare)[i] ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
@@ -142,7 +137,7 @@ module.exports = {
             for (x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
-                const rowBtn = API.rowComponents(butnList.slice(var1, var2))
+                const rowBtn = svcRowComponents(butnList.slice(var1, var2))
                 if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
@@ -163,7 +158,7 @@ module.exports = {
 
             if (b.customId == 'change') {
                 rankingtype = (rankingtype == 0 ? 1 : 0)
-                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+                embed.setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local'), (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : svcClient.user.avatarURL()))
                 b.customId = current
             }
             
@@ -201,7 +196,7 @@ module.exports = {
 
             for (var i = 0; i < array.length; i++) {
 
-                let member = await client.users.fetch(`${array[i].user_id}`);
+                let member = await svcClient.users.fetch(`${array[i].user_id}`);
 
                 array[i].tag = member.tag;
                 array[i].rank = i+1;
@@ -211,7 +206,7 @@ module.exports = {
 
             embed
             .setTitle('🥇 Sua posição: ' + pos + 'º')
-            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : API.client.user.avatarURL()))
+            .setAuthor('Top ' + (rankingtype == 0 ? 'Global' : 'Local') + ': ' + vare[b.customId].name, (rankingtype == 1 ? interaction.guild.iconURL({ format: 'png', dynamic: true, size: 1024 }) : svcClient.user.avatarURL()))
             .setColor('#32a893')
             .setDescription(maparray)
 

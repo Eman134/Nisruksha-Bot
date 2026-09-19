@@ -2,18 +2,16 @@ const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","crateExtension","eco","format","money2","money2emoji","moneyemoji","playerUtils"],
     name: 'daily',
     aliases: ['daily'],
     category: 'Economia',
     description: 'Receba uma recompensa diária e aumente seu streak',
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "daily");
+	async execute(interaction, svcDiscord, svcCrateExtension, svcEco, svcFormat, svcMoney2, svcMoney2emoji, svcMoneyemoji, svcPlayerUtils) {
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "daily");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'daily', 'resgatar sua recompensa diária')
+            svcPlayerUtils.cooldown.message(interaction, 'daily', 'resgatar sua recompensa diária')
 
             return;
         }
@@ -29,7 +27,7 @@ module.exports = {
             streak = 0
         } else {
 
-            const check2 = await API.playerUtils.cooldown.check(interaction.user.id, "breakstreak");
+            const check2 = await svcPlayerUtils.cooldown.check(interaction.user.id, "breakstreak");
             if (!check2) {
                 streak = 0
             }
@@ -60,17 +58,17 @@ module.exports = {
             cristal = 1
         }
         
-		const embed = new Discord.MessageEmbed()
+		const embed = new svcDiscord.MessageEmbed()
         .setColor(colors[streak] || colors["10"])
-        .setDescription(`Você recebeu \`${reward}\` ${API.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${API.money2}\` ${API.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
-        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        .setDescription(`Você recebeu \`${reward}\` ${svcMoneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${svcMoney2}\` ${svcMoney2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
+        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
         await interaction.reply({ embeds: [embed] });
-        API.eco.money.add(interaction.user.id, reward)
-        API.eco.points.add(interaction.user.id, cristal)
+        svcEco.money.add(interaction.user.id, reward)
+        svcEco.points.add(interaction.user.id, cristal)
         DatabaseManager.set(interaction.user.id, "players", "streak", streak)
-        API.eco.addToHistory(interaction.user.id, `Recompensa diária | + ${API.format(reward)} ${API.moneyemoji}`)
-        API.playerUtils.cooldown.set(interaction.user.id, "daily", 86400);
-        API.playerUtils.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
-        if (obj.perm >= 3)API.crateExtension.give(interaction.user.id, 1, 2)
+        svcEco.addToHistory(interaction.user.id, `Recompensa diária | + ${svcFormat(reward)} ${svcMoneyemoji}`)
+        svcPlayerUtils.cooldown.set(interaction.user.id, "daily", 86400);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
+        if (obj.perm >= 3)svcCrateExtension.give(interaction.user.id, 1, 2)
 	},
 };

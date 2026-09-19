@@ -6,6 +6,7 @@ const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('quantia').setDescription('Selecione uma quantia de fragmentos para processar').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","cacheLists","company","createButton","format","itemExtension","ms","playerUtils","rowComponents","sendError"],
     name: 'iniciarprocesso',
     aliases: ['startprocess', 'sproc', 'inproc'],
     category: 'none',
@@ -13,11 +14,8 @@ module.exports = {
     companytype: 7,
     data,
     mastery: 30,
-	async execute(API, interaction, company) {
-
-        const Discord = API.Discord;
-        
-		const embed = new Discord.MessageEmbed()
+	async execute(interaction, svcDiscord, svcCacheLists, svcCompany, svcCreateButton, svcFormat, svcItemExtension, svcMs, svcPlayerUtils, svcRowComponents, svcSendError, company) {        
+		const embed = new svcDiscord.MessageEmbed()
 
         const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
         let processjson = players_utils.process
@@ -31,8 +29,8 @@ module.exports = {
 
             const defaultjson = {
                 tools: {
-                    0: API.company.jobs.process.tools.search(level, 0),
-                    1: API.company.jobs.process.tools.search(level, 1),
+                    0: svcCompany.jobs.process.tools.search(level, 0),
+                    1: svcCompany.jobs.process.tools.search(level, 1),
                 },
     
                 in: []
@@ -45,13 +43,13 @@ module.exports = {
         }
 
         if (storage['fragmento'] <= quantia) {
-            const embedtemp = await API.sendError(interaction, `Você não possui ${API.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+            const embedtemp = await svcSendError(interaction, `Você não possui ${svcFormat(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max && processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max) {
-            const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`/processos\` para visualizar seus processos.`)
+            const embedtemp = await svcSendError(interaction, `Você atingiu o máximo de processamento simultâneos nas suas ferramentas de limpeza!\nUtilize \`/processos\` para visualizar seus processos.`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -61,7 +59,7 @@ module.exports = {
                 for (i = 0; i < processjson.in.length; i++) {
                     const checkfi = processjson.in[i].fragments.current == 0
                     
-                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id} ${(checkfi ? 'Finalizado ✅' : '')}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + API.ms2(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
+                    if (processjson.in[i]) embed.addField(`⏳ Processo ${processjson.in[i].id} ${(checkfi ? 'Finalizado ✅' : '')}`, `ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + svcMs(Date.now() - processjson.in[i].started, true):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
                 }
             } else {
                 embed.addField(`❌ Algo inesperado aconteceu`, `Você não possui processos ativos no momento para visualizá-los\nSelecione a ferramenta para começar a processar fragmentos.`, true)
@@ -74,9 +72,9 @@ module.exports = {
         setProcess()
 
         function reworkButtons(current, allDisabled) {
-            const btn2 = API.createButton('ferr', processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.in.filter((proca) => proca.tool == 0).length + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? true : false))
-            const btn3 = API.createButton('lqd', processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.in.filter((proca) => proca.tool == 1).length + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? true : false))
-            return [API.rowComponents([btn2, btn3])]
+            const btn2 = svcCreateButton('ferr', processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? 'DANGER':'SUCCESS', processjson.tools[0].name + ' [' + processjson.in.filter((proca) => proca.tool == 0).length + '/' +  + processjson.tools[0].process.max + ']', processjson.tools[0].icon.split(':')[2] ? processjson.tools[0].icon.split(':')[2].replace('>', '') : processjson.tools[0].icon, (current == 'ferr' || allDisabled || processjson.in.filter((proca) => proca.tool == 0).length >= processjson.tools[0].process.max ? true : false))
+            const btn3 = svcCreateButton('lqd', processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? 'DANGER':'SUCCESS', processjson.tools[1].name + ' [' + processjson.in.filter((proca) => proca.tool == 1).length + '/' +  + processjson.tools[1].process.max + ']', processjson.tools[1].icon.split(':')[2] ? processjson.tools[1].icon.split(':')[2].replace('>', '') : processjson.tools[1].icon, (current == 'lqd' || allDisabled || processjson.in.filter((proca) => proca.tool == 1).length >= processjson.tools[1].process.max ? true : false))
+            return [svcRowComponents([btn2, btn3])]
         }
 
         const components = reworkButtons(current)
@@ -110,38 +108,38 @@ module.exports = {
             const tool = (b.customId == 'ferr' ? processjson.tools[0] : processjson.tools[1])
             const toolid = (b.customId == 'ferr' ? 0 : 1)
 
-            let stamina = await API.playerUtils.stamina.get(interaction.user.id)
+            let stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
 
             if (stamina < custostart) {
                 
-                const embedtemp = await API.sendError(interaction, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)
+                const embedtemp = await svcSendError(interaction, `Você não possui estamina o suficiente para iniciar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custostart}]**`)
                 await interaction.reply({ embeds: [embedtemp]})
                 interaction.editReply({ embeds: [embed], components: [] })
                 return;
 
             }
 
-            API.playerUtils.stamina.remove(interaction.user.id, custostart)
+            svcPlayerUtils.stamina.remove(interaction.user.id, custostart)
 
             if (quantia < Math.round(tool.process.maxfragments*0.15)) {
-                const embedtemp = await API.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
+                const embedtemp = await svcSendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o mínimo é de ${Math.round(tool.process.maxfragments*0.15)}!`)
                 await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
             if (quantia > tool.process.maxfragments) {
-                const embedtemp = await API.sendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
+                const embedtemp = await svcSendError(interaction, `Você não pode processar essa quantia de fragmentos com **${tool.icon} ${tool.name}**, o máximo é de ${tool.process.maxfragments}!`)
                 await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
 
             if (storage['fragmento'] <= quantia) {
-                const embedtemp = await API.sendError(interaction, `Você não possui ${API.format(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
+                const embedtemp = await svcSendError(interaction, `Você não possui ${svcFormat(quantia)} fragmentos em seu armazém para processar!\nPara começar a ter fragmentos você deve adquirir um chipe de fragmentos e minerar!`)
                 await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
 
             if (processjson.in.filter((proca) => proca.tool == toolid).length >= tool.process.max) {
-                const embedtemp = await API.sendError(interaction, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
+                const embedtemp = await svcSendError(interaction, `Você atingiu o máximo de processos simultâneos com **${tool.icon} ${tool.name}**!`)
                 await interaction.editReply({ embeds: [embedtemp] })
                 return;
             }
@@ -153,10 +151,10 @@ module.exports = {
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 0).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
+Tempo de Limpeza Médio: ${svcMs(svcCompany.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments), true)}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
-Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${svcCompany.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`/processos\`.**
@@ -167,10 +165,10 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 1).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Médio: ${API.ms2(API.company.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
+Tempo de Limpeza Médio: ${svcMs(svcCompany.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments), true)}
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L (${(tool.fuel.current/tool.fuel.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
-Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${API.company.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${svcCompany.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
 
 **Você usou ${custostart} pontos de Estamina 🔸 e iniciou um processamento de \`${quantia} fragmentos\` <:fragmento:843674514260623371> com ${tool.icon} ${tool.name}.**
 **Visualize seus processos utilizando \`/processos\`.**
@@ -189,7 +187,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 id,
                 tool: (b.customId == 'ferr' ? 0 : 1),
                 started: Date.now(),
-                end: Date.now()+API.company.jobs.process.calculateTime(tool.potency.current, quantia),
+                end: Date.now()+svcCompany.jobs.process.calculateTime(tool.potency.current, quantia),
                 fragments: {
                     current: quantia,
                     total: quantia
@@ -198,7 +196,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
                 score: 0
             }
 
-            API.itemExtension.set(interaction.user.id, 'fragmento', storage['fragmento']-quantia)
+            svcItemExtension.set(interaction.user.id, 'fragmento', storage['fragmento']-quantia)
 
             processjson.in.push(defaultjsonprocess)
 
@@ -208,8 +206,8 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
 
             await interaction.editReply({ embeds: [embed], components })
 
-            await API.company.jobs.process.add(interaction.user.id)
-            await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+            await svcCompany.jobs.process.add(interaction.user.id)
+            await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
         });
         

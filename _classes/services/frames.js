@@ -1,6 +1,7 @@
+module.exports = function createModule(dependencies) {
+    const { db } = dependencies;
+const DatabaseManager = db;
 const { readFileSync } = require('fs')
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
 
 const frames = {
     json: []
@@ -84,4 +85,5 @@ frames.load = function () {
     }
 }
 
-module.exports = frames
+return frames;
+};

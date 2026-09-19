@@ -7,63 +7,61 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
+    requiredServices: ["Discord","client","clone","createButton","itemExtension","maqExtension","playerUtils","random","rowComponents","sendError","shopExtension"],
     name: 'usaritem',
     aliases: ['useitem', 'uitem', 'usari'],
     category: 'Players',
     description: 'Faz o uso de um item usável da sua mochila',
     data,
     mastery: 10,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-
+	async execute(interaction, svcDiscord, svcClient, svcClone, svcCreateButton, svcItemExtension, svcMaqExtension, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcShopExtension) {
         let id = interaction.options.getString('item');
         
-        if (!API.itemExtension.exists(id, 'drops')) {
-            const embedtemp = await API.sendError(interaction, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`/mochila\``)
+        if (!svcItemExtension.exists(id, 'drops')) {
+            const embedtemp = await svcSendError(interaction, `Você precisa identificar um item EXISTENTE para uso!\nVerifique os itens disponíveis utilizando \`/mochila\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-        const drop = API.itemExtension.get(id)
+        const drop = svcItemExtension.get(id)
         id = id.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
         
         if (!drop.usavel) {
-            const embedtemp = await API.sendError(interaction, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
+            const embedtemp = await svcSendError(interaction, `O item ${drop.icon} \`${drop.displayname}\` não é usável!\nDica: Os itens usáveis possuem um sufixo '💫' em seu nome na mochila.`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         const obj2 = await DatabaseManager.get(interaction.user.id, 'storage')
         if (obj2[drop.name.replace(/"/g, '')] <= 0) {
-            const embedtemp = await API.sendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
+            const embedtemp = await svcSendError(interaction, `Você não possui ${drop.icon} \`${drop.displayname}\` na sua mochila para usar!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "usaritem");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "usaritem");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'usaritem', 'usar itens novamente')
+            svcPlayerUtils.cooldown.message(interaction, 'usaritem', 'usar itens novamente')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "usaritem", 15);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "usaritem", 15);
 
         const quantia = 1
         
-        const embed = new API.Discord.MessageEmbed();
+        const embed = new svcDiscord.MessageEmbed();
         embed.setColor('#606060');
         embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
         Você deseja utilizar o item **${drop.icon} ${drop.displayname}** da sua mochila?\nDescrição do item: \`${drop.desc}\``)
         
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -102,7 +100,7 @@ module.exports = {
             switch (drop.type) {
                 case 1:
 
-                    const isFull = await API.maqExtension.storage.isFull(interaction.user.id);
+                    const isFull = await svcMaqExtension.storage.isFull(interaction.user.id);
 
                     if (isFull) {
                         embed.setColor('#a60000');
@@ -111,7 +109,7 @@ module.exports = {
                         return
                     }
 
-                    const embed2 = new Discord.MessageEmbed();
+                    const embed2 = new svcDiscord.MessageEmbed();
                     embed2.setTitle(`${drop.icon} ${drop.displayname}`).setColor("#2ed1ce")
                     
                     let totalcoletado = 0;
@@ -121,22 +119,22 @@ module.exports = {
 
                         try{
 
-                            let profundidade = await API.maqExtension.getDepth(interaction.user.id)
+                            let profundidade = await svcMaqExtension.getDepth(interaction.user.id)
 
                             let playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
                             let maqid = playerobj.machine;
-                            const maq1 = API.shopExtension.getProduct(maqid);
-                            const maq = API.clone(maq1);
+                            const maq1 = svcShopExtension.getProduct(maqid);
+                            const maq = svcClone(maq1);
                             
                             maq.tier = drop.tier+2
                         
-                            const obj2 = await API.maqExtension.ores.gen(maq, profundidade*drop.tier*5, []);
+                            const obj2 = await svcMaqExtension.ores.gen(maq, profundidade*drop.tier*5, []);
 
                             let sizeMap = new Map();
 
                             let round = 0;
-                            let xp = API.random(15, 35)*drop.tier;
-                            xp = await API.playerUtils.execExp(interaction, xp);
+                            let xp = svcRandom(15, 35)*drop.tier;
+                            xp = await svcPlayerUtils.execExp(interaction, xp);
 
                             for (const r of obj2) {
             
@@ -144,26 +142,26 @@ module.exports = {
             
                                 let size = ore.size*drop.tier;
                 
-                                let arMax = await API.maqExtension.storage.getMax(interaction.user.id);
+                                let arMax = await svcMaqExtension.storage.getMax(interaction.user.id);
                 
-                                if (await API.maqExtension.storage.getSize(interaction.user.id)+size >= arMax) {
-                                    size -= (await API.maqExtension.storage.getSize(interaction.user.id)+size-arMax)
+                                if (await svcMaqExtension.storage.getSize(interaction.user.id)+size >= arMax) {
+                                    size -= (await svcMaqExtension.storage.getSize(interaction.user.id)+size-arMax)
                                 }
                                 totalcoletado += size;
                                 if (coletadox.has(ore.name)) coletadox.set(ore.name, coletadox.get(ore.name)+size)
                                 else coletadox.set(ore.name, size)
                                 sizeMap.set(ore.name, size)
-                                API.itemExtension.add(interaction.user.id, ore.name, size)
+                                svcItemExtension.add(interaction.user.id, ore.name, size)
                                 round += size;
                 
-                                if (await API.maqExtension.storage.getSize(interaction.user.id)+size >= arMax) break;
+                                if (await svcMaqExtension.storage.getSize(interaction.user.id)+size >= arMax) break;
                                     
                             }
                             
-                            let armazemmax2 = await API.maqExtension.storage.getMax(interaction.user.id);
+                            let armazemmax2 = await svcMaqExtension.storage.getMax(interaction.user.id);
                             embed2.fields = [];
                             const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
-                            const arsize = await API.maqExtension.storage.getSize(interaction.user.id);
+                            const arsize = await svcMaqExtension.storage.getSize(interaction.user.id);
 
                             await embed2.setDescription(`Minerador: ${interaction.user}`);
                             await embed2.addField(`<:storageinfo:738427915531845692> Informações do armazém`, `Capacidade: [${arsize}/${armazemmax2}]g\nTotal coletado: ${totalcoletado}g\nColetado neste update: ${round}g`)
@@ -187,7 +185,7 @@ module.exports = {
                                 return
                             }
                         }catch (err){
-                            API.client.emit('error', err)
+                            svcClient.emit('error', err)
                         }
                     }
 
@@ -196,12 +194,12 @@ module.exports = {
                     break;
 
                 case 2:
-                    await API.playerUtils.stamina.add(interaction.user.id, drop.value);
+                    await svcPlayerUtils.stamina.add(interaction.user.id, drop.value);
                     sucessEmbed()
                     break;
 
                 case 3:
-                    API.playerUtils.execExp(interaction, drop.value, true);
+                    svcPlayerUtils.execExp(interaction, drop.value, true);
                     sucessEmbed()
                     break;
 
@@ -210,12 +208,12 @@ module.exports = {
                     interaction.reply({ content: 'Ocorreu um erro ao utilizar o item, contate algum moderador do bot.'})
 
             }
-            API.itemExtension.add(interaction.user.id, drop.name, -quantia)
+            svcItemExtension.add(interaction.user.id, drop.name, -quantia)
 
         });
         
         collector.on('end', async collected => {
-            API.playerUtils.cooldown.set(interaction.user.id, "usaritem", 0);
+            svcPlayerUtils.cooldown.set(interaction.user.id, "usaritem", 0);
             if (reacted) return
             embed.fields = [];
             embed.setColor('#a60000');

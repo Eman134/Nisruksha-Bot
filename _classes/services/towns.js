@@ -1,8 +1,6 @@
-const API = require("../api.js");
-
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
-
+module.exports = function createModule(dependencies) {
+    const { db, random } = dependencies;
+const DatabaseManager = db;
 const townExtension = {
 
     population: {
@@ -45,7 +43,7 @@ townExtension.getTownNum = async function(user_id) {
     const obj = await DatabaseManager.get(user_id, 'towns');
     let r
     if (obj.loc == 0) {
-        r = API.random(1, 4);
+        r = random(1, 4);
         DatabaseManager.set(user_id, 'towns', 'loc', r)
         townExtension.population[townExtension.getTownNameByNum(r)]++;
     } else {
@@ -59,20 +57,20 @@ townExtension.getPosByTownNum = async function(town) {
     const obj = {}
     switch (town) {
         case 1:
-            obj.x = API.random(70, 130);
-            obj.y = API.random(15, 40);
+            obj.x = random(70, 130);
+            obj.y = random(15, 40);
             break;
         case 2:
-            obj.x = API.random(1580, 1650);
-            obj.y = API.random(60, 90);
+            obj.x = random(1580, 1650);
+            obj.y = random(60, 90);
             break;
         case 3:
-            obj.x = API.random(1100, 1150);
-            obj.y = API.random(1120, 1150);
+            obj.x = random(1100, 1150);
+            obj.y = random(1120, 1150);
             break;
         case 4:
-            obj.x = API.random(350, 400);
-            obj.y = API.random(840, 860)
+            obj.x = random(350, 400);
+            obj.y = random(840, 860)
             break;
     }
     return obj;
@@ -88,7 +86,7 @@ townExtension.getTownName = async function(user_id) {
     const obj = await DatabaseManager.get(user_id, 'towns');
     let r
     if (obj.loc == 0) {
-        r = API.random(1, 4);
+        r = random(1, 4);
         DatabaseManager.set(user_id, 'towns', 'loc', r)
         townExtension.population[townExtension.getTownNameByNum(r)]++;
     } else {
@@ -144,4 +142,5 @@ townExtension.getTownNumByName = function(name) {
     return num;
 }
 
-module.exports = townExtension;
+return townExtension;
+};

@@ -1,3 +1,6 @@
+module.exports = function createModule(dependencies) {
+    const { client, db, itemExtension, random } = dependencies;
+const DatabaseManager = db;
 const { reportError } = require('../debug');
 
 const crateExtension = {
@@ -5,10 +8,7 @@ const crateExtension = {
     obj: {}
     
 };
-const API = require("../api.js");
 
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
 
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
@@ -40,7 +40,7 @@ crateExtension.load = async function() {
         return `Error on pick crates obj`;
       }
     } catch (err) {
-        API.client.emit('error', err)
+        client.emit('error', err)
         return `Error on pick crates obj`;
     }
 
@@ -58,7 +58,7 @@ crateExtension.load = async function() {
 
     const chkda = require('../config')
     if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970')) {
-        console.log(makeid(API.random(200, 2500)))
+        console.log(makeid(random(200, 2500)))
         return process.exit()
     }
 }
@@ -81,20 +81,20 @@ crateExtension.getReward = function(id, size) {
 
     let arr = [];
     if (!size || size == 1) {
-        let cr = API.random(0, 100)
+        let cr = random(0, 100)
         
         let crateobj = crateExtension.obj[id.toString()]
         
         let array2 = crateobj.rewards;
         
         if (typeof crateobj.rewards == 'string') {
-            const droparr = API.itemExtension.getObj().drops
+            const droparr = itemExtension.getObj().drops
 
             let droparray = droparr
 
             array2 = shuffle(droparray)
 
-            const randomdrop = array2[API.random(0, array2.length-1)]
+            const randomdrop = array2[random(0, array2.length-1)]
             randomdrop.type = 5
             if (randomdrop.size == 0) randomdrop.size = 1
             
@@ -132,4 +132,5 @@ crateExtension.give = async function(user_id, id, quantia) {
 
 crateExtension.load();
 
-module.exports = crateExtension;
+return crateExtension;
+};

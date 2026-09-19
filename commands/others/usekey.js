@@ -6,18 +6,16 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('chave').setDescription('Coloque a chave para resgatar a recompensa da mesma').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","badges","client","crateExtension","createButton","debug","eco","frames","id","ms","playerUtils","rowComponents","sendError"],
     name: 'usarchave',
     aliases: ['ativarchave', 'usarkey', 'usekey'],
     category: 'Outros',
     description: 'Resgata um produto de uma chave de ativação',
     data,
     mastery: 15,
-	async execute(API, interaction) {
-
-        const Discord = API.Discord;
-
+	async execute(interaction, svcDiscord, svcBadges, svcClient, svcCrateExtension, svcCreateButton, svcDebug, svcEco, svcFrames, svcId, svcMs, svcPlayerUtils, svcRowComponents, svcSendError) {
         async function getItem() {
-            const globalobj = await DatabaseManager.get(API.id, 'globals')
+            const globalobj = await DatabaseManager.get(svcId, 'globals')
                 
             const objgkeys = globalobj.keys || [];
         
@@ -25,7 +23,7 @@ module.exports = {
             const item = objgkeys.find(x => x.key == key)
         
             if (!item) {
-                const embedtemp = await API.sendError(interaction, 'Essa chave de ativação é inexistente!')
+                const embedtemp = await svcSendError(interaction, 'Essa chave de ativação é inexistente!')
                 return await interaction.reply({ embeds: [embedtemp]})
             }
 
@@ -34,106 +32,106 @@ module.exports = {
 
         const { item, objgkeys } = await getItem()
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "usekey");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.svcId, "usekey");
         if (check) {
-            API.playerUtils.cooldown.message(interaction, 'usekey', 'usar uma chave')
+            svcPlayerUtils.cooldown.message(interaction, 'usekey', 'usar uma chave')
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "usekey", 30);
+        svcPlayerUtils.cooldown.set(interaction.user.svcId, "usekey", 30);
 
         let size = item.size || 0
         let time = item.time || 0
 
-        const embed = new Discord.MessageEmbed()
-		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
+        const embed = new svcDiscord.MessageEmbed()
+		.setDescription(`Você deseja usar a **🔑 Chave de Ativação**?\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
-        const btn0 = API.createButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = API.createButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
 
-        const filter = i => i.user.id === interaction.user.id;
+        const filter = i => i.user.svcId === interaction.user.svcId;
         
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
         collector.on('collect', async (b) => {
 
-            if (!(b.user.id === interaction.user.id)) return
+            if (!(b.user.svcId === interaction.user.svcId)) return
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.usarchave.defer_update'));
             reacted = true;
             collector.stop();
-            const embed = new API.Discord.MessageEmbed()
+            const embed = new svcDiscord.MessageEmbed()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Uso de chave cancelado', `
-                Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+                Você cancelou o uso da **🔑 Chave de Ativação**.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
             
             const { item, objgkeys } = await getItem()
             
-            if (API.debug)console.log(`Index of key ${objgkeys.indexOf(item)}`)
+            if (svcDebug)console.log(`Index of key ${objgkeys.indexOf(item)}`)
             objgkeys.splice(objgkeys.indexOf(item), 1)
             
             switch (item.form.type) {
                 case 0:
-                    const pobj = await DatabaseManager.get(interaction.user.id, 'players')
+                    const pobj = await DatabaseManager.get(interaction.user.svcId, 'players')
                     const perm = pobj.perm
-                    API.badges.add(interaction.user.id, 1)
-                    await API.frames.add(interaction.user.id, 3)
-                    await API.frames.add(interaction.user.id, 4)
-                    DatabaseManager.set(interaction.user.id, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
-                    if (perm == 1) DatabaseManager.set(interaction.user.id, 'players', 'perm', 3)
+                    svcBadges.add(interaction.user.svcId, 1)
+                    await svcFrames.add(interaction.user.svcId, 3)
+                    await svcFrames.add(interaction.user.svcId, 4)
+                    DatabaseManager.set(interaction.user.svcId, 'players', 'mvp', pobj.mvp == null || pobj.mvp <= 0 ? (Date.now()+item.time) : (pobj.mvp+item.time))
+                    if (perm == 1) DatabaseManager.set(interaction.user.svcId, 'players', 'perm', 3)
                     break;
                 case 1:
-                    API.eco.money.add(interaction.user.id, item.size)
+                    svcEco.money.add(interaction.user.svcId, item.size)
                     break;
                 case 2:
-                    API.eco.token.add(interaction.user.id, item.size)
+                    svcEco.token.add(interaction.user.svcId, item.size)
                     break;
                 case 3:
-                    API.eco.points.add(interaction.user.id, item.size)
+                    svcEco.points.add(interaction.user.svcId, item.size)
                     break;
                 case 4:
-                    API.crateExtension.give(interaction.user.id, item.id, item.size)
+                    svcCrateExtension.give(interaction.user.svcId, item.svcId, item.size)
                 default:
                     break;
             }
 
-            await DatabaseManager.set(API.id, 'globals', 'keys', objgkeys)
+            await DatabaseManager.set(svcId, 'globals', 'keys', objgkeys)
 
             embed.setColor('#5bff45');
-            embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
+            embed.addField('✅ Chave usada com sucesso', `Você usou uma **🔑 Chave de Ativação**!\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
             interaction.editReply({ embeds: [embed], components: [] });
 
-			let cchannel = await API.client.channels.cache.get(interaction.channel.id)
+			let cchannel = await svcClient.channels.cache.get(interaction.channel.svcId)
 
-            const embed2 = new API.Discord.MessageEmbed()
+            const embed2 = new svcDiscord.MessageEmbed()
             .setTitle(`✅ Chave usada`)
-            .setDescription(`Quem usou: ${interaction.user} \`${interaction.user.id}\`
-Local em que usou: #${cchannel.name} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
+            .setDescription(`Quem usou: ${interaction.user} \`${interaction.user.svcId}\`
+Local em que usou: #${cchannel.name} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.svcId}\`
 Chave usada: **${item.key}**
 
-Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração do ${item.form.name}: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
+Produto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração do ${item.form.name}: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
 
 `)
             .setColor(`#5bff45`)
-            let ch = await API.client.channels.cache.get('758711135284232263')
+            let ch = await svcClient.channels.cache.get('758711135284232263')
             ch.send({ embeds: [embed2] });
 
-            API.playerUtils.cooldown.set(interaction.user.id, "usekey", 0);
+            svcPlayerUtils.cooldown.set(interaction.user.svcId, "usekey", 0);
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new API.Discord.MessageEmbed();
+            const embed = new svcDiscord.MessageEmbed();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${API.ms2(time)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+            embed.addField('❌ Tempo expirado', `Você iria usar a **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${item.form.icon} ${item.form.name}**${item.form.requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
             interaction.editReply({ embeds: [embed], components: [] });
-            API.playerUtils.cooldown.set(interaction.user.id, "usekey", 0);
+            svcPlayerUtils.cooldown.set(interaction.user.svcId, "usekey", 0);
             return;
         });
 

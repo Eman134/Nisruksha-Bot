@@ -3,10 +3,11 @@ const DatabaseManager = new Database();
 
 module.exports = {
 
+    dependencies: ["Discord","client"],
     name: "guildCreate",
-    execute: async (API, guild) => {
-        const client = API.client;
-        const Discord = API.Discord;
+    execute: async (dependencies, guild) => {
+        const client = dependencies.client;
+        const Discord = dependencies.Discord;
 
         const sv = await DatabaseManager.get(guild.id, 'servers', 'server_id');
         
@@ -14,19 +15,19 @@ module.exports = {
 
             guild.leave()
             
-            const embedcmd = new API.Discord.MessageEmbed()
+            const embedcmd = new dependencies.Discord.MessageEmbed()
             .setColor('#b8312c')
             .setTimestamp()
             .setTitle(`Falha: servidor banido`)
             .setDescription(`Bot tentou entrar no servidor ${guild.name}`)
             .setFooter(guild.name + " | " + guild.id, guild.iconURL())
             .setAuthor(guild.name, guild.iconURL())
-            API.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
+            dependencies.client.channels.cache.get('770059589076123699').send({ embeds: [embedcmd]});
             
             return;
         }
         
-        let owner = await API.client.users.fetch(guild.ownerId)
+        let owner = await dependencies.client.users.fetch(guild.ownerId)
         
         const embed = new Discord.MessageEmbed();
         embed.setDescription(`Novo servidor: ${guild.name} | ${guild.id}\nOwner: <@${owner.id}> (${owner.tag})\nMembros ${guild.memberCount}`)

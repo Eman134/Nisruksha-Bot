@@ -17,19 +17,19 @@ module.exports = { // Renomeie para config.js
     },
 
     best: {
-        token: "",
+        token: process.env.BEST_TOKEN || "",
         voteLogs_channel: ""
     },
 
     dbl: {
-        token: "",
-        webhookAuthPass: "",
+        token: process.env.DBL_TOKEN || "",
+        webhookAuthPass: process.env.DBL_WEBHOOK_AUTH_PASS || "",
         voteLogs_channel: ""
     },
     
     app: {
-        token: "",
-        secret: "",
+        token: process.env.DISCORD_TOKEN || "",
+        secret: process.env.OAUTH2_SECRET || "",
         id: "",
         callback: "/oauth2/callback",
 

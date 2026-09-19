@@ -1,6 +1,6 @@
 const { reportError } = require('../../debug');
-module.exports = async function execute(API, options) {
-    const { bg } = await API.img.getAssets('profile');
+module.exports = async function execute(imageServices, options) {
+    const { bg } = await imageServices.img.getAssets('profile');
 
     /* options : Object
 
@@ -31,7 +31,7 @@ module.exports = async function execute(API, options) {
     const width = imageDefault.width
     const height = imageDefault.height
 
-    const composer = API.img.createComposer(width, height);
+    const composer = imageServices.img.createComposer(width, height);
 	const ctx = composer.getContext("2d");
 
     // Colocando o background personalizado do membro
@@ -39,7 +39,7 @@ module.exports = async function execute(API, options) {
     if (options.url.bg && options.url.bg != null) {
         try {
             // Criando o background personalizado como imagem e definindo a resolução
-            const imageBackground = await API.img.loadImage(options.url.bg)
+            const imageBackground = await imageServices.img.loadImage(options.url.bg)
             ctx.drawImage(imageBackground, 0, 0, width, height);
         } catch (error) {
             reportError(error, 'imagegen.profile.background', { background: options.url.bg });
@@ -52,18 +52,18 @@ module.exports = async function execute(API, options) {
     // Escrevendo todos os textos
 
     // Nome do membro
-    API.img.drawText(ctx, options.name, 30, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 400, 117, 3)
+    imageServices.img.drawText(ctx, options.name, 30, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 400, 117, 3)
     // Biografia
-    API.img.drawText(ctx, options.bio, 27, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 400, 181,3)
+    imageServices.img.drawText(ctx, options.bio, 27, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 400, 181,3)
     // Reputação
-    API.img.drawText(ctx, options.reps, 30, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 1060, 117, 3)
+    imageServices.img.drawText(ctx, options.reps, 30, './resources/fonts/MartelSans-Regular.ttf', options.textcolor, 1060, 117, 3)
     // Maestria
-    API.img.drawText(ctx, options.mastery, 24, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 1150, 670,5)
+    imageServices.img.drawText(ctx, options.mastery, 24, './resources/fonts/MartelSans-Regular.ttf', '#FFFFFF', 1150, 670,5)
     // Nível
-    API.img.drawText(ctx, `Nível atual: ${options.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 675, 4)
+    imageServices.img.drawText(ctx, `Nível atual: ${options.level}`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 675, 4)
     // Experiência
-    API.img.drawText(ctx, `EXP: ${options.xp}/${options.level*1980} (${(100*options.xp/(options.level*1980)).toFixed(2)}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 705, 4)
-    API.img.drawText(ctx, `debug`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, -50, 0, 4)
+    imageServices.img.drawText(ctx, `EXP: ${options.xp}/${options.level*1980} (${(100*options.xp/(options.level*1980)).toFixed(2)}%)`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, 600, 705, 4)
+    imageServices.img.drawText(ctx, `debug`, 25, './resources/fonts/MartelSans-Bold.ttf', options.textcolor, -50, 0, 4)
 
     const percent = Math.round((100*options.xp/(options.level*1980)))
 
@@ -72,12 +72,12 @@ module.exports = async function execute(API, options) {
     let tempx = 0
     let tempy = 605
     if (options.perm > 1) {
-        const tempbadge = await API.img.loadImage(`resources/backgrounds/profile/${options.perm}.png`)
+        const tempbadge = await imageServices.img.loadImage(`resources/backgrounds/profile/${options.perm}.png`)
         ctx.drawImage(tempbadge, tempx, tempy, 35, 35);
         tempx += 45
     }
 
-    const maqimg = await API.img.loadImage(options.url.maq)
+    const maqimg = await imageServices.img.loadImage(options.url.maq)
 
     ctx.drawImage(maqimg, tempx, tempy, 35, 35);
 
@@ -85,7 +85,7 @@ module.exports = async function execute(API, options) {
 
     if (options.url.badges) {
         for (i = 0; i < options.url.badges.length; i++) {
-            let tempbadge = await API.img.loadImage(API.badges.get(options.url.badges[i]).url);
+            let tempbadge = await imageServices.img.loadImage(imageServices.badges.get(options.url.badges[i]).url);
             ctx.drawImage(tempbadge, tempx, tempy, 35, 35);
             if (tempx < 1100) tempx += 45
             else break
@@ -127,20 +127,20 @@ module.exports = async function execute(API, options) {
 
     if (options.frame) {
 
-        const tempframe = await API.img.loadImage(options.frame.url);
+        const tempframe = await imageServices.img.loadImage(options.frame.url);
 
         ctx.drawImage(tempframe, 50, 24, tempframe.width, tempframe.height);
 
     }
 
-    const avatar = await API.img.loadImage(options.url.avatar);
+    const avatar = await imageServices.img.loadImage(options.url.avatar);
     const avatarImage = options.frame?.type == 1
-        ? await API.img.editBorder(avatar, 90, true)
+        ? await imageServices.img.editBorder(avatar, 90, true)
         : avatar;
     ctx.drawImage(avatarImage, 85, 59, 180, 180);
 
     // Transformando a imagem em arquivo
-    return API.img.getAttachment(composer, 'image.png');
+    return imageServices.img.getAttachment(composer, 'image.png');
 
     function runColor(loc1, loc2, widthw, heightw, color, type){
         ctx.beginPath();

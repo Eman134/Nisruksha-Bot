@@ -11,19 +11,20 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('motivo').setDescription('Selecione um motivo para a manutenção').setRequired(true))
 
 module.exports = {
+    requiredServices: ["id","sendError"],
     name: 'setgstatus',
     aliases: ['setargstatus', 'gstatus', 'setgs'],
     category: 'none',
     description: 'Modifica o status global do bot',
     data,
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcId, svcSendError) {
 
         const status = parseInt(interaction.options.getString('status'));
         const motivo = interaction.options.getString('motivo');
 
         if (status == 2 && motivo == null) {
-            const embedtemp = await API.sendError(interaction, `Você precisa especificar um motivo para a manutenção!`, "setgstatus 2 <motivo>")
+            const embedtemp = await svcSendError(interaction, `Você precisa especificar um motivo para a manutenção!`, "setgstatus 2 <motivo>")
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -36,8 +37,8 @@ module.exports = {
 
         interaction.reply({ content: `O status global do bot foi modificado para: \`${status}\` ${ob[status]}` })
 
-        DatabaseManager.set(API.id, 'globals', 'status', status)
-        DatabaseManager.set(API.id, 'globals', 'man', motivo)
+        DatabaseManager.set(svcId, 'globals', 'status', status)
+        DatabaseManager.set(svcId, 'globals', 'man', motivo)
 
 	}
 };

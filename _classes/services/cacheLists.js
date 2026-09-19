@@ -1,26 +1,28 @@
+module.exports = function createModule(dependencies) {
+    const { client: discordClient, db, id, maqExtension, playerUtils } = dependencies;
+const DatabaseManager = db;
 const { createClient } = require('redis');
 const { redis: redisConfig = {} } = require('../config');
-const API = require('../api');
 const { reportError } = require('../debug');
 
-const prefix = redisConfig.prefix || `nisruksha:${API.id}`;
-const client = createClient({ url: redisConfig.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
+const prefix = redisConfig.prefix || `nisruksha:${id}`;
+const redisClient = createClient({ url: redisConfig.url || process.env.REDIS_URL || 'redis://127.0.0.1:6379' });
 let connection;
 
-client.on('error', (error) => reportError(error, 'redis.client'));
+redisClient.on('error', (error) => reportError(error, 'redis.client'));
 
 async function getClient() {
-    if (client.isReady) return client;
+    if (redisClient.isReady) return redisClient;
 
     if (!connection) {
-        connection = client.connect().catch((error) => {
+        connection = redisClient.connect().catch((error) => {
             connection = null;
             throw reportError(error, 'redis.connect');
         });
     }
 
     await connection;
-    return client;
+    return redisClient;
 }
 
 function waitingKeys(list) {
@@ -93,7 +95,7 @@ const remember = {
 
         switch (type) {
             case 'energia': {
-                const energy = await API.maqExtension.getEnergy(userId);
+                const energy = await maqExtension.getEnergy(userId);
                 from = energy.energia;
                 to = energy.energiamax;
                 time = energy.time;
@@ -101,9 +103,9 @@ const remember = {
                 break;
             }
             case 'estamina':
-                from = await API.playerUtils.stamina.get(userId);
+                from = await playerUtils.stamina.get(userId);
                 to = 1000;
-                time = (await API.playerUtils.stamina.time(userId)) + 1000;
+                time = (await playerUtils.stamina.time(userId)) + 1000;
                 break;
             default:
                 return;
@@ -132,7 +134,7 @@ const remember = {
                 if (!entry[type]?.active) continue;
 
                 try {
-                    const channel = await API.client.channels.fetch(entry[type].channelid);
+                    const channel = await discordClient.channels.fetch(entry[type].channelid);
                     if (channel) this.loadold(type, userId, channel);
                 } catch (error) {
                     reportError(error, `cacheLists.${type}_restore`, { memberId: userId });
@@ -195,11 +197,12 @@ const images = {
     }
 };
 
-module.exports = {
+return {
     connect: getClient,
     waiting,
     remember,
     images,
     rememberenergy: [],
     rememberstamina: []
+};
 };

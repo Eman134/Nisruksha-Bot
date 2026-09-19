@@ -3,60 +3,57 @@ const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
+    requiredServices: ["Discord","cacheLists","client","company","createButton","debug","img","itemExtension","playerUtils","random","rowComponents","sendError"],
     name: 'caçar',
     aliases: ['hunt'],
     category: 'none',
     description: 'Inicia uma caçada á monstros ao redor da sua localização', 
     mastery: 13,
     companytype: 2,
-	async execute(API, interaction, company) {
-
-        const Discord = API.Discord;
-        const client = API.client;
-
+	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCompany, svcCreateButton, svcDebug, svcImg, svcItemExtension, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, company) {
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (pobj2.level < 3) {
-            const embedtemp = await API.sendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            const embedtemp = await svcSendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await API.cacheLists.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
+        if (await svcCacheLists.waiting.includes(interaction.user.id, 'hunting')) {
+            const embedtemp = await svcSendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let stamina = await API.playerUtils.stamina.get(interaction.user.id)
+        let stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
 
         let cost = pobj2.level+1 * 2
         cost > 30 ? cost = 30 : cost = cost;
 
         if (stamina < cost) {
             
-            const embedtemp = await API.sendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
+            const embedtemp = await svcSendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
 
         }
 
-        const check = await API.playerUtils.cooldown.check(interaction.user.id, "hunt");
+        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "hunt");
         if (check) {
 
-            API.playerUtils.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
+            svcPlayerUtils.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
 
             return;
         }
 
-        API.playerUtils.cooldown.set(interaction.user.id, "hunt", 20);
+        svcPlayerUtils.cooldown.set(interaction.user.id, "hunt", 20);
 
-        API.playerUtils.stamina.remove(interaction.user.id, cost-1)
+        svcPlayerUtils.stamina.remove(interaction.user.id, cost-1)
 
-        const embed = new Discord.MessageEmbed()
+        const embed = new svcDiscord.MessageEmbed()
         
-        let monster = API.company.jobs.explore.searchMob(pobj2.level);
+        let monster = svcCompany.jobs.explore.searchMob(pobj2.level);
 
         if (!monster) {
             embed.setTitle(`Nenhum monstro por perto`)
@@ -70,19 +67,19 @@ module.exports = {
         .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
 
-        const btn0 = API.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
-        const btn1 = API.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
-        const btn2 = API.createButton('autofight', 'SECONDARY', 'Luta Automática', '🤖')
+        const btn0 = svcCreateButton('fight', 'SUCCESS', 'Lutar', '⚔')
+        const btn1 = svcCreateButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
+        const btn2 = svcCreateButton('autofight', 'SECONDARY', 'Luta Automática', '🤖')
 
         const rb0 = [ btn0, btn1 ]
 
         if (pobj.mvp != null) rb0.push(btn2)
 
-        const rowButton0 = API.rowComponents(rb0)
+        const rowButton0 = svcRowComponents(rb0)
 
         const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
-		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
-		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
+		await svcCacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
+		await svcCacheLists.waiting.add(interaction.user.id, interaction, 'working');
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -90,11 +87,11 @@ module.exports = {
         let reacted = false;
         let inbattle = false;
         let dead = false;
-        let equips = API.company.jobs.explore.equips.get(pobj2.level, 3);
+        let equips = svcCompany.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
         let reactequiplist = ['fight', 'run', 'autofight'];
         let autohunt = false
-        let equipsBtn = [API.createButton('changeMode', 'SECONDARY', 'Compacto', '🔄')]
+        let equipsBtn = [svcCreateButton('changeMode', 'SECONDARY', 'Compacto', '🔄')]
         let components = []
         let combo = []
         let timing = 0
@@ -107,7 +104,7 @@ module.exports = {
                 currentmode = currentmode == 0 ? 1 : 0
                 equipsBtn[0].label = currentmode == 0 ? 'Compacto' : 'Detalhado'
                 if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
-                return interaction.editReply({ embeds: await getEmbeds(), components: [ API.rowComponents(equipsBtn) ] })
+                return interaction.editReply({ embeds: await getEmbeds(), components: [ svcRowComponents(equipsBtn) ] })
             }
 
             if (Date.now()-timing < 0) return
@@ -126,7 +123,7 @@ module.exports = {
 
             async function getEmbeds(currinteraction) {
 
-                const stp = await API.playerUtils.stamina.get(interaction.user.id);
+                const stp = await svcPlayerUtils.stamina.get(interaction.user.id);
 
                 const baruser = getLifeBar(stp, 1000)
                 
@@ -135,13 +132,13 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new Discord.MessageEmbed()
+                    const infosEmbed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                     .setImage('attachment://image.png')
 
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
@@ -161,7 +158,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new Discord.MessageEmbed()
+                    const embed = new svcDiscord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`
@@ -222,7 +219,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
             function getRarity(level) { 
 
-                const equipsobj = API.company.jobs.explore.equips.obj;
+                const equipsobj = svcCompany.jobs.explore.equips.obj;
 
                 const lastequiplevel = equipsobj[equipsobj.length-1].level;
 
@@ -242,7 +239,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     var rarity = 'mythic'
                 }
 
-                const rarityIcon = API.itemExtension.translateRarity(rarity)
+                const rarityIcon = svcItemExtension.translateRarity(rarity)
                 return { rarityIcon, rarity }
             }
 
@@ -250,7 +247,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
                 try {
 
-                    let stp = await API.playerUtils.stamina.get(interaction.user.id);
+                    let stp = await svcPlayerUtils.stamina.get(interaction.user.id);
 
                     let td_ = lost
 
@@ -304,7 +301,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     ]
 
                     if (dead || b.customId == 'fight' || b.customId == 'autofight') {
-                        var huntimage = await API.img.imagegens.get('battle.js')(API, {
+                        var huntimage = await svcImg.imagegens.get('battle.js')(dependencies, {
         
                             avatarurl, 
                             monster,
@@ -318,7 +315,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     }
 
                     monster.csta -= td_.monster
-                    API.playerUtils.stamina.remove(interaction.user.id, td_.player)
+                    svcPlayerUtils.stamina.remove(interaction.user.id, td_.player)
 
                     return { attach: huntimage, plost }
                     
@@ -330,7 +327,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
             async function monsterlost(mo) {
 
-                let cr = API.random(0, 100)
+                let cr = svcRandom(0, 100)
                 let array2 = mo.drops;
 
                 array2.sort(function(a, b){
@@ -340,11 +337,11 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 let drops = []
 
                 for (const r of array2) {
-					let rx = API.random(0, 100)
+					let rx = svcRandom(0, 100)
                     if (rx < r.chance) {
-                        let d = API.itemExtension.get(r.name);
+                        let d = svcItemExtension.get(r.name);
                         if (d) {
-                            d.size = API.random(1, r.maxdrops)
+                            d.size = svcRandom(1, r.maxdrops)
                             drops.push(d);
                         }
                     }
@@ -354,10 +351,10 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 let descartado = []
                 let colocados = []
                 
-                let xp = API.random(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
-                xp = await API.playerUtils.execExp(interaction, xp)
+                let xp = svcRandom(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
+                xp = await svcPlayerUtils.execExp(interaction, xp)
                 
-                let retorno = await API.itemExtension.give(interaction, drops)
+                let retorno = await svcItemExtension.give(interaction, drops)
 
                 descartado = retorno.descartados
                 colocados = retorno.colocados
@@ -375,12 +372,12 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     
                 }
 
-                let dropsmap = drops.sort(sortrarity).map(d => `[${API.itemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
-                let colocadosmap = colocados.sort(sortrarity).map(d => `[${API.itemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
-                let descartadosmap = descartado.sort(sortrarity).map(d => `[${API.itemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let dropsmap = drops.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let colocadosmap = colocados.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let descartadosmap = descartado.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
 
-                let score = ((API.company.stars.gen())*1.2).toFixed(2)
-                API.company.stars.add(interaction.user.id, company.company_id, { score })
+                let score = ((svcCompany.stars.gen())*1.2).toFixed(2)
+                svcCompany.stars.add(interaction.user.id, company.company_id, { score })
 
                 losedesc = (`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`)
                 
@@ -390,7 +387,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
                 losedesc = (`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
                 DatabaseManager.set(member.id, "machines", "xp", 0)
-                await API.playerUtils.stamina.subset(member.id, 0)
+                await svcPlayerUtils.stamina.subset(member.id, 0)
 
             }
             
@@ -412,8 +409,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     autohunt = true
                 }
 
-                await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'hunting')
-                await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+                await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'hunting')
+                await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
                 inbattle = true
                 
@@ -421,13 +418,13 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
                     if (!autohunt) {
-                        equipsBtn.push(API.createButton(id, 'SECONDARY', '', id))
+                        equipsBtn.push(svcCreateButton(id, 'SECONDARY', '', id))
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
                 }
 
-                if (!autohunt) components = [ API.rowComponents(equipsBtn) ]
+                if (!autohunt) components = [ svcRowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
                 
@@ -461,10 +458,10 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
                 if (autohunt) {
                     Object.keys(reactequips)
-                    eq = reactequips[Object.keys(reactequips)[API.random(0, Object.keys(reactequips).length-1)]]
+                    eq = reactequips[Object.keys(reactequips)[svcRandom(0, Object.keys(reactequips).length-1)]]
                 } else {
                     if (combo.length >= 5) combo = []
-                    combo.push(API.client.emojis.cache.get(b.customId))
+                    combo.push(svcClient.emojis.cache.get(b.customId))
                     if (combo.length >= 5) {
                         youhasbeencombedmeuamigo = true
                     } else {
@@ -480,16 +477,16 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 }
 
                 let crit = 0;
-                let roll = API.random(0, 100)
+                let roll = svcRandom(0, 100)
                 if (roll < eq.chance || youhasbeencombedmeuamigo) {
-                    let reroll = API.random(0, 50)
-                    lost.player = Math.round(eq.dmg/API.random(3, 4))
+                    let reroll = svcRandom(0, 50)
+                    lost.player = Math.round(eq.dmg/svcRandom(3, 4))
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                    else if(API.random(0, 50) < 10 || youhasbeencombedmeuamigo) {
+                    else if(svcRandom(0, 50) < 10 || youhasbeencombedmeuamigo) {
                         lost.player = 0
                         crit = Math.round(eq.dmg/2)
                     }
-                    let roll3 = API.random(0, 100)
+                    let roll3 = svcRandom(0, 100)
                     if (roll3 <= eq.crit || youhasbeencombedmeuamigo) {
                         crit = Math.round(eq.dmg/2)
                     }
@@ -499,7 +496,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     lost.player = Math.round((monster.level/1.5)+(40*eq.dmg/100))
                 }
                 
-                if (API.debug) console.log(`${eq.name}`.yellow)
+                if (svcDebug) console.log(`${eq.name}`.yellow)
 
 
                 let buildlost = await build(lost)
@@ -546,8 +543,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                             }
                         } catch (error) {
                             reportError(error, 'command.novaca.cleanup', { userId: interaction.user.id });
-                            await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-                            await API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                            await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
+                            await svcCacheLists.waiting.remove(interaction.user.id, 'working');
                             collector.stop();
                             autohunt = false
                         }
@@ -555,8 +552,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 }
 
                 if (dead) {
-                    await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
+                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
                     collector.stop();
                     autohunt = false
                 }
@@ -579,9 +576,9 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
         });
         
         collector.on('end', async collected => {
-            await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-            await API.cacheLists.waiting.remove(interaction.user.id, 'working');
-            API.playerUtils.cooldown.set(interaction.user.id, "hunt", 0);
+            await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
+            await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+            svcPlayerUtils.cooldown.set(interaction.user.id, "hunt", 0);
 
             if (dead) return
 

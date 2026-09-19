@@ -10,32 +10,29 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('valor').setDescription('Coloque o valor a ser setado').setRequired(true))
 
 module.exports = {
+    requiredServices: ["Discord","client"],
     name: 'addvar',
     aliases: [],
     category: 'none',
     description: 'Adicione um valor á uma variável no banco de dados',
     data,
     perm: 5,
-	async execute(API, interaction) {
+	async execute(interaction, svcDiscord, svcClient) {
 
         const id = interaction.options.getString('id');
         const tabela = interaction.options.getString('tabela');
         const coluna = interaction.options.getString('coluna');
-        const valor = interaction.options.getString('valor');
-
-		const Discord = API.Discord;
-        const client = API.client;
-        let v;
+        const valor = interaction.options.getString('valor');        let v;
         let va = '';
         try {
-            v = await client.users.fetch(id);
+            v = await svcClient.users.fetch(id);
             va = 'user_id'
         } catch (error) {
             reportError(error, 'command.addvar.user_lookup', { id });
-            v = client.guilds.cache.get(id);
+            v = svcClient.guilds.cache.get(id);
             va = 'server_id'
         }
-		const embed = new Discord.MessageEmbed()
+		const embed = new svcDiscord.MessageEmbed()
         try {
             await DatabaseManager.setIfNotExists(v.id, tabela, va);
 

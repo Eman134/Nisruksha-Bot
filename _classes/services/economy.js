@@ -1,8 +1,6 @@
-const API = require("../api.js");
-
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
-
+module.exports = function createModule(dependencies) {
+    const { client, db, getFormatedDate, id } = dependencies;
+const DatabaseManager = db;
 const tp = {};
 
 tp.get = async function (user_id) {
@@ -148,16 +146,16 @@ money.get = async function (user_id) {
 money.add = async function (user_id, money) {
     DatabaseManager.increment(user_id, "players", "money", money);
 }
-money.globaladd = async function (money) {
-    API.eco.money.add(API.id, money)
+money.globaladd = async function (amount) {
+    money.add(id, amount)
 }
 
 money.remove = async function (user_id, money) {
     DatabaseManager.increment(user_id, "players", "money", -money);
 }
 
-money.globalremove = async function (money) {
-    API.eco.money.remove(API.id, money)
+money.globalremove = async function (amount) {
+    money.remove(id, amount)
 }
 
 money.set = async function (user_id, money) {
@@ -218,14 +216,14 @@ eco.createHistoryDir = function(user_id) {
     let dir = `./_localdata/profiles/`;
     let dir2 = `./_localdata/profiles/${user_id}/`;
     let fpath = `./_localdata/profiles/${user_id}/history.yml`;
-    let strin = `\`${API.getFormatedDate()}\` Conta criada`
+    let strin = `\`${getFormatedDate()}\` Conta criada`
     if (!fs.existsSync(dir0)) { fs.mkdirSync(dir0);} 
     if (!fs.existsSync(dir)) { fs.mkdirSync(dir);} 
     if (!fs.existsSync(dir2)) { fs.mkdirSync(dir2);} 
     if (!fs.existsSync(fpath)) {
         fs.writeFileSync(fpath, strin, (err) => {
             if (err) {
-                API.client.emit('error', err)
+                client.emit('error', err)
                 return
             }
         })
@@ -243,7 +241,7 @@ eco.addToHistory = async function (user_id, arg) {
 
     insertLine(fpath).content(content).at(1).then((err) => {
         if (err) {
-            API.client.emit('error', err)
+            client.emit('error', err)
             return
         }
       })
@@ -251,4 +249,5 @@ eco.addToHistory = async function (user_id, arg) {
 
 }
 
-module.exports = eco;
+return eco;
+};
