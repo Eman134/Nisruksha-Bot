@@ -58,7 +58,7 @@ module.exports = {
 
         let embeds = []
 
-        function setProcess() {
+        async function setProcess() {
             
             if (processjson.in.length > 0) {
                 embeds = []
@@ -120,7 +120,7 @@ module.exports = {
                 
                 }
             } else {
-                API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                 embed.fields = []
                 embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`/iniciarprocesso\` para começar a processar fragmentos.`, true)
                 embeds = []
@@ -131,7 +131,7 @@ module.exports = {
 
         let current = "processos"
 
-        setProcess()
+        await setProcess()
 
         let tool
 
@@ -216,7 +216,7 @@ module.exports = {
 
             if (b.customId == 'processos') {
                 embed.setDescription('')
-                setProcess()
+                await setProcess()
             }
 
             if (b.customId == 'ferr') tool = processjson.tools[0]
@@ -299,7 +299,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     await API.eco.money.remove(interaction.user.id, custorepair);
                     await API.eco.addToHistory(interaction.user.id, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${API.format(custorepair)} ${API.moneyemoji}`)
                     await API.company.jobs.process.add(interaction.user.id)
-                    API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+                    await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
                 }
                     
             
@@ -310,7 +310,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                 if (stamina < custoretirar) {
                     
-                    setProcess()
+                    await setProcess()
                     embed.addField('❌ Falha na remoção', `Você não possui estamina o suficiente para retirar um processo\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${custoretirar}]**`)
                     if (processjson.in.length > 0) embeds.push(embed)
 
@@ -323,7 +323,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     const indexProcess = processjson.in.indexOf(oldproc)
                     processjson.in.splice(indexProcess, 1)
                     DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
-                    setProcess()
+                    await setProcess()
 
                     let xp = await API.playerUtils.execExp(interaction, oldproc.xpbase)
                     let score = parseFloat(oldproc.score)

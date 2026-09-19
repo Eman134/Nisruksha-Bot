@@ -1,225 +1,205 @@
-const API = require("../api");
+const { createClient } = require('redis');
+const { redis: redisConfig } = require('../config');
+const API = require('../api');
 const { reportError } = require('../debug');
 
-const Database = require('../manager/DatabaseManager');
-const DatabaseManager = new Database();
+const prefix = redisConfig.prefix || `nisruksha:${API.id}`;
+const client = createClient({ url: redisConfig.url });
+let connection;
 
-const waiting = {}
-const waitingmap = new Map();
-{
-waiting.get = function(list) {
+client.on('error', (error) => reportError(error, 'redis.client'));
 
-    if (!waitingmap.has(list)) {
-        waitingmap.set(list, { 
-            current: [], 
-            links: new Map()
-        })
+async function getClient() {
+    if (client.isReady) return client;
+
+    if (!connection) {
+        connection = client.connect().catch((error) => {
+            connection = null;
+            throw reportError(error, 'redis.connect');
+        });
     }
 
-    return waitingmap.get(list)
-
+    await connection;
+    return client;
 }
 
-waiting.length = function(list) {
-
-    const map = waiting.get(list)
-
-    return map.current.length
-
+function waitingKeys(list) {
+    return {
+        members: `${prefix}:waiting:${list}:members`,
+        links: `${prefix}:waiting:${list}:links`
+    };
 }
 
-waiting.update = function(list, value) { 
-
-    waiting.get(list)
-
-    waitingmap.set(list, value)
-
-    //API.updateBotInfo();
-
+function rememberKey() {
+    return `${prefix}:remember`;
 }
 
-waiting.includes = function(user_id, list){
-
-    const map = waiting.get(list)
-
-    return map.current.includes(user_id)
+function imageKey(filePath, modifiedAt) {
+    return `${prefix}:images:${filePath}:${modifiedAt}`;
 }
 
-waiting.getLink = function(user_id, list) {
-    const map = waiting.get(list)
-    return map.links.get(user_id)
-}
-
-waiting.remove = function(user_id, list){
-
-  const map = waiting.get(list)
-
-  const index = map.current.indexOf(user_id);
-  if (index > -1) {
-    map.current.splice(index, 1);
-  }
-
-  waiting.update(list, map)
-
-}
-
-waiting.add = function(user_id, interaction, list) {
-
-  const map = waiting.get(list)
-
-  if (!(map.current.includes(user_id))) {
-    map.current.push(user_id)
-    map.links.set(user_id, interaction.url)
-  }
-
-  waiting.update(list, map)
-
-}
-}
-
-const remember = {}
-const remembermap = new Map();
-{
-
-  remember.get = function(){return remembermap}
-
-  remember.loadold = async function(type, user_id, channel){
-
-    let from
-    let to
-    var time = 0
-
-    switch (type) {
-      case "energia":
-
-        var { energia, energiamax, time } = await API.maqExtension.getEnergy(user_id)
-        
-        from = energia
-        to = energiamax
-        if (time > 0) time = time+1000
-
-        break;
-      case "estamina":
-        from = await API.playerUtils.stamina.get(user_id)
-        to = 1000
-        time = await API.playerUtils.stamina.time(user_id)+1000
-      default:
-        break;
+function parse(value) {
+    try {
+        return JSON.parse(value);
+    } catch (_) {
+        return null;
     }
+}
 
-    if (from >= to) {
-        if (remember.includes(user_id, type)) {
-            channel.send({ content: `🔁 | <@${user_id}> Relatório de ${type}: ${from}/${to}` })
-            remember.remove(user_id, type)
+const waiting = {
+    async length(list) {
+        return (await getClient()).sCard(waitingKeys(list).members);
+    },
+
+    async includes(userId, list) {
+        return (await getClient()).sIsMember(waitingKeys(list).members, String(userId));
+    },
+
+    async getLink(userId, list) {
+        return (await getClient()).hGet(waitingKeys(list).links, String(userId));
+    },
+
+    async remove(userId, list) {
+        const redis = await getClient();
+        const keys = waitingKeys(list);
+        await redis.multi()
+            .sRem(keys.members, String(userId))
+            .hDel(keys.links, String(userId))
+            .exec();
+    },
+
+    async add(userId, interaction, list) {
+        const redis = await getClient();
+        const keys = waitingKeys(list);
+        const id = String(userId);
+        const added = await redis.sAdd(keys.members, id);
+
+        if (added) {
+            await redis.hSet(keys.links, id, interaction?.url || '');
         }
-        return;
-    } else {
-        setTimeout(async function(){remember.loadold(type, user_id, channel)}, time)
     }
+};
 
-  }
+const remember = {
+    async get() {
+        const values = await (await getClient()).hGetAll(rememberKey());
+        return new Map(Object.entries(values).map(([userId, value]) => [userId, parse(value)]));
+    },
 
-  remember.load = async function(){
-    const globalobj = await DatabaseManager.get(API.id, 'globals');
-    const globalremember = globalobj.remember
-    if (globalremember == null) return
-    for (const b of globalremember) {
-      if (b != null) remembermap.set(b.memberid, b)
-    }
+    async loadold(type, userId, channel) {
+        let from;
+        let to;
+        let time = 0;
 
-    let keys = Array.from( remembermap.values());
-
-      for (i = 0; i < keys.length; i++) {
-        
-        if (keys[i]) {
-          if (keys[i] && keys[i]["energia"] && keys[i]["energia"].active){
-            if (keys[i]["energia"] !== undefined) {
-              try {
-                const channel = (await API.client.channels.fetch(keys[i]["energia"].channelid)) || (API.client.channels.cache.get(keys[i]["energia"].channelid))
-                if (!channel) return
-                this.loadold("energia", keys[i].memberid, channel)
-              } catch (error) {
-                reportError(error, 'cacheLists.energia_restore', { memberId: keys[i].memberid });
-              }
+        switch (type) {
+            case 'energia': {
+                const energy = await API.maqExtension.getEnergy(userId);
+                from = energy.energia;
+                to = energy.energiamax;
+                time = energy.time;
+                if (time > 0) time += 1000;
+                break;
             }
-          } if (keys[i] && keys[i]["estamina"] && keys[i]["estamina"].active){
-            if (keys[i]["estamina"] !== undefined) {
-              try {
-                const channel = (await API.client.channels.fetch(keys[i]["estamina"].channelid)) || (API.client.channels.cache.get(keys[i]["estamina"].channelid))
-                if (!channel) return
-                this.loadold("estamina", keys[i].memberid, channel)
-              } catch (error) {
-                reportError(error, 'cacheLists.estamina_restore', { memberId: keys[i].memberid });
-              }
-            }
-          } if (((!keys[i]["energia"] || !keys[i]["energia"].active) && (!keys[i]["estamina"] || !keys[i]["estamina"].active))) {
-            remembermap.delete(keys[i].memberid)
-          }
+            case 'estamina':
+                from = await API.playerUtils.stamina.get(userId);
+                to = 1000;
+                time = (await API.playerUtils.stamina.time(userId)) + 1000;
+                break;
+            default:
+                return;
         }
 
-      }
+        if (from >= to) {
+            if (await remember.includes(userId, type)) {
+                await channel.send({ content: `🔁 | <@${userId}> Relatório de ${type}: ${from}/${to}` });
+                await remember.remove(userId, type);
+            }
+            return;
+        }
 
-      this.save()
+        setTimeout(() => remember.loadold(type, userId, channel), time);
+    },
 
-  }
+    async load() {
+        const redis = await getClient();
+        const values = await redis.hGetAll(rememberKey());
 
-  remember.save = async function(){
-    let keys = Array.from( remembermap.values() );
-    DatabaseManager.set(API.id, 'globals', 'remember', keys)
-  }
+        for (const [userId, value] of Object.entries(values)) {
+            const entry = parse(value);
+            if (!entry) continue;
 
-  remember.includes = function(user_id, type) {
-    return remembermap.has(user_id) && remembermap.get(user_id)[type] && remembermap.get(user_id)[type].active
-  }
+            for (const type of ['energia', 'estamina']) {
+                if (!entry[type]?.active) continue;
 
-  remember.add = function(user_id, channelid, type) {
+                try {
+                    const channel = await API.client.channels.fetch(entry[type].channelid);
+                    if (channel) this.loadold(type, userId, channel);
+                } catch (error) {
+                    reportError(error, `cacheLists.${type}_restore`, { memberId: userId });
+                }
+            }
 
-    let obj = {
-      memberid: user_id
+            if (!entry.energia?.active && !entry.estamina?.active) {
+                await redis.hDel(rememberKey(), userId);
+            }
+        }
+    },
+
+    async save() {
+        // Redis persists the current state on every add/remove operation.
+    },
+
+    async includes(userId, type) {
+        const redis = await getClient();
+        const value = await redis.hGet(rememberKey(), String(userId));
+        const entry = value && parse(value);
+        return Boolean(entry?.[type]?.active);
+    },
+
+    async add(userId, channelId, type) {
+        const redis = await getClient();
+        const id = String(userId);
+        const current = await redis.hGet(rememberKey(), id);
+        const entry = (current && parse(current)) || { memberid: userId };
+
+        if (entry[type]?.active) return;
+
+        entry[type] = { channelid: channelId, active: true };
+        await redis.hSet(rememberKey(), id, JSON.stringify(entry));
+    },
+
+    async remove(userId, type) {
+        const redis = await getClient();
+        const id = String(userId);
+        const current = await redis.hGet(rememberKey(), id);
+        const entry = current && parse(current);
+        if (!entry) return;
+
+        if (entry[type]) entry[type].active = false;
+
+        if (!entry.energia?.active && !entry.estamina?.active) {
+            await redis.hDel(rememberKey(), id);
+        } else {
+            await redis.hSet(rememberKey(), id, JSON.stringify(entry));
+        }
     }
+};
 
-    if (remembermap.has(user_id)) {
-      obj = remembermap.get(user_id)
+const images = {
+    async get(filePath, modifiedAt) {
+        return (await getClient()).get(imageKey(filePath, modifiedAt));
+    },
+
+    async set(filePath, modifiedAt, data) {
+        await (await getClient()).set(imageKey(filePath, modifiedAt), data);
     }
-
-    obj[type] = {
-      channelid,
-      active: false
-    }
-
-    if (!this.includes(user_id, type)) {
-      obj[type].active = true
-      obj[type].channelid = channelid
-      remembermap.set(user_id, obj)
-    }
-
-    this.save()
-  }
-
-  remember.remove = function(user_id, type) {
-    
-    if (this.includes(user_id, type)) {
-      let obj = remembermap.get(user_id)
-      obj[type].active = false
-      remembermap.set(user_id, obj)
-    }
-
-    const mapped = remembermap.get(user_id)
-
-    if ((!mapped["energia"] || !mapped["energia"].active) && (!mapped["estamina"] || !mapped["estamina"].active)) {
-      remembermap.delete(user_id)
-    }
-
-    this.save()
-  }
-
-}
+};
 
 module.exports = {
-
+    connect: getClient,
     waiting,
     remember,
+    images,
     rememberenergy: [],
     rememberstamina: []
-    
-}
+};

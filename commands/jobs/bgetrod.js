@@ -21,8 +21,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode comprar/trocar uma vara enquanto estiver pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`);
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode comprar/trocar uma vara enquanto estiver pescando! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`);
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }

@@ -19,7 +19,7 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'working')) {
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'working')) {
             const embedtemp = await API.sendError(interaction, `Você não pode sair de uma empresa enquanto está trabalhando na mesma!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;

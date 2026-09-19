@@ -33,8 +33,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'hunting')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -91,8 +91,8 @@ module.exports = {
         const rowButton0 = API.rowComponents(rb0)
 
         const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
-		API.cacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
+		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
+		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -313,8 +313,8 @@ module.exports = {
                     autohunt = true
                 }
 
-                API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'hunting')
-                API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+                await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'hunting')
+                await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
                 inbattle = true
                 
@@ -471,8 +471,8 @@ module.exports = {
                             }
                         } catch (error) {
                             reportError(error, 'command.cacar.cleanup', { userId: interaction.user.id });
-                            API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-                            API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                            await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
+                            await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             collector.stop();
                             autohunt = false
                         }
@@ -482,8 +482,8 @@ module.exports = {
                 fixedembed = embed
 
                 if (dead) {
-                    API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     collector.stop();
                     autohunt = false
                 }
@@ -506,8 +506,8 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
-            API.cacheLists.waiting.remove(interaction.user.id, 'working');
+            await API.cacheLists.waiting.remove(interaction.user.id, 'hunting')
+            await API.cacheLists.waiting.remove(interaction.user.id, 'working');
             API.playerUtils.cooldown.set(interaction.user.id, "hunt", 0);
 
             if (dead) return

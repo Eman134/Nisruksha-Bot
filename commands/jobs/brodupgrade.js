@@ -16,8 +16,8 @@ module.exports = {
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         if (pobj.rod == null) delete pobj.rod
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode upar uma vara enquanto estiver pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`);
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode upar uma vara enquanto estiver pescando! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`);
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }

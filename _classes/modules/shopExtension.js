@@ -392,7 +392,7 @@ shopExtension.execute = async function(interaction, p) {
 
         case 1:
 
-          if (API.cacheLists.waiting.includes(interaction.user.id, 'mining')) {
+          if (await API.cacheLists.waiting.includes(interaction.user.id, 'mining')) {
             embed.setColor('#a60000');
             embed.addField('❌ Falha na compra', `Você não pode realizar uma compra de uma máquina enquanto estiver minerando!`)
             await embedinteraction.edit({ embeds: [embed], components: [] });

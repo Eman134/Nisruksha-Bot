@@ -41,12 +41,12 @@ module.exports = {
             embed2.setColor('#42f569')
             interaction.editReply({ embeds: [embed2]});
             collector.stop();
-            if (API.cacheLists.remember.includes(interaction.user.id, "estamina")) return;
-            API.cacheLists.remember.add(interaction.user.id, interaction.channel.id, "estamina");
+            if (await API.cacheLists.remember.includes(interaction.user.id, "estamina")) return;
+            await API.cacheLists.remember.add(interaction.user.id, interaction.channel.id, "estamina");
             async function rem(){
                 if (await API.playerUtils.stamina.get(interaction.user.id) >= 1000) {
                  await interaction.reply({ content: `Relatório de estamina: ${await API.playerUtils.stamina.get(interaction.user.id)}/1000`, mention: true})
-                    API.cacheLists.remember.remove(interaction.user.id, "estamina")
+                    await API.cacheLists.remember.remove(interaction.user.id, "estamina")
                     return;
                 } else {
                     setTimeout(function(){rem()}, await API.playerUtils.stamina.time(interaction.user.id)+1000)

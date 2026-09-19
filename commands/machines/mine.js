@@ -33,9 +33,9 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(member.id, 'mining')) {
+        if (await API.cacheLists.waiting.includes(member.id, 'mining')) {
             await interaction.editReply({
-                components: [buildMiningStatusContainer(`Você já encontra-se minerando no momento! [[VER MINERACAO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})`)],
+                components: [buildMiningStatusContainer(`Você já encontra-se minerando no momento! [[VER MINERACAO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})`)],
                 flags: API.Discord.MessageFlags.IsComponentsV2
             });
             return;
@@ -86,7 +86,7 @@ module.exports = {
         API.playerUtils.cooldown.set(member.id, "mine", 15);
 
         if (energia >= energiamax) {
-            API.cacheLists.waiting.remove(member.id, 'mining')
+            await API.cacheLists.waiting.remove(member.id, 'mining')
         }
 
         let init = Date.now();
@@ -105,7 +105,7 @@ module.exports = {
 
         let btn = API.createButton('stopBtn', 'DANGER', 'Parar mineracao')
 
-        API.cacheLists.waiting.add(member.id, interaction, 'mining');
+        await API.cacheLists.waiting.add(member.id, interaction, 'mining');
 
         let embedinteraction
 
@@ -349,7 +349,7 @@ module.exports = {
                 try{
                     embedinteraction = await interaction.editReply({ components: [container], flags: API.Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
-                    API.cacheLists.waiting.remove(member.id, 'mining')
+                    await API.cacheLists.waiting.remove(member.id, 'mining')
                     throw reportError(error, 'command.minerar.initial_reply', { userId: member.id });
                 }
 
@@ -371,23 +371,23 @@ module.exports = {
                     async function checkMaintenance(name, percent) {
 
                         if (name == 'durability' && percent < 1) {
-                            stoppingMessage = `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pressure' && percent < 20) {
-                            stoppingMessage = `Sua máquina não possui pressão para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui pressão para continuar minerando! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pressure' && percent > 80) {
-                            stoppingMessage = `A pressão da sua máquina está em nível crítico para continuar minerando! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `A pressão da sua máquina está em nível crítico para continuar minerando! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pollutants' && percent > 90) {
-                            stoppingMessage = `Sua máquina está com o máximo de poluentes armazenados! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina está com o máximo de poluentes armazenados! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'refrigeration' && percent < 15) {
-                            stoppingMessage = `Sua máquina não possui líquido de refrigeração suficiente para manter a pressão da máquina! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui líquido de refrigeração suficiente para manter a pressão da máquina! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         }
@@ -399,12 +399,12 @@ module.exports = {
                     await checkMaintenance('refrigeration', refrigerationPercent)
 
                     if (storagesize >= storagemax) {
-                        stoppingMessage = `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`
+                        stoppingMessage = `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`
                         isStopping = true
                         return { isStopping, stoppingMessage }
                     }
                     if ((energia+1 < 0 ? 0 : energia+1) <= 0) {
-                        stoppingMessage = `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(member.id, 'mining')})\nVisualize a energia utilizando \`/maquina\``
+                        stoppingMessage = `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(member.id, 'mining')})\nVisualize a energia utilizando \`/maquina\``
                         isStopping = true
                         return { isStopping, stoppingMessage }
                     }
@@ -418,7 +418,7 @@ module.exports = {
                     if (haschipe7) {
                         API.eco.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${API.format(hastotalchipe7)} ${API.money}`)
                     }
-                    API.cacheLists.waiting.remove(member.id, 'mining')
+                    await API.cacheLists.waiting.remove(member.id, 'mining')
                     await interaction.editReply({
                         components: [buildMiningStatusContainer(stoppingMessage)],
                         flags: API.Discord.MessageFlags.IsComponentsV2
@@ -437,7 +437,7 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.minerar.defer_update'); });
                         stopped = true
-                        API.cacheLists.waiting.remove(member.id, 'mining')
+                    await API.cacheLists.waiting.remove(member.id, 'mining')
                         await interaction.editReply({
                             components: [buildMiningStatusContainer('Você parou o funcionamento da sua máquina!')],
                             flags: API.Discord.MessageFlags.IsComponentsV2
@@ -449,25 +449,25 @@ module.exports = {
                 collector.on('end', async collected => {
                     if (stopped) {
                         checkChipe7()
-                        API.cacheLists.waiting.remove(member.id, 'mining');
+                        await API.cacheLists.waiting.remove(member.id, 'mining');
                     } else {
-                        edit().catch((error) => {
+                        edit().catch(async (error) => {
                             reportError(error, 'command.minerar.collector', { userId: member.id });
-                            API.cacheLists.waiting.remove(member.id, 'mining');
+                            await API.cacheLists.waiting.remove(member.id, 'mining');
                         });
                     }
                 });
 
             } catch (error) {
                 checkChipe7()
-                API.cacheLists.waiting.remove(member.id, 'mining');
+                await API.cacheLists.waiting.remove(member.id, 'mining');
                 throw reportError(error, 'command.minerar.progress', { userId: member.id });
             }
         }
         try {
             await edit();
         } catch (error) {
-            API.cacheLists.waiting.remove(member.id, 'mining');
+            await API.cacheLists.waiting.remove(member.id, 'mining');
             throw reportError(error, 'command.minerar', { userId: member.id });
         }
 	}

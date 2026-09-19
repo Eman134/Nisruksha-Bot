@@ -112,12 +112,12 @@ module.exports = {
 
         let isMaintenance = false
 
-        function makeComponents (disableall) {
+        async function makeComponents (disableall) {
 
             try {
                 const components = [];
                 const firstrow = []
-                const isMining = API.cacheLists.waiting.includes(member.id, 'mining')
+                const isMining = await API.cacheLists.waiting.includes(member.id, 'mining')
 
                 const energyBtnText = `[${energia}/${energiamax}]${energia < energiamax && !disableall && !rememberEnergy ? ' ' + API.ms2(time) : ''}`
                 const energyBtn = API.createButton('energyBtn', 'SUCCESS', energyBtnText, '🔋')
@@ -191,7 +191,7 @@ module.exports = {
                 if (disableall) unequipallBtn.setDisabled(true)
 
                 if (isMining) {
-                    const miningBtn = API.createButton((API.cacheLists.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
+                    const miningBtn = API.createButton((await API.cacheLists.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
                     firstrow.push(miningBtn)
                 } else if (member.id == interaction.user.id) {
                     firstrow.push(energyBtn, maintenanceBtn, chipsBtn)
@@ -294,14 +294,14 @@ module.exports = {
 
         reworkEmbed(chips)
         
-        await interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: makeComponents() });
+        await interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: await makeComponents() });
 
         const filter = i => i.user.id === member.id;
         
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         collector.on('collect', async (b) => {
 
-            const isMining = API.cacheLists.waiting.includes(member.id, 'mining')
+            const isMining = await API.cacheLists.waiting.includes(member.id, 'mining')
             if (isMining) return collector.stop()
 
             const editObj = { embeds: [embed] }
@@ -353,7 +353,7 @@ module.exports = {
                 isEquipping = false
             }
             
-            editObj.components = makeComponents()
+            editObj.components = await makeComponents()
             editObj.files = [machineimage]
 
             if (menu) {
@@ -368,7 +368,7 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: makeComponents(true) });
+            interaction.editReply({ content: null, embeds: [embed], files: [machineimage], components: await makeComponents(true) });
         });
 
         async function pressEnergyBtn() {
@@ -385,16 +385,16 @@ module.exports = {
             embed2.setFooter(`1 ponto de energia recupera a cada ${API.maqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
             await interaction.followUp({ embeds: [embed2], flags: API.Discord.MessageFlags.Ephemeral });
 
-            if (API.cacheLists.remember.includes(member.id, "energia")) return;
-            API.cacheLists.remember.add(member.id, interaction.channel.id, "energia");
+            if (await API.cacheLists.remember.includes(member.id, "energia")) return;
+            await API.cacheLists.remember.add(member.id, interaction.channel.id, "energia");
             async function rem(){
 
                 const { energia, energiamax, time } = await API.maqExtension.getEnergy(member.id)
 
                 if (energia >= energiamax) {
                     await interaction.channel.send({ content: `${interaction.user} Relatório de energia: ${energia}/${energiamax}`, mention: true})
-                    if (API.cacheLists.remember.includes(member.id, "energia")) {
-                        API.cacheLists.remember.remove(member.id, "energia")
+                    if (await API.cacheLists.remember.includes(member.id, "energia")) {
+                        await API.cacheLists.remember.remove(member.id, "energia")
                     }
                     return;
                 } else {
@@ -409,7 +409,7 @@ module.exports = {
 
             try {
 
-                if (API.cacheLists.waiting.includes(member.id, 'mining')) {
+                if (await API.cacheLists.waiting.includes(member.id, 'mining')) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no reparo', `Você não pode realizar reparos de uma máquina enquanto estiver minerando!`)
                     await interaction.editReply({ embeds: [embed], components: [] });

@@ -29,8 +29,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'patodourado')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'patodourado')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'patodourado')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se batalhando contra um pato no momento! [[VER BATALHA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'patodourado')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -91,7 +91,7 @@ module.exports = {
 
         const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
 
-		API.cacheLists.waiting.add(interaction.user.id, interaction, 'patodourado')
+		await API.cacheLists.waiting.add(interaction.user.id, interaction, 'patodourado')
 
         let reacted = false;
         let inbattle = false;
@@ -428,7 +428,7 @@ ${currinteraction ? currinteraction : ''}
                 await interaction.editReply({ content: 'Carregando caça...', components: [] })
 
                 try {
-                    API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
+                    await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'patodourado')
 
                     inbattle = true
  
@@ -589,7 +589,7 @@ ${currinteraction ? currinteraction : ''}
 
                 if (dead) {
                     components = []
-                    API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
                     collector.stop();
                 }
 
@@ -604,7 +604,7 @@ ${currinteraction ? currinteraction : ''}
         });
         
         collector.on('end', async collected => {
-            API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
+            await API.cacheLists.waiting.remove(interaction.user.id, 'patodourado')
             API.playerUtils.cooldown.set(interaction.user.id, "patodourado", 0);
 
             if (dead) return

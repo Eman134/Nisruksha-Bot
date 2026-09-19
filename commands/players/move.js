@@ -23,28 +23,28 @@ module.exports = {
 
         let vila = interaction.options.getString('vila');
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'mining')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${API.cacheLists.waiting.getLink(interaction.user.id, 'mining')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'mining')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto minera! [[VER MINERAÇÃO]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'mining')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto pesca! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto pesca! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto caça! [[VER CAÇA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'hunting')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto caça! [[VER CAÇA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'collecting')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto coleta! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'collecting')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto coleta! [[VER COLETA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'digging')) {
-            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(interaction.user.id, 'digging')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'digging')) {
+            const embedtemp = await API.sendError(interaction, `Você não pode se mover enquanto escava um tesouro! [[VER ESCAVAÇÃO]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'digging')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }

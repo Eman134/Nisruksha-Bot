@@ -209,7 +209,7 @@ Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${to
             await interaction.editReply({ embeds: [embed], components })
 
             await API.company.jobs.process.add(interaction.user.id)
-            API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+            await API.cacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
 
         });
         

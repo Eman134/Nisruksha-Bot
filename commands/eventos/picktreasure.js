@@ -21,8 +21,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'digging')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${API.cacheLists.waiting.getLink(interaction.user.id, 'digging')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'digging')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se escavando um tesouro no momento! [[VER ESCAVAÇÃO]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'digging')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -50,7 +50,7 @@ module.exports = {
         
         const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
 
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'digging');
+        await API.cacheLists.waiting.add(interaction.user.id, interaction, 'digging');
 
         async function edit() {
 
@@ -91,12 +91,12 @@ module.exports = {
                     await interaction.editReply({embeds: [embed], components })
                 }catch (err) {
                     console.log(err)
-                    API.cacheLists.waiting.remove(interaction.user.id, 'digging');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'digging');
                     return
                 }
 
                 if (stop) {
-                    API.cacheLists.waiting.remove(interaction.user.id, 'digging');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'digging');
                     return
                 }
 
@@ -104,7 +104,7 @@ module.exports = {
                 const filter = i => i.user.id === interaction.user.id;
                 const collector = embedinteraction.createMessageComponentCollector({ filter, time: API.events.treasure.update*1000 });
 
-                collector.on('collect', (b) => {
+                collector.on('collect', async (b) => {
 
                     if (!(b.user.id === interaction.user.id)) return  
 
@@ -112,7 +112,7 @@ module.exports = {
                         reacted = true;
                         collector.stop();
                         if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.escavar.defer_update'));
-                        API.cacheLists.waiting.remove(interaction.user.id,  'digging');
+                        await API.cacheLists.waiting.remove(interaction.user.id,  'digging');
                     }
                 });
 
@@ -120,7 +120,7 @@ module.exports = {
                     if (reacted) {
                         const embedtemp = await API.sendError(interaction, `Você parou a escavação!`)
                         await interaction.followUp({ embeds: [embedtemp] })
-                        API.cacheLists.waiting.remove(interaction.user.id, 'digging');
+                        await API.cacheLists.waiting.remove(interaction.user.id, 'digging');
                     } else {
                         edit();
                     }
@@ -128,7 +128,7 @@ module.exports = {
 
             } catch (error) {
                 reportError(error, 'command.escavar.progress');
-                API.cacheLists.waiting.remove(interaction.user.id, 'digging');
+                await API.cacheLists.waiting.remove(interaction.user.id, 'digging');
             }
         }
         edit();

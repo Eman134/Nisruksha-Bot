@@ -56,8 +56,8 @@ const check = {};
 check.hasCompany = async function(user_id){
     let cont = false;
     try {
-        let res = await DatabaseManager.query(`SELECT * FROM companies;`);
-        for (const r of res.rows) {
+        const rows = await DatabaseManager.findMany('companies');
+        for (const r of rows) {
             if (r.user_id == user_id && r.type != 0) {
                 cont = true;
                 break;
@@ -86,9 +86,9 @@ check.hasVacancies = async function(company_id) {
 
     try {
         const owner = await API.company.get.ownerById(company_id)
-        const res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
-        if (res.rows[0].workers != null && res.rows[0].workers != undefined && res.rows[0].workers.length >= res.rows[0].funcmax) result = false;
-        if (res.rows[0].openvacancie == false) result = false;
+        const company = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
+        if (company.workers != null && company.workers != undefined && company.workers.length >= company.funcmax) result = false;
+        if (company.openvacancie == false) result = false;
 
     }catch (err){
         API.client.emit('error', err)
@@ -138,9 +138,7 @@ get.companyById = async function(company_id) {
 
         if (owner == null) return undefined
 
-        res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1 AND user_id=$2;`, [company_id, owner.id]);
-
-        res = res.rows[0];
+        res = (await DatabaseManager.findMany('companies', { company_id, user_id: owner.id }))[0];
 
     }catch (err){
         API.client.emit('error', err)
@@ -154,9 +152,7 @@ get.ownerById = async function(company_id) {
     let res
     try {
         
-        res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1;`, [company_id]);
-
-        res = res.rows[0];
+        res = (await DatabaseManager.findMany('companies', { company_id }))[0];
 
     }catch (err){
         API.client.emit('error', err)
@@ -174,9 +170,7 @@ get.idByOwner = async function(user_id) {
     let res
     try {
 
-        res = await DatabaseManager.query(`SELECT * FROM companies WHERE user_id=$1;`, [user_id]);
-
-        res = res.rows[0];
+        res = (await DatabaseManager.findMany('companies', { user_id }))[0];
 
     }catch (err){
         API.client.emit('error', err)
@@ -194,9 +188,7 @@ get.companyByOwnerId = async function(user_id) {
     let res
     try {
 
-        res = await DatabaseManager.query(`SELECT * FROM companies WHERE user_id=$1;`, [user_id]);
-
-        res = res.rows[0];
+        res = (await DatabaseManager.findMany('companies', { user_id }))[0];
 
     }catch (err){
         API.client.emit('error', err)
@@ -625,7 +617,7 @@ const jobs = {
                     jobs.process.loopProcess(member.id)
                     if (debugmode) throw new Error(('Debugged 1: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 } else if (!jobs.process.lastprocess.get(member.id) || (jobs.process.lastprocess.get(member.id) && Date.now()-jobs.process.lastprocess.get(member.id) > 60000*30)) {
-                    API.cacheLists.waiting.add(member.id, { url: '' }, 'working');
+                    await API.cacheLists.waiting.add(member.id, { url: '' }, 'working');
                     jobs.process.loopProcess(member.id)
                     if (debugmode) throw new Error(('Debugged 2: ' + member.id + ': está em processo :' + jobs.process.current.includes(member.id) + ': último processo :' + API.ms(Date.now()-jobs.process.lastprocess.get(member.id))));
                 }
@@ -651,7 +643,7 @@ const jobs = {
                 let processjson = players_utils.process
 
                 if (processjson == null) {
-                    API.cacheLists.waiting.remove(user_id, 'working');
+                    await API.cacheLists.waiting.remove(user_id, 'working');
                     return jobs.process.remove(user_id)
                 }
 
@@ -660,7 +652,7 @@ const jobs = {
                 if (inprocs.length <= 0) {
 
                     jobs.process.remove(user_id)
-                    API.cacheLists.waiting.remove(user_id, 'working');
+                    await API.cacheLists.waiting.remove(user_id, 'working');
 
                 } else {
 
@@ -783,14 +775,14 @@ const jobs = {
 
                         if (inprocs[inprocsi].tool == 0 && processjson.tools[inprocs[inprocsi].tool].durability.current > 0) {
                             processed()
-                            API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
+                            await API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         } if(inprocs[inprocsi].tool == 1 && processjson.tools[inprocs[inprocsi].tool].fuel.current > 0) {
                             processed()
-                            API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
+                            await API.cacheLists.waiting.add(user_id, { url: '' }, 'working');
                         }
                         
                         if ((processjson.tools[0].durability.current <= 0) && (processjson.tools[1].fuel.current <= 0)) {
-                            API.cacheLists.waiting.remove(user_id, 'working');
+                            await API.cacheLists.waiting.remove(user_id, 'working');
                             await jobs.process.remove(user_id)
                             return
                         }
@@ -996,10 +988,10 @@ company.create = async function(member, ob) {
         let code = `${makeid(6)}`;
         
         try {
-            let res = await DatabaseManager.query(`SELECT * FROM companies WHERE company_id=$1;`, [code]);
+            const company = (await DatabaseManager.findMany('companies', { company_id: code }))[0];
             const embed = new API.Discord.MessageEmbed();
 
-            if (!res.rows[0]) {
+            if (!company) {
                 try {
 
                     townnum = await API.townExtension.getTownNum(member.id);
@@ -1009,7 +1001,7 @@ company.create = async function(member, ob) {
                     .addField(`Informações da Empresa`, `Fundador: ${member}\nNome: **${ob.name}**\nSetor: **${ob.icon} ${ob.setor.charAt(0).toUpperCase() + ob.setor.slice(1)}**\nLocalização: **${townname}**\nCódigo: **${code}**`)
                     embed.setColor('#42f57e')
                     API.client.channels.cache.get('747490313765126336').send({ embeds: [embed]});;
-                    await DatabaseManager.query(`DELETE FROM companies WHERE user_id=${member.id};`);
+                    await DatabaseManager.deleteMany('companies', { user_id: member.id });
                     await API.setCompanieInfo(member.id, code, 'company_id', code)
                     await API.setCompanieInfo(member.id, code, 'type', ob.type)
                     await API.setCompanieInfo(member.id, code, 'name', ob.name)

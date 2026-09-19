@@ -165,9 +165,7 @@ API.getBotInfoProperties = async function() {
 		return `${parseFloat((bytes / Math.pow(1024, i)).toFixed(2))} ${sizes[i]}`;
 	}
 
-    const text =  `SELECT pg_size_pretty(pg_database_size('postgres'));`
-    const res = await DatabaseManager.query(text);
-    const dbsize = res.rows[0]["pg_size_pretty"];
+    const dbsize = await DatabaseManager.size();
 
     const globalsObj = await DatabaseManager.get(app.id, 'globals');
     const embed = new API.Discord.MessageEmbed();
@@ -179,7 +177,14 @@ API.getBotInfoProperties = async function() {
 
     embed.addField(`📓 Comandos executados`, `Após iniciar: \`${API.cmdsexec}\`\nTotal: \`${globalsObj.totalcmd}\`\nPlayers após iniciar: \`${API.playerscmds.length}\``, true)
 
-    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${API.cacheLists.waiting.length('mining')}\`\nCaçando: \`${API.cacheLists.waiting.length('hunting')}\`\nColetando: \`${API.cacheLists.waiting.length('collecting')}\`\nPescando: \`${API.cacheLists.waiting.length('fishing')}\`\nAguardando: \`${API.cacheLists.remember.get().size}\``, true)
+    const [mining, hunting, collecting, fishing, remembering] = await Promise.all([
+        API.cacheLists.waiting.length('mining'),
+        API.cacheLists.waiting.length('hunting'),
+        API.cacheLists.waiting.length('collecting'),
+        API.cacheLists.waiting.length('fishing'),
+        API.cacheLists.remember.get()
+    ]);
+    embed.addField(`🪐 População`, `Servidores: \`${API.client.guilds.cache.size}\`\nMinerando: \`${mining}\`\nCaçando: \`${hunting}\`\nColetando: \`${collecting}\`\nPescando: \`${fishing}\`\nAguardando: \`${remembering.size}\``, true)
 
     embed.addField(`📎 Versões`, `Node.js \`${process.versions.node}\`\nDiscord.js \`${API.Discord.version}\`\nNisruksha \`${API.version}\``, true)
 
@@ -195,23 +200,11 @@ API.getBotInfoProperties = async function() {
 }
 
 API.setCompanieInfo = async function (user_id, company, string, value) {
-
-    const text2 =  `INSERT INTO companies(company_id, user_id) VALUES($1, $2) ON CONFLICT DO NOTHING;`,
-    values2 = [company, user_id];
     try {
+        await DatabaseManager.setIfNotExists(user_id, 'companies');
+        await DatabaseManager.set(user_id, 'companies', 'company_id', company);
+        await DatabaseManager.set(user_id, 'companies', string, value);
 
-        await DatabaseManager.query(text2, values2);
-
-    } catch (err) {
-        console.log(err.stack)
-        API.client.emit('error', err)
-    }
-
-    const text =  `UPDATE companies SET ${string} = $3 WHERE user_id = $1 AND company_id = $2;`,
-        values = [user_id, company, value]
-
-    try {
-        await DatabaseManager.query(text, values);
     } catch (err) {
         console.log(err.stack)
         API.client.emit('error', err)

@@ -72,7 +72,7 @@ module.exports = {
                 return;
             }
             
-            if (API.cacheLists.waiting.includes(member.id, 'working')) {
+            if (await API.cacheLists.waiting.includes(member.id, 'working')) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na demissão', `Você não pode demitir um funcionário enquanto o mesmo está trabalhando na mesma!`)
                 interaction.editReply({ embeds: [embed], components: [] });

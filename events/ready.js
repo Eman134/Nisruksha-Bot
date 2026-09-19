@@ -35,7 +35,8 @@ module.exports = {
         console.log(`\n         Bot iniciado.`.green);
         console.log(`         Versão ${API.version}\n`.green)
 
-        API.cacheLists.remember.load()
+        await API.cacheLists.connect()
+        await API.cacheLists.remember.load()
         API.company.jobs.process.load()
         API.shopExtension.load()
         API.events.load()

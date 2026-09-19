@@ -21,8 +21,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'collecting')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'collecting')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -52,8 +52,8 @@ module.exports = {
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.agriculture.update} segundos\nTempo coletando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         const embedinteraction = await interaction.reply({ embeds: [embed], components: [API.rowComponents([btn])], withResponse: true });
 
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'collecting');
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
+        await API.cacheLists.waiting.add(interaction.user.id, interaction, 'collecting');
+        await API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
         
         function gen(){
             let por = 6;
@@ -132,30 +132,30 @@ module.exports = {
                     await interaction.editReply({ embeds: [embed], components: [API.rowComponents([btn])] })
                 } catch (error) {
                     reportError(error, 'command.coletar.edit_progress', { userId: interaction.user.id });
-                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                 }
 
                 if (descartados.length == seedobj.length) {
-                    const embedtemp = await API.sendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
+                    const embedtemp = await API.sendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
                     await interaction.reply({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 if (sta2 < gastoestamina) {
-                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
                     await interaction.reply({ embeds: [embedtemp], mention: true } )
-                    API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 let reacted = false
                 const filter = i => i.user.id === interaction.user.id;
                 const collector = embedinteraction.createMessageComponentCollector({ filter, time: API.company.jobs.agriculture.update*1000 });
-                collector.on('collect', (b) => {
+                collector.on('collect', async (b) => {
 
                     if (b.customId == 'stopBtn') {
                         reacted = true;
@@ -166,8 +166,8 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
-                        API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                        await API.cacheLists.waiting.remove(interaction.user.id, 'collecting')
+                        await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                         await interaction.editReply({ embeds: [embed], components: [] })
                         const embedtemp = await API.sendError(interaction, `Você parou a coleta!`)
                         await interaction.followUp({ embeds: [embedtemp]})

@@ -2,8 +2,42 @@
 const img = {};
 const API = require("../api.js");
 const fs = require('fs');
+const path = require('path');
 const opentype = require("opentype.js");
 img.Canvas = require("canvas");
+
+const nativeLoadImage = img.Canvas.loadImage.bind(img.Canvas);
+const backgroundsPath = path.resolve(__dirname, '../../resources/backgrounds');
+
+function getDefaultBackgroundPath(source) {
+    if (typeof source !== 'string') return null;
+
+    const filePath = path.resolve(process.cwd(), source);
+    const relativePath = path.relative(backgroundsPath, filePath);
+    if (!relativePath || relativePath.startsWith('..') || path.isAbsolute(relativePath)) return null;
+    return filePath;
+}
+
+img.Canvas.loadImage = async function (source) {
+    const filePath = getDefaultBackgroundPath(source);
+    if (!filePath) return nativeLoadImage(source);
+
+    const cacheLists = API.cacheLists;
+    const modifiedAt = (await fs.promises.stat(filePath)).mtimeMs;
+
+    try {
+        const cached = await cacheLists.images.get(filePath, modifiedAt);
+        if (cached) return nativeLoadImage(Buffer.from(cached, 'base64'));
+
+        const file = await fs.promises.readFile(filePath);
+        await cacheLists.images.set(filePath, modifiedAt, file.toString('base64'));
+        return nativeLoadImage(file);
+    } catch (error) {
+        // Redis is an optimization; local files remain the source of truth.
+        console.error(`[REDIS] Falha no cache de imagem ${filePath}:`, error.message);
+        return nativeLoadImage(filePath);
+    }
+};
 
 img.imagegens = new API.Discord.Collection(undefined, undefined);
 

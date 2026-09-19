@@ -29,8 +29,8 @@ module.exports = {
             return;
         }
 
-        if (API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await API.sendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
+        if (await API.cacheLists.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await API.sendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -84,8 +84,8 @@ module.exports = {
         embed.setFooter(`Tempo de atualização: ${API.company.jobs.fish.update} segundos\nTempo pescando: ${API.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), withResponse: true });
         
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'fishing');
-        API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
+        await API.cacheLists.waiting.add(interaction.user.id, interaction, 'fishing');
+        await API.cacheLists.waiting.add(interaction.user.id, interaction, 'working');
 
         let coletados = new Map()
 
@@ -299,23 +299,23 @@ module.exports = {
                     await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                 } catch (error) {
                     reportError(error, 'command.pescar.edit_progress', { userId: interaction.user.id });
-                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                     return
                 }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
-                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await API.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    const embedtemp = await API.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
                     await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
-                    API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    API.cacheLists.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                    await API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                    const embedtemp = await API.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${await API.cacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
                     await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
@@ -350,8 +350,8 @@ module.exports = {
                             await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                         } catch (error) {
                             reportError(error, 'command.pescar.cleanup', { userId: interaction.user.id });
-                            API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
-                            API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                            await API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                            await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                             return
                         }
                     }
@@ -360,8 +360,8 @@ module.exports = {
                 collector.on('end', async collected => {
                     await embedinteraction.edit({ embeds: [embed], components: [] })
                     if (reacted) {
-                        API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
-                        API.cacheLists.waiting.remove(interaction.user.id, 'working');
+                        await API.cacheLists.waiting.remove(interaction.user.id, 'fishing')
+                        await API.cacheLists.waiting.remove(interaction.user.id, 'working');
                         await embedinteraction.edit({ embeds: [embed], components: [] })
 
                     } else {
