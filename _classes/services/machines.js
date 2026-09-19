@@ -1,6 +1,16 @@
-module.exports = function createModule(dependencies) {
-    const { db, getFormatedDate, itemExtension, random, shopExtension } = dependencies;
-const DatabaseManager = db;
+const DatabaseManagerClass = require('../manager/DatabaseManager');
+const itemExtension = require('./items');
+const shopExtension = {
+    getProduct: (...args) => require('./shop').getProduct(...args)
+};
+const UtilityService = require('./utilityService');
+
+class MachinesService {
+constructor() {
+const DatabaseManager = new DatabaseManagerClass();
+const utility = new UtilityService();
+const getFormatedDate = utility.getFormatedDate.bind(utility);
+const random = utility.random.bind(utility);
 const ores = {};
 
 ores.gen = async function(maq, profundidade, chips) {
@@ -354,5 +364,7 @@ maqExtension.getMaintenance = async function(user_id, getDefault) {
 
 }
 
-return maqExtension;
-};
+}
+}
+
+module.exports = new MachinesService();

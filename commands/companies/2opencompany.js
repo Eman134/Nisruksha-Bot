@@ -1,3 +1,11 @@
+const companyService = require('../../_classes/services/company');
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const townsService = require('../../_classes/services/towns');
+const economyService = require('../../_classes/services/economy');
+const clientService = require('../../_classes/services/clientService');
+
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -6,8 +14,10 @@ const options = (option) => {
     
     option.setName('setor').setDescription('Digite o nome do setor para abrir')
     
-    for (const name of ['agricultura', 'exploração', 'pescaria', 'processamento']) {
-        option.addChoice(name.toUpperCase(), name)
+    for (i = 0; i < Object.keys(companyService.e).length; i++) {
+        const sector = companyService.e[Object.keys(companyService.e)[i]]
+        const name = Object.keys(companyService.e)[i]
+        if (sector.description) option.addChoice(name.toUpperCase(), name)
     }
     
     return option.setRequired(true)
@@ -20,39 +30,40 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","client","company","createButton","eco","format","money","money2","money2emoji","moneyemoji","rowComponents","sendError","townExtension"],
     name: 'abrirempresa',
     aliases: ['criarempresa', 'opencompany', 'abrire'],
     category: 'Empresas',
     description: 'Abra uma empresa de algum setor em seu nome e customize-a',
     data,
     mastery: 60,
-	async execute(interaction, svcDiscord, svcClient, svcCompany, svcCreateButton, svcEco, svcFormat, svcMoney, svcMoney2, svcMoney2emoji, svcMoneyemoji, svcRowComponents, svcSendError, svcTownExtension) {
+	async execute(interaction) {
+
+        
         const setor = interaction.options.getString('setor');
         const nome = interaction.options.getString('nome');
 
-        let e = svcCompany.e;
+        let e = companyService.e;
         
         if (!(Object.keys(e).includes(setor))) {
-            const embedtemp = await svcSendError(interaction, `Você precisa digitar um setor de empresa existente!\nUtilize \`/setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
+            const embedtemp = await utility.sendError(interaction, `Você precisa digitar um setor de empresa existente!\nUtilize \`/setores\` para visualizar os setores disponíveis.`, 'abrirempresa <setor> <nome>')
            	await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         if (nome.length > 30) {
-            const embedtemp = await svcSendError(interaction, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
+            const embedtemp = await utility.sendError(interaction, `A nome de sua empresa não pode conter mais de 30 caracteres!`, 'abrirempresa <setor> <nome>')
            	await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-        if (await svcCompany.check.hasCompany(interaction.user.id)) {
-            const embedtemp = await svcSendError(interaction, `Você não pode abrir mais de uma empresa!`)
+        if (await companyService.check.hasCompany(interaction.user.id)) {
+            const embedtemp = await utility.sendError(interaction, `Você não pode abrir mais de uma empresa!`)
            	await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await svcCompany.check.isWorker(interaction.user.id)) {
-            const embedtemp = await svcSendError(interaction, `Você precisa sair da sua empresa atual para abrir outra!`)
+        if (await companyService.check.isWorker(interaction.user.id)) {
+            const embedtemp = await utility.sendError(interaction, `Você precisa sair da sua empresa atual para abrir outra!`)
            	await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -73,20 +84,20 @@ module.exports = {
         const name = nome;
         const type = e[setor].tipo;
         const icon = e[setor].icon;
-        let townname = await svcTownExtension.getTownName(interaction.user.id);
-        let cristais = await svcEco.points.get(interaction.user.id)
+        let townname = await townsService.getTownName(interaction.user.id);
+        let cristais = await economyService.points.get(interaction.user.id)
         
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         .addField(`📃 Informações da Empresa`, `Nome: **${name}**\nSetor: **${icon} ${setor.charAt(0).toUpperCase() + setor.slice(1)}**\nLocalização: **${townname}**`)
-        .addField(`🧾 Contratos`, `\`Termos de Compromisso\`\n${svcFormat(r1)} ${svcMoney} ${svcMoneyemoji}\n\`Compensação de Trabalho\`\n${svcFormat(r2)} ${svcMoney} ${svcMoneyemoji}\n\`Autorização de Recebimento\`\n${svcFormat(r3)} ${svcMoney} ${svcMoneyemoji}\n\`Instrumento Particular\`\n${svcFormat(r4)} ${svcMoney} ${svcMoneyemoji}`)
-        .addField(`📑 Requisitos de proposta`, `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** ${playerobj2.svcMoney >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${svcFormat(c1)} ${svcMoney2} ${svcMoney2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}`)
+        .addField(`🧾 Contratos`, `\`Termos de Compromisso\`\n${utility.format(r1)} ${utility.money} ${utility.moneyemoji}\n\`Compensação de Trabalho\`\n${utility.format(r2)} ${utility.money} ${utility.moneyemoji}\n\`Autorização de Recebimento\`\n${utility.format(r3)} ${utility.money} ${utility.moneyemoji}\n\`Instrumento Particular\`\n${utility.format(r4)} ${utility.money} ${utility.moneyemoji}`)
+        .addField(`📑 Requisitos de proposta`, `Nível mínimo: **${req}** ${playerobj.level >= req ? '✅':'❌'}\nMoedas: **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** ${playerobj2.money >= total ? '✅':'❌'}${c1 > 0 ? `\nCristais: **${utility.format(c1)} ${utility.money2} ${utility.money2emoji}** ${cristais >= c1 ? '✅':'❌'}`:''}`)
         .setColor('#00e061')
         .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
 		
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -109,7 +120,7 @@ module.exports = {
             playerobj = await DatabaseManager.get(interaction.user.id, 'machines')
             playerobj2 = await DatabaseManager.get(interaction.user.id, 'players')
             
-            cristais = await svcEco.points.get(interaction.user.id)
+            cristais = await economyService.points.get(interaction.user.id)
 
             if (playerobj.level < req) {
                 embed.setColor('#a60000');
@@ -118,27 +129,27 @@ module.exports = {
                 return;
             }
 
-            if (playerobj2.svcMoney < total) {
+            if (playerobj2.money < total) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${svcFormat(playerobj2.svcMoney)}/${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}**`)
+                embed.addField('❌ Falha na abertura', `Você não possui dinheiro o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(playerobj2.money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
             if (cristais < c1) {
                 embed.setColor('#a60000');
-                embed.addField('❌ Falha na abertura', `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${svcFormat(cristais)}/${svcFormat(c1)} ${svcMoney2} ${svcMoney2emoji}**`)
+                embed.addField('❌ Falha na abertura', `Você não possui cristais o suficiente para abrir uma empresa!\nSeu dinheiro atual: **${utility.format(cristais)}/${utility.format(c1)} ${utility.money2} ${utility.money2emoji}**`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            if (await svcCompany.check.isWorker(interaction.user.id)) {
+            if (await companyService.check.isWorker(interaction.user.id)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você precisa sair da sua empresa atual para abrir outra!`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
-            if (await svcCompany.check.hasCompany(interaction.user.id)) {
+            if (await companyService.check.hasCompany(interaction.user.id)) {
                 embed.setColor('#a60000');
                 embed.addField('❌ Falha na abertura', `Você não pode abrir mais de uma empresa!`)
                 interaction.editReply({ embeds: [embed], components: [] });
@@ -155,7 +166,7 @@ module.exports = {
                     }
                 }
             }catch (err) { 
-                svcClient.emit('error', err)
+                clientService.current.emit('error', err)
                 throw err 
             }
             
@@ -166,19 +177,19 @@ module.exports = {
                 return;
             }
             
-            const code = await svcCompany.create(interaction.user, {
+            const code = await companyService.create(interaction.user, {
                 type,
                 icon,
                 name,
                 setor
             })
             
-            svcEco.svcMoney.remove(interaction.user.id, total)
-            svcEco.points.remove(interaction.user.id, c1)
-            svcEco.addToHistory(interaction.user.id, `Nova empresa | - ${svcFormat(total)} ${svcMoneyemoji}${c1 > 0 ? ` | - ${svcFormat(c1)} ${svcMoney2emoji}`:''}`)
-            townname = await svcTownExtension.getTownName(interaction.user.id);
+            economyService.money.remove(interaction.user.id, total)
+            economyService.points.remove(interaction.user.id, c1)
+            economyService.addToHistory(interaction.user.id, `Nova empresa | - ${utility.format(total)} ${utility.moneyemoji}${c1 > 0 ? ` | - ${utility.format(c1)} ${utility.money2emoji}`:''}`)
+            townname = await townsService.getTownName(interaction.user.id);
             embed
-            .addField(`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${svcCompany.e[svcCompany.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`)
+            .addField(`✅ Sucesso na abertura`, `Parabéns, você acaba de abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**\nCódigo da empresa: **${code}**`)
             .setColor('#00e061')
             .setFooter('Ao abrir a empresa você está em consentimento em receber DM\'S do bot de quando membros realizarem alguma ação na empresa')
             interaction.editReply({ embeds: [embed], components: [] });
@@ -189,7 +200,7 @@ module.exports = {
         collector.on('end', async collected => {
             if (reacted) return;
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria abrir a empresa **${svcCompany.e[svcCompany.types[type]].icon} ${name}**, porém o tempo expirou.`)
+            embed.addField('❌ Tempo expirado', `Você iria abrir a empresa **${companyService.e[companyService.types[type]].icon} ${name}**, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

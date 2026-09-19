@@ -1,17 +1,18 @@
+const clientService = require('../../_classes/services/clientService');
+const botInfo = require('../../_classes/services/botInfo');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["client","getBotInfoProperties"],
     name: 'botinfo',
     aliases: ['infobot', 'boti', 'bi'],
     category: 'Outros',
     description: 'Visualize meus links próprios para votar, me convidar ou meu servidor',
     mastery: 5,
-	async execute(interaction, svcClient, svcGetBotInfoProperties) {
+	async execute(interaction) {
 
-        const svcClient = svcClient
+        const client = clientService.current
         
-		const embed = await svcGetBotInfoProperties()
+		const embed = await botInfo.get()
 		await interaction.reply({ embeds: [embed]});
 
         const AsciiTable = require('ascii-table')
@@ -40,12 +41,12 @@ module.exports = {
             table.setBorder('|', '-', '+', '+')
 
             // Busca por algumas informações, para preencher a tabela.
-            const uptime = await svcClient.shard.broadcastEval(() => this.uptime)
-            const ping = await svcClient.shard.broadcastEval(() => parseFloat(this.ws.ping))
+            const uptime = await client.shard.broadcastEval(() => this.uptime)
+            const ping = await client.shard.broadcastEval(() => parseFloat(this.ws.ping))
 
-            const guildsEval = await svcClient.shard.broadcastEval(g => g.guilds.cache.size)
+            const guildsEval = await client.shard.broadcastEval(g => g.guilds.cache.size)
             // Note que não fiz o tratamento de remover os bots da contagem, no caso é o total de usuários + bots.
-            const usersEval = await svcClient.shard.broadcastEval(u => u.users.cache.size)
+            const usersEval = await client.shard.broadcastEval(u => u.users.cache.size)
 
             // Subistitui o status retornado (NUMBER), por texto legível.
             const status = {
@@ -64,10 +65,10 @@ module.exports = {
             * Para que seja criado os Rows (linhas da tabela), é necessário o FOR, passando o parâmetro com o máx '< (menor que) shardCount'.
             * Para que crie exatamente a quantidade correta de Rows.
             */
-            for (let i = 0; i < svcClient.options.shardCount; i++) {
+            for (let i = 0; i < client.options.shardCount; i++) {
 
                 let pings = Math.round(ping[i]) > 999 ? '999+' : Math.round(ping[i]),
-                    stats = status[svcClient.ws.status]
+                    stats = status[client.ws.status]
 
                 // Cada coluna é preenchida com uma informação, então cada informação deve estar no lugar correto. As colunas são separadas por ',' (vírgula).
                 table.addRow(i, guildsEval[i].toLocaleString('pt-BR'), usersEval[i].toLocaleString('pt-BR'), toTime(uptime[i]), '~' + pings + 'ms', stats)
@@ -76,8 +77,8 @@ module.exports = {
             const botGuilds = guildsEval.reduce((prev, val) => prev + val, 0)
             const botUsers = usersEval.reduce((prev, val) => prev + val, 0)
 
-            const media = await svcClient.shard.broadcastEval(() => Math.round(this.ws.ping))
-            const ping_media = media.reduce((prev, val) => prev + val / svcClient.options.shardCount)
+            const media = await client.shard.broadcastEval(() => Math.round(this.ws.ping))
+            const ping_media = media.reduce((prev, val) => prev + val / client.options.shardCount)
 
             // Aqui definimos um Row vazio ou complementado por algum simbolo.
             table.addRow('______', '______', '______', '______', '______', '______')

@@ -1,30 +1,40 @@
+const Discord = require('../../_classes/discordCompat');
+const playersService = require('../../_classes/services/players');
+const townsService = require('../../_classes/services/towns');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const companyService = require('../../_classes/services/company');
+const companyInfo = require('../../_classes/services/companyInfo');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","company","createButton","eco","format","getProgress","money","money2","money2emoji","moneyemoji","ms","playerUtils","random","rowComponents","sendError","setCompanieInfo","townExtension"],
     name: 'terrenoatual',
     aliases: ['landplot', 'terrain', 'lote', 'plot'],
     category: 'none',
     description: 'Visualiza as informações da plantação e terreno',
     mastery: 18,
     companytype: 1,
-	async execute(interaction, svcDiscord, svcCompany, svcCreateButton, svcEco, svcFormat, svcGetProgress, svcMoney, svcMoney2, svcMoney2emoji, svcMoneyemoji, svcMs, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcSetCompanieInfo, svcTownExtension, company) {
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
+
+        
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "landplot");
+        const check = await playersService.cooldown.check(interaction.user.id, "landplot");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'landplot', 'executar outro comando de terreno')
+            playersService.cooldown.message(interaction, 'landplot', 'executar outro comando de terreno')
 
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "landplot", 20);
+        playersService.cooldown.set(interaction.user.id, "landplot", 20);
 
-        const townnum = await svcTownExtension.getTownNum(interaction.user.id);
-        const townname = await svcTownExtension.getTownName(interaction.user.id);
+        const townnum = await townsService.getTownNum(interaction.user.id);
+        const townname = await townsService.getTownName(interaction.user.id);
 
         function hasTerrain(plots, townnum) {
             let contains = false
@@ -69,13 +79,13 @@ module.exports = {
 
             const plot = await getTerrain(pobj.plots)
             
-            let adubacao = svcGetProgress(8, '<:adub:765647640238227510>', '<:energyempty:741675234796503041>', (!plot.adubacao ? 100 : plot.adubacao), 100, true)
+            let adubacao = utility.getProgress(8, '<:adub:765647640238227510>', '<:energyempty:741675234796503041>', (!plot.adubacao ? 100 : plot.adubacao), 100, true)
 
             embed.fields = []
 
             embed.setColor(`#a4e05a`)
             .setTitle(`<:terreno:765944910179336202> Informações do seu terreno`) // \nConservação do terreno: \`${plot.cons}%\`
-            .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${svcMoney2}\` ${svcMoney2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\`\nAdubação: ${adubacao}`)
+            .setDescription(` ${plot.area < 100 ? `Preço de upgrade (+10m²): \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji}`:''}\nÁrea máxima em m²: \`${plot.area}m²\`\nLotes de plantação: \`${plot.plants ? plot.plants.length : 0}/5\`\nÁrea com plantação: \`${plot.areaplant}m²\`\nLocalização: \`${townname}\`\nAdubação: ${adubacao}`)
 
             const grow = []
 
@@ -85,23 +95,23 @@ module.exports = {
     
                     let ob = {
                         percent: 100,
-                        svcMs: 0
+                        ms: 0
                     }
     
                     if (r.maxtime-(Date.now()-r.planted) < 0) {
                         ob.percent = 100
                     } else {
-                        ob.svcMs = r.maxtime-(Date.now()-r.planted)
+                        ob.ms = r.maxtime-(Date.now()-r.planted)
     
-                        ob.percent = 100-Math.round(ob.svcMs*100/r.maxtime)
+                        ob.percent = 100-Math.round(ob.ms*100/r.maxtime)
                     }
     
                     r.lote = x
                     r.percent = ob.percent
 
-                    let crescimento = svcGetProgress(12, '<:cresc:765647640594481183>', '<:energyempty:741675234796503041>', ob.percent, 100, true)
+                    let crescimento = utility.getProgress(12, '<:cresc:765647640594481183>', '<:energyempty:741675234796503041>', ob.percent, 100, true)
                     
-                    embed.addField(`Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':svcMs(ob.svcMs, true)}`)
+                    embed.addField(`Lote ${x}: ${r.seed.icon} ${r.seed.displayname}`, `Área da plantação: ${r.area}m²\nQuantia: ${r.qnt}\nCrescimento atual: ${crescimento}\nTempo para o crescimento: ${ob.percent >= 100 ? '✅ Crescido':utility.ms(ob.ms, true)}`)
                     
                     grow.push(r)
     
@@ -119,13 +129,13 @@ module.exports = {
                 const growBtnList = []
 
                 if (plot.area < 100) {
-                    row0.push(svcCreateButton('upgrade', 'SECONDARY', 'Upgrade', '833837888634486794'))
+                    row0.push(utility.createButton('upgrade', 'SECONDARY', 'Upgrade', '833837888634486794'))
                 }
                 
-                if (row0.length > 0) components.push(svcRowComponents(row0))
+                if (row0.length > 0) components.push(utility.rowComponents(row0))
 
                 for (i = 0; i < grow.length; i++) {
-                    growBtnList.push(svcCreateButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
+                    growBtnList.push(utility.createButton(grow[i].lote.toString(), (grow[i].percent == 100 ? 'SUCCESS' : 'DANGER'), 'Colher', grow[i].seed.icon.split(':')[2] ? grow[i].seed.icon.split(':')[2].replace('>', '') : grow[i].seed.icon, (grow[i].percent == 100 ? false : true)))
                 }
 
                 let totalcomponents = growBtnList.length % 5;
@@ -138,7 +148,7 @@ module.exports = {
                     if (growBtnList[x]) {
                         const var1 = (x+1)*5-5
                         const var2 = ((x+1)*5)
-                        const rowBtn = svcRowComponents(growBtnList.slice(var1, var2))
+                        const rowBtn = utility.rowComponents(growBtnList.slice(var1, var2))
                         if (rowBtn.components.length > 0) components.push(rowBtn)
                     } else break
 
@@ -152,15 +162,15 @@ module.exports = {
 
         }
         
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
 
         if (!hasTerrain(pobj.plots, townnum)) {
 
             const price = 100000
 
-            const embedtemp = await svcSendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${svcFormat(price)} ${svcMoney}\` ${svcMoneyemoji}`)
+            const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir o terreno nesta vila reaja com <:terreno:765944910179336202>\nPreço: \`${utility.format(price)} ${utility.money}\` ${utility.moneyemoji}`)
             
-            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [svcRowComponents([svcCreateButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )
+            const embedinteraction = await interaction.reply({ embeds: [embedtemp], components: [utility.rowComponents([utility.createButton('confirm', 'SUCCESS', 'Comprar Terreno', '765944910179336202')])], withResponse: true } )
 
             const filter = i => i.user.id === interaction.user.id;
             
@@ -176,16 +186,16 @@ module.exports = {
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-                const svcMoney = await svcEco.svcMoney.get(interaction.user.id);
+                const money = await economyService.money.get(interaction.user.id);
       
-                if (!(svcMoney >= price)) {
+                if (!(money >= price)) {
                   embed.setColor('#a60000');
-                  embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${svcFormat(svcMoney)}/${svcFormat(price)} ${svcMoney} ${svcMoneyemoji}**`)
+                  embed.addField('❌ Falha na compra', `Você não possui dinheiro suficiente para comprar um terreno!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`)
                   await interaction.editReply({ embeds: [embed], components: [] });
                   return;
                 }
 
-                let townnum = await svcTownExtension.getTownNum(interaction.user.id);
+                let townnum = await townsService.getTownNum(interaction.user.id);
                 let plot = {
                   loc: townnum,
                   area: 10,
@@ -213,10 +223,10 @@ module.exports = {
                 Você comprou seu terreno na vila **${townname}**\nUtilize \`/terrenoatual\` e \`/terrenos\` para mais informações.`)
                 await interaction.editReply({ embeds: [embed], components: [] });
 
-                svcPlayerUtils.cooldown.set(interaction.user.id, "landplot", 0);
+                playersService.cooldown.set(interaction.user.id, "landplot", 0);
 
-                await svcEco.svcMoney.remove(interaction.user.id, price);
-                await svcEco.addToHistory(interaction.user.id, `Compra <:terreno:765944910179336202> | - ${svcFormat(price)}`)
+                await economyService.money.remove(interaction.user.id, price);
+                await economyService.addToHistory(interaction.user.id, `Compra <:terreno:765944910179336202> | - ${utility.format(price)}`)
     
             });
             
@@ -260,11 +270,11 @@ module.exports = {
 
             if (b.customId == 'upgrade') {
 
-                const points = await svcEco.points.get(interaction.user.id);
+                const points = await economyService.points.get(interaction.user.id);
 
                 if (!(points >= priceupgrade)) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${svcFormat(points)}/${svcFormat(priceupgrade)} ${svcMoney2} ${svcMoney2emoji}**`)
+                    embed.addField('❌ Falha no upgrade', `Você não possui cristais suficiente para dar upgrade no terreno!\nSeus cristais atuais: **${utility.format(points)}/${utility.format(priceupgrade)} ${utility.money2} ${utility.money2emoji}**`)
                     interaction.editReply({ embeds: [embed], components });
                     return;
                 }
@@ -281,10 +291,10 @@ module.exports = {
 
                 await DatabaseManager.set(interaction.user.id, 'players', 'plots', plots)
 
-                svcPlayerUtils.cooldown.set(interaction.user.id, "landplot", 0);
+                playersService.cooldown.set(interaction.user.id, "landplot", 0);
 
-                svcEco.points.remove(interaction.user.id, priceupgrade);
-                await svcEco.addToHistory(interaction.user.id, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${svcMoney2emoji}`)
+                economyService.points.remove(interaction.user.id, priceupgrade);
+                await economyService.addToHistory(interaction.user.id, `Upgrade <:terreno:765944910179336202> | - ${priceupgrade} ${utility.money2emoji}`)
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
                 plotReturns = await makeEmbed(pobj)
@@ -292,7 +302,7 @@ module.exports = {
 
                 embed.setColor('#5bff45');
                 embed.addField('✅ Upgrade realizado', `
-                Você pagou \`${priceupgrade} ${svcMoney2}\` ${svcMoney2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
+                Você pagou \`${priceupgrade} ${utility.money2}\` ${utility.money2emoji} e deu upgrade no seu terreno na vila **${townname}**!\nNova área do terreno: ${plot.area + 10}m²`)
                 
                 await interaction.editReply({ embeds: [embed], components });
 
@@ -319,12 +329,12 @@ module.exports = {
 
                 let total = Math.round(selectedplant.qnt*selectedplant.seed.price*pobj2.level*1.5)
                 
-                if (await svcCompany.check.isWorker(interaction.user.id)) {
-                    company = await svcCompany.get.companyById(pobj.company);
+                if (await companyService.check.isWorker(interaction.user.id)) {
+                    company = await companyService.get.companyById(pobj.company);
                 } else {
-                    company = await svcCompany.get.companyByOwnerId(interaction.user.id);
+                    company = await companyService.get.companyByOwnerId(interaction.user.id);
                 }
-                let owner = await svcCompany.get.ownerById(company.company_id);
+                let owner = await companyService.get.ownerById(company.company_id);
 
                 let totaltaxa = 0
                 if (company) totaltaxa = Math.round(company.taxa*total/100)
@@ -336,36 +346,36 @@ module.exports = {
                     total = totalantes
                 }
 
-                let xp = svcRandom(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
-                xp = await svcPlayerUtils.execExp(interaction, xp);
+                let xp = utility.random(5*parseInt(pobj2.level), 8*parseInt(pobj2.level));
+                xp = await playersService.execExp(interaction, xp);
                 
-                let score = ((svcCompany.stars.gen()*2.5).toFixed(2)) 
+                let score = ((companyService.stars.gen()*2.5).toFixed(2)) 
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
                 plotReturns = await makeEmbed(pobj)
                 components = plotReturns.components
 
                 embed.setColor('#5bff45')
-                embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${svcFormat(total)} ${svcMoney}** ${svcMoneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${svcFormat(totaltaxa)} ${svcMoney} ${svcMoneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
+                embed.addField('✅ Colheita realizada ', `Você colheu **${selectedplant.qnt}x ${selectedplant.seed.icon} ${selectedplant.seed.displayname}** do seu terreno com sucesso!\nValor da colheita: **${utility.format(total)} ${utility.money}** ${utility.moneyemoji} ${company == undefined || interaction.user.id == owner.id? '':`**(${company.taxa}% | ${utility.format(totaltaxa)} ${utility.money} ${utility.moneyemoji} de taxa da empresa**`}.\n**(+${xp} XP)** **(+${score} ⭐)**`)
                 
                 await interaction.editReply({ embeds: [embed], components })
 
-                svcEco.addToHistory(interaction.user.id, `Colheita ${selectedplant.seed.icon} | + ${svcFormat(total)} ${svcMoneyemoji}`)
+                economyService.addToHistory(interaction.user.id, `Colheita ${selectedplant.seed.icon} | + ${utility.format(total)} ${utility.moneyemoji}`)
 
-                svcEco.svcMoney.add(interaction.user.id, total)
+                economyService.money.add(interaction.user.id, total)
 
-                await svcCompany.stars.add(interaction.user.id, company.company_id, { score })
+                await companyService.stars.add(interaction.user.id, company.company_id, { score })
                 
                 if (company == undefined || interaction.user.id == owner.id) return
                 let rend = company.rend || []
                 rend.unshift(totaltaxa)
                 rend = rend.slice(0, 10)
                 
-                svcSetCompanieInfo(owner.id, company.company_id, 'rend', rend)
+                companyInfo.set(owner.id, company.company_id, 'rend', rend)
 
-                svcCompany.stars.add(interaction.user.id, company.company_id, { rend: totaltaxa })
+                companyService.stars.add(interaction.user.id, company.company_id, { rend: totaltaxa })
                 
-                svcEco.bank.add(owner.id, totaltaxa)
+                economyService.bank.add(owner.id, totaltaxa)
 
             }
 

@@ -1,18 +1,24 @@
 const trustedguilds = ['693150851396796446']
 const { reportError } = require('../_classes/debug');
+const clientService = require('../_classes/services/clientService');
+const cacheListsService = require('../_classes/services/cacheLists');
+const companyService = require('../_classes/services/company');
+const eventsService = require('../_classes/services/events');
+const shopService = require('../_classes/services/shop');
+const UtilityService = require('../_classes/services/utilityService');
+const utility = new UtilityService();
 
 module.exports = {
    
-    dependencies: ["cacheLists","client","company","events","shopExtension","uptime","version"],
     name: "clientReady",
-    execute: async(dependencies) => {
+    execute: async() => {
         
-        const client = dependencies.client;
+        const client = clientService.current;
 
         async function u(){
 
             try{
-                client.user.setActivity(`[${dependencies.version}] Prefixo / | Tempo online: ${dependencies.uptime()}`);
+                client.user.setActivity(`[${require('../package.json').version}] Prefixo / | Tempo online: ${utility.uptime()}`);
             }catch (err){
                 reportError(err, 'discord.ready.activity');
             }
@@ -34,13 +40,13 @@ module.exports = {
         moment.suppressDeprecationWarnings = true;
         
         console.log(`\n         Bot iniciado.`.green);
-        console.log(`         Versão ${dependencies.version}\n`.green)
+        console.log(`         Versão ${require('../package.json').version}\n`.green)
 
-        await dependencies.cacheLists.connect()
-        await dependencies.cacheLists.remember.load()
-        dependencies.company.jobs.process.load()
-        dependencies.shopExtension.load()
-        dependencies.events.load()
+        await cacheListsService.connect()
+        await cacheListsService.remember.load()
+        companyService.jobs.process.load()
+        shopService.load()
+        eventsService.load()
         
     }
 

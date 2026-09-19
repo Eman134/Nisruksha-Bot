@@ -1,17 +1,19 @@
 const { reportError } = require('../_classes/debug');
+const Discord = require('../_classes/discordCompat');
+const clientService = require('../_classes/services/clientService');
+const runtime = require('../_classes/services/runtime');
 
 module.exports = {
 
-    dependencies: ["Discord","client","logs"],
     name: "fail",
-    execute: async (dependencies, { interaction, type, desc, sendMe }) => {
-        if (!dependencies.logs.falhas) return
+    execute: async ({ interaction, type, desc, sendMe }) => {
+        if (!runtime.logs.falhas) return
 
         try {
 
             interaction.author ? interaction.user = interaction.author : null
             
-            const embedfail = new dependencies.Discord.MessageEmbed()
+            const embedfail = new Discord.MessageEmbed()
             .setColor('#b8312c')
             .setTimestamp()
             .setTitle(`Falha: ${type}`)
@@ -21,9 +23,9 @@ module.exports = {
     
             if (!interaction.content && interaction.options.size > 0) embedfail.addField('Argumentos', `\`\`\`\n${interaction.options.map(i => i.value).join(' ').slice(0, 1000)}\`\`\``)
             
-            const failObject = { embeds: [embedfail], flags: dependencies.Discord.MessageFlags.Ephemeral }
+            const failObject = { embeds: [embedfail], flags: Discord.MessageFlags.Ephemeral }
     
-            dependencies.client.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
+            clientService.current.channels.cache.get('770059589076123699').send({ embeds: [embedfail]});
     
             if (!sendMe) return
     

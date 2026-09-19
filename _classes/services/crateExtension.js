@@ -1,136 +1,70 @@
-module.exports = function createModule(dependencies) {
-    const { client, db, itemExtension, random } = dependencies;
-const DatabaseManager = db;
-const { reportError } = require('../debug');
-
-const crateExtension = {
-
-    obj: {}
-    
-};
-
+const DatabaseManager = require('../manager/DatabaseManager');
+const clientService = require('./clientService');
+const itemService = require('./items');
+const UtilityService = require('./utilityService');
 
 function shuffle(array) {
-    var currentIndex = array.length, temporaryValue, randomIndex;
-  
-    while (0 !== currentIndex) {
-
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
-    }
-  
-    return array;
-}
-
-crateExtension.load = async function() {
-
-    const { readFileSync } = require('fs')
-    const path = './_json/crates.json'
-    try {
-      if (path) {
-        const jsonString = readFileSync(path, 'utf8')
-        const customer = JSON.parse(jsonString);
-        crateExtension.obj = customer;
-      } else {
-        console.log('File path is missing from crateExtension!')
-        return `Error on pick crates obj`;
-      }
-    } catch (err) {
-        client.emit('error', err)
-        return `Error on pick crates obj`;
-    }
-
-    // Crates are stored as JSON keys in storage; no runtime schema changes are needed.
-
-    function makeid(length) {
-        var result = '';
-        var characters = 'ABCDEFGHI8917423*/ 71-+JK848*/132-*LMNOPQRSTUVWXYZ01234567890123458*-*074 -/*1274-/*67890123456789-=S D-S[=324-*/-*-+48/-+65-*4/-+012345678901234567890123456789';
-        var charactersLength = characters.length;
-        for ( var i = 0; i < length; i++ ) {
-            result += characters.charAt(Math.floor(Math.random() * charactersLength));
-        }
-        return result;
-    }
-
-    const chkda = require('../config')
-    if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970')) {
-        console.log(makeid(random(200, 2500)))
-        return process.exit()
-    }
-}
-
-crateExtension.getCrates = async function(user_id) {
-
-    let obj = crateExtension.obj;
-    const res = await DatabaseManager.get(user_id, 'storage');
-    let array = [];
-
-    if (res) {
-        for (const key in obj) {
-            array.push(`${key};${res[`crate:${key}`]}`)
-        }
+    for (let index = array.length - 1; index > 0; index--) {
+        const randomIndex = Math.floor(Math.random() * (index + 1));
+        [array[index], array[randomIndex]] = [array[randomIndex], array[index]];
     }
     return array;
 }
 
-crateExtension.getReward = function(id, size) {
+class CrateService {
+    constructor() {
+        this.database = new DatabaseManager();
+        this.utility = new UtilityService();
+        this.obj = {};
+        this.load();
+    }
 
-    let arr = [];
-    if (!size || size == 1) {
-        let cr = random(0, 100)
-        
-        let crateobj = crateExtension.obj[id.toString()]
-        
-        let array2 = crateobj.rewards;
-        
-        if (typeof crateobj.rewards == 'string') {
-            const droparr = itemExtension.getObj().drops
-
-            let droparray = droparr
-
-            array2 = shuffle(droparray)
-
-            const randomdrop = array2[random(0, array2.length-1)]
-            randomdrop.type = 5
-            if (randomdrop.size == 0) randomdrop.size = 1
-            
-            arr.push(randomdrop);
-            
-        } else {
-            
-            array2.sort(function(a, b){
-                return a.chance - b.chance;
-            });
-            let acc = 0;
-            for (const r of array2) {
-                acc += r.chance;
-                if (cr < acc) {
-                    arr.push(r);
-                    break;
-                }
-            }
-
-        }
-
-    } else {
-        for (i = 0; i < size; i++){
-            arr.push(crateExtension.getReward(id)[0]);
+    async load() {
+        try {
+            this.obj = JSON.parse(require('fs').readFileSync('./_json/crates.json', 'utf8'));
+        } catch (error) {
+            clientService.current?.emit('error', error);
         }
     }
 
-    return arr;
+    async getCrates(userId) {
+        const storage = await this.database.get(userId, 'storage');
+        return storage ? Object.keys(this.obj).map((key) => `${key};${storage[`crate:${key}`]}`) : [];
+    }
+
+    getReward(id, size = 1) {
+        const crate = this.obj[String(id)];
+        if (!crate) return [];
+        if (size > 1) return Array.from({ length: size }, () => this.getReward(id)[0]);
+
+        const reward = typeof crate.rewards === 'string'
+            ? this.randomDrop()
+            : this.randomReward(crate.rewards);
+        return reward ? [reward] : [];
+    }
+
+    randomDrop() {
+        const drops = shuffle([...itemService.getObj().drops]);
+        const drop = drops[this.utility.random(0, drops.length - 1)];
+        drop.type = 5;
+        if (drop.size === 0) drop.size = 1;
+        return drop;
+    }
+
+    randomReward(rewards) {
+        const chance = this.utility.random(0, 100);
+        let accumulated = 0;
+        for (const reward of [...rewards].sort((a, b) => a.chance - b.chance)) {
+            accumulated += reward.chance;
+            if (chance < accumulated) return reward;
+        }
+        return undefined;
+    }
+
+    async give(userId, id, amount) {
+        const storage = await this.database.get(userId, 'storage');
+        return this.database.set(userId, 'storage', `"crate:${id}"`, storage[`crate:${id}`] + amount);
+    }
 }
 
-crateExtension.give = async function(user_id, id, quantia) {
-    let obj = await DatabaseManager.get(user_id, "storage");
-    DatabaseManager.set(user_id, "storage", `"crate:${id}"`, obj[`crate:${id}`] + quantia);
-}
-
-crateExtension.load();
-
-return crateExtension;
-};
+module.exports = new CrateService();

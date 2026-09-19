@@ -1,24 +1,31 @@
+const townsService = require('../../_classes/services/towns');
+const companyService = require('../../_classes/services/company');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const Discord = require('../../_classes/discordCompat');
+const economyService = require('../../_classes/services/economy');
+const playersService = require('../../_classes/services/players');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","createButton","eco","format","money","moneyemoji","playerUtils","rowComponents","sendError","townExtension"],
     name: 'adubar',
     aliases: ['adub'],
     category: 'none',
     description: 'Realiza a adubação de seu terreno',
     mastery: 20,
     companytype: 1,
-	async execute(interaction, svcDiscord, svcCreateButton, svcEco, svcFormat, svcMoney, svcMoneyemoji, svcPlayerUtils, svcRowComponents, svcSendError, svcTownExtension, company) {
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
 
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         let allplots = pobj.plots
         let plot
-        let townnum = await svcTownExtension.getTownNum(interaction.user.id);
-        let townname = await svcTownExtension.getTownName(interaction.user.id);
+        let townnum = await townsService.getTownNum(interaction.user.id);
+        let townname = await townsService.getTownName(interaction.user.id);
         let contains = false
         if (pobj.plots) {
             for (let r of Object.keys(pobj.plots)) {
@@ -42,30 +49,30 @@ module.exports = {
 
         
         if (!contains) {
-            const embedtemp = await svcSendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui terrenos na sua vila atual!\nPara adquirir um terreno utilize \`/terrenoatual\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (!plot.adubacao || plot.adubacao >= 100) {
-            const embedtemp = await svcSendError(interaction, `Este terreno já está com a adubação em seu ápice!`)
+            const embedtemp = await utility.sendError(interaction, `Este terreno já está com a adubação em seu ápice!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         let total = ((100-plot.adubacao)*3)*pobj2.level*300
 
-        const embed = new svcDiscord.MessageEmbed();
+        const embed = new Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja adubar ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${svcFormat(total)} ${svcMoney}\` ${svcMoneyemoji}?`)
+        Você deseja adubar ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}?`)
 
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])] } )
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] } )
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -83,23 +90,23 @@ module.exports = {
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Adubação cancelada', `
-                Você cancelou uma adubação de ${((100-plot.adubacao))}% em seu terreno localizado em **${townname}** pelo preço de \`${svcFormat(total)} ${svcMoney}\` ${svcMoneyemoji}.`)
+                Você cancelou uma adubação de ${((100-plot.adubacao))}% em seu terreno localizado em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
 
             pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-            const svcMoney = await svcEco.svcMoney.get(interaction.user.id);
+            const money = await economyService.money.get(interaction.user.id);
   
-            if (!(svcMoney >= total)) {
+            if (!(money >= total)) {
               embed.setColor('#a60000');
-              embed.addField('❌ Falha na adubação', `Você não possui dinheiro suficiente para realizar a adubação!\nSeu dinheiro atual: **${svcFormat(svcMoney)}/${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}**`)
+              embed.addField('❌ Falha na adubação', `Você não possui dinheiro suficiente para realizar a adubação!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(total)} ${utility.money} ${utility.moneyemoji}**`)
               await interaction.editReply({ embeds: [embed], components: [] });
               return;
             }
 
-            let townnum = await svcTownExtension.getTownNum(interaction.user.id);
+            let townnum = await townsService.getTownNum(interaction.user.id);
             let plots = pobj.plots
 
             plots[townnum].adubacao = 100
@@ -108,13 +115,13 @@ module.exports = {
 
             embed.setColor('#5bff45');
             embed.addField('✅ Adubação realizada', `
-            Você adubou ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${svcFormat(total)} ${svcMoney}\` ${svcMoneyemoji}.`)
+            Você adubou ${((100-plot.adubacao))}% de seu terreno em **${townname}** pelo preço de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji}.`)
             await interaction.editReply({ embeds: [embed], components: [] });
 
-            svcPlayerUtils.cooldown.set(interaction.user.id, "landplot", 0);
+            playersService.cooldown.set(interaction.user.id, "landplot", 0);
 
-            await svcEco.svcMoney.remove(interaction.user.id, total);
-            await svcEco.addToHistory(interaction.user.id, `Adubação <:terreno:765944910179336202> | - ${svcFormat(total)}`)
+            await economyService.money.remove(interaction.user.id, total);
+            await economyService.addToHistory(interaction.user.id, `Adubação <:terreno:765944910179336202> | - ${utility.format(total)}`)
 
         });
         

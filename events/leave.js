@@ -1,24 +1,24 @@
 const Database = require("../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../_classes/debug');
+const Discord = require('../_classes/discordCompat');
+const clientService = require('../_classes/services/clientService');
 
 module.exports = {
 
-    dependencies: ["Discord","client"],
     name: "guildDelete",
-    execute: async (dependencies, guild) => {
+    execute: async (guild) => {
 
         if (!guild || !guild.name) return
 
-        const client = dependencies.client;
-        const Discord = dependencies.Discord;
+        const client = clientService.current;
 
         DatabaseManager.set(guild.id, 'servers', 'lastcmd', 0, 'server_id')
 
 
         let owner = { id: '0', tag: '0#0'}
         try {
-            owner = await dependencies.client.users.fetch(guild.ownerId)
+            owner = await client.users.fetch(guild.ownerId)
         } catch (error) {
             reportError(error, 'guild_delete.owner_fetch', { guildId: guild.id });
         }

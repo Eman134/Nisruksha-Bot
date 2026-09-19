@@ -1,3 +1,10 @@
+const Discord = require('../../_classes/discordCompat');
+const companyService = require('../../_classes/services/company');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const companyInfo = require('../../_classes/services/companyInfo');
+const clientService = require('../../_classes/services/clientService');
+const playersService = require('../../_classes/services/players');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -12,29 +19,28 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('valor').setDescription('Digite o valor que a edição necessita').setRequired(false))
 
 module.exports = {
-    requiredServices: ["Discord","client","company","createButton","format","isInt","playerUtils","rowComponents","sendError","setCompanieInfo"],
     name: 'editarempresa',
     aliases: ['editarempresa', 'companyedit', 'companyedit'],
     category: 'Empresas',
     description: 'Personalize sua empresa do comando verempresa',
     data,
     mastery: 50,
-    async execute(interaction, svcDiscord, svcClient, svcCompany, svcCreateButton, svcFormat, svcIsInt, svcPlayerUtils, svcRowComponents, svcSendError, svcSetCompanieInfo) {
+    async execute(interaction) {
 
-          const svcDiscord = svcDiscord
+          const Discord = Discord
 
           const edição = interaction.options.getString('edição').toLowerCase();
           const valor = interaction.options.getString('valor')
 
-          const embed = new svcDiscord.MessageEmbed().setColor(`#fc7b03`)
+          const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
         
-          if (!(await svcCompany.check.hasCompany(interaction.user.id))) {
-              const embedtemp = await svcSendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
+          if (!(await companyService.check.hasCompany(interaction.user.id))) {
+              const embedtemp = await utility.sendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
           }
         
-          const companyid = await svcCompany.get.idByOwner(interaction.user.id)
+          const companyid = await companyService.get.idByOwner(interaction.user.id)
 
           const pricenome = 35
             
@@ -47,12 +53,12 @@ module.exports = {
           if (edição == 'background') {
 
             if (valor == null) {
-              const embedtemp = await svcSendError(interaction, 'Você precisa colocar uma url de imagem para o background!\nRecomendado imagens 700x450')
+              const embedtemp = await utility.sendError(interaction, 'Você precisa colocar uma url de imagem para o background!\nRecomendado imagens 700x450')
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
             }
     
-            svcSetCompanieInfo(interaction.user.id, companyid, 'bglink', url)
+            companyInfo.set(interaction.user.id, companyid, 'bglink', url)
   
             embed
               .setColor('#8adb5e')
@@ -60,25 +66,25 @@ module.exports = {
               .setFooter(`Você pode visualizar as mudanças usando /veremp`)
               .setImage(url);
               await interaction.reply({ embeds: [embed] });
-            const embed2 = new svcDiscord.MessageEmbed()
+            const embed2 = new Discord.MessageEmbed()
               .setColor('#8adb5e')
               .setDescription(`Background da **EMPRESA** de \`${interaction.user.tag} | ${interaction.user.id}\``)
               .setImage(url);
               try{
-                svcClient.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
+                clientService.current.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
               }catch (err){
-                svcClient.emit('error', err)
+                clientService.current.emit('error', err)
               }
 
           } else if (edição == 'logo') {
 
               if (valor == null) {
-                const embedtemp = await svcSendError(interaction, 'Você precisa colocar uma url de imagem para o background!\nRecomendado imagens 700x450')
+                const embedtemp = await utility.sendError(interaction, 'Você precisa colocar uma url de imagem para o background!\nRecomendado imagens 700x450')
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
               }
               
-              svcSetCompanieInfo(interaction.user.id, companyid, 'logo', url)
+              companyInfo.set(interaction.user.id, companyid, 'logo', url)
     
               embed
                 .setColor('#8adb5e')
@@ -86,30 +92,30 @@ module.exports = {
                 .setFooter(`Você pode visualizar as mudanças usando /veremp`)
                 .setImage(url);
                 await interaction.reply({ embeds: [embed] });
-                const embed2 = new svcDiscord.MessageEmbed()
+                const embed2 = new Discord.MessageEmbed()
                 .setColor('#8adb5e')
                 .setDescription(`Logo da **EMPRESA** de \`${interaction.user.tag} | ${interaction.user.id}\``)
                 .setImage(url);
               try{
-                svcClient.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
+                clientService.current.guilds.cache.get('693150851396796446').channels.cache.get('736383144499871765').send({ embeds: [embed2] });
               }catch (err){
-                svcClient.emit('error', err)
+                clientService.current.emit('error', err)
               }
 
         } else if (edição.startsWith('desc')) {
 
             if (valor == null) {
-              const embedtemp = await svcSendError(interaction, 'Você precisa definir um texto para setar como descrição', 'editarempresa desc <texto>')
+              const embedtemp = await utility.sendError(interaction, 'Você precisa definir um texto para setar como descrição', 'editarempresa desc <texto>')
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
             }
             
             if (valor.length > 50) {
-              const embedtemp = await svcSendError(interaction, 'Você não pode colocar uma descrição com mais de 50 caracteres\nQuantia de caracteres da descrição: ' + valor.length + '/50', 'editarempresa desc <texto>')
+              const embedtemp = await utility.sendError(interaction, 'Você não pode colocar uma descrição com mais de 50 caracteres\nQuantia de caracteres da descrição: ' + valor.length + '/50', 'editarempresa desc <texto>')
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
             }
-            svcSetCompanieInfo(interaction.user.id, companyid, "descr", valor)
+            companyInfo.set(interaction.user.id, companyid, "descr", valor)
 
             embed
             .setColor('#8adb5e')
@@ -121,7 +127,7 @@ module.exports = {
 
         } else if (edição.startsWith('vaga')) {
           if (valor == null) {
-            const embedtemp = await svcSendError(interaction, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `editarempresa vagas off`)
+            const embedtemp = await utility.sendError(interaction, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `editarempresa vagas off`)
            	await interaction.reply({ embeds: [embedtemp]})
             return;
           }
@@ -129,75 +135,75 @@ module.exports = {
           let boo = false;
 
           if (valor != 'on' && valor != 'off') {
-              const embedtemp = await svcSendError(interaction, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `editarempresa vagas off`)
+              const embedtemp = await utility.sendError(interaction, `Você deve indicar se deseja liberar as vagas da empresa ou não **[on/off]**`, `editarempresa vagas off`)
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
           }
 
           boo = (valor == 'on' ? boo = true : boo = false)
 
-          const embed = new svcDiscord.MessageEmbed()
+          const embed = new Discord.MessageEmbed()
           .setColor((boo ? '#5bff45':'#a60000'))
           .setDescription('Você setou as vagas da sua empresa para ' +  (boo ? '🟢':'🔴')  + ' **' + valor + '**')
           await interaction.reply({ embeds: [embed] })
-          const companyid = await svcCompany.get.idByOwner(interaction.user.id)
-          svcSetCompanieInfo(interaction.user.id, companyid, 'openvacancie', boo)
+          const companyid = await companyService.get.idByOwner(interaction.user.id)
+          companyInfo.set(interaction.user.id, companyid, 'openvacancie', boo)
 
         } else if (edição.startsWith('taxa')) {
 
           if (valor == null) {
-            const embedtemp = await svcSendError(interaction, `Você deve digitar o valor da taxa para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
+            const embedtemp = await utility.sendError(interaction, `Você deve digitar o valor da taxa para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
            	await interaction.reply({ embeds: [embedtemp]})
             return;
           }
 
           let taxa = valor.replace(/%/g, '')
 
-          if (!svcIsInt(taxa)) {
-              const embedtemp = await svcSendError(interaction, `Você deve digitar o valor da taxa __EM NÚMERO__ para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
+          if (!utility.isInt(taxa)) {
+              const embedtemp = await utility.sendError(interaction, `Você deve digitar o valor da taxa __EM NÚMERO__ para funcionários! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
           }
           taxa = parseInt(taxa)
           if (taxa < 1 || taxa > 50) {
-              const embedtemp = await svcSendError(interaction, `Você deve digitar o valor da taxa entre 1% e 50%! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
+              const embedtemp = await utility.sendError(interaction, `Você deve digitar o valor da taxa entre 1% e 50%! **[1%-50%]**\nA taxa padrão é de **25%**`, `editarempresa taxa 25%`)
            	  await interaction.reply({ embeds: [embedtemp]})
               return;
           }
 
 
-          const embed = new svcDiscord.MessageEmbed()
+          const embed = new Discord.MessageEmbed()
           .setColor('RANDOM')
           .setDescription('Você setou a taxa da sua empresa para __' + taxa + '%__')
           await interaction.reply({ embeds: [embed] })
-          const companyid = await svcCompany.get.idByOwner(interaction.user.id)
-          svcSetCompanieInfo(interaction.user.id, companyid, 'taxa', taxa)
+          const companyid = await companyService.get.idByOwner(interaction.user.id)
+          companyInfo.set(interaction.user.id, companyid, 'taxa', taxa)
 
-          svcPlayerUtils.cooldown.set(interaction.user.id, "settaxa", 86400);
+          playersService.cooldown.set(interaction.user.id, "settaxa", 86400);
 
         } else if (edição.startsWith('name') || edição.startsWith('nome')) {
 
-          const company = await svcCompany.get.companyByOwnerId(interaction.user.id)
+          const company = await companyService.get.companyByOwnerId(interaction.user.id)
 
           if (valor == null) {
-            const embedtemp = await svcSendError(interaction, `Você deve digitar o novo nome para a sua empresa`, `editarempresa nome <nome>`)
+            const embedtemp = await utility.sendError(interaction, `Você deve digitar o novo nome para a sua empresa`, `editarempresa nome <nome>`)
            	await interaction.reply({ embeds: [embedtemp]})
             return;
           }
 
           let novonome = valor
 
-          const embed = new svcDiscord.MessageEmbed();
+          const embed = new Discord.MessageEmbed();
           embed.setColor('#606060');
-          embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
+          embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
           
           embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
           Você deseja gastar ${pricenome} ⭐ e trocar o nome da sua empresa para **${novonome}**?`)
           
-          const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-          const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+          const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+          const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-          let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+          let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
           const filter = i => i.user.id === interaction.user.id;
           
@@ -222,12 +228,12 @@ module.exports = {
 
               if ((company.score < pricenome)) {
                   embed.setColor('#a60000');
-                  embed.addField('❌ Falha na alteração', `A sua empresa não possui score o suficiente para realizar a troca de nome!\nScore: **${svcFormat(company.score.toFixed(2))}/${svcFormat(pricenome)} ⭐**`)
+                  embed.addField('❌ Falha na alteração', `A sua empresa não possui score o suficiente para realizar a troca de nome!\nScore: **${utility.format(company.score.toFixed(2))}/${utility.format(pricenome)} ⭐**`)
                   interaction.editReply({ embeds: [embed], components: [] });
                   return;
               }
 
-              svcSetCompanieInfo(interaction.user.id, company.company_id, 'score', parseFloat(company.score) - pricenome)
+              companyInfo.set(interaction.user.id, company.company_id, 'score', parseFloat(company.score) - pricenome)
 
               embed.setColor('#5bff45')
               .setTitle('')
@@ -236,8 +242,8 @@ module.exports = {
               embed.setFooter('')
               interaction.editReply({ embeds: [embed], components: [] });
 
-              svcSetCompanieInfo(interaction.user.id, company.company_id, 'name', novonome)
-              svcPlayerUtils.cooldown.set(interaction.user.id, "setname", 86400*2);
+              companyInfo.set(interaction.user.id, company.company_id, 'name', novonome)
+              playersService.cooldown.set(interaction.user.id, "setname", 86400*2);
 
           });
           
@@ -254,7 +260,7 @@ module.exports = {
 
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "seecompany", 0);
+        playersService.cooldown.set(interaction.user.id, "seecompany", 0);
   
       }
   };

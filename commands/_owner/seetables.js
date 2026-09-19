@@ -6,14 +6,13 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('tabela').setDescription('Selecione uma tabela para ver as colunas').setRequired(false))
 
 module.exports = {
-    requiredServices: [],
     name: 'seetables',
     aliases: ['vertables', 'seetabelas', 'seecolumns', 'vercolunas'],
     category: 'none',
     description: 'Liste as tabelas e colunas do banco de dados',
     data,
     perm: 5,
-	async execute(interaction, ) {
+	async execute(interaction) {
 
         let istring = "```js\n"
         let middle = ""

@@ -1,21 +1,27 @@
+const Discord = require('../../_classes/discordCompat');
+const companyService = require('../../_classes/services/company');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const clientService = require('../../_classes/services/clientService');
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","client","company","createButton","rowComponents"],
     name: 'setores',
     aliases: ['sectors'],
     category: 'Empresas',
     description: 'Visualiza os setores de empresas e os comandos de cada um',
     mastery: 30,
-	async execute(interaction, svcDiscord, svcClient, svcCompany, svcCreateButton, svcRowComponents) {
-        const embed = new svcDiscord.MessageEmbed()
+	async execute(interaction) {
+
+		
+        const embed = new Discord.MessageEmbed()
         function home() {
             embed.fields = []
             embed.setTitle('👨🏽‍🌾 | Setores de Empresas')
             embed.setDescription('')
-            for (i = 0; i < Object.keys(svcCompany.e).length; i++) {
-                const sector = svcCompany.e[Object.keys(svcCompany.e)[i]]
-                const name = Object.keys(svcCompany.e)[i]
+            for (i = 0; i < Object.keys(companyService.e).length; i++) {
+                const sector = companyService.e[Object.keys(companyService.e)[i]]
+                const name = Object.keys(companyService.e)[i]
                 if (sector.description) embed.addField(`**${sector.icon} ${name.charAt(0).toUpperCase() + name.slice(1)}**`, sector.description)
             }
         }
@@ -33,11 +39,11 @@ module.exports = {
 
             components = []
 
-            butnList.push(svcCreateButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
+            butnList.push(utility.createButton('home', 'PRIMARY', 'Início', '🏠', (current == "home" || allDisabled ? true : false)))
 
-            for (i = 0; i < Object.keys(svcCompany.e).length; i++) {
-                const sector = svcCompany.e[Object.keys(svcCompany.e)[i]]
-                if (sector.description) butnList.push(svcCreateButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'SUCCESS': 'SECONDARY'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
+            for (i = 0; i < Object.keys(companyService.e).length; i++) {
+                const sector = companyService.e[Object.keys(companyService.e)[i]]
+                if (sector.description) butnList.push(utility.createButton(sector.tipo+toString(), (current == sector.tipo+toString() ? 'SUCCESS': 'SECONDARY'), '', (sector.icon.split(':')[2] ? sector.icon.split(':')[2].replace('>', '') : sector.icon), (current == sector.tipo+toString() || allDisabled ? true : false)))
             }
 
             let totalcomponents = butnList.length % 5;
@@ -49,7 +55,7 @@ module.exports = {
             for (x = 0; x < totalcomponents; x++) {
                 const var1 = (x+1)*5-5
                 const var2 = ((x+1)*5)
-                const rowBtn = svcRowComponents(butnList.slice(var1, var2))
+                const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
                 if (rowBtn.components.length > 0) components.push(rowBtn)
 
             }
@@ -73,9 +79,9 @@ module.exports = {
 
                 const type = parseInt(current)
 
-				const cmdlist = svcClient.commands.filter((cmd) => cmd.companytype == type)
+				const cmdlist = clientService.current.commands.filter((cmd) => cmd.companytype == type)
             
-				embed.setTitle(`<:info:736274028515295262> Comandos de ${svcCompany.types[type]} ${svcCompany.e[svcCompany.types[type]].icon}`);
+				embed.setTitle(`<:info:736274028515295262> Comandos de ${companyService.types[type]} ${companyService.e[companyService.types[type]].icon}`);
                 embed.setColor("#03d7fc");
                 embed.setDescription(`${cmdlist.map((cmd) => `\`/${cmd.name}\` <:arrow:737370913204600853> ${cmd.description}${!cmd.aliases || cmd.aliases.length < 1 ? '': `\n › Alcunhas: [\`${cmd.aliases.slice(0, 5).map(a => a).join(', ')}\`]`}\n`).join('\n')}`);
 

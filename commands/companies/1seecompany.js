@@ -1,3 +1,9 @@
+const companyService = require('../../_classes/services/company');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const playersService = require('../../_classes/services/players');
+const clientService = require('../../_classes/services/clientService');
+const imagesService = require('../../_classes/services/images');
 
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
@@ -7,14 +13,13 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('empresa').setDescription('Digite o código da empresa para ver as informações dela').setRequired(false))
 
 module.exports = {
-    requiredServices: ["client","company","img","playerUtils","sendError"],
 	name: 'verempresa',
 	aliases: ['empresa', 'seecompany', 'veremp', 'seecomp'],
     category: 'Empresas',
     description: 'Visualiza as informações da empresa onde você presta serviço ou de alguma existente',
 	data,
     mastery: 60,
-	async execute(interaction, svcClient, svcCompany, svcImg, svcPlayerUtils, svcSendError) {
+	async execute(interaction) {
 		
 		let member = interaction.user
 
@@ -26,36 +31,36 @@ module.exports = {
 
 		if (códigoempresa == null) {
 
-			const hasCompany = await svcCompany.check.hasCompany(member.id)
-			const isWorker = await svcCompany.check.isWorker(member.id)
+			const hasCompany = await companyService.check.hasCompany(member.id)
+			const isWorker = await companyService.check.isWorker(member.id)
 
 			if (!hasCompany && !isWorker) {
-				const embedtemp = await svcSendError(interaction, `Você deve especificar o código da empresa para visualizar!\nPesquise empresas utilizando \`/empresas\``)
+				const embedtemp = await utility.sendError(interaction, `Você deve especificar o código da empresa para visualizar!\nPesquise empresas utilizando \`/empresas\``)
             	await interaction.reply({ embeds: [embedtemp]})
 				return;
 			}
 
 			if (hasCompany) {
-				company = await svcCompany.get.companyByOwnerId(member.id)
+				company = await companyService.get.companyByOwnerId(member.id)
 			} 
 			if (isWorker) {
-				company = await svcCompany.get.companyById(playerobj.company);
+				company = await companyService.get.companyById(playerobj.company);
 			}
 
 		} else {
-			company = await svcCompany.get.companyById(códigoempresa)
+			company = await companyService.get.companyById(códigoempresa)
 		}
 
-		const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "seecompany");
+		const check = await playersService.cooldown.check(interaction.user.id, "seecompany");
         if (check) {
-            svcPlayerUtils.cooldown.message(interaction, 'seecompany', 'visualizar uma empresa')
+            playersService.cooldown.message(interaction, 'seecompany', 'visualizar uma empresa')
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "seecompany", 0);
+        playersService.cooldown.set(interaction.user.id, "seecompany", 0);
 		
 		if (!company){
-			const embedtemp = await svcSendError('Houve um erro ao tentar carregar informações da empresa desse membro!')
+			const embedtemp = await utility.sendError('Houve um erro ao tentar carregar informações da empresa desse membro!')
             await interaction.reply({ embeds: [embedtemp]})
 			return
 		}
@@ -73,11 +78,11 @@ module.exports = {
 			rend = rends.join(',')
 			if (rends.length == 1) rend = '0,' + rend
 		}
-		const owner = await svcClient.users.fetch(company.user_id)
+		const owner = await clientService.current.users.fetch(company.user_id)
 		const username = owner.username
 		const bglink = company.bglink
 		const logo = company.logo
-		const hasVacancies = await svcCompany.check.hasVacanciesByCompany(company);
+		const hasVacancies = await companyService.check.hasVacanciesByCompany(company);
 		const type = company.type
 		const name = company.name
 		const score = company.score
@@ -87,7 +92,7 @@ module.exports = {
 		const taxa = company.taxa
 		const company_id = company.company_id
 
-		const companyimage = await svcImg.imagegens.get('seecompany.js')(dependencies, {
+		const companyimage = await imagesService.imagegens.get('seecompany.js')({
 			username,
 			rend,
 			rends,

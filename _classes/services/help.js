@@ -1,29 +1,25 @@
-module.exports = function createModule(dependencies) {
-    const { db } = dependencies;
-const DatabaseManager = db;
-const helpExtension = {
+class HelpService {
+    constructor() {
+        this.category = [];
+    }
 
-    category: []
+    getCategoryList() {
+        return '**' + this.category.join(', ').replace(/, /g, "**, **").toUpperCase() + '**';
+    }
 
-};
+    getCategoryListObj() {
+        return this.category;
+    }
 
-helpExtension.getCategoryList = function() {
-    return '**' + this.category.join(', ').replace(/, /g, "**, **").toUpperCase() + '**'
+    categoryExists(category) {
+        return this.category.includes(category);
+    }
+
+    addCommand(command) {
+        if (command.category !== 'none' && !this.category.includes(command.category)) {
+            this.category.push(command.category);
+        }
+    }
 }
 
-helpExtension.getCategoryListObj = function() {
-    return this.category
-}
-
-helpExtension.categoryExists = function(cat) {
-    return this.category.includes(cat);
-}
-
-helpExtension.addCommand = async function(command) {
-  if (command.category != 'none' && !(this.category.includes(command.category))) {
-    this.category.push(command.category)
-  }
-}
-
-return helpExtension;
-};
+module.exports = new HelpService();

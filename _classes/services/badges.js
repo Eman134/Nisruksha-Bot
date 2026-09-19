@@ -1,40 +1,40 @@
-module.exports = function createModule(dependencies) {
-    const { db } = dependencies;
-const DatabaseManager = db;
+const DatabaseManager = require('../manager/DatabaseManager');
 const { readFileSync } = require('fs');
 
-const badges = {
-    json: []
-}
+class BadgesService {
+    constructor() {
+        this.database = new DatabaseManager();
+        this.json = [];
+    }
 
-badges.add = async function (user_id, id) {
-    badges.load()
-    const obj = await DatabaseManager.get(user_id, "players")
-    const temphas = await badges.has(user_id, id)
+async add(user_id, id) {
+    this.load();
+    const obj = await this.database.get(user_id, "players")
+    const temphas = await this.has(user_id, id)
     if (temphas) return "Já possui " + id
     let tempbadges = (obj.badges == null ? [] : obj.badges)
     tempbadges.push(id + '')
-    DatabaseManager.set(user_id, "players", "badges", tempbadges)
+    await this.database.set(user_id, "players", "badges", tempbadges)
     return "Added " + id
 }
 
-badges.remove = async function (user_id, id) {
-    badges.load()
-    const obj = await DatabaseManager.get(user_id, "players")
-    const temphas = await badges.has(user_id, id)
+async remove(user_id, id) {
+    this.load()
+    const obj = await this.database.get(user_id, "players")
+    const temphas = await this.has(user_id, id)
     if (!temphas) return "Don't have"
     let tempbadges = (obj.badges == null ? [] : obj.badges)
     const index = tempbadges.indexOf(id  + '');
     if (index > -1) {
         tempbadges.splice(index, 1);
     }
-    DatabaseManager.set(user_id, "players", "badges", tempbadges)
+    await this.database.set(user_id, "players", "badges", tempbadges)
     return "Removed " + id
 }
 
-badges.has = async function (user_id, id) {
-    badges.load()
-    const obj = await DatabaseManager.get(user_id, "players")
+async has(user_id, id) {
+    this.load()
+    const obj = await this.database.get(user_id, "players")
     let has = false
     if (obj.badges != null) {
         if (obj.badges.includes(id) || obj.badges.includes(id + '')) has = true
@@ -42,19 +42,19 @@ badges.has = async function (user_id, id) {
     return has
 }
 
-badges.get = function (id) {
-    badges.load()
-    const tempbadge = badges.json.find((item) => item.id == id)
+get(id) {
+    this.load()
+    const tempbadge = this.json.find((item) => item.id == id)
     return tempbadge
 }
 
-badges.load = function () {
-    if (badges.json.length == 0) {
+load() {
+    if (this.json.length == 0) {
         const jsonF = readFileSync('./_json/social/badges.json', 'utf8')
         const cm = JSON.parse(jsonF);
-        badges.json = cm
+        this.json = cm
     }
 }
+}
 
-return badges;
-};
+module.exports = new BadgesService();

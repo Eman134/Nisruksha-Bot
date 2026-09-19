@@ -1,3 +1,12 @@
+const machinesService = require('../../_classes/services/machines');
+const Discord = require('../../_classes/discordCompat');
+const cacheListsService = require('../../_classes/services/cacheLists');
+const shopService = require('../../_classes/services/shop');
+const playersService = require('../../_classes/services/players');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const itemsService = require('../../_classes/services/items');
 const Database = require('../../_classes/manager/DatabaseManager');
 const { reportError } = require('../../_classes/debug');
 const { ContainerBuilder, TextDisplayBuilder, ActionRowBuilder } = require('@discordjs/builders');
@@ -12,32 +21,31 @@ function buildMiningStatusContainer(message) {
 }
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","createButton","eco","format","itemExtension","maqExtension","money","ms","playerUtils","random","shopExtension"],
     name: 'minerar',
     aliases: ['m', 'mine'],
     category: 'Maquinas',
     description: 'Inicia sua máquina e cava as profundezas encontrando minérios sob a energia solar',
     mastery: 25,
-	async execute(interaction, svcDiscord, svcCacheLists, svcCreateButton, svcEco, svcFormat, svcItemExtension, svcMaqExtension, svcMoney, svcMs, svcPlayerUtils, svcRandom, svcShopExtension) {
+	async execute(interaction) {
         
         const member = interaction.user
         await interaction.deferReply();
 
-        const isFull = await svcMaqExtension.storage.isFull(member.id);
-        const hasMachine = await svcMaqExtension.has(member.id);
+        const isFull = await machinesService.storage.isFull(member.id);
+        const hasMachine = await machinesService.has(member.id);
 
         if (!(hasMachine)) {
             await interaction.editReply({
                 components: [buildMiningStatusContainer('Você ainda não possui uma máquina!\nAcesse `/loja maquinas` para visualizar as maquinas disponíveis')],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
 
-        if (await svcCacheLists.waiting.includes(member.id, 'mining')) {
+        if (await cacheListsService.waiting.includes(member.id, 'mining')) {
             await interaction.editReply({
-                components: [buildMiningStatusContainer(`Você já encontra-se minerando no momento! [[VER MINERACAO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})`)],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                components: [buildMiningStatusContainer(`Você já encontra-se minerando no momento! [[VER MINERACAO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})`)],
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
@@ -45,7 +53,7 @@ module.exports = {
 		if (isFull) {
             await interaction.editReply({
                 components: [buildMiningStatusContainer('Seu armazém está lotado, esvazie seu inventário para minerar novamente!\nUtilize `/armazém` para visualizar seus recursos\nUtilize `/vender` para vender os recursos')],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
@@ -53,60 +61,60 @@ module.exports = {
         let playerobj = await DatabaseManager.get(member.id, 'machines');
         let maqid = playerobj.machine;
 
-        let maq = svcShopExtension.getProduct(maqid);
+        let maq = shopService.getProduct(maqid);
         if (!maq) throw new Error(`Machine product not found: ${maqid}`);
 
         if (playerobj.durability <= Math.round(5*maq.durability/100)) {
             await interaction.editReply({
                 components: [buildMiningStatusContainer('Sua máquina não possui durabilidade o suficiente para minerar!\nUtilize `/maquina` para reparar a sua máquina.')],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
 
-        const { energia, energiamax, time } = await svcMaqExtension.getEnergy(interaction.user.id)
+        const { energia, energiamax, time } = await machinesService.getEnergy(interaction.user.id)
 
         if (energia < Math.round(15*energiamax/100)) {
             await interaction.editReply({
                 components: [buildMiningStatusContainer(`Sua máquina precisa de no mínimo ${Math.round(15*energiamax/100)} de energia para ligar\nVisualize a energia utilizando \`/maquina\``)],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
 
-        const check = await svcPlayerUtils.cooldown.check(member.id, "mine");
+        const check = await playersService.cooldown.check(member.id, "mine");
         if (check) {
-            const cooldown = await svcPlayerUtils.cooldown.get(member.id, 'mine');
+            const cooldown = await playersService.cooldown.get(member.id, 'mine');
             await interaction.editReply({
-                components: [buildMiningStatusContainer(`Aguarde mais ${svcMs(cooldown)} para executar um comando de mineracao.`)],
-                flags: svcDiscord.MessageFlags.IsComponentsV2
+                components: [buildMiningStatusContainer(`Aguarde mais ${utility.ms(cooldown)} para executar um comando de mineracao.`)],
+                flags: Discord.MessageFlags.IsComponentsV2
             });
             return;
         }
 
-        svcPlayerUtils.cooldown.set(member.id, "mine", 15);
+        playersService.cooldown.set(member.id, "mine", 15);
 
         if (energia >= energiamax) {
-            await svcCacheLists.waiting.remove(member.id, 'mining')
+            await cacheListsService.waiting.remove(member.id, 'mining')
         }
 
         let init = Date.now();
         let obj6 = await DatabaseManager.get(member.id, "machines");
 
-        let timeupdate = svcMaqExtension.update*1000
+        let timeupdate = machinesService.update*1000
 
         const array = obj6.slots == null ? [] : obj6.slots
         for (const i of array){
             const chipId = typeof i === 'object' ? i.id : i;
-            const chipproduct = svcShopExtension.getProduct(chipId);
+            const chipproduct = shopService.getProduct(chipId);
             if (chipproduct?.typeeffect == 4) {
             timeupdate -= Math.round(chipproduct.sizeeffect*1000)
             };
         }
 
-        let btn = svcCreateButton('stopBtn', 'DANGER', 'Parar mineracao')
+        let btn = utility.createButton('stopBtn', 'DANGER', 'Parar mineracao')
 
-        await svcCacheLists.waiting.add(member.id, interaction, 'mining');
+        await cacheListsService.waiting.add(member.id, interaction, 'mining');
 
         let embedinteraction
 
@@ -152,7 +160,7 @@ module.exports = {
 
         function checkChipe7() {
             if (haschipe7) {
-                svcEco.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${svcFormat(hastotalchipe7)} ${svcMoney}`)
+                economyService.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${utility.format(hastotalchipe7)} ${utility.money}`)
             }
         }
 
@@ -160,27 +168,27 @@ module.exports = {
 
             try{
 
-                let profundidade = await svcMaqExtension.getDepth(member.id)
+                let profundidade = await machinesService.getDepth(member.id)
 
-                await svcItemExtension.removeChipsDurability(member.id, svcRandom(1, 10))
+                await itemsService.removeChipsDurability(member.id, utility.random(1, 10))
 
                 let playerobj = await DatabaseManager.get(member.id, 'machines');
                 let maqid = playerobj.machine;
-                let maq = svcShopExtension.getProduct(maqid);
+                let maq = shopService.getProduct(maqid);
 
-                const obj2 = await svcMaqExtension.ores.gen(maq, profundidade, playerobj.slots == null ? [] : playerobj.slots);
+                const obj2 = await machinesService.ores.gen(maq, profundidade, playerobj.slots == null ? [] : playerobj.slots);
 
                 const oreDetails = new Map();
                 let round = 0;
-                let xp = svcRandom(20, 40);
-                xp = await svcPlayerUtils.execExp(interaction, xp);
-                await svcMaqExtension.removeEnergy(member.id, 1);
+                let xp = utility.random(20, 40);
+                xp = await playersService.execExp(interaction, xp);
+                await machinesService.removeEnergy(member.id, 1);
                 
                 async function setMaintenance() {
                     
-                    const value = svcRandom(1, 16) * (maq.tier+1);
+                    const value = utility.random(1, 16) * (maq.tier+1);
                     
-                    var { durability, pressure, refrigeration } = await svcMaqExtension.getMaintenance(member.id, true)
+                    var { durability, pressure, refrigeration } = await machinesService.getMaintenance(member.id, true)
                     var [ user_durability, durabilityMax, durabilityPercent ] = durability
                     var [ user_pressure, pressureMax, pressurePercent ] = pressure
                     var [ user_refrigeration, refrigerationMax, refrigerationPercent ] = refrigeration
@@ -195,7 +203,7 @@ module.exports = {
                         await DatabaseManager.set(member.id, 'machines', "refrigeration", refrigerationMax)
                     }
 
-                    var { durability, pressure, refrigeration } = await svcMaqExtension.getMaintenance(member.id)
+                    var { durability, pressure, refrigeration } = await machinesService.getMaintenance(member.id)
                     var [ user_durability, _, durabilityPercent ] = durability
                     var [ user_pressure, pressureMax, pressurePercent ] = pressure
                     var [ user_refrigeration, refrigerationMax, refrigerationPercent ] = refrigeration
@@ -211,7 +219,7 @@ module.exports = {
                                 let fvalue = value
                                 for (const i of array){
                                     const chipId = typeof i === 'object' ? i.id : i;
-                                    const chipproduct = svcShopExtension.getProduct(chipId);
+                                    const chipproduct = shopService.getProduct(chipId);
                                     if (chipproduct?.typeeffect == 3) {
                                         fvalue -= Math.round(chipproduct.sizeeffect*fvalue/100)
                                     };
@@ -228,13 +236,13 @@ module.exports = {
                         const name = "pressure"
                         try {
                             if (refrigerationPercent <= 40) {
-                                if (svcRandom(0, 100) < svcRandom(40, 70)) {
+                                if (utility.random(0, 100) < utility.random(40, 70)) {
                                     await DatabaseManager.increment(member.id, 'machines', name, value*6)
                                 } else {
                                     await DatabaseManager.increment(member.id, 'machines', name, -value*2)
                                 }
                             } if (refrigerationPercent > 40) {
-                                if (svcRandom(0, 100) < svcRandom(40, 70)) {
+                                if (utility.random(0, 100) < utility.random(40, 70)) {
                                     await DatabaseManager.increment(member.id, 'machines', name, -value*2)
                                 } else {
                                     await DatabaseManager.increment(member.id, 'machines', name, value)
@@ -249,13 +257,13 @@ module.exports = {
                         const name = "pollutants"
                         try {
                             if (pressurePercent > 60) {
-                                if (svcRandom(0, 100) < svcRandom(40, 80)) {
+                                if (utility.random(0, 100) < utility.random(40, 80)) {
                                     await DatabaseManager.increment(member.id, 'machines', name, value*5)
                                 } else {
                                     await DatabaseManager.increment(member.id, 'machines', name, Math.round(value*2))
                                 }
                             } else {
-                                if (svcRandom(0, 100) < svcRandom(40, 80)) {
+                                if (utility.random(0, 100) < utility.random(40, 80)) {
                                     await DatabaseManager.increment(member.id, 'machines', name, value*2)
                                 } else {
                                     await DatabaseManager.increment(member.id, 'machines', name, Math.round(value))
@@ -291,10 +299,10 @@ module.exports = {
 
                     let size = ore.size;
 
-                    let arMax = await svcMaqExtension.storage.getMax(member.id);
+                    let arMax = await machinesService.storage.getMax(member.id);
 
-                    if (await svcMaqExtension.storage.getSize(member.id)+size >= arMax) {
-                        size -= (await svcMaqExtension.storage.getSize(member.id)+size-arMax)
+                    if (await machinesService.storage.getSize(member.id)+size >= arMax) {
+                        size -= (await machinesService.storage.getSize(member.id)+size-arMax)
                     }
                     const details = oreDetails.get(ore.name) || {
                         name: ore.name.charAt(0).toUpperCase() + ore.name.slice(1),
@@ -304,38 +312,38 @@ module.exports = {
                     details.amount += size;
                     for (const chipId of Object.keys(r.orechips || {})) details.chips.add(chipId.toUpperCase());
                     oreDetails.set(ore.name, details);
-                    svcItemExtension.add(member.id, ore.name, size)
+                    itemsService.add(member.id, ore.name, size)
                     round += size;
 
                     if (r.orechips && r.orechips.chipe7) {
-                        const minerioatual = svcItemExtension.getObj().minerios.find((i) => i.name == ore.name)
+                        const minerioatual = itemsService.getObj().minerios.find((i) => i.name == ore.name)
                         const totalchipe7 = Math.round(size * (minerioatual?.price?.max || 0))
                         hastotalchipe7 += totalchipe7
                         haschipe7 = true
-                        svcEco.svcMoney.add(member.id, totalchipe7)
+                        economyService.money.add(member.id, totalchipe7)
                     }
 
-                    if (await svcMaqExtension.storage.getSize(member.id)+size >= arMax) break;
+                    if (await machinesService.storage.getSize(member.id)+size >= arMax) break;
                     
                 }
                 
-                let armazemmax2 = await svcMaqExtension.storage.getMax(member.id);
-                const ep = await svcItemExtension.getEquippedChips(member.id);
+                let armazemmax2 = await machinesService.storage.getMax(member.id);
+                const ep = await itemsService.getEquippedChips(member.id);
 
-                const { energia, energiamax } = await svcMaqExtension.getEnergy(member.id)
+                const { energia, energiamax } = await machinesService.getEnergy(member.id)
                 
-                var { durability, pressure, pollutants, refrigeration } = await svcMaqExtension.getMaintenance(member.id, true)
+                var { durability, pressure, pollutants, refrigeration } = await machinesService.getMaintenance(member.id, true)
                 var [ _, _, durabilityPercent ] = durability
                 var [ _, _, pressurePercent ] = pressure
                 var [ _, _, pollutantsPercent ] = pollutants
                 var [ _, _, refrigerationPercent ] = refrigeration
 
                 const obj6 = await DatabaseManager.get(member.id, "machines");
-                const arsize = await svcMaqExtension.storage.getSize(member.id);
+                const arsize = await machinesService.storage.getSize(member.id);
                 const progress2 = buildProgress(energia + 1 < 0 ? 0 : energia + 1, energiamax);
                 const chipNames = ep == null || ep.length === 0
                     ? 'Nenhum instalado'
-                    : ep.map((i) => svcShopExtension.getProduct(i.id)?.name || `Chip ${i.id}`).join(', ');
+                    : ep.map((i) => shopService.getProduct(i.id)?.name || `Chip ${i.id}`).join(', ');
                 const oreList = [...oreDetails.values()].map((details) => ({
                     ...details,
                     chips: [...details.chips]
@@ -343,14 +351,14 @@ module.exports = {
                 const container = buildMiningContainer({
                     description: `## MINERACAO | ${maq.name}\nMinerador: ${member}`,
                     machine: `**Armazem**\nCapacidade: ${arsize}/${armazemmax2}g\nArmazenado: ${arsize}g\nColetado neste update: ${round}g\n\n**Maquina**\nChips: ${chipNames}\nProfundidade: ${profundidade}m\nDurabilidade: ${durabilityPercent}%\nPressao: ${pressurePercent}%\nRefrigeracao: ${refrigerationPercent}%\nPoluentes: ${pollutantsPercent}%`,
-                    mining: `**Mineracao**\nNivel: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level * 1980} (${(100 * obj6.xp / (obj6.level * 1980)).toFixed(2)}%) (+${xp} XP)\nEnergia: ${progress2}\nAtualizacao: ${timeupdate / 1000}s\nTempo minerando: ${svcMs(Date.now() - init)}`,
+                    mining: `**Mineracao**\nNivel: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level * 1980} (${(100 * obj6.xp / (obj6.level * 1980)).toFixed(2)}%) (+${xp} XP)\nEnergia: ${progress2}\nAtualizacao: ${timeupdate / 1000}s\nTempo minerando: ${utility.ms(Date.now() - init)}`,
                     ores: buildOreText(oreList)
                 });
 
                 try{
-                    embedinteraction = await interaction.editReply({ components: [container], flags: svcDiscord.MessageFlags.IsComponentsV2 })
+                    embedinteraction = await interaction.editReply({ components: [container], flags: Discord.MessageFlags.IsComponentsV2 })
                 } catch (error) {
-                    await svcCacheLists.waiting.remove(member.id, 'mining')
+                    await cacheListsService.waiting.remove(member.id, 'mining')
                     throw reportError(error, 'command.minerar.initial_reply', { userId: member.id });
                 }
 
@@ -359,36 +367,36 @@ module.exports = {
                     let isStopping = false
                     let stoppingMessage = ""
                     
-                    var { durability, pressure, pollutants, refrigeration } = await svcMaqExtension.getMaintenance(member.id)
+                    var { durability, pressure, pollutants, refrigeration } = await machinesService.getMaintenance(member.id)
 
                     var [ _, _, durabilityPercent ] = durability
                     var [ _, _, pressurePercent ] = pressure
                     var [ _, _, pollutantsPercent ] = pollutants
                     var [ _, _, refrigerationPercent ] = refrigeration
 
-                    const storagesize = await svcMaqExtension.storage.getSize(member.id)
-                    const storagemax = await svcMaqExtension.storage.getMax(member.id);
+                    const storagesize = await machinesService.storage.getSize(member.id)
+                    const storagemax = await machinesService.storage.getMax(member.id);
 
                     async function checkMaintenance(name, percent) {
 
                         if (name == 'durability' && percent < 1) {
-                            stoppingMessage = `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui durabilidade para continuar minerando! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pressure' && percent < 20) {
-                            stoppingMessage = `Sua máquina não possui pressão para continuar minerando! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui pressão para continuar minerando! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pressure' && percent > 80) {
-                            stoppingMessage = `A pressão da sua máquina está em nível crítico para continuar minerando! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `A pressão da sua máquina está em nível crítico para continuar minerando! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'pollutants' && percent > 90) {
-                            stoppingMessage = `Sua máquina está com o máximo de poluentes armazenados! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina está com o máximo de poluentes armazenados! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         } else if (name == 'refrigeration' && percent < 15) {
-                            stoppingMessage = `Sua máquina não possui líquido de refrigeração suficiente para manter a pressão da máquina! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
+                            stoppingMessage = `Sua máquina não possui líquido de refrigeração suficiente para manter a pressão da máquina! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/maquina\` para reparar a sua máquina.`
                             isStopping = true
                             return { isStopping, stoppingMessage }
                         }
@@ -400,12 +408,12 @@ module.exports = {
                     await checkMaintenance('refrigeration', refrigerationPercent)
 
                     if (storagesize >= storagemax) {
-                        stoppingMessage = `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`
+                        stoppingMessage = `Seu armazém lotou enquanto você minerava! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nUtilize \`/armazém\` para visualizar seus recursos\nUtilize \`/vender\` para vender os recursos`
                         isStopping = true
                         return { isStopping, stoppingMessage }
                     }
                     if ((energia+1 < 0 ? 0 : energia+1) <= 0) {
-                        stoppingMessage = `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${await svcCacheLists.waiting.getLink(member.id, 'mining')})\nVisualize a energia utilizando \`/maquina\``
+                        stoppingMessage = `A energia de sua máquina esgotou! [[VER MINERAÇÃO]](${await cacheListsService.waiting.getLink(member.id, 'mining')})\nVisualize a energia utilizando \`/maquina\``
                         isStopping = true
                         return { isStopping, stoppingMessage }
                     }
@@ -417,12 +425,12 @@ module.exports = {
 
                 if (isStopping) {
                     if (haschipe7) {
-                        svcEco.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${svcFormat(hastotalchipe7)} ${svcMoney}`)
+                        economyService.addToHistory(interaction.user.id, `Venda CHIP 7 | + ${utility.format(hastotalchipe7)} ${utility.money}`)
                     }
-                    await svcCacheLists.waiting.remove(member.id, 'mining')
+                    await cacheListsService.waiting.remove(member.id, 'mining')
                     await interaction.editReply({
                         components: [buildMiningStatusContainer(stoppingMessage)],
-                        flags: svcDiscord.MessageFlags.IsComponentsV2
+                        flags: Discord.MessageFlags.IsComponentsV2
                     })
                     return
                 }
@@ -438,10 +446,10 @@ module.exports = {
                     if (b.customId == 'stopBtn') {
                         if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.minerar.defer_update'); });
                         stopped = true
-                    await svcCacheLists.waiting.remove(member.id, 'mining')
+                    await cacheListsService.waiting.remove(member.id, 'mining')
                         await interaction.editReply({
                             components: [buildMiningStatusContainer('Você parou o funcionamento da sua máquina!')],
-                            flags: svcDiscord.MessageFlags.IsComponentsV2
+                            flags: Discord.MessageFlags.IsComponentsV2
                         })
                         collector.stop();
                     }
@@ -450,25 +458,25 @@ module.exports = {
                 collector.on('end', async collected => {
                     if (stopped) {
                         checkChipe7()
-                        await svcCacheLists.waiting.remove(member.id, 'mining');
+                        await cacheListsService.waiting.remove(member.id, 'mining');
                     } else {
                         edit().catch(async (error) => {
                             reportError(error, 'command.minerar.collector', { userId: member.id });
-                            await svcCacheLists.waiting.remove(member.id, 'mining');
+                            await cacheListsService.waiting.remove(member.id, 'mining');
                         });
                     }
                 });
 
             } catch (error) {
                 checkChipe7()
-                await svcCacheLists.waiting.remove(member.id, 'mining');
+                await cacheListsService.waiting.remove(member.id, 'mining');
                 throw reportError(error, 'command.minerar.progress', { userId: member.id });
             }
         }
         try {
             await edit();
         } catch (error) {
-            await svcCacheLists.waiting.remove(member.id, 'mining');
+            await cacheListsService.waiting.remove(member.id, 'mining');
             throw reportError(error, 'command.minerar', { userId: member.id });
         }
 	}

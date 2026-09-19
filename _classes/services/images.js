@@ -1,7 +1,12 @@
-module.exports = function createModule(dependencies) {
-    const { Discord, cacheLists, client, db } = dependencies;
-const DatabaseManager = db;
-const img = {};
+const Discord = require('../discordCompat');
+const DatabaseManager = require('../manager/DatabaseManager');
+const cacheLists = require('./cacheLists');
+const clientService = require('./clientService');
+const configuredDatabase = new DatabaseManager();
+class ImagesService {
+constructor() {
+const db = configuredDatabase;
+const img = this;
 const fs = require('fs');
 const path = require('path');
 const fetch = require('node-fetch');
@@ -451,7 +456,7 @@ img.sendImage = async function (channel, image, interactionidreference, text) {
         return await channel.send(text ? { content: text, files: [attachment] } : { files: [attachment] });
     } catch (error) {
         await channel.send({ content: 'Um erro ocorreu ao tentar enviar a imagem!' });
-        client.emit('error', error);
+        clientService.current?.emit('error', error);
     }
 };
 
@@ -558,9 +563,14 @@ ImageComposer.prototype.createLinearGradient = function (...args) {
 img.imagegens = new Discord.Collection(undefined, undefined);
 fs.readdir(path.resolve(__dirname, '../packages/imagegens/'), (error, files) => {
     if (error) return reportError(error, 'images.generators_load');
-    files.filter(file => file.endsWith('.js')).forEach(file => img.imagegens.set(file, require(`../packages/imagegens/${file}`)));
+    files.filter(file => file.endsWith('.js')).forEach(file => {
+        const generator = require(`../packages/imagegens/${file}`);
+        img.imagegens.set(file, (options) => generator({ Discord, cacheLists, client: clientService.current, db }, options));
+    });
 });
 console.log('[GENIMAGES] Carregados'.green);
 
-return img;
-};
+}
+}
+
+module.exports = new ImagesService();

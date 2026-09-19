@@ -1,3 +1,11 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const companyService = require('../../_classes/services/company');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const clientService = require('../../_classes/services/clientService');
+const config = require('../../_classes/config');
+const companyInfo = require('../../_classes/services/companyInfo');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
@@ -20,18 +28,19 @@ const data = new SlashCommandBuilder()
         .addIntegerOption(option => option.setName('id-currículo').setDescription('Digite o id do currículo para aceitar ou negar').setRequired(true)))
 
 module.exports = {
-    requiredServices: ["Discord","client","company","isInt","ms","owner","sendError","setCompanieInfo"],
     name: 'currículos',
     aliases: ['curriculos', 'curr', 'vercurri', 'curriculo', 'currículo'],
     category: 'Empresas',
     description: 'Visualiza os currículos pendentes da sua empresa',
     data,
     mastery: 50,
-	async execute(interaction, svcDiscord, svcClient, svcCompany, svcIsInt, svcMs, svcOwner, svcSendError, svcSetCompanieInfo) {        
-        const embed = new svcDiscord.MessageEmbed().setColor(`#fc7b03`)
+	async execute(interaction) {
+
+                
+        const embed = new Discord.MessageEmbed().setColor(`#fc7b03`)
         
-        if (!(await svcCompany.check.hasCompany(interaction.user.id))) {
-            const embedtemp = await svcSendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
+        if (!(await companyService.check.hasCompany(interaction.user.id))) {
+            const embedtemp = await utility.sendError(interaction, `Você deve possuir uma empresa para realizar esta ação!\nPara criar sua própria empresa utilize \`/abrirempresa <setor> <nome>\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -39,32 +48,32 @@ module.exports = {
         const subCmd = interaction.options.getSubcommand()
         const value = interaction.options.getInteger('id-currículo')
         
-        let company = await svcCompany.get.companyByOwnerId(interaction.user.id)
+        let company = await companyService.get.companyByOwnerId(interaction.user.id)
         
         let array = [];
         if (company.curriculum != null) array = company.curriculum;
         
-        embed.setTitle(`${svcCompany.e[svcCompany.types[company.type]].icon} ${company.name}`)
-        let botowner = await svcClient.users.fetch(svcOwner[0])
+        embed.setTitle(`${companyService.e[companyService.types[company.type]].icon} ${company.name}`)
+        let botowner = await clientService.current.users.fetch(config.owner[0])
         if (subCmd == 'aceitar') {
             
             if (array[value-1] == undefined || array[value-1] == null) {
-                const embedtemp = await svcSendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr aceitar <Nº do currículo>`)
+                const embedtemp = await utility.sendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr aceitar <Nº do currículo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
             let index = array[value-1];
-            let usr = await svcClient.users.fetch(index.split(";")[0]);
+            let usr = await clientService.current.users.fetch(index.split(";")[0]);
             
-            let xy = await svcCompany.check.hasCompany(usr.id)
-            let xx = await svcCompany.check.isWorker(usr.id)
-            let vac = await svcCompany.check.hasVacancies(company.company_id)
+            let xy = await companyService.check.hasCompany(usr.id)
+            let xx = await companyService.check.isWorker(usr.id)
+            let vac = await companyService.check.hasVacancies(company.company_id)
 
             array.splice(value-1, 1)
 
             if (xy || xx) {
-                await svcSetCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
+                await companyInfo.set(interaction.user.id, company.company_id, 'curriculum', array)
                 embed.setColor('#a60000');
                 embed.addField('❌ Houve uma falha no contrato', `Este membro já possui uma empresa ou trabalha em uma!`)
                 await interaction.reply({ embeds: [embed] })
@@ -96,8 +105,8 @@ module.exports = {
             let workers = company.workers == null ? [] : company.workers
             workers.push(usr.id)
 
-            await svcSetCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
-            await svcSetCompanieInfo(interaction.user.id, company.company_id, 'workers', workers)
+            await companyInfo.set(interaction.user.id, company.company_id, 'curriculum', array)
+            await companyInfo.set(interaction.user.id, company.company_id, 'workers', workers)
 
             DatabaseManager.set(usr.id, 'players', 'company', company.company_id)
             return;
@@ -105,25 +114,25 @@ module.exports = {
         } else if (subCmd == 'negar') {
             
             if (args.length < 2) {
-                const embedtemp = await svcSendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+                const embedtemp = await utility.sendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
-            if (svcIsInt(args[1]) == false) {
-                const embedtemp = await svcSendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+            if (utility.isInt(args[1]) == false) {
+                const embedtemp = await utility.sendError(interaction, `Você digitou o comando de forma incorreta!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
             if (array[value-1] == undefined || array[value-1] == null) {
-                const embedtemp = await svcSendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
+                const embedtemp = await utility.sendError(interaction, `Este número de currículo é inexistente!\nVocê pode visualizar o Nº do currículo em \`/curr lista\``, `curr negar <Nº do currículo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
             
             let index = array[value-1];
-            let usr = await svcClient.users.fetch(index.split(";")[0]);
+            let usr = await clientService.current.users.fetch(index.split(";")[0]);
             array.splice(value-1, 1)
             
             embed.setColor("#a60000")
@@ -141,7 +150,7 @@ module.exports = {
                 reportError(error, 'command.curriculos.rejection_notification', { userId: usr.id });
             }
 
-            await svcSetCompanieInfo(interaction.user.id, company.company_id, 'curriculum', array)
+            await companyInfo.set(interaction.user.id, company.company_id, 'curriculum', array)
             
             return;
         }
@@ -149,14 +158,14 @@ module.exports = {
         try {
             if (company.logo != null) embed.setThumbnail(company.logo)
         }catch (err){
-            svcClient.emit('error', err)
+            clientService.current.emit('error', err)
         }
         if (array.length > 0) {
             
             for (const r of array) {
-                let usr = await svcClient.users.fetch(r.split(";")[0])
+                let usr = await clientService.current.users.fetch(r.split(";")[0])
                 const pobjmaq = await DatabaseManager.get(usr.id, 'machines')
-                embed.addField(`📰 Nº ${array.indexOf(r)+1}`, `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${svcMs(Date.now()-parseInt(r.split(";")[1]), true)}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\``)
+                embed.addField(`📰 Nº ${array.indexOf(r)+1}`, `Enviado por: ${usr} 🡮 \`${usr.tag}\` 🡮 \`${usr.id}\`\nNível: ${pobjmaq.level}\nEnviou há: **${compactTime(Date.now()-parseInt(r.split(";")[1]))}**\n\`/curr <aceitar/negar> ${array.indexOf(r)+1}\``)
             }
 
             embed.setColor("#5bff45")

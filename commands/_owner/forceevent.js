@@ -1,38 +1,41 @@
+const townsService = require('../../_classes/services/towns');
+const eventsService = require('../../_classes/services/events');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('evento').setDescription('Evento')
-    .addChoice('CORRIDA', 'RACE')
-    .addChoice('TESOURO', 'TREASURE')
-    .addChoice('PATO', 'DUCK')
+    .addChoices(
+        { name: 'CORRIDA', value: 'RACE' },
+        { name: 'TESOURO', value: 'TREASURE' },
+        { name: 'PATO', value: 'DUCK' }
+    )
     .setRequired(true))
 .addBooleanOption(option => option.setName('vila-atual').setDescription('Se o tesouro será aleatório ou na sua vila atual').setRequired(false))
 
 module.exports = {
-    requiredServices: ["events","townExtension"],
     name: 'forçarevento',
     aliases: ['forcetreasure'],
     category: 'none',
     description: 'none',
     data,
     perm: 5,
-	async execute(interaction, svcEvents, svcTownExtension) {
+	async execute(interaction) {
 
         const loc = interaction.options.getBoolean('vila-atual')
         const evento = interaction.options.getString('evento')
         await interaction.reply({ content: `Evento ${evento} executado!`})
         if(loc){
-            var townnum = await svcTownExtension.getTownNum(interaction.user.id)
+            var townnum = await townsService.getTownNum(interaction.user.id)
         }
         const town = townnum == null ? undefined : townnum
         switch (evento) {
             case 'TREASURE':
-                svcEvents.forceTreasure(town)
+                eventsService.forceTreasure(town)
                 break;
             case 'RACE':
-                svcEvents.forceRace()
+                eventsService.forceRace()
                 break;
             case 'DUCK':
-                svcEvents.forceDuck(town)
+                eventsService.forceDuck(town)
                 break;
         }
 

@@ -1,14 +1,37 @@
-module.exports = function createModule(dependencies) {
-    const { Discord, cacheLists, client, clone, createButton, db, debug, eco, format, frames, itemExtension, maqExtension, money, money2, money2emoji, moneyemoji, random, rowComponents, sendError, tp } = dependencies;
-const DatabaseManager = db;
+const Discord = require('../discordCompat');
+const DatabaseManagerClass = require('../manager/DatabaseManager');
+const clientService = require('./clientService');
+const cacheLists = require('./cacheLists');
+const economyService = require('./economy');
+const frames = require('./frames');
+const itemExtension = require('./items');
+const maqExtension = require('./machines');
+const runtime = require('./runtime');
+const UtilityService = require('./utilityService');
+class ShopService {
+constructor() {
+const database = new DatabaseManagerClass();
+const utility = new UtilityService();
+const DatabaseManager = database;
+const clone = utility.clone.bind(utility);
+const createButton = utility.createButton.bind(utility);
+const debug = runtime.debug;
+const eco = economyService;
+const format = utility.format.bind(utility);
+const money = utility.money;
+const money2 = utility.money2;
+const money2emoji = utility.money2emoji;
+const moneyemoji = utility.moneyemoji;
+const random = utility.random.bind(utility);
+const rowComponents = utility.rowComponents.bind(utility);
+const sendError = utility.sendError.bind(utility);
+const tp = utility.tp;
 const { reportError } = require('../debug');
 
-const shopExtension = {
+const shopExtension = this;
 
-  obj: {},
-  obj2: {}
-
-};
+shopExtension.obj = {};
+shopExtension.obj2 = {};
 
 shopExtension.loadItens = async function() {
   const { readFileSync } = require('fs')
@@ -54,7 +77,7 @@ shopExtension.loadItens = async function() {
     bigobj["drops"] = list
       
   } catch (err) {
-      client.emit('error', err)
+      clientService.current?.emit('error', err)
   }
   itemExtension.obj = bigobj;
 
@@ -77,7 +100,7 @@ shopExtension.load = async function() {
       }
     } catch (err) {
         shopExtension.obj = '`Error on load shop list`';
-        client.emit('error', err)
+        clientService.current?.emit('error', err)
     }
 
     await itemExtension.loadToStorage(await this.loadItens())
@@ -194,7 +217,7 @@ shopExtension.getShopList = function() {
         return '`Error on load shop list`';
       }
     } catch (err) {
-        client.emit('error', err)
+        clientService.current?.emit('error', err)
         return '`Error on load shop list`';
         
     }
@@ -488,7 +511,7 @@ shopExtension.execute = async function(interaction, p) {
           .addField('<:channel:788949139390988288> Canal', `\`${interaction.channel.name} (${interaction.channel.id})\``)
           .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
           .setFooter(interaction.guild.name + " | " + interaction.guild.id, interaction.guild.iconURL())
-          client.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
+          clientService.current?.channels.cache.get('826177953796587530').send({ embeds: [embedcmd]});
     
     
     } if (b.customId == 'cancel'){
@@ -537,5 +560,7 @@ shopExtension.forceDiscount = async function() {
 
 }
 
-return shopExtension;
-};
+}
+}
+
+module.exports = new ShopService();

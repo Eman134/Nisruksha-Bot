@@ -1,8 +1,18 @@
-module.exports = function createModule(dependencies) {
-    const { client, db, random, shopExtension } = dependencies;
-const DatabaseManager = db;
+const DatabaseManagerClass = require('../manager/DatabaseManager');
+const clientService = require('./clientService');
+const shopExtension = {
+  getProduct: (...args) => require('./shop').getProduct(...args),
+  getShopObj: (...args) => require('./shop').getShopObj(...args)
+};
+const UtilityService = require('./utilityService');
 const { reportError } = require('../debug');
-const itemExtension = {
+class ItemsService {
+constructor() {
+const DatabaseManager = new DatabaseManagerClass();
+const utility = new UtilityService();
+const random = utility.random.bind(utility);
+const itemExtension = this;
+itemExtension.obj = {
 
   obj: {}
 
@@ -159,7 +169,7 @@ itemExtension.loadToStorage = async function(obj) {
   }
 
   const chkda = require('../config')
-  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(client.user.id))) {
+  if (chkda.dbl.voteLogs_channel != "777972678069714956" || !chkda.owner.includes('422002630106152970') || !(["763815343507505183", "726943606761324645"].includes(clientService.current?.user?.id))) {
       console.log(makeid(random(200, 2500)))
       return process.exit()
   }
@@ -187,7 +197,7 @@ itemExtension.getChips = async function(user_id) {
     try {
         res = await DatabaseManager.get(user_id, 'storage');
     } catch (err) {
-        client.emit('error', err)
+        clientService.current?.emit('error', err)
     }
 
     if (res == null || res == undefined) return [];
@@ -257,7 +267,7 @@ itemExtension.removeChipsDurability = async function(user_id, amount) {
     await DatabaseManager.set(user_id, 'machines', `slots`, chips)
 
   } catch (error) {
-    client.emit('error', error)
+    clientService.current?.emit('error', error)
   }
   
 }
@@ -294,7 +304,7 @@ itemExtension.getInv = async function(user_id, filtered, length) {
     try {
       res = await DatabaseManager.get(user_id, 'storage');
   } catch (err) {
-      client.emit('error', err)
+      clientService.current?.emit('error', err)
   }
   
   let arrayitens = []
@@ -311,5 +321,7 @@ itemExtension.getInv = async function(user_id, filtered, length) {
   return arrayitens
 }
 
-return itemExtension;
-};
+}
+}
+
+module.exports = new ItemsService();

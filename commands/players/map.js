@@ -1,34 +1,37 @@
+const playersService = require('../../_classes/services/players');
+const townsService = require('../../_classes/services/towns');
+const eventsService = require('../../_classes/services/events');
+const imagesService = require('../../_classes/services/images');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["events","img","playerUtils","townExtension"],
     name: 'mapa',
     aliases: ['map', 'local', 'loc', 'vilas'],
     category: 'Players',
     description: 'Visualiza o mapa do mundo, suas vilas e sua localização atual',
     mastery: 30,
-	async execute(interaction, svcEvents, svcImg, svcPlayerUtils, svcTownExtension) {
+	async execute(interaction) {
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "map");
+        const check = await playersService.cooldown.check(interaction.user.id, "map");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'map', 'visualizar o mapa')
+            playersService.cooldown.message(interaction, 'map', 'visualizar o mapa')
 
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "map", 15);
+        playersService.cooldown.set(interaction.user.id, "map", 15);
 
         await interaction.reply({ content: `<a:loading:736625632808796250> Carregando mapa` })
 
-        const townname = await svcTownExtension.getTownName(interaction.user.id);
-        const townnum = await svcTownExtension.getTownNumByName(townname);
-        const pos = await svcTownExtension.getTownPos(interaction.user.id);
+        const townname = await townsService.getTownName(interaction.user.id);
+        const townnum = await townsService.getTownNumByName(townname);
+        const pos = await townsService.getTownPos(interaction.user.id);
         const companies = await DatabaseManager.findMany('companies', { loc: townnum });
-        const hasTreasure = (svcEvents.treasure.loc != 0 && svcEvents.treasure.picked == false)
-        const hasDuck = (svcEvents.duck.loc != 0 && svcEvents.duck.killed == false)
-        let content = `Você se localiza na vila **${townname}**\nPopulação: **${svcTownExtension.population[townname]} pessoas**\nEmpresas: **${companies.length}**\nJogos disponíveis na sua vila: **${svcTownExtension.games[await svcTownExtension.getTownName(interaction.user.id)].join(', ')}**.`
+        const hasTreasure = (eventsService.treasure.loc != 0 && eventsService.treasure.picked == false)
+        const hasDuck = (eventsService.duck.loc != 0 && eventsService.duck.killed == false)
+        let content = `Você se localiza na vila **${townname}**\nPopulação: **${townsService.population[townname]} pessoas**\nEmpresas: **${companies.length}**\nJogos disponíveis na sua vila: **${townsService.games[await townsService.getTownName(interaction.user.id)].join(', ')}**.`
         
         if (hasTreasure) {
             content += "\n<:treasure:807671407160197141> Há um tesouro não explorado no mapa!\nPara pegá-lo utilize `/pegartesouro`"
@@ -37,7 +40,7 @@ module.exports = {
             content += "\n<:pato:919946658941399091> Há um pato dourado vivo no mapa!\nPara matá-lo utilize `/patodourado`"
         }
 
-        const mapimage = await svcImg.imagegens.get('map.js')(dependencies, {
+        const mapimage = await imagesService.imagegens.get('map.js')({
 
             pos,
             url: {
@@ -45,11 +48,11 @@ module.exports = {
             },
             treasure: {
                 has: hasTreasure,
-                pos: svcEvents.treasure.pos
+                pos: eventsService.treasure.pos
             },
             duck: {
                 has: hasDuck,
-                pos: svcEvents.duck.pos
+                pos: eventsService.duck.pos
             }
 
         })

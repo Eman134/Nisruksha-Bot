@@ -1,23 +1,26 @@
+const Discord = require('../../_classes/discordCompat');
+const config = require('../../_classes/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('código').setDescription('Digite o código a ser executado').setRequired(true))
 
 module.exports = {
-    requiredServices: ["Discord","ip","token"],
     name: 'eval',
     aliases: ['evaluate', 'ev'],
     category: 'none',
     description: 'Executa um código em javascript',
     data,
     perm: 5,
-	async execute(interaction, svcDiscord, svcIp, svcToken) {
+	async execute(interaction) {
+        
+        
         const { inspect } = require('util')
 
-        const embed = new svcDiscord.MessageEmbed().setFooter(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
+        const embed = new Discord.MessageEmbed().setFooter(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         
         const tempo = Date.now();
         const query = interaction.options.getString('código');
-        const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(svcToken, '*').replace(svcIp, '*')
+        const code = (lang, code) => (`\`\`\`${lang}\n${String(code).slice(0, 1000) + (code.length >= 1000 ? '...' : '')}\n\`\`\``).replace(config.app.token, '*').replace(config.ip, '*')
 
         try {
                 

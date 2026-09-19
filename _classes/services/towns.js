@@ -1,146 +1,74 @@
-module.exports = function createModule(dependencies) {
-    const { db, random } = dependencies;
-const DatabaseManager = db;
-const townExtension = {
+const DatabaseManager = require('../manager/DatabaseManager');
+const config = require('../config');
+const UtilityService = require('./utilityService');
 
-    population: {
-        'Nishigami': 0,
-        'Harotec': 0,
-        'Massibi': 0,
-        'Tyris': 0
-    },
-    games: {
-        'Nishigami': ['roleta', 'flip', 'luckycards'],
-        'Harotec': ['roleta', 'flip', 'luckycards'],
-        'Massibi': ['roleta', 'flip', 'blackjack'],
-        'Tyris': ['roleta', 'flip', 'blackjack']
+class TownsService {
+    constructor() {
+        this.database = new DatabaseManager();
+        const utility = new UtilityService();
+        this.random = utility.random.bind(utility);
+        this.population = { Nishigami: 0, Harotec: 0, Massibi: 0, Tyris: 0 };
+        this.games = {
+            Nishigami: ['roleta', 'flip', 'luckycards'],
+            Harotec: ['roleta', 'flip', 'luckycards'],
+            Massibi: ['roleta', 'flip', 'blackjack'],
+            Tyris: ['roleta', 'flip', 'blackjack']
+        };
+        this.loadPopulation();
     }
 
-};
-
-(async () => {
-    const array = await DatabaseManager.findMany('towns');
-
-    for (const r of array) {
-        if (!(r.user_id == undefined)) {
-            if (r.user_id != null) {
-                if (r.user_id != 0) {
-                    if (!(r.loc == 0)) {
-                        townExtension.population[townExtension.getTownNameByNum(r.loc)]++;
-                    }
-                }
-            }
+    async loadPopulation() {
+        const towns = await this.database.findMany('towns');
+        for (const town of towns) {
+            if (town.user_id && town.loc) this.population[this.getTownNameByNum(town.loc)]++;
         }
     }
 
-})();
-
-townExtension.getConfig = function() {
-    return config
-}
-
-townExtension.getTownNum = async function(user_id) {
-    const obj = await DatabaseManager.get(user_id, 'towns');
-    let r
-    if (obj.loc == 0) {
-        r = random(1, 4);
-        DatabaseManager.set(user_id, 'towns', 'loc', r)
-        townExtension.population[townExtension.getTownNameByNum(r)]++;
-    } else {
-        r = obj.loc;
+    getConfig() {
+        return config;
     }
 
-    return r;
-}
-
-townExtension.getPosByTownNum = async function(town) {
-    const obj = {}
-    switch (town) {
-        case 1:
-            obj.x = random(70, 130);
-            obj.y = random(15, 40);
-            break;
-        case 2:
-            obj.x = random(1580, 1650);
-            obj.y = random(60, 90);
-            break;
-        case 3:
-            obj.x = random(1100, 1150);
-            obj.y = random(1120, 1150);
-            break;
-        case 4:
-            obj.x = random(350, 400);
-            obj.y = random(840, 860)
-            break;
-    }
-    return obj;
-}
-
-townExtension.getTownPos = async function(user_id) {
-    const town = await townExtension.getTownNum(user_id);
-    const obj = await townExtension.getPosByTownNum(town)
-    return obj;
-}
-
-townExtension.getTownName = async function(user_id) {
-    const obj = await DatabaseManager.get(user_id, 'towns');
-    let r
-    if (obj.loc == 0) {
-        r = random(1, 4);
-        DatabaseManager.set(user_id, 'towns', 'loc', r)
-        townExtension.population[townExtension.getTownNameByNum(r)]++;
-    } else {
-        r = obj.loc;
+    async getTownNum(userId) {
+        const town = await this.database.get(userId, 'towns');
+        if (town.loc !== 0) return town.loc;
+        const location = this.random(1, 4);
+        await this.database.set(userId, 'towns', 'loc', location);
+        this.population[this.getTownNameByNum(location)]++;
+        return location;
     }
 
-    const name = {
-        1: 'Nishigami',
-        2: 'Harotec',
-        3: 'Massibi',
-        4: 'Tyris'
+    async getPosByTownNum(town) {
+        const positions = {
+            1: [70, 130, 15, 40],
+            2: [1580, 1650, 60, 90],
+            3: [1100, 1150, 1120, 1150],
+            4: [350, 400, 840, 860]
+        };
+        const [minX, maxX, minY, maxY] = positions[town] || [0, 0, 0, 0];
+        return { x: this.random(minX, maxX), y: this.random(minY, maxY) };
     }
-    return name[r];
-}
 
-townExtension.getTownTax = async function(user_id) {
-    const obj = await DatabaseManager.get(user_id, 'players');
-    if (obj.mvp != null || obj.mvp > 0) return 2
-    else return 5
-}
-
-townExtension.getTownNameByNum = function(r) {
-    const name = {
-        1: 'Nishigami',
-        2: 'Harotec',
-        3: 'Massibi',
-        4: 'Tyris'
+    async getTownPos(userId) {
+        return this.getPosByTownNum(await this.getTownNum(userId));
     }
-    return name[r];
-}
 
-townExtension.getTownNumByName = function(name) {
-
-    let id = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    let num;
-    switch (id) {
-        case 'nishigami':
-            num = 1;
-            break;
-        case 'harotec':
-            num = 2;
-            break;
-        case 'massibi':
-            num = 3;
-            break;
-        case 'tyris':
-            num = 4;
-            break;
-        default:
-            num = 0;
-            break;
+    async getTownName(userId) {
+        return this.getTownNameByNum(await this.getTownNum(userId));
     }
-    return num;
+
+    async getTownTax(userId) {
+        const player = await this.database.get(userId, 'players');
+        return player.mvp != null || player.mvp > 0 ? 2 : 5;
+    }
+
+    getTownNameByNum(number) {
+        return { 1: 'Nishigami', 2: 'Harotec', 3: 'Massibi', 4: 'Tyris' }[number];
+    }
+
+    getTownNumByName(name) {
+        const normalized = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        return { nishigami: 1, harotec: 2, massibi: 3, tyris: 4 }[normalized] || 0;
+    }
 }
 
-return townExtension;
-};
+module.exports = new TownsService();

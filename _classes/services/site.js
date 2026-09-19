@@ -1,11 +1,10 @@
-module.exports = function createModule(dependencies) {
-    const { Discord, client, db } = dependencies;
-const DatabaseManager = db;
-const siteExtension = {}
+const Discord = require('../discordCompat');
+const clientService = require('./clientService');
 
-siteExtension.log = async function (id, action) {
-
-    let member = await client.users.fetch(id)
+class SiteService {
+    async log(id, action) {
+    const client = clientService.current;
+    const member = await client.users.fetch(id)
 
     const embed = new Discord.MessageEmbed()
     embed.setTitle('<:info:736274028515295262> Informações de ação')
@@ -15,8 +14,7 @@ Ação executada: ${action}
     `).setColor('#5d7fc7')
 
     client.channels.cache.get('773223319603904522').send({ embeds: [embed]});
+    }
 }
 
-
-return siteExtension;
-};
+module.exports = new SiteService();

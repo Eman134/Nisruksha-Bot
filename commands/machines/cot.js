@@ -1,3 +1,11 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const machinesService = require('../../_classes/services/machines');
+const eventsService = require('../../_classes/services/events');
+const itemsService = require('../../_classes/services/items');
+const imagesService = require('../../_classes/services/images');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 
@@ -19,28 +27,29 @@ const options = (option) => {
 data.addStringOption(options)
 
 module.exports = {
-    requiredServices: ["Discord","events","img","itemExtension","maqExtension","money","moneyemoji","ms","sendError"],
     name: 'cotação',
     aliases: ['price', 'cotas', 'cot'],
     category: 'Maquinas',
     description: 'Veja a cotação atual de cada unidade para venda',
     data,
     mastery: 15,
-	async execute(interaction, svcDiscord, svcEvents, svcImg, svcItemExtension, svcMaqExtension, svcMoney, svcMoneyemoji, svcMs, svcSendError) {
+	async execute(interaction) {
+
+        
         const minério = interaction.options.getString('minério');
     
         if (minério == null) {
         
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             .setColor('#32a893')
             .setTitle('📈 Cotação atual dos minérios')
-            .setDescription(`${minérios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${svcMoney}\` ${svcMoneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
+            .setDescription(`${minérios.map(m => `${m.icon} 1g de ${m.name.charAt(0).toUpperCase() + m.name.slice(1)} <:arrow:737370913204600853> \`${m.price.atual} ${utility.money}\` ${utility.moneyemoji} ${m.price.ultimoupdate !== '' ? m.price.ultimoupdate : ''}`).join('\n')}`)
             let footer = ""
-            if (svcMaqExtension.lastcot !== '') {
-            footer += ('Última atualização em ' + svcMaqExtension.lastcot)
+            if (machinesService.lastcot !== '') {
+            footer += ('Última atualização em ' + machinesService.lastcot)
             }
-            if (svcMaqExtension.proxcot !== 0) {
-                footer += ('\nPróxima atualização em ' + svcMs(svcMaqExtension.proxcot-Date.now()+(60000*svcEvents.getConfig().modules.cotacao), true))
+            if (machinesService.proxcot !== 0) {
+                footer += ('\nPróxima atualização em ' + compactTime(machinesService.proxcot-Date.now()+(60000*eventsService.getConfig().modules.cotacao)))
             }
             if (footer != "") embed.setFooter(footer)
 
@@ -48,13 +57,13 @@ module.exports = {
 
         } else {
 
-            if (!svcItemExtension.exists(minério)) {
-                const embedtemp = await svcSendError(interaction, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`/cotação\``)
+            if (!itemsService.exists(minério)) {
+                const embedtemp = await utility.sendError(interaction, `Você precisa identificar um minério EXISTENTE para visualizar sua cotação!\nVerifique os minérios disponíveis utilizando \`/cotação\``)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            let minerio = svcItemExtension.get(minério, "minerios")
+            let minerio = itemsService.get(minério, "minerios")
 
             let prefix = ""
             if (minerio.price.updates.length == 0) {
@@ -79,14 +88,14 @@ module.exports = {
             
             .toURL();
             
-            let cotimg = await svcImg.loadImage(chart_url)
+            let cotimg = await imagesService.loadImage(chart_url)
             
-            const hide = await svcImg.createImage(79, 13, '#ffffff')
-            cotimg = await svcImg.drawImage(cotimg, hide, 621, 0)
+            const hide = await imagesService.createImage(79, 13, '#ffffff')
+            cotimg = await imagesService.drawImage(cotimg, hide, 621, 0)
 
-            const attachment = await svcImg.getAttachment(cotimg, 'cot.png')
+            const attachment = await imagesService.getAttachment(cotimg, 'cot.png')
             
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             .setColor('#32a893')
             .setTitle('📈 Cotação recente de ' + minerio.icon + ' ' + minerio.name.charAt(0).toUpperCase() + minerio.name.slice(1))
             .setImage('attachment://cot.png')

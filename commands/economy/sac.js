@@ -1,3 +1,7 @@
+const economyService = require('../../_classes/services/economy');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const Discord = require('../../_classes/discordCompat');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -7,58 +11,57 @@ const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","createButton","eco","format","isInt","money","moneyemoji","rowComponents","sendError","toNumber"],
     name: 'sacar',
     aliases: ['sac'],
     category: 'Economia',
     description: 'Saca uma quantia de dinheiro do banco central',
     data,
     mastery: 20,
-	async execute(interaction, svcDiscord, svcCreateButton, svcEco, svcFormat, svcIsInt, svcMoney, svcMoneyemoji, svcRowComponents, svcSendError, svcToNumber) {
+	async execute(interaction) {
 
         const quantia = interaction.options.getString('quantia');
-        const svcMoney = await svcEco.bank.get(interaction.user.id)
+        const money = await economyService.bank.get(interaction.user.id)
         let total = 0;
         if (quantia != 'tudo') {
 
-            if (!svcIsInt(svcToNumber(quantia))) {
-                const embedtemp = await svcSendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
+            if (!utility.isInt(utility.toNumber(quantia))) {
+                const embedtemp = await utility.sendError(interaction, `Você precisa especificar uma quantia de dinheiro (NÚMERO) para saque!`, `sacar <quantia | tudo>`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (svcMoney < svcToNumber(quantia)) {
-                const embedtemp = await svcSendError(interaction, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
+            if (money < utility.toNumber(quantia)) {
+                const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia __no banco__ de dinheiro para sacar!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
 
-            if (svcToNumber(quantia) < 1) {
-                const embedtemp = await svcSendError(interaction, `Você não pode sacar essa quantia de dinheiro!`)
+            if (utility.toNumber(quantia) < 1) {
+                const embedtemp = await utility.sendError(interaction, `Você não pode sacar essa quantia de dinheiro!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
-            total = svcToNumber(quantia);
+            total = utility.toNumber(quantia);
         } else {
-            if (svcMoney < 1) {
-                const embedtemp = await svcSendError(interaction, `Você não possui dinheiro __no banco__ para sacar!`)
+            if (money < 1) {
+                const embedtemp = await utility.sendError(interaction, `Você não possui dinheiro __no banco__ para sacar!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
-            total = svcMoney;
+            total = money;
         }
         
-		const embed = new svcDiscord.MessageEmbed();
+		const embed = new Discord.MessageEmbed();
         embed.setColor('#606060');
-        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
+        embed.setAuthor(`${interaction.user.tag}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
 
         embed.addField('<a:loading:736625632808796250> Aguardando confirmação', `
-        Você deseja sacar o valor de **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** da sua conta bancária?`)
+        Você deseja sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária?`)
 
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -74,21 +77,21 @@ reacted = true;
                 embed.fields = [];
                 embed.setColor('#a60000');
                 embed.addField('❌ Saque cancelado', `
-                Você cancelou o saque de **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** da sua conta bancária.`)
+                Você cancelou o saque de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária.`)
             } else {
-                const money2 = await svcEco.bank.get(interaction.user.id);
+                const money2 = await economyService.bank.get(interaction.user.id);
                 if (money2 < total) {
                     embed.fields = [];
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no saque', `Você não possui **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** __no banco__ para sacar!`)
+                    embed.addField('❌ Falha no saque', `Você não possui **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** __no banco__ para sacar!`)
                 } else {
                     embed.fields = [];
                     embed.setColor('#5bff45');
                     embed.addField('✅ Sucesso no saque', `
-                    Você sacou o valor de **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** da sua conta bancária!`)
-                    svcEco.svcMoney.add(interaction.user.id, total);
-                    svcEco.bank.remove(interaction.user.id, total);
-                    svcEco.addToHistory(interaction.user.id, `📤 Saque | - ${svcFormat(total)} ${svcMoneyemoji}`)
+                    Você sacou o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária!`)
+                    economyService.money.add(interaction.user.id, total);
+                    economyService.bank.remove(interaction.user.id, total);
+                    economyService.addToHistory(interaction.user.id, `📤 Saque | - ${utility.format(total)} ${utility.moneyemoji}`)
                     let obj = await DatabaseManager.get(interaction.user.id, "players");
                     DatabaseManager.set(interaction.user.id, "players", "saq", obj.saq + 1);
                 }
@@ -101,7 +104,7 @@ reacted = true;
             embed.fields = [];
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `
-            Você iria sacar o valor de **${svcFormat(total)} ${svcMoney} ${svcMoneyemoji}** da sua conta bancária, porém o tempo expirou.`)
+            Você iria sacar o valor de **${utility.format(total)} ${utility.money} ${utility.moneyemoji}** da sua conta bancária, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

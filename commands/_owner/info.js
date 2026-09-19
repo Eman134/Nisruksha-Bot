@@ -1,21 +1,25 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const clientService = require('../../_classes/services/clientService');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","client","ms"],
     name: 'info',
     aliases: [],
     category: 'none',
     description: 'Veja uma variável e um valor do banco de dados',
     perm: 5,
-	async execute(interaction, svcDiscord, svcClient, svcMs) {
+	async execute(interaction) {
 
-        send(dependencies, interaction)
+        send(interaction)
 
 	}
 };
 
-async function sendCmdsExec(dependencies, interaction, array) {
+async function sendCmdsExec(interaction, array) {
 
     if (array.length == 0 || array == null) {
         return;
@@ -23,7 +27,7 @@ async function sendCmdsExec(dependencies, interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new svcDiscord.MessageEmbed()
+    const embed = new Discord.MessageEmbed()
         .setColor(`RANDOM`)
         .addField(`📕 Comandos executados`, `${array.map((s, index) => `${index+1}º \`${s.server.name}\` (${s.server.id}) \`${s.cmdsexec} comandos\``).join('\n')}`)
         .setTimestamp()
@@ -31,7 +35,7 @@ async function sendCmdsExec(dependencies, interaction, array) {
 
 }
 
-async function sendInative(dependencies, interaction, array) {
+async function sendInative(interaction, array) {
 
     if (array.length == 0 || array == null) {
         return;
@@ -39,15 +43,15 @@ async function sendInative(dependencies, interaction, array) {
 
     if (array[0] == undefined) return
 
-    const embed = new svcDiscord.MessageEmbed()
+    const embed = new Discord.MessageEmbed()
         .setColor(`RANDOM`)
-        .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (svcMs(Date.now()-s.lastcmd, true))}\``).join('\n')}`)
+        .addField(`💤 Inativos`, `${array.map(s => `${s.rank}º \`${s.server.name}\` (${s.server.id}) Inativo á: \`${s.lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-s.lastcmd))}\``).join('\n')}`)
         .setTimestamp()
  await interaction.channel.send({ embeds: [embed] })
 
 }
 
-async function send(dependencies, interaction) {
+async function send(interaction) {
 
     try {
 
@@ -55,7 +59,7 @@ async function send(dependencies, interaction) {
         try {
             array = await DatabaseManager.findMany('servers');
         } catch (err) {
-            svcClient.emit('error', err)
+            clientService.current.emit('error', err)
         }
 
         array = array.filter((sv) => sv.lastcmd !== 0)
@@ -69,7 +73,7 @@ async function send(dependencies, interaction) {
         var rank1 = 1;
         for (var i = 0; i < array1.length; i++) {
 
-            let server = await svcClient.guilds.cache.get(array1[i].server_id);
+            let server = await clientService.current.guilds.cache.get(array1[i].server_id);
             if (server) {
 
                 array1[i].server = server;
@@ -81,7 +85,7 @@ async function send(dependencies, interaction) {
                 try {
                     await DatabaseManager.set(array1[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
-                    svcClient.emit('error', err)
+                    clientService.current.emit('error', err)
                 }
                 array1.splice(i, 1)
 
@@ -98,7 +102,7 @@ async function send(dependencies, interaction) {
         var rank2 = 1;
         for (var i = 0; i < array2.length; i++) {
 
-            let server = await svcClient.guilds.cache.get(array2[i].server_id);
+            let server = await clientService.current.guilds.cache.get(array2[i].server_id);
             if (server) {
                 array2[i].server = server;
                 array2[i].rank = rank2;
@@ -108,7 +112,7 @@ async function send(dependencies, interaction) {
                 try {
                     await DatabaseManager.set(array2[i].server_id, 'servers', 'lastcmd', 0, 'server_id');
                 } catch (err) {
-                    svcClient.emit('error', err)
+                    clientService.current.emit('error', err)
                 }
                 array2.splice(i, 1)
 
@@ -118,17 +122,17 @@ async function send(dependencies, interaction) {
         array1 = array1.filter((i) => i.server !== undefined)
         array2 = array2.filter((i) => i.server !== undefined)
         
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         .setTitle(`Painel de Moderação | Visão Geral`)
         .setColor(`RANDOM`)
         .setDescription(`📃 Registrados: **${array.length}**
 📕 Mais comandos: **${array1[0].server.name}** (${array1[0].server.id}) \`${array1[0].cmdsexec} comandos\`
-💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (svcMs(Date.now()-array2[0].lastcmd, true))}\``)
+💤 Mais inativo: **${array2[0].server ? array2[0].server.name + ' (' + array2[0].server.id + ')': 'não definido'}** \`${array2[0].lastcmd == 0 ? 'Nunca executou' : (compactTime(Date.now()-array2[0].lastcmd))}\``)
         .setTimestamp()
         await interaction.reply({ embeds: [embed] })
 
-        await sendCmdsExec(dependencies, interaction, array1)
-        await sendInative(dependencies, interaction, array2)
+        await sendCmdsExec(interaction, array1)
+        await sendInative(interaction, array2)
 
         if (array.length == 0) return
 
@@ -137,7 +141,7 @@ async function send(dependencies, interaction) {
         }
 
     }catch (err){
-        svcClient.emit('error', err)
+        clientService.current.emit('error', err)
     }
 
 }

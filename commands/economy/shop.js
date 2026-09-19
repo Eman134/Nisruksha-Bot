@@ -1,3 +1,7 @@
+const Discord = require('../../_classes/discordCompat');
+const shopService = require('../../_classes/services/shop');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('categoria').setDescription('Digite uma categoria de loja para visualizar os produtos')
@@ -9,23 +13,24 @@ const data = new SlashCommandBuilder()
 .setRequired(false))
 
 module.exports = {
-    requiredServices: ["Discord","sendError","shopExtension"],
     name: 'loja',
     aliases: ['shop', 'l'],
     category: 'Economia',
     description: 'Veja os produtos disponíveis para venda',
     data,
     mastery: 10,
-	async execute(interaction, svcDiscord, svcSendError, svcShopExtension) {        const optioncategoria = interaction.options.getString('categoria')
+	async execute(interaction) {
+
+                const optioncategoria = interaction.options.getString('categoria')
         if (optioncategoria == null) {
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             .setColor('#811e99')
             .setDescription(`
             <:shop:736274027919966269> Veja abaixo produtos das categorias e divirta-se!
             ↳ Utilize \`/loja <categoria>\` para visualizar uma categoria
             ↳ Utilize \`/comprar <id>\` para realizar uma compra
             `)
-            .addField('<:list:736274028179750922> Categorias', svcShopExtension.getShopList())
+            .addField('<:list:736274028179750922> Categorias', shopService.getShopList())
             await interaction.reply({ embeds: [embed] });
             return;
         }
@@ -33,17 +38,17 @@ module.exports = {
         if (categoria == 'maq') {
             categoria = 'maquinas';
         }
-        let obj = svcShopExtension.getShopObj();
+        let obj = shopService.getShopObj();
         let array = Object.keys(obj);
-        if (!svcShopExtension.categoryExists(categoria)){
-            const embedtemp = await svcSendError(interaction, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
+        if (!shopService.categoryExists(categoria)){
+            const embedtemp = await utility.sendError(interaction, `Você selecionou uma categoria inexistente!`, `loja <${array.join(' | ').toUpperCase()}>`)
             await interaction.reply({ embeds: [embedtemp]})
 			return;
         }
         var product = obj[categoria];
         product = product.filter((item) => item.buyable)
         let array2 = Object.keys(product);
-        const embed = new svcDiscord.MessageEmbed();
+        const embed = new Discord.MessageEmbed();
         let totalpages = array2.length % 3;
         if (totalpages == 0) totalpages = (array2.length)/3;
         else totalpages = ((array2.length-totalpages)/3)+1;
@@ -61,13 +66,13 @@ module.exports = {
 
         if (currentpage == totalpages || totalpages == 0) stopComponents = true
 
-        const components = await svcShopExtension.formatPages(embed, { currentpage, totalpages }, product, interaction.user.id, stopComponents);
+        const components = await shopService.formatPages(embed, { currentpage, totalpages }, product, interaction.user.id, stopComponents);
 
         let embedinteraction = await interaction.reply({ embeds: [embed], components, withResponse: true });
 
         if (stopComponents) return
 
-        svcShopExtension.editPage(categoria.toUpperCase(), interaction, embedinteraction, product, embed, currentpage, totalpages);
+        shopService.editPage(categoria.toUpperCase(), interaction, embedinteraction, product, embed, currentpage, totalpages);
 
 	}
 };

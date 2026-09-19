@@ -1,3 +1,9 @@
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const crateExtensionService = require('../../_classes/services/crateExtension');
+const config = require('../../_classes/config');
+const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const Database = require('../../_classes/manager/DatabaseManager');
@@ -14,14 +20,15 @@ const data = new SlashCommandBuilder()
 .addStringOption(option => option.setName('args2').setDescription('Caixa').setRequired(false))
 
 module.exports = {
-    requiredServices: ["Discord","client","crateExtension","createButton","id","isInt","money","money2","money2emoji","money3","money3emoji","moneyemoji","ms","rowComponents","sendError"],
     name: 'gerarkey',
     aliases: ['gerarchave', 'gchave', 'gkey', 'genkey'],
     category: 'none',
     description: 'Gera uma chave de ativação com um produto de recompensa',
     data,
     perm: 5,
-	async execute(interaction, svcDiscord, svcClient, svcCrateExtension, svcCreateButton, svcId, svcIsInt, svcMoney, svcMoney2, svcMoney2emoji, svcMoney3, svcMoney3emoji, svcMoneyemoji, svcMs, svcRowComponents, svcSendError) {
+	async execute(interaction) {
+
+        
         let types = {
             'MVP': {
                 icon: '<:mvp:758717273304465478>',
@@ -31,24 +38,24 @@ module.exports = {
                 type: 0
             },
             'MOEDAS': {
-                icon: `${svcMoneyemoji}`,
-                name: `${svcMoney}`,
+                icon: `${utility.moneyemoji}`,
+                name: `${utility.money}`,
                 requiret: false,
                 requiresize: true,
                 requireid: false,
                 type: 1
             },
             'FICHAS': {
-                icon: `${svcMoney3emoji}`,
-                name: `${svcMoney3}`,
+                icon: `${utility.money3emoji}`,
+                name: `${utility.money3}`,
                 requiret: false,
                 requiresize: true,
                 requireid: false,
                 type: 2
             },
             'CRISTAIS': {
-                icon: `${svcMoney2emoji}`,
-                name: `${svcMoney2}`,
+                icon: `${utility.money2emoji}`,
+                name: `${utility.money2}`,
                 requiret: false,
                 requiresize: true,
                 requireid: false,
@@ -65,17 +72,17 @@ module.exports = {
         }
 
         const choose = (interaction.options.getString('tipochave')).toUpperCase();
-        const svcId = (interaction.options.getString('durqnt'));
+        const id = (interaction.options.getString('durqnt'));
         const args2 = (interaction.options.getString('args2'));
 
         if (Object.keys(types).includes(choose) == false) {
-            const embedtemp = await svcSendError(interaction, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n/gerarchave svcMoney 100\n/gerarchave caixa 1 5`)
+            const embedtemp = await utility.sendError(interaction, `Você precisa especificar um tipo de chave existente!\n \n**Lista de Tipos**\n\`${Object.keys(types).join(', ')}.\``, `gerarchave MVP 1mo 30d 10h 30m 30s\n/gerarchave money 100\n/gerarchave caixa 1 5`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (types[choose].requireid == true && args2 == null) {
-            const embedtemp = await svcSendError(interaction, 'Você precisa especificar um svcId de caixa', `gerarchave caixa 1 5`)
+            const embedtemp = await utility.sendError(interaction, 'Você precisa especificar um id de caixa', `gerarchave caixa 1 5`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
@@ -83,7 +90,7 @@ module.exports = {
         let time = 0;
         if (types[choose].requiret == true) {
 
-            const timesplit = svcId.split(" ");
+            const timesplit = id.split(" ");
             
             for (const r of timesplit) {
                 if (r.includes('mo')) {
@@ -107,30 +114,30 @@ module.exports = {
         }
 
         let size = 0;
-        if (types[choose].requiresize == true && !svcIsInt(svcId)) {
-            const embedtemp = await svcSendError(interaction, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
+        if (types[choose].requiresize == true && !utility.isInt(id)) {
+            const embedtemp = await utility.sendError(interaction, 'Você precisa especificar uma quantia para a o produto', `gerarchave ${types[choose].name} 10000`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
     
         if (types[choose].requireid == true){
             size = parseInt(args2)
-            types[choose].icon = svcCrateExtension.obj[svcId.toString()].icon
-            types[choose].name = svcCrateExtension.obj[svcId.toString()].name
+            types[choose].icon = crateExtensionService.obj[id.toString()].icon
+            types[choose].name = crateExtensionService.obj[id.toString()].name
         }
         if (types[choose].requiresize == true){
-            size = parseInt(svcId)
+            size = parseInt(id)
         }
         
-		const embed = new svcDiscord.MessageEmbed()
-		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
+		const embed = new Discord.MessageEmbed()
+		.setDescription(`Você deseja gerar uma nova **🔑 Chave de Ativação**?\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`, ``)
         
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
-        const filter = i => i.user.svcId === interaction.user.svcId;
+        const filter = i => i.user.id === interaction.user.id;
         
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
         let reacted = false;
@@ -140,11 +147,11 @@ module.exports = {
             collector.stop();
             if (!b.deferred) b.deferUpdate().catch((error) => reportError(error, 'command.genkey.defer_update'));
 
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             if (b.customId == 'cancel'){
                 embed.setColor('#a60000');
                 embed.addField('❌ Geração de chave cancelada', `
-                Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+                Você cancelou a geração de uma nova **🔑 Chave de Ativação**.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return;
             }
@@ -168,9 +175,9 @@ module.exports = {
 
             if (time) obj.time = time
             if (size) obj.size = size
-            if (svcId) obj.svcId = svcId
+            if (id) obj.id = id
             
-            const globalobj = await DatabaseManager.get(svcId, 'globals');
+            const globalobj = await DatabaseManager.get(config.app.id, 'globals');
 
             const objgkeys = globalobj.keys
             let clist = []
@@ -179,36 +186,36 @@ module.exports = {
             }
             clist.push(obj)
 
-            DatabaseManager.set(svcId, 'globals', 'keys', clist);
+            DatabaseManager.set(config.app.id, 'globals', 'keys', clist);
 
-            const embed2 = new svcDiscord.MessageEmbed()
+            const embed2 = new Discord.MessageEmbed()
             .setTitle(`🔑 Nova chave gerada`)
-            .setDescription(`Quem gerou: ${interaction.user} \`${interaction.user.svcId}\`
-Local em que gerou: ${interaction.channel} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.svcId}\`
+            .setDescription(`Quem gerou: ${interaction.user} \`${interaction.user.id}\`
+Local em que gerou: ${interaction.channel} 🡮 ${interaction.guild.name} 🡮 \`${interaction.guild.id}\`
 Chave gerada: **${key}**
 
-Produto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
+Produto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}
 
 **Objeto gerado:**
 \`\`\`js
 ${JSON.stringify(obj, null, '\t').slice(0, 1000)}
 \`\`\``).setColor(`#fc8c03`)
 
-            let ch = await svcClient.channels.cache.get('758711135284232263')
+            let ch = await clientService.current.channels.cache.get('758711135284232263')
             let createdinteraction = await ch.send({ embeds: [embed2] });
 
             embed.setColor('#5bff45');
             embed.addField('✅ Chave criada com sucesso', `
-            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.svcId}/${ch.svcId}/${createdinteraction.svcId}`})`)
+            Você gerou uma nova **🔑 Chave de Ativação**, visualize-a [CLICANDO AQUI](${`https://discordapp.com/channels/${ch.guild.id}/${ch.id}/${createdinteraction.id}`})`)
             interaction.editReply({ embeds: [embed], components: [] });
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new svcDiscord.MessageEmbed();
+            const embed = new Discord.MessageEmbed();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${svcMs(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
+            embed.addField('❌ Tempo expirado', `Você iria gerar uma nova **🔑 Chave de Ativação**, porém o tempo expirou.\nProduto: **${types[choose].icon} ${types[choose].name}**${types[choose].requiret == true ? `\nDuração: **${utility.ms(time, true)}**`: ''}${size > 0 ? `\nQuantia: **${size}**`:''}`)
             interaction.editReply({ embeds: [embed], components: [] });
             return;
         });

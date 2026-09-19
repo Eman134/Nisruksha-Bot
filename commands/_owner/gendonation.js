@@ -1,3 +1,8 @@
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const config = require('../../_classes/config');
+const clientService = require('../../_classes/services/clientService');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -7,45 +12,46 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","client","createButton","id","rowComponents"],
     name: 'gendonation',
     aliases: [],
     category: 'none',
     description: 'none',
     data,
     perm: 5,
-	async execute(interaction, svcDiscord, svcClient, svcCreateButton, svcId, svcRowComponents) {
+	async execute(interaction) {
         
-        const donate = parseFloat(interaction.options.getInteger('valor'));        
-		const embed = new svcDiscord.MessageEmbed()
+        const donate = parseFloat(interaction.options.getInteger('valor'));
+
+                
+		const embed = new Discord.MessageEmbed()
 		.setDescription(`Deseja gerar a mensagem de doação para R$${donate}?`, ``)
 
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', 'Confirmar', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', 'Cancelar', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', 'Confirmar', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', 'Cancelar', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
-        const filter = i => i.user.svcId === interaction.user.svcId;
+        const filter = i => i.user.id === interaction.user.id;
         
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 15000 });
 
         collector.on('collect', async (b) => {
 
-            if (!(b.user.svcId === interaction.user.svcId)) return
+            if (!(b.user.id === interaction.user.id)) return
             reacted = true;
             
             if (b.customId == 'cancel') return collector.stop();
             embed.fields = [];
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.gendonation.defer_update'); });
 
-            await DatabaseManager.increment(svcId, 'globals', 'totaldonates', donate);
-            await DatabaseManager.increment(svcId, 'globals', 'donates', 1);
+            await DatabaseManager.increment(config.app.id, 'globals', 'totaldonates', donate);
+            await DatabaseManager.increment(config.app.id, 'globals', 'donates', 1);
 
-            let commandfile = svcClient.commands.get('mvp')
-            await commandfile.execute(dependencies, interaction);
+            let commandfile = clientService.current.commands.get('mvp')
+            await commandfile.execute(interaction);
 
-            let commandfile2 = svcClient.commands.get('doar')
-            await commandfile2.execute(dependencies, interaction);
+            let commandfile2 = clientService.current.commands.get('doar')
+            await commandfile2.execute(interaction);
 
             collector.stop();
 

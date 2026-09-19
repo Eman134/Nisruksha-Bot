@@ -1,57 +1,69 @@
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const cacheListsService = require('../../_classes/services/cacheLists');
+const playersService = require('../../_classes/services/players');
+const itemsService = require('../../_classes/services/items');
+const townsService = require('../../_classes/services/towns');
+const runtime = require('../../_classes/services/runtime');
+const companyService = require('../../_classes/services/company');
+const clientService = require('../../_classes/services/clientService');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","client","company","createButton","debug","itemExtension","ms","playerUtils","random","rowComponents","sendError","townExtension"],
     name: 'coletar',
     aliases: ['col', 'collect'],
     category: 'none',
     description: 'Coleta diferente sementes e flores para plantação',
     mastery: 30,
     companytype: 1,
-	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCompany, svcCreateButton, svcDebug, svcItemExtension, svcMs, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcTownExtension, company) {
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
+
+        
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (pobj2.level < 3) {
-            const embedtemp = await svcSendError(interaction, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma coleta!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await svcCacheLists.waiting.includes(interaction.user.id, 'collecting')) {
-            const embedtemp = await svcSendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'collecting')})`)
+        if (await cacheListsService.waiting.includes(interaction.user.id, 'collecting')) {
+            const embedtemp = await utility.sendError(interaction, `Você já encontra-se coletando no momento! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const sta = await svcPlayerUtils.stamina.get(interaction.user.id);
+        const sta = await playersService.stamina.get(interaction.user.id);
 
         if (sta < 40) {
-            const embedtemp = await svcSendError(interaction, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`/estamina\``)
+            const embedtemp = await utility.sendError(interaction, `Você precisa de no mínimo 40 pontos de Estamina para iniciar uma coleta!\nVisualize sua estamina atual usando \`/estamina\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let btn = svcCreateButton('stopBtn', 'DANGER', 'Parar coleta')
+        let btn = utility.createButton('stopBtn', 'DANGER', 'Parar coleta')
 
         let init = Date.now();
 
-        let seedobj = svcItemExtension.getObj().drops.filter(i => i.type == "seed");
-        let loc = await svcTownExtension.getTownNum(interaction.user.id)
+        let seedobj = itemsService.getObj().drops.filter(i => i.type == "seed");
+        let loc = await townsService.getTownNum(interaction.user.id)
         seedobj = seedobj.filter(seed => seed.loc.includes(loc.toString()) || seed.loc.includes('*'))
-        if (svcDebug) console.log(seedobj)
+        if (runtime.debug) console.log(seedobj)
 
         let obj6 = await DatabaseManager.get(interaction.user.id, "machines");
-        const embed = new svcDiscord.MessageEmbed();
+        const embed = new Discord.MessageEmbed();
         embed.setTitle(`Coletando`)
         embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
         await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${sta}/1000 🔸`)
-        embed.setFooter(`Tempo de atualização: ${svcCompany.jobs.agriculture.update} segundos\nTempo coletando: ${svcMs(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
-        const embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn])], withResponse: true });
+        embed.setFooter(`Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        const embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn])], withResponse: true });
 
-        await svcCacheLists.waiting.add(interaction.user.id, interaction, 'collecting');
-        await svcCacheLists.waiting.add(interaction.user.id, interaction, 'working');
+        await cacheListsService.waiting.add(interaction.user.id, interaction, 'collecting');
+        await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
         
         function gen(){
             let por = 6;
@@ -59,14 +71,14 @@ module.exports = {
             let i = 1
             for (const seed of seedobj) {
                 if (seed != undefined) {
-                    let t = Math.round((61/(parseFloat(`1.${svcRandom(6, 9)}${svcRandom(0, 9)}`)))*0.1);
+                    let t = Math.round((61/(parseFloat(`1.${utility.random(6, 9)}${utility.random(0, 9)}`)))*0.1);
                     t += Math.round(por/i/2*0.1);
 
                     t = Math.round((seed.name.toLowerCase().includes('soja') ? t * 1.7 :t )/2);
-                    let d = svcItemExtension.get(seed.name);
+                    let d = itemsService.get(seed.name);
                     d.size = t;
 
-                    let cha = svcRandom(0, 100)
+                    let cha = utility.random(0, 100)
                     if (cha < d.chance) array.push(d)
                     i++
                 }
@@ -84,12 +96,12 @@ module.exports = {
 
                 let sizeMap = new Map();
                 let round = 0;
-                let xp = svcRandom(2, 6);
-                xp = await svcPlayerUtils.execExp(interaction, xp);
-                const gastoestamina = svcRandom(20, 40)
-                await svcPlayerUtils.stamina.remove(interaction.user.id, gastoestamina);
+                let xp = utility.random(2, 6);
+                xp = await playersService.execExp(interaction, xp);
+                const gastoestamina = utility.random(20, 40)
+                await playersService.stamina.remove(interaction.user.id, gastoestamina);
                 
-                let retorno = await svcItemExtension.give(interaction, obj2)
+                let retorno = await itemsService.give(interaction, obj2)
                 let descartados = retorno.descartados
                 let colocados = retorno.colocados
 
@@ -106,10 +118,10 @@ module.exports = {
 
                 embed.fields = [];
                 const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
-                let sta2 = await svcPlayerUtils.stamina.get(interaction.user.id);
+                let sta2 = await playersService.stamina.get(interaction.user.id);
                 embed.setDescription(`Agricultor: ${interaction.user}\nPlantas disponíveis nesta vila: ${seedobj.map((see) => see.icon).join('')}`);
-                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await svcPlayerUtils.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\``)
-                embed.setFooter(`Tempo de atualização: ${svcCompany.jobs.agriculture.update} segundos\nTempo coletando: ${svcMs(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                await embed.addField(`🍁 Informações de coleta`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\`\nEstamina: ${await playersService.stamina.get(interaction.user.id)}/1000 🔸 \`(-${gastoestamina})\``)
+                embed.setFooter(`Tempo de atualização: ${companyService.jobs.agriculture.update} segundos\nTempo coletando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 for await (const r of colocados) {
                     let qnt = sizeMap.get(r.name);
@@ -127,32 +139,32 @@ module.exports = {
                 }
 
                 try{
-                    await interaction.editReply({ embeds: [embed], components: [svcRowComponents([btn])] })
+                    await interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn])] })
                 } catch (error) {
                     reportError(error, 'command.coletar.edit_progress', { userId: interaction.user.id });
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                    await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
                 }
 
                 if (descartados.length == seedobj.length) {
-                    const embedtemp = await svcSendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
+                    const embedtemp = await utility.sendError(interaction, `Itens foram descartados da sua mochila enquanto você coletava! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a mochila utilizando \`/mochila\``)
                     await interaction.reply({ embeds: [embedtemp], mention: true } )
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                    await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 if (sta2 < gastoestamina) {
-                    const embedtemp = await svcSendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    const embedtemp = await utility.sendError(interaction, `Você não possui estamina para continuar coletando! [[VER COLETA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'collecting')})\nVisualize a sua estamina utilizando \`/estamina\``)
                     await interaction.reply({ embeds: [embedtemp], mention: true } )
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'collecting')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                    await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     return;
                 }
 
                 let reacted = false
                 const filter = i => i.user.id === interaction.user.id;
-                const collector = embedinteraction.createMessageComponentCollector({ filter, time: svcCompany.jobs.agriculture.update*1000 });
+                const collector = embedinteraction.createMessageComponentCollector({ filter, time: companyService.jobs.agriculture.update*1000 });
                 collector.on('collect', async (b) => {
 
                     if (b.customId == 'stopBtn') {
@@ -164,10 +176,10 @@ module.exports = {
 
                 collector.on('end', async collected => {
                     if (reacted) {
-                        await svcCacheLists.waiting.remove(interaction.user.id, 'collecting')
-                        await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                        await cacheListsService.waiting.remove(interaction.user.id, 'collecting')
+                        await cacheListsService.waiting.remove(interaction.user.id, 'working');
                         await interaction.editReply({ embeds: [embed], components: [] })
-                        const embedtemp = await svcSendError(interaction, `Você parou a coleta!`)
+                        const embedtemp = await utility.sendError(interaction, `Você parou a coleta!`)
                         await interaction.followUp({ embeds: [embedtemp]})
                     } else {
                         edit()
@@ -175,7 +187,7 @@ module.exports = {
                 });
 
             }catch (err){
-                svcClient.emit('error', err)
+                clientService.current.emit('error', err)
             }
         }
         edit();

@@ -1,14 +1,14 @@
 const { reportError } = require('../_classes/debug');
+const Discord = require('../_classes/discordCompat');
+const clientService = require('../_classes/services/clientService');
 
 module.exports = {
 
-    dependencies: ["Discord","client"],
     name: "error",
-    execute: async (dependencies, err) => {
+    execute: async (err) => {
         const error = reportError(err, 'discord.client_error');
 
-        const Discord = dependencies.Discord;
-        let channel = dependencies.client.channels.cache.get('920404030801444885')
+        let channel = clientService.current.channels.cache.get('920404030801444885')
         const embed = new Discord.MessageEmbed()
             .setColor('#b8312c')
             .setTitle('<:error:736274027756388353> Um erro foi encontrado')

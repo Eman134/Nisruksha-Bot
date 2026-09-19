@@ -1,3 +1,12 @@
+const Discord = require('../../_classes/discordCompat');
+const playersService = require('../../_classes/services/players');
+const townsService = require('../../_classes/services/towns');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const config = require('../../_classes/config');
+const economyService = require('../../_classes/services/economy');
+const clientService = require('../../_classes/services/clientService');
+const imagesService = require('../../_classes/services/images');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const data = new SlashCommandBuilder()
@@ -5,86 +14,87 @@ const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Faça uma aposta com algum membro').setRequired(true))
 
 module.exports = {
-    requiredServices: ["Discord","client","createButton","eco","format","id","img","money3","money3emoji","playerUtils","random","rowComponents","sendError","townExtension"],
     name: 'blackjack',
     aliases: ['luckycards'],
     category: 'Jogos',
     description: 'Faça uma aposta com cartas e ganhe fichas!',
     data,
     mastery: 5,
-	async execute(interaction, svcDiscord, svcClient, svcCreateButton, svcEco, svcFormat, svcId, svcImg, svcMoney3, svcMoney3emoji, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcTownExtension) {
+	async execute(interaction) {
+
+        
         const aposta = interaction.options.getInteger('fichas')
         let member = interaction.options.getUser('membro')
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.svcId, "blackjack");
+        const check = await playersService.cooldown.check(interaction.user.id, "blackjack");
 
         if (check) {
-            svcPlayerUtils.cooldown.message(interaction, 'blackjack', 'realizar aposta em blackjack')
+            playersService.cooldown.message(interaction, 'blackjack', 'realizar aposta em blackjack')
             return;
         }
 
-        const townauthor = await svcTownExtension.getTownName(interaction.user.svcId)
+        const townauthor = await townsService.getTownName(interaction.user.id)
 
-        if (!(svcTownExtension.games[townauthor].includes('blackjack'))) {
-            const embedtemp = await svcSendError(interaction, `A casa de jogos da sua vila não possui o jogo **BLACKJACK**!\nJogos disponíveis na sua vila: **${svcTownExtension.games[townauthor].join(', ')}.**`)
+        if (!(townsService.games[townauthor].includes('blackjack'))) {
+            const embedtemp = await utility.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **BLACKJACK**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)
 			await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (member == null || member.svcId == interaction.user.svcId) {
-            const embedtemp = await svcSendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
+        if (member == null || member.id == interaction.user.id) {
+            const embedtemp = await utility.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o blackjack', 'blackjack <fichas> @membro')
             await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        if (member.svcId != svcId) {
+        if (member.id != config.app.id) {
 
-            const check2 = await svcPlayerUtils.cooldown.check(member.svcId, "blackjack");
+            const check2 = await playersService.cooldown.check(member.id, "blackjack");
 
             if (check2) {
-                svcPlayerUtils.cooldown.message(interaction, 'blackjack', 'realizar aposta em blackjack')
+                playersService.cooldown.message(interaction, 'blackjack', 'realizar aposta em blackjack')
                 return;
             }
 
-            const townmember = await svcTownExtension.getTownName(member.svcId)
-            if (!(svcTownExtension.games[townmember].includes('blackjack'))) {
-                const embedtemp = await svcSendError(interaction, `A casa de jogos de ${member} não possui o jogo **BLACKJACK**!\nJogos disponíveis na vila do mesmo: **${svcTownExtension.games[townmember].join(', ')}.**`)
+            const townmember = await townsService.getTownName(member.id)
+            if (!(townsService.games[townmember].includes('blackjack'))) {
+                const embedtemp = await utility.sendError(interaction, `A casa de jogos de ${member} não possui o jogo **BLACKJACK**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return;
             }
         }
 
         if (aposta < 20) {
-            const embedtemp = await svcSendError(interaction, `A quantia mínima de apostas é de 20 fichas!`, `blackjack 20`)
+            const embedtemp = await utility.sendError(interaction, `A quantia mínima de apostas é de 20 fichas!`, `blackjack 20`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (aposta > 2500) {
-            const embedtemp = await svcSendError(interaction, `A quantia máxima de apostas é de 2500 fichas!`, `blackjack <aposta>`)
+            const embedtemp = await utility.sendError(interaction, `A quantia máxima de apostas é de 2500 fichas!`, `blackjack <aposta>`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const token = await svcEco.token.get(interaction.user.svcId)
+        const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await svcSendError(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de fichas para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
-        const tokenmember = await svcEco.token.get(member.svcId)
+        const tokenmember = await economyService.token.get(member.id)
 
         if (tokenmember < aposta) {
-            const embedtemp = await svcSendError(interaction, `O membro ${member} não possui \`${aposta} ${svcMoney3}\` ${svcMoney3emoji} para apostar!`)
+            const embedtemp = await utility.sendError(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         
         let players = [
             {
-                svcId: interaction.user.svcId,
+                id: interaction.user.id,
                 name: interaction.user.username,
                 fichas: aposta,
                 cartas: [],
@@ -102,12 +112,12 @@ module.exports = {
             plays: []
         }
 
-        game.confirm[interaction.user.svcId] = '<a:loading:736625632808796250>'
-        game.confirm[member.svcId] = '<a:loading:736625632808796250>'
+        game.confirm[interaction.user.id] = '<a:loading:736625632808796250>'
+        game.confirm[member.id] = '<a:loading:736625632808796250>'
 
         if (member != null) {
             const player2 = {
-                svcId: member.svcId,
+                id: member.id,
                 name: member.username,
                 fichas: aposta,
                 cartas: [],
@@ -117,8 +127,8 @@ module.exports = {
             players.push(player2)
         } else {
             const player3 = {
-                svcId: svcClient.user.svcId,
-                name: svcClient.user.username,
+                id: clientService.current.user.id,
+                name: clientService.current.user.username,
                 fichas: aposta,
                 cartas: [],
                 pontos: 0,
@@ -131,7 +141,7 @@ module.exports = {
             for (let i = 0; i < players.length; i++) {
                 players[i].cartas = [getCard(), getCard()]
                 players[i].pontos = players[i].cartas.reduce((acc, cur) => {
-                    if (!players[i].cartas.find((c) => c.svcId > 10) && cur.svcId == 1) {
+                    if (!players[i].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
@@ -154,18 +164,18 @@ module.exports = {
             function newCard() {
 
                 try {
-                    let svcId = Math.floor(Math.svcRandom() * 13) + 1
-                    if (svcRandom(0, 100) < 60) svcId = (Math.floor(Math.svcRandom() * 6) + 1)
+                    let id = Math.floor(Math.random() * 13) + 1
+                    if (utility.random(0, 100) < 60) id = (Math.floor(Math.random() * 6) + 1)
                     const card = {
-                        svcId,
+                        id,
                         pontos: 0,
-                        naipe: Math.floor(Math.svcRandom() * 4) + 1,
+                        naipe: Math.floor(Math.random() * 4) + 1,
                         imagem: ''
                     }
-                    card.pontos = card.svcId > 10 ? 10 : card.svcId
-                    card.svcId == 1 ? card.pontos = 11 : null
-                    card.imagem = './resources/backgrounds/cartas/' + card.svcId + '/' + card.naipe + '.png'
-                    if (cardsplayed.find(c => c.svcId == card.svcId && c.naipe == card.naipe)) {
+                    card.pontos = card.id > 10 ? 10 : card.id
+                    card.id == 1 ? card.pontos = 11 : null
+                    card.imagem = './resources/backgrounds/cartas/' + card.id + '/' + card.naipe + '.png'
+                    if (cardsplayed.find(c => c.id == card.id && c.naipe == card.naipe)) {
                         return newCard()
                     }
                     return card
@@ -215,7 +225,7 @@ module.exports = {
             function giveCard() {
                 players[player].cartas.push(card)
                 players[player].pontos = players[player].cartas.reduce((acc, cur) => {
-                    if (!players[player].cartas.find((c) => c.svcId > 10) && cur.svcId == 1) {
+                    if (!players[player].cartas.find((c) => c.id > 10) && cur.id == 1) {
                         return acc + 1
                     }
                     return acc + cur.pontos
@@ -302,11 +312,11 @@ module.exports = {
 
             let loser = players[(game.winner + 1) % 2]
 
-            svcEco.token.add(winner.svcId, winner.fichas);
-            svcEco.token.remove(loser.svcId, loser.fichas);
+            economyService.token.add(winner.id, winner.fichas);
+            economyService.token.remove(loser.id, loser.fichas);
 
-            svcEco.addToHistory(winner.svcId, `Blackjack <@${loser.svcId}> | + ${svcFormat(winner.fichas)} ${svcMoney3emoji}`);
-            svcEco.addToHistory(loser.svcId, `Blackjack <@${winner.svcId}> | - ${svcFormat(loser.fichas)} ${svcMoney3emoji}`);
+            economyService.addToHistory(winner.id, `Blackjack <@${loser.id}> | + ${utility.format(winner.fichas)} ${utility.money3emoji}`);
+            economyService.addToHistory(loser.id, `Blackjack <@${winner.id}> | - ${utility.format(loser.fichas)} ${utility.money3emoji}`);
 
         }
 
@@ -314,7 +324,7 @@ module.exports = {
 
             async function getBlackJackImage () {
 
-                const blackjackimage = await svcImg.imagegens.get('blackjack.js')(dependencies, {
+                const blackjackimage = await imagesService.imagegens.get('blackjack.js')({
                     players,
                     game,
                 })
@@ -331,11 +341,11 @@ module.exports = {
 
                 let row1
 
-                const currentBtn = svcCreateButton('current', 'PRIMARY', 'Vez de ' + players[game.current].name).setDisabled(true)
-                const hitBtn = svcCreateButton('hit', 'PRIMARY', 'Hit')
-                const standBtn = svcCreateButton('stand', 'SUCCESS', 'Stand')
-                const doubleBtn = svcCreateButton('double', 'SECONDARY', 'Double Down')
-                const splitBtn = svcCreateButton('split', 'SECONDARY', 'Split')
+                const currentBtn = utility.createButton('current', 'PRIMARY', 'Vez de ' + players[game.current].name).setDisabled(true)
+                const hitBtn = utility.createButton('hit', 'PRIMARY', 'Hit')
+                const standBtn = utility.createButton('stand', 'SUCCESS', 'Stand')
+                const doubleBtn = utility.createButton('double', 'SECONDARY', 'Double Down')
+                const splitBtn = utility.createButton('split', 'SECONDARY', 'Split')
                 
                 if (game.status == 'stand') {
                     standBtn.setDisabled(true)
@@ -348,7 +358,7 @@ module.exports = {
                 }
                 
                 let row1components = [currentBtn, hitBtn, standBtn, doubleBtn]
-                row1 = svcRowComponents(row1components)
+                row1 = utility.rowComponents(row1components)
 
                 blackjackcomponents.push(row1)
 
@@ -357,19 +367,19 @@ module.exports = {
 
             function getBlackJackEmbed () {
                 const playsMap = `\n \nJogadas:\nCartas iniciais dadas\n${game.plays.map(play => `${players[play.player].name} usou ${play.playtype.toUpperCase()}`).join('\n')}`
-                const embed = new svcDiscord.MessageEmbed()
+                const embed = new Discord.MessageEmbed()
                 .setColor('#4e5052')
                 .setTitle(`<:hide:855906056865316895> BlackJack`)
                 .setImage('attachment://image.png')
-                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${svcMoney3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
+                .setDescription(`${players[0].name} e ${players[1].name}${game.status == 'bust' || game.status == 'blackjack' || ['bust', 'blackjack', 'timeout', 'lost'].includes(game.status) ? `\nVencedor: **${players[game.winner].name}** [__${game.status}__]\nAposta: ${players[game.winner].fichas} ${utility.money3emoji}` : (game.status == 'draw' ? `\nEmpate!` : '')}`)
                 .setFooter(playsMap)
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
-                    embed.addField(`${players[game.current].name}`, `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${svcMoney3emoji}`)
+                    embed.addField(`${players[game.current].name}`, `Pontos: ${players[game.current].pontos}\nAposta: ${players[game.current].fichas} ${utility.money3emoji}`)
                     embed.setFooter(`${players[game.current].name} está jogando${playsMap}`)
                 }
                 return embed
             }
-            const token = await svcEco.token.get(players[game.current].svcId)
+            const token = await economyService.token.get(players[game.current].id)
             const blackjackimage = await getBlackJackImage()
             const blackjackcomponents = getBlackJackComponents(token)
             const blackjackembed = getBlackJackEmbed()
@@ -387,30 +397,30 @@ module.exports = {
 
         }
 
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         .setTitle(`<:hide:855906056865316895> BlackJack`)
         .setColor('#42e3d0')
-		.setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}.`)
-        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.svcId]}\n${member} ${game.confirm[member.svcId]}`)
+		.setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
+        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
         
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
         let message 
-        if (member.svcId == svcId) {
+        if (member.id == config.app.id) {
             message = await start()
             game.status = 'playing'
         } else {
-            message = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+            message = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
         }
 
         const filter = i => {
             let passed = true
             try {
-                const checkFilter = [interaction.user.svcId]
-                if (member != null) checkFilter.push(member.svcId)
+                const checkFilter = [interaction.user.id]
+                if (member != null) checkFilter.push(member.id)
     
-                if (!checkFilter.includes(i.user.svcId)) passed = false
+                if (!checkFilter.includes(i.user.id)) passed = false
 
             } catch (error) {
                 reportError(error, 'command.blackjack.collector');
@@ -425,37 +435,37 @@ module.exports = {
 
             if (game.status == 'confirm') {
 
-                svcPlayerUtils.cooldown.set(interaction.user.svcId, "blackjack", 60);
-                if (member.svcId != svcId) svcPlayerUtils.cooldown.set(member.svcId, "blackjack", 60);
-                game.reacted[b.user.svcId] = true
+                playersService.cooldown.set(interaction.user.id, "blackjack", 60);
+                if (member.id != config.app.id) playersService.cooldown.set(member.id, "blackjack", 60);
+                game.reacted[b.user.id] = true
                 if (b.customId == 'cancel'){
-                    game.confirm[b.user.svcId] = '❌'
+                    game.confirm[b.user.id] = '❌'
                 } else {
-                    game.confirm[b.user.svcId] = '✅'
+                    game.confirm[b.user.id] = '✅'
                 }
                 if (b && !b.deferred) await b.deferUpdate()
 
-                const embed = new svcDiscord.MessageEmbed()
+                const embed = new Discord.MessageEmbed()
                 .setTitle('<:hide:855906056865316895> BlackJack')
                 .setColor('#a60000')
-                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}.`)
-                if (game.confirm[interaction.user.svcId] == '<a:loading:736625632808796250>' || game.confirm[member.svcId] == '<a:loading:736625632808796250>') {
-                    embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.svcId]}\n${member} ${game.confirm[member.svcId]}`)
-                    return interaction.editReply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])] })
+                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
+                if (game.confirm[interaction.user.id] == '<a:loading:736625632808796250>' || game.confirm[member.id] == '<a:loading:736625632808796250>') {
+                    embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${game.confirm[interaction.user.id]}\n${member} ${game.confirm[member.id]}`)
+                    return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
                 }
-                if (game.confirm[interaction.user.svcId] == '❌' && game.confirm[member.svcId] == '❌') {
+                if (game.confirm[interaction.user.id] == '❌' && game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
-                } else if (game.confirm[interaction.user.svcId] == '❌') {
+                } else if (game.confirm[interaction.user.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
-                } else if (game.confirm[member.svcId] == '❌') {
+                } else if (game.confirm[member.id] == '❌') {
                     embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
                     game.status = 'nostart'
                     return interaction.editReply({ embeds: [embed], components: [] })
-                } else if (game.confirm[interaction.user.svcId] == '✅' && game.confirm[member.svcId] == '✅') {
+                } else if (game.confirm[interaction.user.id] == '✅' && game.confirm[member.id] == '✅') {
                     game.status = 'playing'
                     start()
                 }
@@ -465,16 +475,16 @@ module.exports = {
 
             try {
 
-                if (game.current == 0 && b.user.svcId != interaction.user.svcId) return true
+                if (game.current == 0 && b.user.id != interaction.user.id) return true
     
-                if (member != null && game.current == 1 && b.user.svcId != member.svcId) return true
+                if (member != null && game.current == 1 && b.user.id != member.id) return true
 
                 const player = await play(game.current, b.customId)
                 checkGame(player)
 
                 if (!['bust', 'blackjack', 'draw', 'timeout', 'lost'].includes(game.status)) {
 
-                    if (member.svcId == svcId && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
+                    if (member.id == config.app.id && game.current == 1 && (game.status == 'stand' || game.status == 'playing' )) {
 
                         async function getBotPlay() {
                             const botPlay = {
@@ -485,8 +495,8 @@ module.exports = {
                                 botPlay.playtype = 'stand'
                             } else if (players[1].pontos >= 17 && players[1].pontos <= 21 && players[0].pontos <= 10 && game.status != 'stand' && players[0].status != 'stand') {
                                 botPlay.playtype = 'stand'
-                            } else if (players[1].pontos > 6 && players[1].pontos < 14 && svcRandom(0, 100) < 30 && players[1].cartas.length == 2) {
-                                const token = await svcEco.token.get(players[1].svcId)
+                            } else if (players[1].pontos > 6 && players[1].pontos < 14 && utility.random(0, 100) < 30 && players[1].cartas.length == 2) {
+                                const token = await economyService.token.get(players[1].id)
                                 if (token >= (players[1].fichas * 2)) {
                                     botPlay.playtype = 'double'
                                 } else {
@@ -515,13 +525,13 @@ module.exports = {
         })
 
         collector.on('end', async() => {
-            if (member.svcId != svcId) svcPlayerUtils.cooldown.set(member.svcId, "blackjack", 0);
-            svcPlayerUtils.cooldown.set(interaction.user.svcId, "blackjack", 0);
-            if (game.status == 'confirm' && (!game.reacted[interaction.user.svcId] || !game.reacted[member.svcId])) {
-                const embed = new svcDiscord.MessageEmbed()
+            if (member.id != config.app.id) playersService.cooldown.set(member.id, "blackjack", 0);
+            playersService.cooldown.set(interaction.user.id, "blackjack", 0);
+            if (game.status == 'confirm' && (!game.reacted[interaction.user.id] || !game.reacted[member.id])) {
+                const embed = new Discord.MessageEmbed()
                 .setTitle('<:hide:855906056865316895> BlackJack')
                 .setColor('#a60000')
-                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}.`)
+                .setDescription(`O membro ${interaction.user} iniciou um blackjack contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}.`)
                 .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, o jogo foi cancelado!`)
                 interaction.editReply({ embeds: [embed], components: [] });
                 return

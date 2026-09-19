@@ -1,10 +1,31 @@
-module.exports = function createModule(dependencies) {
-    const { Discord, client, db, eco, format, id, maqExtension, money, moneyemoji, ms, random, shopExtension, townExtension } = dependencies;
-const DatabaseManager = db;
+const Discord = require('../discordCompat');
+const DatabaseManagerClass = require('../manager/DatabaseManager');
+const clientService = require('./clientService');
+const economyService = require('./economy');
+const machineService = require('./machines');
+const shopService = require('./shop');
+const townsService = require('./towns');
+const UtilityService = require('./utilityService');
 const { reportError } = require('../debug');
 const config = require("../config");
+class EventsService {
+constructor() {
+const database = new DatabaseManagerClass();
+const eco = economyService;
+const format = new UtilityService().format.bind(new UtilityService());
+const id = config.app.id;
+const maqExtension = machineService;
+const utility = new UtilityService();
+const money = utility.money;
+const moneyemoji = utility.moneyemoji;
+const ms = utility.ms.bind(utility);
+const random = utility.random.bind(utility);
+const shopExtension = shopService;
+const townExtension = townsService;
+const DatabaseManager = database;
 
-const events = {
+const events = this;
+Object.assign(events, {
 
     treasure: {
         loc: 0,
@@ -110,7 +131,7 @@ ${vencedor == 3 ? '🎉|🏇' : '🏁|' + inv4}${vencedor != 0 && vencedor != 3 
         return embed
     }
 
-}
+});
 
 events.getConfig = function(){ return config }
 
@@ -121,7 +142,7 @@ events.alert = async function(text) {
         embed.setColor('RANDOM')
         embed.setTitle("Siga este canal em seu servidor para avisos de eventos")
         embed.setDescription(text)
-        const channel = client.channels.cache.get(config.modules.events.channel)
+        const channel = clientService.current?.channels.cache.get(config.modules.events.channel)
         await channel.bulkDelete(10).catch((error) => reportError(error, 'events.bulk_delete'))
         let eventinteraction 
         await channel.send({ embeds: [embed]}).then((embedinteraction) => {
@@ -132,7 +153,7 @@ events.alert = async function(text) {
         return eventinteraction
 
     } catch (err) {
-        client.emit('error', err)
+        clientService.current?.emit('error', err)
     }
     return "Enviado com sucesso para " + config.modules.events.channel
 }
@@ -279,7 +300,7 @@ events.load = async function() {
             events.race = globalevents.race
 
             let interaction 
-            let ch = await client.channels.fetch(config.modules.events.channel);
+            let ch = await clientService.current?.channels.fetch(config.modules.events.channel);
             try{
                 interaction = await ch.messages.fetch(events.race.interactionid)
             } catch (error) {
@@ -332,13 +353,13 @@ events.load = async function() {
         shopExtension.forceDiscount()
 
         try {
-            const botmoney = await eco.money.get(client.user.id)
+            const botmoney = await eco.money.get(clientService.current.user.id)
             if (botmoney > 1000000) {
-                eco.money.remove(client.user.id, 1000000)
-                eco.token.add(client.user.id, 500)
+                eco.money.remove(clientService.current.user.id, 1000000)
+                eco.token.add(clientService.current.user.id, 500)
             }
         } catch (error) {
-            client.emit('error', error)
+            clientService.current?.emit('error', error)
         }
 
 
@@ -346,5 +367,7 @@ events.load = async function() {
 
 }
 
-return events;
-};
+}
+}
+
+module.exports = new EventsService();

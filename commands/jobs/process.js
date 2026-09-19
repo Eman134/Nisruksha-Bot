@@ -1,30 +1,41 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const playersService = require('../../_classes/services/players');
+const companyService = require('../../_classes/services/company');
+const cacheListsService = require('../../_classes/services/cacheLists');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const itemsService = require('../../_classes/services/items');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","company","createButton","eco","format","itemExtension","money","moneyemoji","ms","playerUtils","rowComponents"],
     name: 'processos',
     aliases: ['menuprocessos', 'procs', 'processamentos'],
     category: 'none',
     description: 'Veja todos os sistemas de processamentos, ferramentas e as limpezas',
     companytype: 7,
     mastery: 15,
-	async execute(interaction, svcDiscord, svcCacheLists, svcCompany, svcCreateButton, svcEco, svcFormat, svcItemExtension, svcMoney, svcMoneyemoji, svcMs, svcPlayerUtils, svcRowComponents, company) {        
-		const embed = new svcDiscord.MessageEmbed()
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
+
+                
+		const embed = new Discord.MessageEmbed()
 
         const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
         const machines = await DatabaseManager.get(interaction.user.id, 'machines')
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "verprocessamentos");
+        const check = await playersService.cooldown.check(interaction.user.id, "verprocessamentos");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'verprocessamentos', 'ver outra mensagem de processamentos')
+            playersService.cooldown.message(interaction, 'verprocessamentos', 'ver outra mensagem de processamentos')
 
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 35);
+        playersService.cooldown.set(interaction.user.id, "verprocessamentos", 35);
 
         const level = machines.level
 
@@ -36,8 +47,8 @@ module.exports = {
 
             const defaultjson = {
                 tools: {
-                    0: svcCompany.jobs.process.tools.search(level, 0),
-                    1: svcCompany.jobs.process.tools.search(level, 1),
+                    0: companyService.jobs.process.tools.search(level, 0),
+                    1: companyService.jobs.process.tools.search(level, 1),
                 },
     
                 in: []
@@ -50,7 +61,7 @@ module.exports = {
         }
 
         if (processjson.tools[0].durability.current <= 0 && processjson.tools[1].fuel.current <= 0) {
-            await svcCacheLists.waiting.remove(member.id, 'working');
+            await cacheListsService.waiting.remove(member.id, 'working');
             await jobs.process.remove(member.id)
         }
 
@@ -62,16 +73,16 @@ module.exports = {
                 embeds = []
                 for (i = 0; i < processjson.in.length; i++) {
     
-                    const eproctemp = new svcDiscord.MessageEmbed()
+                    const eproctemp = new Discord.MessageEmbed()
 
                     const checkfi = processjson.in[i].fragments.current == 0
 
-                    const estimadoms = svcCompany.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, processjson.in[i].fragments.current)
+                    const estimadoms = companyService.jobs.process.calculateTime(processjson.tools[processjson.in[i].tool].potency.current, processjson.in[i].fragments.current)
                     
                     if (!processjson.in[i]) break
-                    eproctemp.setDescription(`ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + svcMs(Date.now() - processjson.in[i].started, true):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
+                    eproctemp.setDescription(`ID de Processo: ${processjson.in[i].id}${!checkfi ? '\nTempo decorrido: ' + compactTime(Date.now() - processjson.in[i].started):''}\nMétodo de Limpeza: ${processjson.tools[processjson.in[i].tool].icon} ${processjson.tools[processjson.in[i].tool].name}\nFragmentos em Limpeza: [${processjson.in[i].fragments.current}/${processjson.in[i].fragments.total}]\nXP ganho: ${processjson.in[i].xp}\nScore ganho: ${processjson.in[i].score} ⭐`, true)
                 
-                    eproctemp.setTitle(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : svcMs(estimadoms, true))}`)
+                    eproctemp.setTitle(`⏳ Processo ${processjson.in[i].id}: ${(checkfi ? 'Finalizado ✅' : utility.ms(estimadoms, true))}`)
 
                     if (processjson.in[i].tool == 0 && processjson.tools[processjson.in[i].tool].durability.current <= 0) eproctemp.setFooter('❌ Ferramenta não possui durabilidade')
                     else if (processjson.in[i].tool == 1 && processjson.tools[processjson.in[i].tool].fuel.current <= 0) eproctemp.setFooter('❌ Não possui líquido suficiente')
@@ -118,7 +129,7 @@ module.exports = {
                 
                 }
             } else {
-                await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                await cacheListsService.waiting.remove(interaction.user.id, 'working');
                 embed.fields = []
                 embed.setDescription(`❌ Você não possui processos ativos no momento para visualizá-los\nUtilize \`/iniciarprocesso\` para começar a processar fragmentos.`, true)
                 embeds = []
@@ -137,20 +148,20 @@ module.exports = {
 
             const components = []
 
-            const btn0 = svcCreateButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
-            //const btn1 = svcCreateButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
-            const btn2 = svcCreateButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🛠', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
-            const btn3 = svcCreateButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? 'Repor' : 'Líquido de Limpeza', current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? '⚗' : '🧪', (current == 'lqd' && (tool.fuel.current/tool.fuel.max*100).toFixed(2) >= 50 || allDisabled ? true : false))
+            const btn0 = utility.createButton('processos', (current == 'processos' ? 'SUCCESS': 'SECONDARY'), 'Processos', '⏳', (current == 'processos' || allDisabled ? true : false))
+            //const btn1 = utility.createButton('inv', (current == 'inv' ? 'SUCCESS': 'SECONDARY'), 'Inventário', '📦', (current == 'inv' || allDisabled ? true : false))
+            const btn2 = utility.createButton('ferr', (current == 'ferr' ? 'SUCCESS': 'SECONDARY'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? 'Reparar' : ('Ferramenta de Limpeza'), current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) < 70 ? '🧰' : '🛠', (current == 'ferr' && ((tool.durability.current/tool.durability.max*100).toFixed(2)) >= 70 || allDisabled ? true : false))
+            const btn3 = utility.createButton('lqd', (current == 'lqd' ? 'SUCCESS': 'SECONDARY'), current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? 'Repor' : 'Líquido de Limpeza', current == 'lqd' && ((tool.fuel.current/tool.fuel.max*100).toFixed(2)) < 50 ? '⚗' : '🧪', (current == 'lqd' && (tool.fuel.current/tool.fuel.max*100).toFixed(2) >= 50 || allDisabled ? true : false))
             
-            components.push(svcRowComponents([btn0, btn2, btn3]))
+            components.push(utility.rowComponents([btn0, btn2, btn3]))
 
             if (current == 'ferr' || current == 'lqd') {
-                const btn4 = svcCreateButton('pot1', 'PRIMARY', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
-                const btn5 = svcCreateButton('pot2', 'PRIMARY', '-1 Potência', '', ((tool.potency.current-1 < tool.potency.rangemin) || allDisabled ? true : false))
-                const btnreset = svcCreateButton('potreset', 'PRIMARY', '', '🔁', (allDisabled ? true : false))
-                const btn6 = svcCreateButton('pot3', 'PRIMARY', '+1 Potência', '', ((tool.potency.current+1 > tool.potency.rangemax) || allDisabled ? true : false))
-                const btn7 = svcCreateButton('pot4', 'PRIMARY', '+5 Potência', '', ((tool.potency.current+5 > tool.potency.rangemax) || allDisabled ? true : false))
-                components.push(svcRowComponents([btn4, btn5, btnreset, btn6, btn7]))
+                const btn4 = utility.createButton('pot1', 'PRIMARY', '-5 Potência', '', ((tool.potency.current-5 < tool.potency.rangemin) || allDisabled ? true : false))
+                const btn5 = utility.createButton('pot2', 'PRIMARY', '-1 Potência', '', ((tool.potency.current-1 < tool.potency.rangemin) || allDisabled ? true : false))
+                const btnreset = utility.createButton('potreset', 'PRIMARY', '', '🔁', (allDisabled ? true : false))
+                const btn6 = utility.createButton('pot3', 'PRIMARY', '+1 Potência', '', ((tool.potency.current+1 > tool.potency.rangemax) || allDisabled ? true : false))
+                const btn7 = utility.createButton('pot4', 'PRIMARY', '+5 Potência', '', ((tool.potency.current+5 > tool.potency.rangemax) || allDisabled ? true : false))
+                components.push(utility.rowComponents([btn4, btn5, btnreset, btn6, btn7]))
             }
 
             const endprocs = processjson.in.filter(processo => {
@@ -162,7 +173,7 @@ module.exports = {
                 let butnList = []
 
                 for (i = 0; i < endprocs.length; i++) {1
-                    butnList.push(svcCreateButton('proc:' + endprocs[i].id, 'SECONDARY', ' ' + custoretirar + ' | Processo: ' + endprocs[i].id, '🔸', (allDisabled ? true : false)))
+                    butnList.push(utility.createButton('proc:' + endprocs[i].id, 'SECONDARY', ' ' + custoretirar + ' | Processo: ' + endprocs[i].id, '🔸', (allDisabled ? true : false)))
                 }
 
                 let totalcomponents = butnList.length % 5;
@@ -174,7 +185,7 @@ module.exports = {
                 for (x = 0; x < totalcomponents; x++) {
                     const var1 = (x+1)*5-5
                     const var2 = ((x+1)*5)
-                    const rowBtn = svcRowComponents(butnList.slice(var1, var2))
+                    const rowBtn = utility.rowComponents(butnList.slice(var1, var2))
                     if (rowBtn.components.length > 0) components.push(rowBtn)
 
                 }
@@ -206,10 +217,10 @@ module.exports = {
 
             current = b.customId
 
-            svcPlayerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 35);
+            playersService.cooldown.set(interaction.user.id, "verprocessamentos", 35);
 
             const players_utils = await DatabaseManager.get(interaction.user.id, 'players_utils')
-            const svcMoney = await svcEco.svcMoney.get(interaction.user.id)
+            const money = await economyService.money.get(interaction.user.id)
             processjson = players_utils.process
 
             if (b.customId == 'processos') {
@@ -253,11 +264,11 @@ module.exports = {
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 0).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Médio: ${svcMs(svcCompany.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments), true)}
+Tempo de Limpeza Médio: ${compactTime(companyService.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Durabilidade: ${tool.durability.current}/${tool.durability.max} (${(tool.durability.current/tool.durability.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
-Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${svcCompany.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
-${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de reparação atual: \`${custorepair} ${svcMoney}\` ${svcMoneyemoji}` : ''}
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${companyService.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de reparação atual: \`${custorepair} ${utility.money}\` ${utility.moneyemoji}` : ''}
 `)
             } if (b.customId == 'lqd') {
 
@@ -270,20 +281,20 @@ ${(tool.durability.current/tool.durability.max*100).toFixed(2) < 70 ? `Custo de 
 Progresso de Trabalho: Nível ${tool.toollevel.current}/${tool.toollevel.max} - ${tool.toollevel.exp}/${tool.toollevel.max*tool.toollevel.max*100} XP - ${(100*(tool.toollevel.exp)/(tool.toollevel.max*tool.toollevel.max*100)).toFixed(2)}%
 Processos simultâneos: ${processjson.in.filter((proca) => proca.tool == 1).length}/${tool.process.max}
 Máximo de Fragmentos por Processo: ${tool.process.maxfragments}
-Tempo de Limpeza Médio: ${svcMs(svcCompany.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments), true)}
+Tempo de Limpeza Médio: ${compactTime(companyService.jobs.process.calculateTime(tool.potency.current, tool.process.maxfragments))}
 Tanque: ${(tool.fuel.current/1000).toFixed(2)}/${(tool.fuel.max/1000).toFixed(2)}L (${(tool.fuel.current/tool.fuel.max*100).toFixed(2)}%)
 <:mitico:852302869746548787>${tool.drops.mythic}% <:lendario:852302870144745512>${tool.drops.lendary}% <:epico:852302869628715050>${tool.drops.epic}% <:raro:852302870074359838>${tool.drops.rare}% <:incomum:852302869888630854>${tool.drops.uncommon}% <:comum:852302869889155082>${tool.drops.common}%
-Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${svcCompany.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
-${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição atual: \`${custorepair} ${svcMoney}\` ${svcMoneyemoji}` : ''}
+Potência de Limpeza: [${tool.potency.rangemin}-**${tool.potency.current}**-${tool.potency.rangemax}]/${tool.potency.max} (${(tool.potency.current/tool.potency.max*100).toFixed(2)}%) (${companyService.jobs.process.translatePotency(Math.round(tool.potency.current/tool.potency.max*100))})
+${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição atual: \`${custorepair} ${utility.money}\` ${utility.moneyemoji}` : ''}
 `)
             }  if (repair) {
-                if (svcMoney < custorepair) {
+                if (money < custorepair) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha ' + (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customId == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${svcFormat(svcMoney)}/${svcFormat(custorepair)} ${svcMoney} ${svcMoneyemoji}**`)
+                    embed.addField('❌ Falha ' + (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você não possui dinheiro o suficiente para ${(b.customId == 'ferr' ? 'reparar sua ferramenta' : 'repor este líquido')}.\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}**`)
                 } else {
 
                     embed.setColor('#5bff45');
-                    embed.addField('✅ Sucesso ' +  (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${svcFormat(custorepair)} ${svcMoney} ${svcMoneyemoji}** e ${(b.customId == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
+                    embed.addField('✅ Sucesso ' +  (b.customId == 'ferr' ? 'no reparo' : 'na reposição'), `Você gastou **${utility.format(custorepair)} ${utility.money} ${utility.moneyemoji}** e ${(b.customId == 'ferr' ? 'reparou com sucesso a sua ferramenta de limpeza' : 'repôs com sucesso o líquido de limpeza')}.`)
                 
                 
                     if (b.customId == 'ferr') {
@@ -294,17 +305,17 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     }
                     
                     DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
-                    await svcEco.svcMoney.remove(interaction.user.id, custorepair);
-                    await svcEco.addToHistory(interaction.user.id, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${svcFormat(custorepair)} ${svcMoneyemoji}`)
-                    await svcCompany.jobs.process.add(interaction.user.id)
-                    await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+                    await economyService.money.remove(interaction.user.id, custorepair);
+                    await economyService.addToHistory(interaction.user.id, `${(b.customId == 'ferr' ? 'Reparo' : 'Reposição')} | - ${utility.format(custorepair)} ${utility.moneyemoji}`)
+                    await companyService.jobs.process.add(interaction.user.id)
+                    await cacheListsService.waiting.add(interaction.user.id, embedinteraction, 'working');
                 }
                     
             
             }
             if (b.customId.startsWith('proc:')) {
 
-                let stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
+                let stamina = await playersService.stamina.get(interaction.user.id)
 
                 if (stamina < custoretirar) {
                     
@@ -314,7 +325,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
 
                 } else {
 
-                    svcPlayerUtils.stamina.remove(interaction.user.id, custoretirar)
+                    playersService.stamina.remove(interaction.user.id, custoretirar)
 
                     const id = parseInt(b.customId.replace(/proc:/g, ''))
                     const oldproc = processjson.in.find((x) => x.id == id)
@@ -323,11 +334,11 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
                     DatabaseManager.set(interaction.user.id, 'players_utils', 'process', processjson)
                     await setProcess()
 
-                    let xp = await svcPlayerUtils.execExp(interaction, oldproc.xpbase)
+                    let xp = await playersService.execExp(interaction, oldproc.xpbase)
                     let score = parseFloat(oldproc.score)
-                    svcCompany.stars.add(interaction.user.id, company.company_id, { score })
+                    companyService.stars.add(interaction.user.id, company.company_id, { score })
 
-                    const retorno = await svcItemExtension.give(interaction, oldproc.drops || [])
+                    const retorno = await itemsService.give(interaction, oldproc.drops || [])
                     
                     embed.addField('✅ Processo ' + id + ' removido', `Você removeu um processo que foi finalizado \`(+${xp} XP)\` ${score > 0 ? `**(+${score} ⭐)**`:''}${oldproc.drops.length > 0 ? `\nOs itens que foram encontrados por este processo foram para a mochila. [Colocados: ${retorno.colocados.length} | Descartados: ${retorno.descartados.length}]`:''}`)
                     if (processjson.in.length > 0) embeds.push(embed)
@@ -348,7 +359,7 @@ ${(tool.fuel.current/tool.fuel.max*100).toFixed(2) < 50 ? `Custo de reposição 
         collector.on('end', async collected => {
             const components = reworkButtons(current, true)
             interaction.editReply({ embeds, components })
-            svcPlayerUtils.cooldown.set(interaction.user.id, "verprocessamentos", 0);
+            playersService.cooldown.set(interaction.user.id, "verprocessamentos", 0);
             return;
         });
 

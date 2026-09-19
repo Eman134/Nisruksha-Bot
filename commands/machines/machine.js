@@ -1,3 +1,14 @@
+const playersService = require('../../_classes/services/players');
+const machinesService = require('../../_classes/services/machines');
+const shopService = require('../../_classes/services/shop');
+const itemsService = require('../../_classes/services/items');
+const imagesService = require('../../_classes/services/images');
+const cacheListsService = require('../../_classes/services/cacheLists');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const Discord = require('../../_classes/discordCompat');
+const economyService = require('../../_classes/services/economy');
+const clientService = require('../../_classes/services/clientService');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
@@ -7,26 +18,25 @@ const data = new SlashCommandBuilder()
 .addUserOption(option => option.setName('membro').setDescription('Veja a máquina de algum membro'))
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","client","createButton","createMenu","eco","format","img","itemExtension","maqExtension","money","moneyemoji","ms","playerUtils","rowComponents","sendError","shopExtension"],
     name: 'maquina',
     aliases: ['maquina', 'maq', 'machine'],
     category: 'Maquinas',
     description: 'Visualiza as informações da sua máquina',
     data,
     mastery: 35,
-	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCreateButton, svcCreateMenu, svcEco, svcFormat, svcImg, svcItemExtension, svcMaqExtension, svcMoney, svcMoneyemoji, svcMs, svcPlayerUtils, svcRowComponents, svcSendError, svcShopExtension) {
+	async execute(interaction) {
 
         let member = interaction.options.getUser('membro') || interaction.user
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "maq");
+        const check = await playersService.cooldown.check(interaction.user.id, "maq");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'maq', 'visualizar uma máquina')
+            playersService.cooldown.message(interaction, 'maq', 'visualizar uma máquina')
 
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "maq", 10);
+        playersService.cooldown.set(interaction.user.id, "maq", 10);
 
         await interaction.reply({ content: `<a:loading:736625632808796250> Carregando informações da máquina` })
         const embedinteraction = await interaction.fetchReply()
@@ -35,20 +45,20 @@ module.exports = {
         
         const memberobj = await DatabaseManager.get(member.id, 'players')
 
-        const profundidade = await svcMaqExtension.getDepth(member.id)
+        const profundidade = await machinesService.getDepth(member.id)
 
         const machineid = machinesobj.machine;
-        const machineproduct = svcShopExtension.getProduct(machineid);
+        const machineproduct = shopService.getProduct(machineid);
 
-        const { energia, energiamax, time } = await svcMaqExtension.getEnergy(member.id)
+        const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
 
-        const chips = await svcItemExtension.getChips(member.id);
+        const chips = await itemsService.getChips(member.id);
         
         const mvp = (memberobj.mvp == null ? false : true)
         
-        const maxslots = svcMaqExtension.getSlotMax(machinesobj.level, mvp)
+        const maxslots = machinesService.getSlotMax(machinesobj.level, mvp)
 
-        let equippedchips = await svcItemExtension.getEquippedChips(member.id);
+        let equippedchips = await itemsService.getEquippedChips(member.id);
 
         if (maxslots < 5) {
     
@@ -57,19 +67,19 @@ module.exports = {
             if (!(equippedchips[slot] == null || equippedchips[slot] == undefined|| equippedchips[slot] == 0)) {
 
                 const eqslot = typeof equippedchips[slot] === 'object' ? equippedchips[slot].id : equippedchips[slot]
-                placa = svcShopExtension.getProduct(eqslot);
+                placa = shopService.getProduct(eqslot);
     
                 equippedchips.length == 1 ? equippedchips = [] : equippedchips.splice(slot, 1);
             
                 await DatabaseManager.increment(member.id, 'storage', `"piece:${placa.id}"`, 1)
                 await DatabaseManager.set(member.id, 'machines', `slots`, equippedchips)
-                equippedchips = await svcItemExtension.getEquippedChips(member.id);
+                equippedchips = await itemsService.getEquippedChips(member.id);
     
             }
     
         }
 
-        let { pollutants, refrigeration, pressure, durability } = await svcMaqExtension.getMaintenance(member.id)
+        let { pollutants, refrigeration, pressure, durability } = await machinesService.getMaintenance(member.id)
 
         var [_, _, durabilityPercent, durabilityPrice] = durability
         var [_, _, pressurePercent, pressurePrice] = pressure
@@ -79,7 +89,7 @@ module.exports = {
         async function getMachineImage () {
 
             try {
-                const machineimage = await svcImg.imagegens.get('machine.js')(dependencies, {
+                const machineimage = await imagesService.imagegens.get('machine.js')({
     
                     profundidade,
                     energia,
@@ -118,10 +128,10 @@ module.exports = {
             try {
                 const components = [];
                 const firstrow = []
-                const isMining = await svcCacheLists.waiting.includes(member.id, 'mining')
+                const isMining = await cacheListsService.waiting.includes(member.id, 'mining')
 
-                const energyBtnText = `[${energia}/${energiamax}]${energia < energiamax && !disableall && !rememberEnergy ? ' ' + svcMs(time, true) : ''}`
-                const energyBtn = svcCreateButton('energyBtn', 'SUCCESS', energyBtnText, '🔋')
+                const energyBtnText = `[${energia}/${energiamax}]${energia < energiamax && !disableall && !rememberEnergy ? ' ' + utility.ms(time, true) : ''}`
+                const energyBtn = utility.createButton('energyBtn', 'SUCCESS', energyBtnText, '🔋')
 
                 if (energia == energiamax || disableall || rememberEnergy) {
                     energyBtn.setDisabled(true)
@@ -140,43 +150,43 @@ module.exports = {
                     if (percent <= 100) return icons[3]
                 }
                 
-                const maintenanceBtn = svcCreateButton('maintenance', 'SUCCESS', 'Manutenção', '🔨')
+                const maintenanceBtn = utility.createButton('maintenance', 'SUCCESS', 'Manutenção', '🔨')
                 if (disableall || isMaintenance) {
                     maintenanceBtn.setDisabled(true)
                 }
 
-                const chipsBtn = svcCreateButton('chips', 'SUCCESS', 'Chipes', '833803786022682636')
+                const chipsBtn = utility.createButton('chips', 'SUCCESS', 'Chipes', '833803786022682636')
                 if (disableall || isEquipping) {
                     chipsBtn.setDisabled(true)
                 }
 
-                const repairBtnText = `${durabilityPercent < 60 ? `Reparar por ${svcFormat(durabilityPrice)} 💰` : `Reparado`}`
+                const repairBtnText = `${durabilityPercent < 60 ? `Reparar por ${utility.format(durabilityPrice)} 💰` : `Reparado`}`
                 const repairBtnIcon = getMaintenanceIcon('durability', durabilityPercent)
-                const repairBtn = svcCreateButton('durability', 'SECONDARY', repairBtnText, repairBtnIcon)
+                const repairBtn = utility.createButton('durability', 'SECONDARY', repairBtnText, repairBtnIcon)
                 
                 if (durabilityPercent >= 60 || disableall) {
                     repairBtn.setDisabled(true)
                 }
 
-                const pressureBtnText = `${pressurePercent < 20 || pressurePercent > 80 ? `Corrigir pressão por ${svcFormat(pressurePrice)} 💰` : `Presurizado`}`
+                const pressureBtnText = `${pressurePercent < 20 || pressurePercent > 80 ? `Corrigir pressão por ${utility.format(pressurePrice)} 💰` : `Presurizado`}`
                 const pressureBtnIcon = getMaintenanceIcon('pressure', pressurePercent)
-                const pressureBtn = svcCreateButton('pressure', 'SECONDARY', pressureBtnText, pressureBtnIcon)
+                const pressureBtn = utility.createButton('pressure', 'SECONDARY', pressureBtnText, pressureBtnIcon)
                 
                 if ((pressurePercent >= 20 && pressurePercent <= 80) || disableall) {
                     pressureBtn.setDisabled(true)
                 }
 
-                const refrigerationBtnText = `${refrigerationPercent < 15 ? `Refrigerar por ${svcFormat(refrigerationPrice)} 💰` : `Refrigerado`}`
+                const refrigerationBtnText = `${refrigerationPercent < 15 ? `Refrigerar por ${utility.format(refrigerationPrice)} 💰` : `Refrigerado`}`
                 const refrigerationBtnIcon = getMaintenanceIcon('refrigeration', refrigerationPercent)
-                const refrigerationBtn = svcCreateButton('refrigeration', 'SECONDARY', refrigerationBtnText, refrigerationBtnIcon)
+                const refrigerationBtn = utility.createButton('refrigeration', 'SECONDARY', refrigerationBtnText, refrigerationBtnIcon)
                 
                 if (refrigerationPercent >= 40 || disableall) {
                     refrigerationBtn.setDisabled(true)
                 }
 
-                const pollutantsBtnText = `${pollutantsPercent > 40 ? `Liberar poluentes por ${svcFormat(pollutantsPrice)} 💰` : `Sem poluentes`}`
+                const pollutantsBtnText = `${pollutantsPercent > 40 ? `Liberar poluentes por ${utility.format(pollutantsPrice)} 💰` : `Sem poluentes`}`
                 const pollutantsBtnIcon = getMaintenanceIcon('pollutants', pollutantsPercent)
-                const pollutantsBtn = svcCreateButton('pollutants', 'SECONDARY', pollutantsBtnText, pollutantsBtnIcon)
+                const pollutantsBtn = utility.createButton('pollutants', 'SECONDARY', pollutantsBtnText, pollutantsBtnIcon)
                 
                 if (pollutantsPercent <= 40 || disableall) {
                     pollutantsBtn.setDisabled(true)
@@ -184,15 +194,15 @@ module.exports = {
 
                 let unequipallBtn
                 if (mvp) {
-                    unequipallBtn = svcCreateButton('unequipall', 'SECONDARY', 'Desequipar todos', '🗑️')
+                    unequipallBtn = utility.createButton('unequipall', 'SECONDARY', 'Desequipar todos', '🗑️')
                 } else {
-                    unequipallBtn = svcCreateButton('unequipall', 'DANGER', '[MVP] Desequipar todos', '758717273304465478').setDisabled(true)
+                    unequipallBtn = utility.createButton('unequipall', 'DANGER', '[MVP] Desequipar todos', '758717273304465478').setDisabled(true)
                 }
 
                 if (disableall) unequipallBtn.setDisabled(true)
 
                 if (isMining) {
-                    const miningBtn = svcCreateButton((await svcCacheLists.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
+                    const miningBtn = utility.createButton((await cacheListsService.waiting.getLink(member.id, 'mining') || ''), 'LINK', 'Ver mineração', '🔎')
                     firstrow.push(miningBtn)
                 } else if (member.id == interaction.user.id) {
                     firstrow.push(energyBtn, maintenanceBtn, chipsBtn)
@@ -203,7 +213,7 @@ module.exports = {
 
                 if (firstrow.length == 0) return []
 
-                const row1 = svcRowComponents(firstrow)
+                const row1 = utility.rowComponents(firstrow)
 
                 components.push(row1)
 
@@ -220,7 +230,7 @@ module.exports = {
                         let type = 0
                         let isEquipBtn = false
                         if (equippedchips[slot]) {
-                            const chipe = svcShopExtension.getProduct(equippedchips[slot].id);
+                            const chipe = shopService.getProduct(equippedchips[slot].id);
                             slotBtnText += `Desequipar`
                             slotBtnIcon = chipe.icon
                             slotBtnColor = 'PRIMARY'
@@ -236,7 +246,7 @@ module.exports = {
                             slotBtnIcon = '758717273304465478'
                             slotBtnColor = 'DANGER'
                         }
-                        const slotBtn = svcCreateButton(`${type}-${slot}`, slotBtnColor, slotBtnText, slotBtnIcon)
+                        const slotBtn = utility.createButton(`${type}-${slot}`, slotBtnColor, slotBtnText, slotBtnIcon)
                         if (disableall) slotBtn.setDisabled(true)
                         if (!mvp && slot == 4) slotBtn.setDisabled(true)
                         return { slotBtn, isEquipBtn }
@@ -256,7 +266,7 @@ module.exports = {
 
                     }
 
-                    const row2 = svcRowComponents(slotsrow)
+                    const row2 = utility.rowComponents(slotsrow)
 
                     components.push(row2)
 
@@ -266,7 +276,7 @@ module.exports = {
                     const maintenancerow = []
                     maintenancerow.push(repairBtn, refrigerationBtn, pressureBtn, pollutantsBtn)
                     
-                    const row3 = svcRowComponents(maintenancerow)
+                    const row3 = utility.rowComponents(maintenancerow)
 
                     components.push(row3)
                 }
@@ -281,14 +291,14 @@ module.exports = {
 
         }
 
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
 
         function reworkEmbed(chips) {
             embed.fields = []
             let chipsmap = chips.map((p, index) => `**${p.size}x** ${p.icon} ${p.name} | **ID: ${index+1}**`).join('\n');
             embed.setDescription(`OBS: A cada **6 níveis** você adquire **+1 slot** para equipar chipes!\nVocê não pode desequipar chipes que perderam uma durabilidade, se não eles serão descartados!`)
             .addField(`<:chip:833521401951944734> Inventário de Chipes`, (chips.length <= 0 ? '**Não possui chipes de aprimoramento**' : chipsmap))
-            embed.setAuthor(member.tag, member.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
+            embed.setAuthor(member.tag, member.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
             embed.setColor('#7e6eb5')
             embed.setImage('attachment://image.png')
         }
@@ -302,7 +312,7 @@ module.exports = {
         const collector = embedinteraction.createMessageComponentCollector({ filter, time: 30000 });
         collector.on('collect', async (b) => {
 
-            const isMining = await svcCacheLists.waiting.includes(member.id, 'mining')
+            const isMining = await cacheListsService.waiting.includes(member.id, 'mining')
             if (isMining) return collector.stop()
 
             const editObj = { embeds: [embed] }
@@ -358,7 +368,7 @@ module.exports = {
             editObj.files = [machineimage]
 
             if (menu) {
-                editObj.components.push(svcRowComponents([menu]))
+                editObj.components.push(utility.rowComponents([menu]))
                 //editObj.components.splice(1, 1)
             }
                 
@@ -374,28 +384,28 @@ module.exports = {
 
         async function pressEnergyBtn() {
             rememberEnergy = true
-            const embed2 = new svcDiscord.MessageEmbed()
+            const embed2 = new Discord.MessageEmbed()
 
-            const { energia, energiamax, time } = await svcMaqExtension.getEnergy(member.id)
+            const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
             
             const pObj = await DatabaseManager.get(member.id, 'players')
             perm = pObj.perm
             
-            embed2.addField(`<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, `Irá recuperar completamente em: \`${svcMs(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!`)
+            embed2.addField(`<:energia:833370616304369674> Energia de \`${member.tag}\`: **[${energia}/${energiamax}]**`, `Irá recuperar completamente em: \`${utility.ms(time)}\`\n**Você será relembrado quando sua energia recarregar!**\nOBS: A energia não recupera enquanto estiver usando!`)
             embed2.setColor('#42f569')
-            embed2.setFooter(`1 ponto de energia recupera a cada ${svcMaqExtension.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
-            await interaction.followUp({ embeds: [embed2], flags: svcDiscord.MessageFlags.Ephemeral });
+            embed2.setFooter(`1 ponto de energia recupera a cada ${machinesService.recoverenergy[perm]} segundos${perm > 1 ? `\nComo você possui um cargo especial, sua energia recupera mais rápido!`:'\nSua energia recupera mais devagar por não ter nenhum cargo no bot!'}`)
+            await interaction.followUp({ embeds: [embed2], flags: Discord.MessageFlags.Ephemeral });
 
-            if (await svcCacheLists.remember.includes(member.id, "energia")) return;
-            await svcCacheLists.remember.add(member.id, interaction.channel.id, "energia");
+            if (await cacheListsService.remember.includes(member.id, "energia")) return;
+            await cacheListsService.remember.add(member.id, interaction.channel.id, "energia");
             async function rem(){
 
-                const { energia, energiamax, time } = await svcMaqExtension.getEnergy(member.id)
+                const { energia, energiamax, time } = await machinesService.getEnergy(member.id)
 
                 if (energia >= energiamax) {
                     await interaction.channel.send({ content: `${interaction.user} Relatório de energia: ${energia}/${energiamax}`, mention: true})
-                    if (await svcCacheLists.remember.includes(member.id, "energia")) {
-                        await svcCacheLists.remember.remove(member.id, "energia")
+                    if (await cacheListsService.remember.includes(member.id, "energia")) {
+                        await cacheListsService.remember.remove(member.id, "energia")
                     }
                     return;
                 } else {
@@ -410,14 +420,14 @@ module.exports = {
 
             try {
 
-                if (await svcCacheLists.waiting.includes(member.id, 'mining')) {
+                if (await cacheListsService.waiting.includes(member.id, 'mining')) {
                     embed.setColor('#a60000');
                     embed.addField('❌ Falha no reparo', `Você não pode realizar reparos de uma máquina enquanto estiver minerando!`)
                     await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                 }
                 
-                var maintenance = await svcMaqExtension.getMaintenance(member.id)
+                var maintenance = await machinesService.getMaintenance(member.id)
     
                 var [_, maxdurability2, durabilityPercent2, durabilityPrice2] = maintenance.durability
                 var [_, maxpressure2, pressurePercent2, pressurePrice2] = maintenance.pressure
@@ -441,19 +451,19 @@ module.exports = {
                     if (percent <= 100) return icons[3]
                 }
     
-                const svcMoney = await svcEco.svcMoney.get(member.id);
+                const money = await economyService.money.get(member.id);
     
-                if (svcMoney < price) {
+                if (money < price) {
                     embed.setColor('#a60000');
-                    embed.addField('❌ Falha no reparo', `Você não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${svcFormat(svcMoney)}/${svcFormat(price)} ${svcMoney} ${svcMoneyemoji}**`)
+                    embed.addField('❌ Falha no reparo', `Você não possui dinheiro suficiente para reparar a sua máquina**!\nSeu dinheiro atual: **${utility.format(money)}/${utility.format(price)} ${utility.money} ${utility.moneyemoji}**`)
                     await interaction.editReply({ embeds: [embed], components: [] });
                     return;
                 }
                 
                 const micon = getMaintenanceIcon(repairType, percent)
 
-                await svcEco.svcMoney.remove(member.id, price);
-                await svcEco.addToHistory(member.id, `Manutenção ${micon.length > 1 ? svcClient.emojis.cache.get(micon) : micon} | - ${svcFormat(price)}`)
+                await economyService.money.remove(member.id, price);
+                await economyService.addToHistory(member.id, `Manutenção ${micon.length > 1 ? clientService.current.emojis.cache.get(micon) : micon} | - ${utility.format(price)}`)
     
                 if (repairType == 'durability' || repairType == 'refrigeration') {
                     await DatabaseManager.set(member.id, 'machines', repairType, max)
@@ -463,7 +473,7 @@ module.exports = {
                     await DatabaseManager.set(member.id, 'machines', 'pollutants', 0)
                 }
     
-                var maintenance = await svcMaqExtension.getMaintenance(member.id)
+                var maintenance = await machinesService.getMaintenance(member.id)
     
                 var [_, maxdurability2, durabilityPercent2, durabilityPrice2] = maintenance.durability
                 var [_, maxdressure2, pressurePercent2, pressurePrice2] = maintenance.pressure
@@ -479,7 +489,7 @@ module.exports = {
 
         async function pressEquipChip() {
 
-            let chips = await svcItemExtension.getChips(interaction.user.id);
+            let chips = await itemsService.getChips(interaction.user.id);
 
             chips = chips.filter(chip => {
                 if (chip.chiptype && chip.chiptype == "one") {
@@ -514,7 +524,7 @@ module.exports = {
                 })
             }
             
-            const menu = svcCreateMenu({ id: 'selectchip', placeholder: 'Selecione o chipe que deseja equipar', min:1, max:1 }, options)
+            const menu = utility.createMenu({ id: 'selectchip', placeholder: 'Selecione o chipe que deseja equipar', min:1, max:1 }, options)
 
             if (disable) menu.setDisabled(true)
 
@@ -524,7 +534,7 @@ module.exports = {
         
         async function equipChip(chipe) {
             try {
-                const chips = await svcItemExtension.getChips(interaction.user.id);
+                const chips = await itemsService.getChips(interaction.user.id);
                 const playerobj = await DatabaseManager.get(interaction.user.id, 'machines');
                 
                 let contains = chips.length >= chipe;
@@ -532,23 +542,23 @@ module.exports = {
                 const placa = chips[chipe]
                 
                 if (!contains) {
-                    const embedtemp = await svcSendError(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`);
+                    const embedtemp = await utility.sendError(interaction, `Você não possui este chipe no inventário da máquina para equipar!\nUtilize \`/maquina\` para visualizar seus chipes`);
                     await interaction.editReply({ embeds: [embedtemp]})
                     return;
                 }
                 
-                const maxslots = svcMaqExtension.getSlotMax(playerobj.level, mvp)
+                const maxslots = machinesService.getSlotMax(playerobj.level, mvp)
                 
                 if (playerobj.slots != null && playerobj.slots.length >= maxslots) {
-                    const embedtemp = await svcSendError(interaction, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`/maquina\` para visualizar seus slots`);
+                    const embedtemp = await utility.sendError(interaction, `Você não possui slots suficientes na sua máquina para equipar isto!\nUtilize \`/maquina\` para visualizar seus slots`);
                     await interaction.editReply({ embeds: [embedtemp]})
                     return;
                 }
 
-                await svcItemExtension.givePiece(interaction.user.id, { id: placa.id, durability: placa.durability });
+                await itemsService.givePiece(interaction.user.id, { id: placa.id, durability: placa.durability });
                 await DatabaseManager.set(interaction.user.id, 'storage', `"piece:${placa.id}"`, placa.size-1)
-                equippedchips = await svcItemExtension.getEquippedChips(member.id);
-                const newchips = await svcItemExtension.getChips(interaction.user.id);
+                equippedchips = await itemsService.getEquippedChips(member.id);
+                const newchips = await itemsService.getChips(interaction.user.id);
                 reworkEmbed(newchips)
             } catch (error) {
                 throw reportError(error, 'command.maquina.equip_chip', { userId: interaction.user.id });
@@ -557,16 +567,16 @@ module.exports = {
         }
 
         async function pressUnEquipChip(slot) {
-            await svcItemExtension.unequipChip(interaction.user.id, slot)
-            equippedchips = await svcItemExtension.getEquippedChips(member.id);
-            const newchips = await svcItemExtension.getChips(interaction.user.id);
+            await itemsService.unequipChip(interaction.user.id, slot)
+            equippedchips = await itemsService.getEquippedChips(member.id);
+            const newchips = await itemsService.getChips(interaction.user.id);
             reworkEmbed(newchips)
         }
 
         async function pressUnEquipAllChips() {
-            await svcItemExtension.unequipAllChips(interaction.user.id)
+            await itemsService.unequipAllChips(interaction.user.id)
             equippedchips = []
-            const newchips = await svcItemExtension.getChips(interaction.user.id);
+            const newchips = await itemsService.getChips(interaction.user.id);
             reworkEmbed(newchips)
         }
 

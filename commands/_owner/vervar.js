@@ -1,3 +1,5 @@
+const clientService = require('../../_classes/services/clientService');
+const Discord = require('../../_classes/discordCompat');
 const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
@@ -16,23 +18,22 @@ const MAX_ADDITIONAL_FIELDS = 5;
 const MAX_ERROR_LENGTH = 1000;
 
 module.exports = {
-    requiredServices: ["Discord","client"],
     name: 'vervar',
     aliases: ['seevar', 'verobj', 'seeobj', 'getobj'],
     category: 'none',
     description: 'Veja uma variável e um valor do banco de dados',
     data,
     perm: 5,
-    async execute(interaction, svcDiscord, svcClient) {
+    async execute(interaction) {
         const id = interaction.options.getString('id');
         const table = interaction.options.getString('tabela');
-        const target = await resolveTarget(svcClient, id);
+        const target = await resolveTarget(clientService.current, id);
 
         if (!target) {
             return interaction.reply({ content: 'id undefined' });
         }
 
-        const embed = new svcDiscord.MessageEmbed();
+        const embed = new Discord.MessageEmbed();
 
         try {
             const rows = await DatabaseManager.findMany(table, {
@@ -58,11 +59,11 @@ module.exports = {
     }
 };
 
-async function resolveTarget(svcClient, id) {
+async function resolveTarget(client, id) {
     let lookupError;
 
     try {
-        const user = await svcClient.users.fetch(id);
+        const user = await client.users.fetch(id);
         if (user) {
             return { entity: user, column: 'user_id' };
         }
@@ -70,7 +71,7 @@ async function resolveTarget(svcClient, id) {
         lookupError = error;
     }
 
-    const guild = svcClient.guilds.cache.get(id);
+    const guild = client.guilds.cache.get(id);
     if (!guild && lookupError) {
         reportError(lookupError, 'command.vervar.user_lookup', { id });
     }

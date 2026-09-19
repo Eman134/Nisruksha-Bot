@@ -1,24 +1,30 @@
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const config = require('../../_classes/config');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
 const Database = require("../../_classes/manager/DatabaseManager")
 const DatabaseManager = new Database()
 
 module.exports = {
-    requiredServices: ["Discord","client","id","money2","money2emoji"],
     name: 'doar',
     aliases: ['donate'],
     category: 'Outros',
     description: 'Veja as informações necessárias para realizar uma doação',
     mastery: 20,
-	async execute(interaction, svcDiscord, svcClient, svcId, svcMoney2, svcMoney2emoji) {
-                const globalobj = await DatabaseManager.get(svcId, 'globals')
+	async execute(interaction) {
+
+                                
+                const globalobj = await DatabaseManager.get(config.app.id, 'globals')
 
                 const donates = globalobj.donates
                 const totaldonates = globalobj.totaldonates
                 
-                const embed = new svcDiscord.MessageEmbed()
+                const embed = new Discord.MessageEmbed()
                 .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setTitle(`Doe para o nosso projeto`)
-                .setThumbnail(svcClient.user.displayAvatarURL())
-                .setFooter(`Nisruksha agradece :)`, svcClient.user.displayAvatarURL())
+                .setThumbnail(client.user.displayAvatarURL())
+                .setFooter(`Nisruksha agradece :)`, client.user.displayAvatarURL())
                 .addField(`<:info:736274028515295262> Introdução e explicação`, `Lembre-se primeiramente que é uma **doação**, e **não uma compra**, portanto as vantagens são um extra para ajudar quem contribui com o projeto.\nAo doar para o Nisruksha, você pode ajudar a manter a hospedagem do bot online e assim o bot ficando online também. Além de incentivar o criador do bot a trazer mais novidades, eventos e sorteios para a comunidade do bot. As vantagens são aplicadas para doações acima de \`R$4,99\` (Cristais são adicionados independente do valor da doação).`)
                 .addField(`<:list:736274028179750922> Quais as vantagens?`, `
 \`1.\` Um obrigado
@@ -26,7 +32,7 @@ module.exports = {
 \`3.\` Acesso a sorteios exclusivos para Doadores
 \`4.\` Acesso ao desenvolvimento de novas versões
 \`5.\` Chave de ativação de MVP com duração de 15 dias (\`/mvp\`)
-Para cada \`R$1,00\` = 25 ${svcMoney2} ${svcMoney2emoji}
+Para cada \`R$1,00\` = 25 ${utility.money2} ${utility.money2emoji}
 
 OBS: As vantagens são ativadas por cada doação
 OBS2: Se você fizer um número de donates em um tempo menor, por exemplo doar \`R$5,00\` agora e doar a mesma quantia daqui 3 horas, a donate é contada como um todo de \`R$10,00\` e as vantagens serão agrupadas.        

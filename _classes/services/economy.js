@@ -1,6 +1,14 @@
-module.exports = function createModule(dependencies) {
-    const { client, db, getFormatedDate, id } = dependencies;
-const DatabaseManager = db;
+const DatabaseManager = require('../manager/DatabaseManager');
+const config = require('../config');
+const clientService = require('./clientService');
+const UtilityService = require('./utilityService');
+
+class EconomyService {
+constructor() {
+const database = new DatabaseManager();
+const client = clientService.current;
+const utility = new UtilityService();
+const id = config.app.id;
 const tp = {};
 
 tp.get = async function (user_id) {
@@ -216,7 +224,7 @@ eco.createHistoryDir = function(user_id) {
     let dir = `./_localdata/profiles/`;
     let dir2 = `./_localdata/profiles/${user_id}/`;
     let fpath = `./_localdata/profiles/${user_id}/history.yml`;
-    let strin = `\`${getFormatedDate()}\` Conta criada`
+    let strin = `\`${utility.getFormatedDate()}\` Conta criada`
     if (!fs.existsSync(dir0)) { fs.mkdirSync(dir0);} 
     if (!fs.existsSync(dir)) { fs.mkdirSync(dir);} 
     if (!fs.existsSync(dir2)) { fs.mkdirSync(dir2);} 
@@ -249,5 +257,8 @@ eco.addToHistory = async function (user_id, arg) {
 
 }
 
-return eco;
-};
+Object.assign(this, eco);
+}
+}
+
+module.exports = new EconomyService();

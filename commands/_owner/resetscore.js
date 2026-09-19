@@ -1,24 +1,30 @@
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const runtime = require('../../_classes/services/runtime');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","createButton","debug","eco","rowComponents"],
     name: 'resetscore',
     aliases: ['resetarscore'],
     category: 'none',
     description: 'Executa um reset do banco de dados',
     options: [],
     perm: 5,
-	async execute(interaction, svcDiscord, svcCreateButton, svcDebug, svcEco, svcRowComponents) {
+	async execute(interaction) {
 
-        const scoremin = 80        const embed = new svcDiscord.MessageEmbed()
+        const scoremin = 80
+
+		        const embed = new Discord.MessageEmbed()
         embed.setDescription('Reaja para continuar o reset de temporada')
 
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -47,8 +53,8 @@ reacted = true;
                     try {
                         if (mastery <= 1000) return;
                         const finalmastery = mastery > 10000 ? mastery/10000 : 1
-                        await svcEco.tp.add(user_id, finalmastery)
-                        if (svcDebug) console.log('add tp ' + finalmastery + ' to ' + user_id)
+                        await economyService.tp.add(user_id, finalmastery)
+                        if (runtime.debug) console.log('add tp ' + finalmastery + ' to ' + user_id)
                     } catch (error) {
                         reportError(error, 'command.resetscore.add_tp', { userId: user_id });
                     }
@@ -76,7 +82,7 @@ reacted = true;
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new svcDiscord.MessageEmbed();
+            const embed = new Discord.MessageEmbed();
             embed.setColor('#a60000');
             embed.setDescription('❌ Tempo expirado', `Você iria resetar a temporada, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: []  });

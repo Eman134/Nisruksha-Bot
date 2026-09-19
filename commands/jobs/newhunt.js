@@ -1,59 +1,71 @@
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const cacheListsService = require('../../_classes/services/cacheLists');
+const playersService = require('../../_classes/services/players');
+const companyService = require('../../_classes/services/company');
+const itemsService = require('../../_classes/services/items');
+const imagesService = require('../../_classes/services/images');
+const runtime = require('../../_classes/services/runtime');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","client","company","createButton","debug","img","itemExtension","playerUtils","random","rowComponents","sendError"],
     name: 'caçar',
     aliases: ['hunt'],
     category: 'none',
     description: 'Inicia uma caçada á monstros ao redor da sua localização', 
     mastery: 13,
     companytype: 2,
-	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCompany, svcCreateButton, svcDebug, svcImg, svcItemExtension, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, company) {
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
+
+                
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (pobj2.level < 3) {
-            const embedtemp = await svcSendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma caçada!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await svcCacheLists.waiting.includes(interaction.user.id, 'hunting')) {
-            const embedtemp = await svcSendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'hunting')})`)
+        if (await cacheListsService.waiting.includes(interaction.user.id, 'hunting')) {
+            const embedtemp = await utility.sendError(interaction, `Você já encontra-se caçando no momento! [[VER BATALHA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'hunting')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
+        let stamina = await playersService.stamina.get(interaction.user.id)
 
         let cost = pobj2.level+1 * 2
         cost > 30 ? cost = 30 : cost = cost;
 
         if (stamina < cost) {
             
-            const embedtemp = await svcSendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
+            const embedtemp = await utility.sendError(interaction, `Você não possui estamina o suficiente para procurar algum monstro\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
 
         }
 
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "hunt");
+        const check = await playersService.cooldown.check(interaction.user.id, "hunt");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
+            playersService.cooldown.message(interaction, 'hunt', 'realizar uma nova caçada')
 
             return;
         }
 
-        svcPlayerUtils.cooldown.set(interaction.user.id, "hunt", 20);
+        playersService.cooldown.set(interaction.user.id, "hunt", 20);
 
-        svcPlayerUtils.stamina.remove(interaction.user.id, cost-1)
+        playersService.stamina.remove(interaction.user.id, cost-1)
 
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         
-        let monster = svcCompany.jobs.explore.searchMob(pobj2.level);
+        let monster = companyService.jobs.explore.searchMob(pobj2.level);
 
         if (!monster) {
             embed.setTitle(`Nenhum monstro por perto`)
@@ -67,19 +79,19 @@ module.exports = {
         .addField(`Informações do monstro`, `Nome: **${monster.name}**\nNível: **${monster.level}**`)
         .setImage(monster.image)
 
-        const btn0 = svcCreateButton('fight', 'SUCCESS', 'Lutar', '⚔')
-        const btn1 = svcCreateButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
-        const btn2 = svcCreateButton('autofight', 'SECONDARY', 'Luta Automática', '🤖')
+        const btn0 = utility.createButton('fight', 'SUCCESS', 'Lutar', '⚔')
+        const btn1 = utility.createButton('run', 'DANGER', 'Fugir', '🏃🏾‍♂️')
+        const btn2 = utility.createButton('autofight', 'SECONDARY', 'Luta Automática', '🤖')
 
         const rb0 = [ btn0, btn1 ]
 
         if (pobj.mvp != null) rb0.push(btn2)
 
-        const rowButton0 = svcRowComponents(rb0)
+        const rowButton0 = utility.rowComponents(rb0)
 
         const embedinteraction = await interaction.reply( { embeds: [embed], components: [ rowButton0 ], withResponse: true } );
-		await svcCacheLists.waiting.add(interaction.user.id, interaction, 'hunting')
-		await svcCacheLists.waiting.add(interaction.user.id, interaction, 'working');
+		await cacheListsService.waiting.add(interaction.user.id, interaction, 'hunting')
+		await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -87,11 +99,11 @@ module.exports = {
         let reacted = false;
         let inbattle = false;
         let dead = false;
-        let equips = svcCompany.jobs.explore.equips.get(pobj2.level, 3);
+        let equips = companyService.jobs.explore.equips.get(pobj2.level, 3);
         let reactequips = {};
         let reactequiplist = ['fight', 'run', 'autofight'];
         let autohunt = false
-        let equipsBtn = [svcCreateButton('changeMode', 'SECONDARY', 'Compacto', '🔄')]
+        let equipsBtn = [utility.createButton('changeMode', 'SECONDARY', 'Compacto', '🔄')]
         let components = []
         let combo = []
         let timing = 0
@@ -104,7 +116,7 @@ module.exports = {
                 currentmode = currentmode == 0 ? 1 : 0
                 equipsBtn[0].label = currentmode == 0 ? 'Compacto' : 'Detalhado'
                 if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.novaca.defer_update'); });
-                return interaction.editReply({ embeds: await getEmbeds(), components: [ svcRowComponents(equipsBtn) ] })
+                return interaction.editReply({ embeds: await getEmbeds(), components: [ utility.rowComponents(equipsBtn) ] })
             }
 
             if (Date.now()-timing < 0) return
@@ -123,7 +135,7 @@ module.exports = {
 
             async function getEmbeds(currinteraction) {
 
-                const stp = await svcPlayerUtils.stamina.get(interaction.user.id);
+                const stp = await playersService.stamina.get(interaction.user.id);
 
                 const baruser = getLifeBar(stp, 1000)
                 
@@ -132,13 +144,13 @@ module.exports = {
                 const combostring = `**COMBO: ${combo.map((currentcombo) => `[${currentcombo || ' '}]`).join(' ') + (' [ ] ').repeat(5-combo.length)}** ${youhasbeencombedmeuamigo ? `💥`:'' }`
 
                 if (currentmode == 1) {
-                    const infosEmbed = new svcDiscord.MessageEmbed()
+                    const infosEmbed = new Discord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`OBS: Os equipamentos são randômicos de acordo com o seu nível.\n**CAÇA AUTOMÁTICA: ${autohunt ? '✅':'❌'}**`)
                     .setImage('attachment://image.png')
 
-                    const embed = new svcDiscord.MessageEmbed()
+                    const embed = new Discord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
 
@@ -158,7 +170,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     
                     return [infosEmbed, embed]
                 } else {
-                    const embed = new svcDiscord.MessageEmbed()
+                    const embed = new Discord.MessageEmbed()
                     .setTitle(`Caçada`)
                     .setColor('#5bff45')
                     .setDescription(`
@@ -219,7 +231,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
             function getRarity(level) { 
 
-                const equipsobj = svcCompany.jobs.explore.equips.obj;
+                const equipsobj = companyService.jobs.explore.equips.obj;
 
                 const lastequiplevel = equipsobj[equipsobj.length-1].level;
 
@@ -239,7 +251,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     var rarity = 'mythic'
                 }
 
-                const rarityIcon = svcItemExtension.translateRarity(rarity)
+                const rarityIcon = itemsService.translateRarity(rarity)
                 return { rarityIcon, rarity }
             }
 
@@ -247,7 +259,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
                 try {
 
-                    let stp = await svcPlayerUtils.stamina.get(interaction.user.id);
+                    let stp = await playersService.stamina.get(interaction.user.id);
 
                     let td_ = lost
 
@@ -301,7 +313,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     ]
 
                     if (dead || b.customId == 'fight' || b.customId == 'autofight') {
-                        var huntimage = await svcImg.imagegens.get('battle.js')(dependencies, {
+                        var huntimage = await imagesService.imagegens.get('battle.js')({
         
                             avatarurl, 
                             monster,
@@ -315,7 +327,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     }
 
                     monster.csta -= td_.monster
-                    svcPlayerUtils.stamina.remove(interaction.user.id, td_.player)
+                    playersService.stamina.remove(interaction.user.id, td_.player)
 
                     return { attach: huntimage, plost }
                     
@@ -327,7 +339,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
             async function monsterlost(mo) {
 
-                let cr = svcRandom(0, 100)
+                let cr = utility.random(0, 100)
                 let array2 = mo.drops;
 
                 array2.sort(function(a, b){
@@ -337,11 +349,11 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 let drops = []
 
                 for (const r of array2) {
-					let rx = svcRandom(0, 100)
+					let rx = utility.random(0, 100)
                     if (rx < r.chance) {
-                        let d = svcItemExtension.get(r.name);
+                        let d = itemsService.get(r.name);
                         if (d) {
-                            d.size = svcRandom(1, r.maxdrops)
+                            d.size = utility.random(1, r.maxdrops)
                             drops.push(d);
                         }
                     }
@@ -351,10 +363,10 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 let descartado = []
                 let colocados = []
                 
-                let xp = svcRandom(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
-                xp = await svcPlayerUtils.execExp(interaction, xp)
+                let xp = utility.random(Math.round((mo.level+1)), Math.round((mo.level+1)*1.15))
+                xp = await playersService.execExp(interaction, xp)
                 
-                let retorno = await svcItemExtension.give(interaction, drops)
+                let retorno = await itemsService.give(interaction, drops)
 
                 descartado = retorno.descartados
                 colocados = retorno.colocados
@@ -372,12 +384,12 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     
                 }
 
-                let dropsmap = drops.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
-                let colocadosmap = colocados.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
-                let descartadosmap = descartado.sort(sortrarity).map(d => `[${svcItemExtension.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let dropsmap = drops.sort(sortrarity).map(d => `[${itemsService.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let colocadosmap = colocados.sort(sortrarity).map(d => `[${itemsService.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
+                let descartadosmap = descartado.sort(sortrarity).map(d => `[${itemsService.translateRarity(d.rarity)}] **${d.size}x ${d.icon} ${d.displayname}**`).join('\n');
 
-                let score = ((svcCompany.stars.gen())*1.2).toFixed(2)
-                svcCompany.stars.add(interaction.user.id, company.company_id, { score })
+                let score = ((companyService.stars.gen())*1.2).toFixed(2)
+                companyService.stars.add(interaction.user.id, company.company_id, { score })
 
                 losedesc = (`✅ Você ganhou a batalha! **(+${xp} XP)** ${score > 0 ? `**(+${score} ⭐)**`:''}\n \nDrops do monstro:\n${dropsmap.length > 0 ? `${dropsmap}\n \nColocados na mochila:\n${colocadosmap.length == 0 ? `Todos os itens foram descartados por sua mochila estar lotada!`:colocadosmap}\n \nDescartados:\n${descartadosmap.length == 0 ? `Nenhum item descartado`:descartadosmap}\n \nVisualize os itens colocados usando \`/mochila\``:`Sem drops`}`)
                 
@@ -387,7 +399,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 
                 losedesc = (`❌ Você perdeu a batalha!\nVocê perdeu seu progresso de xp!\nVeja seu progresso atual utilizando \`/perfil\``)
                 DatabaseManager.set(member.id, "machines", "xp", 0)
-                await svcPlayerUtils.stamina.subset(member.id, 0)
+                await playersService.stamina.subset(member.id, 0)
 
             }
             
@@ -409,8 +421,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     autohunt = true
                 }
 
-                await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'hunting')
-                await svcCacheLists.waiting.add(interaction.user.id, embedinteraction, 'working');
+                await cacheListsService.waiting.add(interaction.user.id, embedinteraction, 'hunting')
+                await cacheListsService.waiting.add(interaction.user.id, embedinteraction, 'working');
 
                 inbattle = true
                 
@@ -418,13 +430,13 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     let id = r.icon.split(':')[2].replace('>', '');
                     r.id = id
                     if (!autohunt) {
-                        equipsBtn.push(svcCreateButton(id, 'SECONDARY', '', id))
+                        equipsBtn.push(utility.createButton(id, 'SECONDARY', '', id))
                     }
                     reactequips[id] = r;
                     reactequiplist.push(id)
                 }
 
-                if (!autohunt) components = [ svcRowComponents(equipsBtn) ]
+                if (!autohunt) components = [ utility.rowComponents(equipsBtn) ]
                 
 				let firstbuild = await build({ player: 0, monster: 0 }, true)
                 
@@ -458,10 +470,10 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
 
                 if (autohunt) {
                     Object.keys(reactequips)
-                    eq = reactequips[Object.keys(reactequips)[svcRandom(0, Object.keys(reactequips).length-1)]]
+                    eq = reactequips[Object.keys(reactequips)[utility.random(0, Object.keys(reactequips).length-1)]]
                 } else {
                     if (combo.length >= 5) combo = []
-                    combo.push(svcClient.emojis.cache.get(b.customId))
+                    combo.push(clientService.current.emojis.cache.get(b.customId))
                     if (combo.length >= 5) {
                         youhasbeencombedmeuamigo = true
                     } else {
@@ -477,16 +489,16 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 }
 
                 let crit = 0;
-                let roll = svcRandom(0, 100)
+                let roll = utility.random(0, 100)
                 if (roll < eq.chance || youhasbeencombedmeuamigo) {
-                    let reroll = svcRandom(0, 50)
-                    lost.player = Math.round(eq.dmg/svcRandom(3, 4))
+                    let reroll = utility.random(0, 50)
+                    lost.player = Math.round(eq.dmg/utility.random(3, 4))
                     if (reroll < 13) lost.player = Math.round(1.5*lost.player)
-                    else if(svcRandom(0, 50) < 10 || youhasbeencombedmeuamigo) {
+                    else if(utility.random(0, 50) < 10 || youhasbeencombedmeuamigo) {
                         lost.player = 0
                         crit = Math.round(eq.dmg/2)
                     }
-                    let roll3 = svcRandom(0, 100)
+                    let roll3 = utility.random(0, 100)
                     if (roll3 <= eq.crit || youhasbeencombedmeuamigo) {
                         crit = Math.round(eq.dmg/2)
                     }
@@ -496,7 +508,7 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                     lost.player = Math.round((monster.level/1.5)+(40*eq.dmg/100))
                 }
                 
-                if (svcDebug) console.log(`${eq.name}`.yellow)
+                if (runtime.debug) console.log(`${eq.name}`.yellow)
 
 
                 let buildlost = await build(lost)
@@ -543,8 +555,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                             }
                         } catch (error) {
                             reportError(error, 'command.novaca.cleanup', { userId: interaction.user.id });
-                            await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
-                            await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                            await cacheListsService.waiting.remove(interaction.user.id, 'hunting')
+                            await cacheListsService.waiting.remove(interaction.user.id, 'working');
                             collector.stop();
                             autohunt = false
                         }
@@ -552,8 +564,8 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
                 }
 
                 if (dead) {
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                    await cacheListsService.waiting.remove(interaction.user.id, 'hunting')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     collector.stop();
                     autohunt = false
                 }
@@ -576,9 +588,9 @@ ${currinteraction ? currinteraction : ''}${autohunt && !dead ? '\n \n🤖 Caça 
         });
         
         collector.on('end', async collected => {
-            await svcCacheLists.waiting.remove(interaction.user.id, 'hunting')
-            await svcCacheLists.waiting.remove(interaction.user.id, 'working');
-            svcPlayerUtils.cooldown.set(interaction.user.id, "hunt", 0);
+            await cacheListsService.waiting.remove(interaction.user.id, 'hunting')
+            await cacheListsService.waiting.remove(interaction.user.id, 'working');
+            playersService.cooldown.set(interaction.user.id, "hunt", 0);
 
             if (dead) return
 

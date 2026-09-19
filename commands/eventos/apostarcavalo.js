@@ -1,3 +1,11 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const eventsService = require('../../_classes/services/events');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const config = require('../../_classes/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('aposta').setDescription('Selecione uma quantia de dinheiro para aposta').setRequired(true))
@@ -6,7 +14,6 @@ const Database = require('../../_classes/manager/DatabaseManager');
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","client","eco","events","format","id","money","moneyemoji","ms","sendError"],
     name: 'apostarcavalo',
     aliases: [],
     category: 'none',
@@ -14,37 +21,39 @@ module.exports = {
     data,
     mastery: 30,
     companytype: -1,
-	async execute(interaction, svcDiscord, svcClient, svcEco, svcEvents, svcFormat, svcId, svcMoney, svcMoneyemoji, svcMs, svcSendError) {
+	async execute(interaction) {
+
+                
         const total = interaction.options.getInteger('aposta');
 
         async function checkAll() {
 
-            if(!svcEvents.race.rodando) {
-                const embedtemp = await svcSendError(interaction, 'Não possui nenhuma **Corrida de Cavalos** ativa no momento!\nEm nosso servidor oficial você pode ser notificado quando há eventos! (`/convite`)')
+            if(!eventsService.race.rodando) {
+                const embedtemp = await utility.sendError(interaction, 'Não possui nenhuma **Corrida de Cavalos** ativa no momento!\nEm nosso servidor oficial você pode ser notificado quando há eventos! (`/convite`)')
                 await interaction.reply({ embeds: [embedtemp]})
                 return true
             }
 
-            const svcMoney = await svcEco.svcMoney.get(interaction.user.svcId)
+            const money = await economyService.money.get(interaction.user.id)
             
-            if (svcMoney < total) {
-                const embedtemp = await svcSendError(interaction, `Você não possui essa quantia de dinheiro para apostar!`)
+            if (money < total) {
+                const embedtemp = await utility.sendError(interaction, `Você não possui essa quantia de dinheiro para apostar!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return true
             }
 
             if (total < 1) {
-                const embedtemp = await svcSendError(interaction, `Você não pode apostar essa quantia de dinheiro!`)
+                const embedtemp = await utility.sendError(interaction, `Você não pode apostar essa quantia de dinheiro!`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return true
             }
             if (total < 1000) {
-                const embedtemp = await svcSendError(interaction, `O mínimo para apostar em cavalos é de \`1000 ${svcMoney}\` ${svcMoneyemoji}`)
+                const embedtemp = await utility.sendError(interaction, `O mínimo para apostar em cavalos é de \`1000 ${utility.money}\` ${utility.moneyemoji}`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return true
             }
             if (total > 2000000) {
-                const embedtemp = await svcSendError(interaction, `O máximo para apostar em cavalos é de \`${svcFormat(2000000)} ${svcMoney}\` ${svcMoneyemoji}`)
+                const embedtemp = await utility.sendError(interaction, `O máximo para apostar em cavalos é de \`${utility.format(2000000)} ${utility.money}\` ${utility.moneyemoji}`)
                 await interaction.reply({ embeds: [embedtemp]})
                 return true
             }
@@ -56,7 +65,7 @@ module.exports = {
 
         if (checkin) return
         
-		const embed = svcEvents.getRaceEmbed(total)
+		const embed = eventsService.getRaceEmbed(total)
         const embedinteraction = await interaction.reply({ embeds: [embed], withResponse: true });
         
         await embedinteraction.react('🟧')
@@ -64,7 +73,7 @@ module.exports = {
         await embedinteraction.react('🟪')
 
         const filter = (reaction, user) => {
-            return user.svcId === interaction.user.svcId;
+            return user.id === interaction.user.id;
         };
         
         const collector = embedinteraction.createReactionCollector({ filter, time: 20000 });
@@ -94,39 +103,39 @@ module.exports = {
                     break;
             }
 
-            const globalobj = await DatabaseManager.get(svcId, 'globals');
+            const globalobj = await DatabaseManager.get(config.app.id, 'globals');
 
             const globalevents = globalobj.events;
 
-            svcEco.svcMoney.remove(interaction.user.svcId, total)
-            svcEco.svcMoney.globaladd(total)
-            svcEco.addToHistory(user, `Aposta 🏇${reaction.emoji.name} | - ${svcFormat(total)} ${svcMoneyemoji}`)
+            economyService.money.remove(interaction.user.id, total)
+            economyService.money.globaladd(total)
+            economyService.addToHistory(user, `Aposta 🏇${reaction.emoji.name} | - ${utility.format(total)} ${utility.moneyemoji}`)
 
-            svcEvents.race.apostas[apostastring].push({ svcId: interaction.user.svcId, aposta: total })
+            eventsService.race.apostas[apostastring].push({ id: interaction.user.id, aposta: total })
 
             if (globalevents == null) {
-                DatabaseManager.set(svcId, 'globals', "events", {
-                    "race": svcEvents.race
+                DatabaseManager.set(config.app.id, 'globals', "events", {
+                    "race": eventsService.race
                 })
             } else {
-                DatabaseManager.set(svcId, 'globals', "events", {
+                DatabaseManager.set(config.app.id, 'globals', "events", {
                     ...globalevents,
-                    "race": svcEvents.race
+                    "race": eventsService.race
                 })
             }
 
-            const embed = svcEvents.getRaceEmbed(total)
+            const embed = eventsService.getRaceEmbed(total)
 
             embed.setColor('#5bff45');
             embed.addField('✅ Aposta realizada', `
-            Você fez uma aposta de \`${svcFormat(total)} ${svcMoney}\` ${svcMoneyemoji} no cavalo **🏇${reaction.emoji.name}**!\nO resultado final da corrida sairá em **${svcMs(svcEvents.race.time-(Date.now()-svcEvents.race.started), true)}** e se ganhar o valor será creditado automaticamente em seu banco!`)
+            Você fez uma aposta de \`${utility.format(total)} ${utility.money}\` ${utility.moneyemoji} no cavalo **🏇${reaction.emoji.name}**!\nO resultado final da corrida sairá em **${compactTime(eventsService.race.time-(Date.now()-eventsService.race.started))}** e se ganhar o valor será creditado automaticamente em seu banco!`)
             await interaction.editReply({ embeds: [embed], components: [] });
 
         });
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = svcEvents.getRaceEmbed(total)
+            const embed = eventsService.getRaceEmbed(total)
             embed.setColor('#a60000');
             embed.addField('❌ Tempo expirado', `Você iria realizar uma aposta na corrida de cavalos, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed], components: [] });

@@ -1,19 +1,24 @@
+const Discord = require('../_classes/discordCompat');
+const UtilityService = require('../_classes/services/utilityService');
+const utility = new UtilityService();
+const companyService = require('../_classes/services/company');
 const { reportError } = require('../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","company","createButton","rowComponents"],
     name: 'template',
     aliases: [],
     category: 'none',
     description: 'none',
-	async execute(interaction, svcDiscord, svcCompany, svcCreateButton, svcRowComponents) {        
-		const embed = new svcDiscord.MessageEmbed()
+	async execute(interaction) {
+
+                
+		const embed = new Discord.MessageEmbed()
 		.setDescription(`**Reaja com os itens abaixo p/ interação**\n \n👨🏽‍🌾 Tipos de Empresas\n \n📃 Empresas Existentes`, ``)
 
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = i => i.user.id === interaction.user.id;
         
@@ -43,9 +48,9 @@ module.exports = {
         
         collector.on('end', async collected => {
             if (reacted) return;
-            const embed = new svcDiscord.MessageEmbed();
+            const embed = new Discord.MessageEmbed();
             embed.setColor('#a60000');
-            embed.addField('❌ Tempo expirado', `Você iria enviar o currículo para a empresa **${svcCompany.e[svcCompany.types[1]].icon}**, porém o tempo expirou.`)
+            embed.addField('❌ Tempo expirado', `Você iria enviar o currículo para a empresa **${companyService.e[companyService.types[1]].icon}**, porém o tempo expirou.`)
             interaction.editReply({ embeds: [embed] });
             return;
         });

@@ -1,3 +1,9 @@
+const runtime = require('../../_classes/services/runtime');
+const clientService = require('../../_classes/services/clientService');
+const framesService = require('../../_classes/services/frames');
+const badgesService = require('../../_classes/services/badges');
+const Discord = require('../../_classes/discordCompat');
+const config = require('../../_classes/config');
 let patch = ''
 let patchobj
 const { reportError } = require('../../_classes/debug');
@@ -11,11 +17,11 @@ try {
     patchobj = customer;
   } else {
     console.log('File path is missing from patchobj!')
-    if (debug) console.log(`Error on load patch obj`);
+    if (runtime.debug) console.log(`Error on load patch obj`);
   }
 } catch (err) {
-    if (debug) console.log(`Error on load patch obj`);
-    client.emit('error', err)
+    if (runtime.debug) console.log(`Error on load patch obj`);
+    clientService.current.emit('error', err)
 }
 
 const { SlashCommandBuilder } = require('@discordjs/builders');
@@ -32,34 +38,35 @@ const options = (option) => {
 data.addStringOption(options)
 
 module.exports = {
-    requiredServices: ["Discord","badges","client","debug","frames","owner","version"],
     name: 'versão',
     aliases: ['versao', 'patch', 'att', 'temporada'],
     category: 'Outros',
     description: 'Visualize o último patch de atualizações do bot',
     data,
     mastery: 20,
-	async execute(interaction, svcDiscord, svcBadges, svcClient, svcDebug, svcFrames, svcOwner, svcVersion) {
+	async execute(interaction) {
 
-        const svcVersion = interaction.options.getString('versão')
+        const version = interaction.options.getString('versão')
 
         let patch
 
-        if (svcVersion == null) {
-            patch = svcVersion
+        if (version == null) {
+            patch = require('{root}/package.json').version
         } else {
-            patch = svcVersion
+            patch = version
         }
 
         if (!Object.keys(patchobj).includes(patch)) {
-            patch = svcVersion
+            patch = require('{root}/package.json').version
         }
 
-        const frameadded = await svcFrames.add(interaction.user.id, 15)
-        const badgeadded = await svcBadges.add(interaction.user.id, 3)
+        const frameadded = await framesService.add(interaction.user.id, 15)
+        const badgeadded = await badgesService.add(interaction.user.id, 3)
 
-        let getPatch = patchobj[patch] || patchobj[svcVersion + '']    
-        const embed = new svcDiscord.MessageEmbed()
+        let getPatch = patchobj[patch] || patchobj[require('{root}/package.json').version + '']
+
+            
+        const embed = new Discord.MessageEmbed()
         .setColor('RANDOM')
         if (getPatch.title) embed.setTitle(getPatch.title)
         embed.setDescription(`**Versão ${patch}**${getPatch.obs ? '\n'+getPatch.obs:''}`)
@@ -70,7 +77,7 @@ module.exports = {
         if (getPatch.alc && getPatch.alc.length > 0) embed.addField('(' + getPatch.alc.length + `) \`Novas alcunhas\``, getPatch.alc.map(i => `<:list:736274028179750922> ${i}`).join('\n'))
         if (getPatch.fix && getPatch.fix.length > 0) embed.addField('(' + getPatch.fix.length + `) \`Bugs fixados\``, getPatch.fix.map(i => `<:error:736274027756388353> ${i}`).join('\n'))
         .setFooter(`A cada EP novo, é resetado: Estrelas das empresas; Pontos de Maestria\nVeja um patch específico utilizando /versão <versao>\nPatchs começaram a ser contados a partir de 2.0.0 e hoje está em ${patch}`)
-        if (!svcOwner.includes(interaction.user.id)) {
+        if (!config.owner.includes(interaction.user.id)) {
             await interaction.reply({ embeds: [embed] });
         } else {
             interaction.reply('loading').then(async () => {
@@ -87,7 +94,7 @@ module.exports = {
         }
 
         if (frameadded.includes('Added') || badgeadded.includes('Added')) {
-            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, flags: svcDiscord.MessageFlags.Ephemeral })
+            interaction.followUp({ content: `${interaction.user}, você recebeu um novo frame e um novo badge de temporada!`, flags: Discord.MessageFlags.Ephemeral })
         }
         
 	}

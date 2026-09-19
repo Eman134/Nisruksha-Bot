@@ -1,44 +1,54 @@
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const cacheListsService = require('../../_classes/services/cacheLists');
+const playersService = require('../../_classes/services/players');
+const companyService = require('../../_classes/services/company');
+const itemsService = require('../../_classes/services/items');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 const { reportError } = require('../../_classes/debug');
 
 module.exports = {
-    requiredServices: ["Discord","cacheLists","client","company","createButton","itemExtension","ms","playerUtils","random","rowComponents","sendError"],
     name: 'pescar',
     aliases: ['fish'],
     category: 'none',
     description: 'Inicie uma pesca, pegue os melhores peixes e venda-os',
     mastery: 30,
     companytype: 6,
-	async execute(interaction, svcDiscord, svcCacheLists, svcClient, svcCompany, svcCreateButton, svcItemExtension, svcMs, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, company) {        
+	async execute(interaction) {
+        const company = await companyService.get.currentForUser(interaction.user.id);
+
+                        
         let pobj = await DatabaseManager.get(interaction.user.id, 'players')
         let pobj2 = await DatabaseManager.get(interaction.user.id, 'machines')
 
         if (!pobj.rod) {
-            const embedtemp = await svcSendError(interaction, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
+            const embedtemp = await utility.sendError(interaction, `Você precisa ter uma vara de pesca para poder iniciar uma pesca!\nCompre uma vara de pesca utilizando \`/pegarvara\``)
             await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
         if (pobj2.level < 3) {
-            const embedtemp = await svcSendError(interaction, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui nível o suficiente para iniciar uma pesca!\nSeu nível atual: **${pobj2.level}/3**\nVeja seu progresso atual utilizando \`/perfil\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        if (await svcCacheLists.waiting.includes(interaction.user.id, 'fishing')) {
-            const embedtemp = await svcSendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'fishing')})`)
+        if (await cacheListsService.waiting.includes(interaction.user.id, 'fishing')) {
+            const embedtemp = await utility.sendError(interaction, `Você já encontra-se pescando no momento! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        let stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
+        let stamina = await playersService.stamina.get(interaction.user.id)
         let staminamax = 1000;
         let cost = pobj.rod.sta * 5
 
         if (stamina < cost) {
             
-            const embedtemp = await svcSendError(interaction, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
+            const embedtemp = await utility.sendError(interaction, `Você precisa de no mínimo ${cost} de estamina para iniciar uma pesca\n🔸 Estamina de \`${interaction.user.tag}\`: **[${stamina}/${cost}]**`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
             
@@ -58,9 +68,9 @@ module.exports = {
 
             let buttons = []
 
-            let btn = svcCreateButton('stopBtn', 'DANGER', 'Parar pesca')
-            let btn1 = svcCreateButton('downBtn', 'SECONDARY', 'Descer anzol', '⬇')
-            let btn2 = svcCreateButton('upBtn', 'SECONDARY', 'Subir anzol', '⬆')
+            let btn = utility.createButton('stopBtn', 'DANGER', 'Parar pesca')
+            let btn1 = utility.createButton('downBtn', 'SECONDARY', 'Descer anzol', '⬇')
+            let btn2 = utility.createButton('upBtn', 'SECONDARY', 'Subir anzol', '⬆')
 
             buttons.push(btn)
             buttons.push(btn1)
@@ -69,20 +79,20 @@ module.exports = {
                 buttons.push(btn2) 
             }
 
-            return [svcRowComponents(buttons)]
+            return [utility.rowComponents(buttons)]
         }
 
-        const embed = new svcDiscord.MessageEmbed();
+        const embed = new Discord.MessageEmbed();
         embed.setTitle(`Pescando`)
         embed.setDescription(`Pescador: ${interaction.user}`);
-        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${svcCompany.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
+        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
         embed.addField(`💦 Informações da pesca`, `Nível: ${pobj2.level}\nXP: ${pobj2.xp}/${pobj2.level*1980} (${Math.round(100*pobj2.xp/(pobj2.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
-        embed.setFooter(`Tempo de atualização: ${svcCompany.jobs.fish.update} segundos\nTempo pescando: ${svcMs(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+        embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
         let embedinteraction = await interaction.reply({ embeds: [embed], components: reworkBtns(), withResponse: true });
         
-        await svcCacheLists.waiting.add(interaction.user.id, interaction, 'fishing');
-        await svcCacheLists.waiting.add(interaction.user.id, interaction, 'working');
+        await cacheListsService.waiting.add(interaction.user.id, interaction, 'fishing');
+        await cacheListsService.waiting.add(interaction.user.id, interaction, 'working');
 
         let coletados = new Map()
 
@@ -105,7 +115,7 @@ module.exports = {
           
             while (0 !== currentIndex) {
           
-              randomIndex = Math.floor(Math.svcRandom() * currentIndex);
+              randomIndex = Math.floor(Math.random() * currentIndex);
               currentIndex -= 1;
           
               temporaryValue = array[currentIndex];
@@ -157,7 +167,7 @@ module.exports = {
             }
 
             
-            const fish = svcCompany.jobs.fish.list.get(profundidades[0], profundidades[2])
+            const fish = companyService.jobs.fish.list.get(profundidades[0], profundidades[2])
             
             if (header) {
                 levels = header.levels
@@ -172,15 +182,15 @@ module.exports = {
                         let chance = 30 + (pobj.rod.stars*5)
                         if (pobj.mvp != null) chance += 10
 
-                        if (svcRandom(0, 100) < chance) {
+                        if (utility.random(0, 100) < chance) {
 
                             const capturado = fish.find((fsh) => fsh.icon == levels[xi.toString()].waterarray[0])
 
-                            retorno = await svcItemExtension.give(interaction, [capturado])
+                            retorno = await itemsService.give(interaction, [capturado])
 
                             if (retorno.descartados.length == 0 && retorno.colocados.length > 0) {
 
-                                if (svcRandom(0, 100) < 35) stars = (svcCompany.stars.gen()/2).toFixed(2)
+                                if (utility.random(0, 100) < 35) stars = (companyService.stars.gen()/2).toFixed(2)
 
                                 ca = coletados.get(capturado.icon)
 
@@ -215,7 +225,7 @@ module.exports = {
 
                     
                     if ((fish[i].profundidade >= levels[xi.toString()].profundidade) && (fish[i].profundidade <= levels[xi.toString()].profundidade*2)) {
-                        if (svcRandom(0, 100) < 50 && svcRandom(0, 220) < fish[i].chance) {
+                        if (utility.random(0, 100) < 50 && utility.random(0, 220) < fish[i].chance) {
                             levels[xi.toString()].waterarray.push(fish[i].icon)
                             break;
                         }
@@ -269,56 +279,56 @@ module.exports = {
 
                 let gastosta = 5
 
-                if (svcRandom(0, 100) < 60) gastosta = pobj.rod.sta
+                if (utility.random(0, 100) < 60) gastosta = pobj.rod.sta
 
-                let xp = svcRandom(1, 3);
-                xp = await svcPlayerUtils.execExp(interaction, xp);
+                let xp = utility.random(1, 3);
+                xp = await playersService.execExp(interaction, xp);
 
-                await svcPlayerUtils.stamina.remove(interaction.user.id, gastosta);
+                await playersService.stamina.remove(interaction.user.id, gastosta);
 
                 pobj = await DatabaseManager.get(interaction.user.id, 'players')
 
-                stamina = await svcPlayerUtils.stamina.get(interaction.user.id)
+                stamina = await playersService.stamina.get(interaction.user.id)
 
-                if (header.stars > 0 ) svcCompany.stars.add(interaction.user.id, company.company_id, { score: header.stars })
+                if (header.stars > 0 ) companyService.stars.add(interaction.user.id, company.company_id, { score: header.stars })
 
                 embed.fields = [];
                 const obj6 = await DatabaseManager.get(interaction.user.id, "machines");
-                let sta2 = await svcPlayerUtils.stamina.get(interaction.user.id);
-                embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${svcCompany.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
+                let sta2 = await playersService.stamina.get(interaction.user.id);
+                embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
                 embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%) \`(+${xp} XP)\` ${header.stars > 0 ? `**(+${header.stars} ⭐)**`:''}\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸 \`(-${gastosta})\``)
                 embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                 await embed.addField(`➰ Coletados`, ccmap)
                 if (header.retorno && header.retorno.descartados.length > 0) embed.addField(`❌ Descartados`, header.retorno.descartados.map((px) => '1x ' + px).join(inv))
-                embed.setFooter(`Tempo de atualização: ${svcCompany.jobs.fish.update} segundos\nTempo pescando: ${svcMs(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
 
                 try{
                     await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                 } catch (error) {
                     reportError(error, 'command.pescar.edit_progress', { userId: interaction.user.id });
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                    await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
                     return
                 }
 
                 if (header.retorno && header.retorno.descartados.length > 0) {
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await svcSendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
+                    await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
+                    const embedtemp = await utility.sendError(interaction, `Peixes foram descartados da sua mochila enquanto você pescava! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a mochila utilizando \`/mochila\``)
                     await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
 
                 if (sta2 < pobj.rod.sta) {
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'fishing')
-                    await svcCacheLists.waiting.remove(interaction.user.id, 'working');
-                    const embedtemp = await svcSendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${await svcCacheLists.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
+                    await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
+                    await cacheListsService.waiting.remove(interaction.user.id, 'working');
+                    const embedtemp = await utility.sendError(interaction, `Você não possui estamina para continuar pescando! [[VER PESCA]](${await cacheListsService.waiting.getLink(interaction.user.id, 'fishing')})\nVisualize a sua estamina utilizando \`/estamina\``)
                     await interaction.followUp({ embeds: [embedtemp], mention: true } )
                     return;
                 }
 
                 let reacted = false
-                const collector = embedinteraction.createMessageComponentCollector({ filter, time: svcCompany.jobs.fish.update*1000 });
+                const collector = embedinteraction.createMessageComponentCollector({ filter, time: companyService.jobs.fish.update*1000 });
 
                 collector.on('collect', async (b) => {
   
@@ -338,17 +348,17 @@ module.exports = {
                         pd = header.profundidades
 
                         embed.fields = [];
-                        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${svcCompany.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
+                        embed.addField(`${pobj.rod.icon} ${pobj.rod.name} \`${companyService.jobs.formatStars(pobj.rod.stars)}\``, `Gasto: **${pobj.rod.sta} 🔸**\nProfundidade: **${pobj.rod.profundidade}m**\nPara dar upgrade utilize \`/uparvara\``)
                         embed.addField(`💦 Informações da pesca`, `Nível: ${obj6.level}\nXP: ${obj6.xp}/${obj6.level*1980} (${Math.round(100*obj6.xp/(obj6.level*1980))}%)\nEstamina: ${stamina < 1 ? 0 : stamina}/1000 🔸`)
                         embed.addField(`🔹 Pescaria`, `${pobj.rod.icon}👤${inv.repeat(3) + '<:light:830799704463769600>'}\n${body["0"] == 1 ? anzol : inv}${body["1"].waterarray.join('')} ${pd[0]}m\n${body["0"] == 2 ? anzol : inv}${body["2"].waterarray.join('')}\n${body["0"] == 3 ? anzol : inv}${body["3"].waterarray.join('')} ${pd[1]}m\n${body["0"] == 4 ? anzol : inv}${body["4"].waterarray.join('')}\n${body["0"] == 5 ? anzol : inv}${body["5"].waterarray.join('')} ${pd[2]}m`)
                         await embed.addField(`➰ Coletados`, ccmap)
-                        embed.setFooter(`Tempo de atualização: ${svcCompany.jobs.fish.update} segundos\nTempo pescando: ${svcMs(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
+                        embed.setFooter(`Tempo de atualização: ${companyService.jobs.fish.update} segundos\nTempo pescando: ${utility.ms(Date.now()-init)}`, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }));
                         try{
                             await embedinteraction.edit({ embeds: [embed], components: reworkBtns() })
                         } catch (error) {
                             reportError(error, 'command.pescar.cleanup', { userId: interaction.user.id });
-                            await svcCacheLists.waiting.remove(interaction.user.id, 'fishing')
-                            await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                            await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
+                            await cacheListsService.waiting.remove(interaction.user.id, 'working');
                             return
                         }
                     }
@@ -357,8 +367,8 @@ module.exports = {
                 collector.on('end', async collected => {
                     await embedinteraction.edit({ embeds: [embed], components: [] })
                     if (reacted) {
-                        await svcCacheLists.waiting.remove(interaction.user.id, 'fishing')
-                        await svcCacheLists.waiting.remove(interaction.user.id, 'working');
+                        await cacheListsService.waiting.remove(interaction.user.id, 'fishing')
+                        await cacheListsService.waiting.remove(interaction.user.id, 'working');
                         await embedinteraction.edit({ embeds: [embed], components: [] })
 
                     } else {
@@ -367,7 +377,7 @@ module.exports = {
                 });
                 
             }catch (err){
-                svcClient.emit('error', err)
+                clientService.current.emit('error', err)
             }
         }
 

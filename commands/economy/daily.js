@@ -1,17 +1,24 @@
+const Discord = require('../../_classes/discordCompat');
+const playersService = require('../../_classes/services/players');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const economyService = require('../../_classes/services/economy');
+const crateExtensionService = require('../../_classes/services/crateExtension');
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","crateExtension","eco","format","money2","money2emoji","moneyemoji","playerUtils"],
     name: 'daily',
     aliases: ['daily'],
     category: 'Economia',
     description: 'Receba uma recompensa diária e aumente seu streak',
-	async execute(interaction, svcDiscord, svcCrateExtension, svcEco, svcFormat, svcMoney2, svcMoney2emoji, svcMoneyemoji, svcPlayerUtils) {
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.id, "daily");
+	async execute(interaction) {
+
+        
+        const check = await playersService.cooldown.check(interaction.user.id, "daily");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'daily', 'resgatar sua recompensa diária')
+            playersService.cooldown.message(interaction, 'daily', 'resgatar sua recompensa diária')
 
             return;
         }
@@ -27,7 +34,7 @@ module.exports = {
             streak = 0
         } else {
 
-            const check2 = await svcPlayerUtils.cooldown.check(interaction.user.id, "breakstreak");
+            const check2 = await playersService.cooldown.check(interaction.user.id, "breakstreak");
             if (!check2) {
                 streak = 0
             }
@@ -58,17 +65,17 @@ module.exports = {
             cristal = 1
         }
         
-		const embed = new svcDiscord.MessageEmbed()
+		const embed = new Discord.MessageEmbed()
         .setColor(colors[streak] || colors["10"])
-        .setDescription(`Você recebeu \`${reward}\` ${svcMoneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${svcMoney2}\` ${svcMoney2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
-        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ svcFormat: 'png', dynamic: true, size: 1024 }))
+        .setDescription(`Você recebeu \`${reward}\` ${utility.moneyemoji}${cristal > 0 ? `${obj.mvp ? ',':' e'} \`1 ${utility.money2}\` ${utility.money2emoji}`:''}${obj.mvp ? ' e **2x 📦 Caixa comum** ':''} de recompensa diária\nVolte em 24 horas para receber a recompensa\nnovamente e aumentar o seu streak!\n**Streak atual: ${streak}**`)
+        .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
         await interaction.reply({ embeds: [embed] });
-        svcEco.money.add(interaction.user.id, reward)
-        svcEco.points.add(interaction.user.id, cristal)
+        economyService.money.add(interaction.user.id, reward)
+        economyService.points.add(interaction.user.id, cristal)
         DatabaseManager.set(interaction.user.id, "players", "streak", streak)
-        svcEco.addToHistory(interaction.user.id, `Recompensa diária | + ${svcFormat(reward)} ${svcMoneyemoji}`)
-        svcPlayerUtils.cooldown.set(interaction.user.id, "daily", 86400);
-        svcPlayerUtils.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
-        if (obj.perm >= 3)svcCrateExtension.give(interaction.user.id, 1, 2)
+        economyService.addToHistory(interaction.user.id, `Recompensa diária | + ${utility.format(reward)} ${utility.moneyemoji}`)
+        playersService.cooldown.set(interaction.user.id, "daily", 86400);
+        playersService.cooldown.set(interaction.user.id, "breakstreak", 86400*2);
+        if (obj.perm >= 3)crateExtensionService.give(interaction.user.id, 1, 2)
 	},
 };

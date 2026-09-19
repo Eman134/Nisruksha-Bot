@@ -1,6 +1,27 @@
-module.exports = function createModule(dependencies) {
-    const { Discord, cacheLists, client, db, debug, getFormatedDate, id, itemExtension, ms, random, setCompanieInfo, shopExtension, townExtension } = dependencies;
-const DatabaseManager = db;
+const Discord = require('../discordCompat');
+const DatabaseManagerClass = require('../manager/DatabaseManager');
+const cacheLists = require('./cacheLists');
+const clientService = require('./clientService');
+const companyInfo = require('./companyInfo');
+const itemExtension = require('./items');
+const shopExtension = require('./shop');
+const townsService = require('./towns');
+const config = require('../config');
+const runtime = require('./runtime');
+const UtilityService = require('./utilityService');
+class CompanyService {
+constructor() {
+const DatabaseManager = new DatabaseManagerClass();
+const client = new Proxy({}, { get: (_target, property) => clientService.current?.[property] });
+const debug = runtime.debug;
+const utility = new UtilityService();
+const getFormatedDate = utility.getFormatedDate.bind(utility);
+const id = config.app.id;
+const ms = utility.ms.bind(utility);
+const random = utility.random.bind(utility);
+const setCompanieInfo = companyInfo.set.bind(companyInfo);
+const townExtension = townsService;
+const company = this;
 const debugmode = false
 
 const stars = {};
@@ -179,6 +200,12 @@ get.idByOwner = async function(user_id) {
     let result = res.company_id
 
     return result;
+}
+
+get.currentForUser = async function(user_id) {
+    const player = await DatabaseManager.get(user_id, 'players');
+    if (player.company != null) return get.companyById(player.company);
+    return get.companyByOwnerId(user_id);
 }
 
 get.companyByOwnerId = async function(user_id) {
@@ -910,7 +937,7 @@ const jobs = {
 
 }
 
-const company = {
+Object.assign(company, {
     check,
     get,
     stars,
@@ -961,7 +988,7 @@ const company = {
         6: 'pescaria',
         7: 'processamento'
     }
-};
+});
 
 company.create = async function(member, ob) {
     async function gen() {
@@ -1025,5 +1052,7 @@ company.create = async function(member, ob) {
 
 }
 
-return company;
-};
+}
+}
+
+module.exports = new CompanyService();

@@ -1,7 +1,13 @@
+const clientService = require('../../_classes/services/clientService');
+const companyService = require('../../_classes/services/company');
+const townsService = require('../../_classes/services/towns');
+const Discord = require('../../_classes/discordCompat');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
 
 const { reportError } = require('../../_classes/debug');
 
-async function formatList(dependencies, embed2, page2) {
+async function formatList(embed2, page2) {
 
     embed2.setColor('#4870c7')
     let page = page2
@@ -9,7 +15,7 @@ async function formatList(dependencies, embed2, page2) {
     try {
         array = (await DatabaseManager.findMany('companies')).filter((x) => x.company_id != null && x.company_id != '');
     } catch (error) {
-        client.emit('error', err)
+        clientService.current.emit('error', err)
         throw error
     }
 
@@ -36,10 +42,10 @@ async function formatList(dependencies, embed2, page2) {
             array = array.slice((page*6)-6, page*6);
             
             for (const r of array) {
-                let owner = await client.users.fetch(r.user_id);
+                let owner = await clientService.current.users.fetch(r.user_id);
                 let vagas = await companyService.check.hasVacancies(r.company_id);
                 let func = (r.workers == null ? `0/${await companyService.get.maxWorkers(r.company_id)}`: `${r.workers.length}/${await companyService.get.maxWorkers(r.company_id)}`)
-                let locname = townService.getTownNameByNum(r.loc)
+                let locname = townsService.getTownNameByNum(r.loc)
                 let curriculum = r.curriculum == null ? 0 : r.curriculum.length;
                 embed2.addField(`${companyService.e[companyService.types[r.type]].icon} ${r.name} [⭐ ${r.score.toFixed(2)}]`, `Setor: ${companyService.e[companyService.types[r.type]].icon} **${companyService.types[r.type].charAt(0).toUpperCase() + companyService.types[r.type].slice(1)}**\nFundador: ${owner} (\`${owner.id}\`)\nCódigo: **${r.company_id}**\nLocalização: **${locname}**\nTaxa de venda: ${r.taxa}%\nFuncionários: ${func}\nCurrículos pendentes: ${curriculum}/10\nVagas abertas: ${vagas == true ? `🟢 \`/enviarcurriculo ${r.company_id}\``: `🔴`}`);
             }
@@ -57,17 +63,17 @@ const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('página').setDescription('Digite o número da página para pesquisar empresas').setRequired(false))
 
 module.exports = {
-    requiredServices: ["Discord","client","company","createButton","rowComponents","townExtension"],
     name: 'empresas',
     aliases: ['companies'],
     category: 'Empresas',
     description: 'Visualiza as empresas existentes',
     data,
     mastery: 30,
-	async execute(interaction, svcDiscord, svcClient, svcCompany, svcCreateButton, svcRowComponents, svcTownExtension) {
+	async execute(interaction) {
 
-        const página = interaction.options.getString('página')
-        const embed = new svcDiscord.MessageEmbed()
+        const página = interaction.options.getString('página')
+		
+        const embed = new Discord.MessageEmbed()
 
         let components
 
@@ -76,19 +82,19 @@ module.exports = {
             const butnList = []
             components = []
       
-            butnList.push(svcCreateButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
-            butnList.push(svcCreateButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
+            butnList.push(utility.createButton('backward', 'PRIMARY', '', '852241487064596540', (currentpage == 1 ? true : false)))
+            butnList.push(utility.createButton('forward', 'PRIMARY', '', '737370913204600853', (currentpage == totalpages ? true : false)))
 
-            components.push(svcRowComponents(butnList))
+            components.push(utility.rowComponents(butnList))
       
             return components
       
         }
         let returned
         if (página != null && página > 0) {
-            returned = await formatList(dependencies, embed, página);
+            returned = await formatList(embed, página);
         } else {
-            returned = await formatList(dependencies, embed, 1);
+            returned = await formatList(embed, 1);
         }
 
         let currentpage = returned.currentpage
@@ -118,7 +124,7 @@ module.exports = {
 
             reworkButtons({ currentpage, totalpages })
             
-            returned = await formatList(dependencies, embed, currentpage);
+            returned = await formatList(embed, currentpage);
            
             interaction.editReply({ embeds: [embed], components });
 

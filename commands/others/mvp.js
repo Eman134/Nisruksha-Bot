@@ -1,18 +1,25 @@
+const compactTime = (value) => utility.ms(value, true);
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const runtime = require('../../_classes/services/runtime');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
 const Database = require("../../_classes/manager/DatabaseManager");
 const DatabaseManager = new Database();
 
 module.exports = {
-    requiredServices: ["Discord","client","debug","ms"],
     name: 'mvp',
     aliases: ['vip'],
     category: 'Outros',
     description: 'Veja as vantagens e caso você tenha um MVP veja o tempo restante',
     mastery: 15,
-	async execute(interaction, svcDiscord, svcClient, svcDebug, svcMs) {                
-                const embed = new svcDiscord.MessageEmbed()
+	async execute(interaction) {
+
+                                                
+                const embed = new Discord.MessageEmbed()
                 .setAuthor(interaction.user.tag, interaction.user.displayAvatarURL({ format: 'png', dynamic: true, size: 1024 }))
                 .setTitle(`Doe para o nosso projeto`)
-                .setThumbnail(svcClient.user.displayAvatarURL())
+                .setThumbnail(client.user.displayAvatarURL())
                 .addField(`<:list:736274028179750922> Quais as vantagens?`, `
 \`1.\` Energia recarrega mais rápido
 \`2.\` Cor de destaque MVP no seu perfil
@@ -39,9 +46,9 @@ OBS: As vantagens são ativas enquanto você possui um MVP!
 `).setTimestamp()
 
             let pobj = await DatabaseManager.get(interaction.user.id, 'players')
-            if (svcDebug)console.log(Date.now()-pobj.mvp)
+            if (runtime.debug)console.log(Date.now()-pobj.mvp)
             if (pobj.mvp != null) {
-                embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${svcMs((Date.now()-pobj.mvp)*-1, true)}**`)
+                embed.addField(`<:info:736274028515295262> Informações do seu MVP`, `Tempo restante: **${compactTime((Date.now()-pobj.mvp)*-1)}**`)
             }
 
             if (interaction.replied) return interaction.channel.send({ embeds: [embed]})

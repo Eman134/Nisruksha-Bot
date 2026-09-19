@@ -1,13 +1,14 @@
+const clientService = require('../../_classes/services/clientService');
+const config = require('../../_classes/config');
 module.exports = {
-    requiredServices: ["client","id"],
     name: 'reloadslash',
     aliases: ['loadslash', 'reloadsl'],
     category: 'none',
     description: 'Dá reload nos comandos de slash',
     options: [],
-	async execute(interaction, svcClient, svcId) {
+	async execute(interaction) {
 
-        svcClient.loadSlashCommands({ force: true, svcId: svcId })
+        clientService.current.loadSlashCommands({ force: true, id: config.app.id })
 
         interaction.reply({ content: 'Comandos de Slash foram recarregados com sucesso!' })
 

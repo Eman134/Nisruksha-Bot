@@ -1,3 +1,11 @@
+const Discord = require('../../_classes/discordCompat');
+const clientService = require('../../_classes/services/clientService');
+const playersService = require('../../_classes/services/players');
+const UtilityService = require('../../_classes/services/utilityService');
+const utility = new UtilityService();
+const townsService = require('../../_classes/services/towns');
+const economyService = require('../../_classes/services/economy');
+const config = require('../../_classes/config');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { reportError } = require('../../_classes/debug');
 const Database = require('../../_classes/manager/DatabaseManager');
@@ -7,18 +15,19 @@ const data = new SlashCommandBuilder()
 .addIntegerOption(option => option.setName('fichas').setDescription('Selecione uma quantia de fichas para aposta').setRequired(true))
 
 module.exports = {
-    requiredServices: ["Discord","client","createButton","eco","format","id","money3","money3emoji","playerUtils","random","rowComponents","sendError","townExtension"],
     name: 'girar',
     aliases: ['flip'],
     category: 'Jogos',
     description: 'Aposte em cara ou coroa e duplique suas fichas',
     data,
     mastery: 10,
-	async execute(interaction, svcDiscord, svcClient, svcCreateButton, svcEco, svcFormat, svcId, svcMoney3, svcMoney3emoji, svcPlayerUtils, svcRandom, svcRowComponents, svcSendError, svcTownExtension) {
-        const check = await svcPlayerUtils.cooldown.check(interaction.user.svcId, "flip");
+	async execute(interaction) {
+
+                
+        const check = await playersService.cooldown.check(interaction.user.id, "flip");
         if (check) {
 
-            svcPlayerUtils.cooldown.message(interaction, 'flip', 'apostar um giro contra um membro')
+            playersService.cooldown.message(interaction, 'flip', 'apostar um giro contra um membro')
 
             return;
         }
@@ -26,70 +35,70 @@ module.exports = {
         const aposta = interaction.options.getInteger('fichas');
         const member = interaction.options.getUser('membro')
         
-        if (member.svcId == interaction.user.svcId) {
-            const embedtemp = await svcSendError(interaction, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')
+        if (member.id == interaction.user.id) {
+            const embedtemp = await utility.sendError(interaction, 'Você precisa mencionar outra pessoa para usar o flip', 'girar @membro <quantia | tudo>')
             await interaction.reply({ embeds: [embedtemp]})
             return
         }
 
-        const townauthor = await svcTownExtension.getTownName(interaction.user.svcId)
-        const townmember = await svcTownExtension.getTownName(member.svcId)
+        const townauthor = await townsService.getTownName(interaction.user.id)
+        const townmember = await townsService.getTownName(member.id)
 
-        if (!(svcTownExtension.games[townauthor].includes('flip'))) {
-            const embedtemp = await svcSendError(interaction, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${svcTownExtension.games[townauthor].join(', ')}.**`)
+        if (!(townsService.games[townauthor].includes('flip'))) {
+            const embedtemp = await utility.sendError(interaction, `A casa de jogos da sua vila não possui o jogo **FLIP**!\nJogos disponíveis na sua vila: **${townsService.games[townauthor].join(', ')}.**`)
 			await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        if (!(svcTownExtension.games[townmember].includes('flip'))) {
-            const embedtemp = await svcSendError(interaction, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${svcTownExtension.games[townmember].join(', ')}.**`)
+        if (!(townsService.games[townmember].includes('flip'))) {
+            const embedtemp = await utility.sendError(interaction, `A casa de jogos de ${member} não possui o jogo **FLIP**!\nJogos disponíveis na vila do mesmo: **${townsService.games[townmember].join(', ')}.**`)
 			await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         if (aposta < 1) {
-            const embedtemp = await svcSendError(interaction, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
+            const embedtemp = await utility.sendError(interaction, `A quantia mínima de apostas é de 1 ficha!`, `girar @membro <aposta>`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
         if (aposta > 5000) {
-            const embedtemp = await svcSendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
+            const embedtemp = await utility.sendError(interaction, `A quantia máxima de apostas é de 5000 fichas!`, `girar @membro <aposta>`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
-        const token = await svcEco.token.get(interaction.user.svcId)
+        const token = await economyService.token.get(interaction.user.id)
 
         if (token < aposta) {
-            const embedtemp = await svcSendError(interaction, `Você não possui \`${aposta} ${svcMoney3}\` ${svcMoney3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+            const embedtemp = await utility.sendError(interaction, `Você não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
-        const tokenmember = await svcEco.token.get(member.svcId)
+        const tokenmember = await economyService.token.get(member.id)
 
         if (tokenmember < aposta) {
-            const embedtemp = await svcSendError(interaction, `O membro ${member} não possui \`${aposta} ${svcMoney3}\` ${svcMoney3emoji} para apostar!`)
+            const embedtemp = await utility.sendError(interaction, `O membro ${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!`)
             await interaction.reply({ embeds: [embedtemp]})
             return;
         }
 
         let confirm = {}
 
-        confirm[interaction.user.svcId] = '<a:loading:736625632808796250>'
-        confirm[member.svcId] = '<a:loading:736625632808796250>'
+        confirm[interaction.user.id] = '<a:loading:736625632808796250>'
+        confirm[member.id] = '<a:loading:736625632808796250>'
 
-        svcPlayerUtils.cooldown.set(interaction.user.svcId, "flip", 60);
-        svcPlayerUtils.cooldown.set(member.svcId, "flip", 60);
+        playersService.cooldown.set(interaction.user.id, "flip", 60);
+        playersService.cooldown.set(member.id, "flip", 60);
 
-        const embed = new svcDiscord.MessageEmbed()
+        const embed = new Discord.MessageEmbed()
         .setTitle('Giro')
         .setColor('#42e3d0')
-		.setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.svcId]}\n${member} ${confirm[member.svcId]}`)
+		.setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
+        .addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}`)
         
-        const btn0 = svcCreateButton('confirm', 'SECONDARY', '', '✅')
-        const btn1 = svcCreateButton('cancel', 'SECONDARY', '', '❌')
+        const btn0 = utility.createButton('confirm', 'SECONDARY', '', '✅')
+        const btn1 = utility.createButton('cancel', 'SECONDARY', '', '❌')
 
-        let embedinteraction = await interaction.reply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])], withResponse: true });
+        let embedinteraction = await interaction.reply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])], withResponse: true });
 
         const filter = (button) => true
 
@@ -99,47 +108,47 @@ module.exports = {
 
         collector.on('collect', async (b) => {
 
-            if (!(b.user.svcId === interaction.user.svcId || b.user.svcId === member.svcId)) return
+            if (!(b.user.id === interaction.user.id || b.user.id === member.id)) return
             collector.resetTimer()
-            svcPlayerUtils.cooldown.set(interaction.user.svcId, "flip", 60);
-            svcPlayerUtils.cooldown.set(member.svcId, "flip", 60);
-            reacted[b.user.svcId] = true
+            playersService.cooldown.set(interaction.user.id, "flip", 60);
+            playersService.cooldown.set(member.id, "flip", 60);
+            reacted[b.user.id] = true
             if (b.customId == 'cancel'){
-                confirm[b.user.svcId] = '❌'
+                confirm[b.user.id] = '❌'
             } else {
-                confirm[b.user.svcId] = '✅'
+                confirm[b.user.id] = '✅'
             }
 
             if (b && !b.deferred) b.deferUpdate().catch((error) => { throw reportError(error, 'command.flip.defer_update'); });
 
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             .setTitle('Giro')
             .setColor('#a60000')
-            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
-            if (confirm[interaction.user.svcId] == '<a:loading:736625632808796250>' || confirm[member.svcId] == '<a:loading:736625632808796250>') {
-                embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.svcId]}\n${member} ${confirm[member.svcId]}`)
-                return interaction.editReply({ embeds: [embed], components: [svcRowComponents([btn0, btn1])] })
+            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
+            if (confirm[interaction.user.id] == '<a:loading:736625632808796250>' || confirm[member.id] == '<a:loading:736625632808796250>') {
+                embed.addField('<a:loading:736625632808796250> Aguardando confirmações', `${interaction.user} ${confirm[interaction.user.id]}\n${member} ${confirm[member.id]}`)
+                return interaction.editReply({ embeds: [embed], components: [utility.rowComponents([btn0, btn1])] })
             }
 
             collector.stop()
-            if (confirm[interaction.user.svcId] == '❌' && confirm[member.svcId] == '❌') {
+            if (confirm[interaction.user.id] == '❌' && confirm[member.id] == '❌') {
                 embed.addField('❌ Aposta cancelada', `Os dois jogadores cancelaram a aposta!`)
-            } else if (confirm[interaction.user.svcId] == '❌') {
+            } else if (confirm[interaction.user.id] == '❌') {
                 embed.addField('❌ Aposta cancelada', `O membro ${interaction.user} cancelou a aposta!`)
-            } else if (confirm[member.svcId] == '❌') {
+            } else if (confirm[member.id] == '❌') {
                 embed.addField('❌ Aposta cancelada', `O membro ${member} não aceitou a aposta!`)
-            } else if (confirm[interaction.user.svcId] == '✅' && confirm[member.svcId] == '✅') {
+            } else if (confirm[interaction.user.id] == '✅' && confirm[member.id] == '✅') {
 
-                const token = await svcEco.token.get(interaction.user.svcId)
+                const token = await economyService.token.get(interaction.user.id)
 
                 if (token < aposta) {
-                    embed.addField('❌ Aposta cancelada', `${interaction.user} não possui \`${aposta} ${svcMoney3}\` ${svcMoney3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+                    embed.addField('❌ Aposta cancelada', `${interaction.user} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
                     return interaction.editReply({ embeds: [embed], components: [] });
                 }
-                const tokenmember = await svcEco.token.get(member.svcId)
+                const tokenmember = await economyService.token.get(member.id)
 
                 if (tokenmember < aposta) {
-                    embed.addField('❌ Aposta cancelada', `${member} não possui \`${aposta} ${svcMoney3}\` ${svcMoney3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
+                    embed.addField('❌ Aposta cancelada', `${member} não possui \`${aposta} ${utility.money3}\` ${utility.money3emoji} para apostar!\nCompre suas fichas na loja \`/loja fichas\``)
                     return interaction.editReply({ embeds: [embed], components: [] });
                 }
 
@@ -147,29 +156,29 @@ module.exports = {
                 let response = "cara"
                 let lado = "cara"
 
-                const rd = svcRandom(0, 100)
+                const rd = utility.random(0, 100)
 
                 if (rd < 50) response = "coroa"
 
                 if (response == lado) { // Author ganhou
-                    fresponse += `Caiu em **CARA** e ${interaction.user} foi o ganhador das \`${svcFormat(aposta)} ${svcMoney3}\` ${svcMoney3emoji}`
-                    svcEco.token.add(interaction.user.svcId, aposta);
-                    svcEco.token.remove(member.svcId, aposta);
+                    fresponse += `Caiu em **CARA** e ${interaction.user} foi o ganhador das \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}`
+                    economyService.token.add(interaction.user.id, aposta);
+                    economyService.token.remove(member.id, aposta);
 
-                    svcEco.addToHistory(interaction.user.svcId, `Flip ${member} | + ${svcFormat(aposta)} ${svcMoney3emoji}`);
-                    svcEco.addToHistory(member.svcId, `Flip ${interaction.user} | - ${svcFormat(aposta)} ${svcMoney3emoji}`);
+                    economyService.addToHistory(interaction.user.id, `Flip ${member} | + ${utility.format(aposta)} ${utility.money3emoji}`);
+                    economyService.addToHistory(member.id, `Flip ${interaction.user} | - ${utility.format(aposta)} ${utility.money3emoji}`);
                 } else { // Membro ganhou
-                    fresponse += `Caiu em **COROA** e ${member} foi o ganhador das \`${svcFormat(aposta)} ${svcMoney3}\` ${svcMoney3emoji}`
-                    svcEco.token.add(member.svcId, aposta);
-                    svcEco.token.remove(interaction.user.svcId, aposta);
+                    fresponse += `Caiu em **COROA** e ${member} foi o ganhador das \`${utility.format(aposta)} ${utility.money3}\` ${utility.money3emoji}`
+                    economyService.token.add(member.id, aposta);
+                    economyService.token.remove(interaction.user.id, aposta);
 
-                    svcEco.addToHistory(member.svcId, `Flip ${interaction.user} | + ${svcFormat(aposta)} ${svcMoney3emoji}`);
-                    svcEco.addToHistory(interaction.user.svcId, `Flip ${member} | - ${svcFormat(aposta)} ${svcMoney3emoji}`);
+                    economyService.addToHistory(member.id, `Flip ${interaction.user} | + ${utility.format(aposta)} ${utility.money3emoji}`);
+                    economyService.addToHistory(interaction.user.id, `Flip ${member} | - ${utility.format(aposta)} ${utility.money3emoji}`);
                 }
                 
                 async function applyBet(rd) {
 
-                    const globalobj = await DatabaseManager.get(svcId, 'globals');
+                    const globalobj = await DatabaseManager.get(config.app.id, 'globals');
                     
                     const bets = globalobj.bets
 
@@ -184,7 +193,7 @@ module.exports = {
                     jsonbet.flip.unshift(rd)
                     jsonbet.flip = jsonbet.flip.slice(0, 100)
             
-                    DatabaseManager.set(svcId, 'globals', 'bets', jsonbet)
+                    DatabaseManager.set(config.app.id, 'globals', 'bets', jsonbet)
 
                     let chancemedia = 0
             
@@ -198,8 +207,8 @@ module.exports = {
                 const chances = await applyBet(rd, response) 
                 embed.setColor('#5bff45');
                 embed.addField('✅ Aposta realizada', fresponse + (chances ? `\nChances: \`${chances} cara/coroa\``:''))
-                svcPlayerUtils.cooldown.set(interaction.user.svcId, "flip", 0);
-                svcPlayerUtils.cooldown.set(member.svcId, "flip", 0);
+                playersService.cooldown.set(interaction.user.id, "flip", 0);
+                playersService.cooldown.set(member.id, "flip", 0);
             }
             
             interaction.editReply({ embeds: [embed], components: [] });
@@ -207,14 +216,14 @@ module.exports = {
         });
         
         collector.on('end', async collected => {
-            svcPlayerUtils.cooldown.set(interaction.user.svcId, "flip", 0);
-            svcPlayerUtils.cooldown.set(member.svcId, "flip", 0);
-            if (reacted[interaction.user.svcId] == true && reacted[member.svcId] == true) return;
+            playersService.cooldown.set(interaction.user.id, "flip", 0);
+            playersService.cooldown.set(member.id, "flip", 0);
+            if (reacted[interaction.user.id] == true && reacted[member.id] == true) return;
 
-            const embed = new svcDiscord.MessageEmbed()
+            const embed = new Discord.MessageEmbed()
             .setTitle('Giro')
             .setColor('#a60000')
-            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${svcMoney3}\` ${svcMoney3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
+            .setDescription(`O membro ${interaction.user} iniciou uma aposta contra ${member} valendo \`${aposta} ${utility.money3}\` ${utility.money3emoji}\nCaso a moeda caia em **CARA**, ${interaction.user} vence. Se a moeda cair em **COROA**, ${member} será o vencedor da aposta.`)
             .addField('❌ Tempo expirado', `Um jogador não aceitou ou negou a aposta em tempo suficiente, a aposta foi cancelada!`)
             interaction.editReply({ embeds: [embed], components: [] });
 
